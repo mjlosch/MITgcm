@@ -153,6 +153,9 @@ C--  Seaice-Dynamics parameters
       ENDIF
       CALL WRITE_0D_RL( SEAICEbasalDragK2 ,INDEX_NONE,
      &     'SEAICEbasalDragK2 =', ' /* Basal drag parameter */')
+      CALL WRITE_0D_L ( SEAICEuseDynDepth, INDEX_NONE,
+     &     'SEAICEuseDynDepth =',
+     &     ' /* include surface elevation in tot. depth */')
 #endif /* SEAICE_ALLOW_BOTTOMDRAG */
       CALL WRITE_0D_L ( SEAICEuseTilt, INDEX_NONE,
      & 'SEAICEuseTilt     =', ' /* include surface tilt in dyna. */')

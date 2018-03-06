@@ -123,7 +123,7 @@ C--   SEAICE parameters
      & JFNKgamma_lin_min,JFNKgamma_lin_max,
      & SEAICE_JFNKepsilon, SEAICE_OLx, SEAICE_OLy,
      & SEAICE_JFNKphi, SEAICE_JFNKalpha, SEAICEuseIMEX, SEAICEuseBDF2,
-     & SEAICEuseLinRemapITD, 
+     & SEAICEuseLinRemapITD, SEAICEuseDynDepth,
      & useHibler79IceStrength, SEAICEpartFunc, SEAICEredistFunc,
      & SEAICEridgingIterMax, SEAICEsimpleRidging, SEAICEsnowFracRidge,
      & SEAICEgStar, SEAICEhStar, SEAICEaStar, SEAICEshearParm,
@@ -379,6 +379,7 @@ C     basal drag parameters following Lemieux et al. (2015)
       SEAICEbasalDragK1 =  8. _d 0
       SEAICEbasalDragK2 =  0. _d 0
 C     Lemieux et al. (2015) recommend: SEAICEbasalDragK2 = 15. _d 0
+      SEAICEuseDynDepth = .FALSE.
 C     
       SEAICE_wetAlbTemp  = -1. _d -3
 #ifdef SEAICE_EXTERNAL_FLUXES

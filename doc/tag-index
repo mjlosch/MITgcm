@@ -1,6 +1,11 @@
     Notes on tags used in MITgcmUV
     ==============================
 
+o pkg/seaice:
+  - extend add basal stress parameterisation for grounding ice
+  - allow using the entire water column abs(R_low) + etaN for computing
+    the critical depth hCrit
+
 o pkg/aim_v23:
   - change parameter "aim_abs_pCO2" default value (used if aim_select_pCO2=1,3)
     to calibrated value (from David Ferreira).

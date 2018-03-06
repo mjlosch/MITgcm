@@ -63,6 +63,8 @@ C                          Connolley et al. (2004), JPO. (default = .false.)
 C     SEAICEsimpleRidging :: use Hibler(1979) ridging (default=.true.)
 C     SEAICEuseLinRemapITD :: use linear remapping (Lipscomb et al. 2001)
 C                             .TRUE. by default
+C     SEAICEuseDynDepth :: use complete depth abs(R_low) + etaN for computing
+C                          basal/bottom drag for fast ice parameterization
 C - advection:
 C     SEAICEuseFluxForm :: use flux form for advection and diffusion
 C                          of seaice
@@ -119,7 +121,7 @@ C     SEAICE_mon_mnc    :: write monitor to netcdf file
      &     SEAICEuseJFNK, SEAICEuseIMEX, SEAICEuseBDF2,
      &     SEAICEusePicardAsPrecon,
      &     useHibler79IceStrength, SEAICEsimpleRidging,
-     &     SEAICEuseLinRemapITD,
+     &     SEAICEuseLinRemapITD, SEAICEuseDynDepth,
      &     SEAICEuseTEM, SEAICEuseTilt, SEAICEuseMetricTerms,
      &     SEAICE_no_slip, SEAICE_2ndOrderBC, 
      &     SEAICE_maskRHS, SEAICEscaleSurfStress,
@@ -147,7 +149,7 @@ C     SEAICE_mon_mnc    :: write monitor to netcdf file
      &     SEAICEuseJFNK, SEAICEuseIMEX, SEAICEuseBDF2, 
      &     SEAICEusePicardAsPrecon,
      &     useHibler79IceStrength, SEAICEsimpleRidging,
-     &     SEAICEuseLinRemapITD,
+     &     SEAICEuseLinRemapITD, SEAICEuseDynDepth,
      &     SEAICEuseTEM, SEAICEuseTilt, SEAICEuseMetricTerms,
      &     SEAICE_no_slip, SEAICE_2ndOrderBC,
      &     SEAICE_maskRHS, SEAICEscaleSurfStress,

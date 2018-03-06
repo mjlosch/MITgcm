@@ -74,7 +74,8 @@ C     i,j,bi,bj,ksrf :: loop indices
 #ifdef SEAICE_ITD
       INTEGER k
 #endif /* SEAICE_ITD */
-      _RL     tmpFld(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL     dynDepth(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL     tmpFld  (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL     tmp, hActual, hCrit, recip_k1, u0sq, fac, rFac
 CEOP
 
@@ -94,8 +95,16 @@ C     fac scales the soft maximum for more accuracy
          DO i=1-OLx,sNx+OLy
           CbotC(I,J,bi,bj) = 0. _d 0
           tmpFld(I,J)      = 0. _d 0
+          dynDepth(I,J)    = ABS(R_low(I,J,bi,bj))
          ENDDO
         ENDDO
+        IF ( SEAICEuseDynDepth ) THEN
+         DO j=1-OLy,sNy+Oly
+          DO i=1-OLx,sNx+OLy
+           dynDepth(I,J)    = ABS(R_low(I,J,bi,bj))+etaN(I,J,bi,bj)
+          ENDDO
+         ENDDO
+        ENDIF
         DO j=1-OLy,sNy+Oly-1
          DO i=1-OLx,sNx+OLy-1
           IF ( AREA(I,J,bi,bj) .GT. 0.01 _d 0 ) THEN
@@ -129,10 +138,10 @@ CML           hCrit   = ABS(R_low(I,J,bi,bj)) * recip_k1
 #ifdef SEAICE_ITD
             hActual = HEFFITD(I,J,k,bi,bj)
 C     here we do not need recip_k1, because we resolve the very thick ice
-            hCrit   = ABS(R_low(I,J,bi,bj))*AREAITD(I,J,k,bi,bj)
+            hCrit   = dynDepth(I,J,bi,bj)*AREAITD(I,J,k,bi,bj)
 #else
             hActual = HEFF(I,J,bi,bj)
-            hCrit   = ABS(R_low(I,J,bi,bj))*AREA(I,J,bi,bj)*recip_k1
+            hCrit   = dynDepth(I,J)*AREA(I,J,bi,bj)*recip_k1
 #endif /* SEAICE_ITD */
 C     we want to have some soft maximum for better differentiability:
 C     max(a,b;k) = ln(exp(k*a)+exp(k*b))/k
