@@ -130,6 +130,8 @@ C--  Seaice-Dynamics parameters
      & 'SEAICEuseEVP      =', ' /* use EVP solver rather than LSR */')
       CALL WRITE_0D_L ( SEAICEuseJFNK, INDEX_NONE,
      & 'SEAICEuseJFNK     =', ' /* use JFNK solver */')
+      CALL WRITE_0D_L ( SEAICEuseORDJ, INDEX_NONE,
+     & 'SEAICEuseORDJ     =', ' /* use ORDJ with JFNK solver */')
 #ifdef SEAICE_ALLOW_FREEDRIFT
       CALL WRITE_0D_L ( SEAICEuseFREEDRIFT, INDEX_NONE,
      & 'SEAICEuseFREEDRIFT =', ' /* use free drift solution */')

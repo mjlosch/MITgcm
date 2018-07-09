@@ -623,6 +623,7 @@ C     ML: code stolen from BLAS-ddot and adapted for parallel applications
 #include "EESUPPORT.h"
 #include "SEAICE_SIZE.h"
 #include "SEAICE.h"
+#include "SEAICE_JFNK.h"
       integer n, im, i1, i2
       _RL dx(n,im,nSx,nSy),dy(n,im,nSx,nSy)
       _RL t

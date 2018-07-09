@@ -115,7 +115,7 @@ C--   SEAICE parameters
      & SEAICE_evpAlpha, SEAICE_evpBeta,
      & SEAICEaEVPcoeff, SEAICEaEVPcStar, SEAICEaEVPalphaMin,
      & SEAICE_zetaMin, SEAICE_zetaMaxFac, SEAICEusePicardAsPrecon,
-     & SEAICEuseKrylov, SEAICEuseJFNK,
+     & SEAICEuseKrylov, SEAICEuseJFNK, SEAICEuseORDJ,
      & SEAICEnonLinIterMax, SEAICElinearIterMax, SEAICEnonLinTol,
      & SEAICEnewtonIterMax, SEAICEkrylovIterMax, JFNKgamma_nonlin,
      & SEAICEpreconNL_Iter, SEAICEpreconLinIter,
@@ -307,6 +307,7 @@ c     DIFF1      = .004 _d 0
       SEAICEuseKrylov    = .FALSE.
 C     JFNK stuff
       SEAICEuseJFNK       = .FALSE.
+      SEAICEuseORDJ       = .FALSE.
       SEAICEuseIMEX       = .FALSE.
       SEAICE_JFNK_lsIter  = UNSET_I
       SEAICE_JFNK_tolIter = 100

@@ -18,6 +18,7 @@ C     === Global variables ===
 #include "SEAICE_SIZE.h"
 #include "SEAICE_PARAMS.h"
 #include "SEAICE.h"
+#include "SEAICE_JFNK.h"
 #include "SEAICE_TRACER.h"
 
 C     === Routine arguments ===
@@ -196,6 +197,7 @@ C     initialise some diagnostic counters for the JFNK solver
       totalKrylovIters   = 0
       totalKrylovFails   = 0
       totalJFNKtimeSteps = 0
+      SEAICElambdaDampedJacobian = 1. _d 0
       _END_MASTER(myThid)
 C     this cannot be done here, because globalArea is only defined
 C     after S/R PACKAGES_INIT_FIXED, so we move it to S/R SEAICE_INIT_VARIA

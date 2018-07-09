@@ -34,6 +34,7 @@ C     === Global variables ===
 #include "SEAICE_SIZE.h"
 #include "SEAICE_PARAMS.h"
 #include "SEAICE.h"
+#include "SEAICE_JFNK.h"
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     === Routine arguments ===

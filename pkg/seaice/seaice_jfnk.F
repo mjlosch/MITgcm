@@ -39,6 +39,7 @@ C     === Global variables ===
 #include "SEAICE_SIZE.h"
 #include "SEAICE_PARAMS.h"
 #include "SEAICE.h"
+#include "SEAICE_JFNK.h"
 
 #ifdef ALLOW_AUTODIFF_TAMC
 # include "tamc.h"
@@ -101,10 +102,10 @@ C     du/vIce   :: ice velocity increment to be added to u/vIce
       _RL dvIce  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C     precomputed (= constant per Newton iteration) versions of
 C     zeta, eta, and DWATN, press
-      _RL zetaPre (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL zetaZPre(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL etaPre  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL etaZPre (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+CML      _RL zetaPre (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+CML      _RL zetaZPre(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+CML      _RL etaPre  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+CML      _RL etaZPre (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL dwatPre (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C     work arrays
       _RL rhs(nVec,nSx,nSy), sol(nVec,nSx,nSy)
@@ -122,6 +123,8 @@ C     Initialise
       JFNKresidualKm1     = 0. _d 0
       FGMRESeps           = 0. _d 0
       recip_deltaT        = 1. _d 0 / SEAICE_deltaTdyn
+C
+      SEAICElambdaDampedJacobian = 1. _d 0
 
       iOutFGMRES=0
 C     with iOutFgmres=1, seaice_fgmres prints the residual at each iteration
@@ -205,6 +208,7 @@ C     constant for the preconditioner
        ENDDO
 C     compute convergence criterion for linear preconditioned FGMRES
        JFNKgamma_lin = JFNKgamma_lin_max
+       SEAICElambdaDampedJacobian = 1. _d 0
        IF ( newtonIter.GT.1.AND.newtonIter.LE.SEAICE_JFNK_tolIter
      &      .AND.JFNKresidual.LT.JFNKres_t ) THEN
 C     Eisenstat and Walker (1996), eq.(2.6)
@@ -212,6 +216,23 @@ C     Eisenstat and Walker (1996), eq.(2.6)
      &       *( JFNKresidual/JFNKresidualKm1 )**SEAICE_JFNKalpha
         JFNKgamma_lin = min(JFNKgamma_lin_max, JFNKgamma_lin)
         JFNKgamma_lin = max(JFNKgamma_lin_min, JFNKgamma_lin)
+       ENDIF
+C     operator related damped Jacobian
+       IF ( SEAICEuseORDJ ) THEN
+        IF ( newtonIter.EQ.1 ) THEN
+         SEAICElambdaDampedJacobian = 1. _d 0
+        ELSE
+         SEAICElambdaDampedJacobian = SEAICElambdaDampedJacobian*(
+     &        0.2 _d 0
+     &        + 4. _d 0/(0.7+EXP(1.5*JFNKresidual/JFNKresidualKm1)))
+         write(*,*) 'ml-SEAICElambdaDampedJacobian = ',
+     &        SEAICElambdaDampedJacobian, JFNKresidual/JFNKresidualKm1
+         SEAICElambdaDampedJacobian=MIN(1.,  SEAICElambdaDampedJacobian)
+         IF ( SEAICElambdaDampedJacobian .LT. 0.55 _d 0 )
+     &        SEAICElambdaDampedJacobian = 1. _d 0
+        ENDIF
+        IF ( JFNKgamma_lin_min .GT. JFNKgamma_lin_max )
+     &       JFNKgamma_lin = JFNKgamma_lin_max
        ENDIF
 C     save the residual for the next iteration
        JFNKresidualKm1 = JFNKresidual
@@ -309,6 +330,13 @@ C     some output diagnostics
      &        ' S/R SEAICE_JFNK: Newton iterate / total = ',newtonIter,
      &        ' / ', totalNewtonItersLoc,
      &        ', Nb. of FGMRES iterations = ', krylovIter
+         CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+     &        SQUEEZE_RIGHT, myThid )
+         WRITE(msgBuf,'(2(A,I6),A,E12.5)')
+     &        ' S/R SEAICE_JFNK: Newton iterate / total = ',newtonIter,
+     &        ' / ', totalNewtonItersLoc,
+     &        ', SEAICElambdaDampedJacobian = ',
+     &        SEAICElambdaDampedJacobian
          CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &        SQUEEZE_RIGHT, myThid )
          _END_MASTER( myThid )
@@ -566,7 +594,7 @@ C     product that SEAICE_FGMRES does
 C     Determine, if we need more iterations
        doLineSearch = resLoc .GE. JFNKresidual
 C     Limit the maximum number of iterations arbitrarily to four
-       doLineSearch = doLineSearch .AND. l .LT. 4
+       doLineSearch = doLineSearch .AND. l .LT. 10
 C     For the first iteration du/vIce = 0 and there will be no
 C     improvement of the residual possible, so we do only the first
 C     iteration

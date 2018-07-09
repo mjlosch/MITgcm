@@ -161,7 +161,11 @@ C     Initialise
       ENDDO
 
 C     Compute new residual F(u)
-      CALL SEAICE_CALC_RESIDUAL(
+CML      CALL SEAICE_CALC_RESIDUAL(
+CML     I     utp, vtp,
+CML     O     uIceResP, vIceResP,
+CML     I     newtonIter, krylovIter, myTime, myIter, myThid )
+      CALL SEAICE_CALC_RESIDUAL_ORDJ(
      I     utp, vtp,
      O     uIceResP, vIceResP,
      I     newtonIter, krylovIter, myTime, myIter, myThid )
