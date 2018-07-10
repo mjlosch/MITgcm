@@ -132,6 +132,8 @@ C--  Seaice-Dynamics parameters
      & 'SEAICEuseJFNK     =', ' /* use JFNK solver */')
       CALL WRITE_0D_L ( SEAICEuseORDJ, INDEX_NONE,
      & 'SEAICEuseORDJ     =', ' /* use ORDJ with JFNK solver */')
+      CALL WRITE_0D_L ( SEAICEuseFullPrecondMatrix, INDEX_NONE,
+     & 'SEAICEuseFullPrecondMatrix =', ' /* experimental flag */')
 #ifdef SEAICE_ALLOW_FREEDRIFT
       CALL WRITE_0D_L ( SEAICEuseFREEDRIFT, INDEX_NONE,
      & 'SEAICEuseFREEDRIFT =', ' /* use free drift solution */')
@@ -261,6 +263,8 @@ C--  Seaice-Dynamics parameters
      & 'SEAICE_JFNKphi =', ' /* JFNK: inexact Newtow parameter */')
         CALL WRITE_0D_RL( SEAICE_JFNKalpha, INDEX_NONE,
      &  'SEAICE_JFNKalpha =', ' /* JFNK: inexact Newtow parameter */')
+        CALL WRITE_0D_RL( SEAICElambdaMin, INDEX_NONE,
+     &  'SEAICElambdaMin =', ' /* JFNK: damped Jacobian parameter */')
        ENDIF
 #endif /* SEAICE_ALLOW_JFNK or SEAICE_ALLOW_KRYLOV */
 #ifdef SEAICE_ALLOW_EVP

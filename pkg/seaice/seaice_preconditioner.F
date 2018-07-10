@@ -296,36 +296,38 @@ C     set up right-hand sides for u- and v-equations
 #endif /* SEAICE_PRECOND_EXTRA_EXCHANGE */
           ENDDO
          ENDDO
-         CALL SEAICE_PRECOND_RHSU (
-     I        zetaMinusEta, etaPlusZeta, etaZpre, zetaZPre,
-     I        dwatPre, coriFac, fricFac, SINWAT, COSWAT,
-     I        duIce, dvIce,
-     U        rhsU,
-     I        iMin,iMax,jMin,jMax,bi,bj,myThid )
+         IF ( SEAICEuseFullPrecondMatrix ) THEN
+          CALL SEAICE_PRECOND_RHSU (
+     I         zetaMinusEta, etaPlusZeta, etaZpre, zetaZPre,
+     I         dwatPre, coriFac, fricFac, SINWAT, COSWAT,
+     I         duIce, dvIce,
+     U         rhsU,
+     I         iMin,iMax,jMin,jMax,bi,bj,myThid )
 #ifndef SEAICE_PRECOND_EXTRA_EXCHANGE
-         CALL SEAICE_PRECOND_RHSV (
-     I        zetaMinusEta, etaPlusZeta, etaZpre, zetaZpre,
-     I        dwatPre, coriFac, fricFac, SINWAT, COSWAT,
-     I        duIce, dvIce,
-     U        rhsV,
-     I        iMin,iMax,jMin,jMax,bi,bj,myThid )
+          CALL SEAICE_PRECOND_RHSV (
+     I         zetaMinusEta, etaPlusZeta, etaZpre, zetaZpre,
+     I         dwatPre, coriFac, fricFac, SINWAT, COSWAT,
+     I         duIce, dvIce,
+     U         rhsV,
+     I         iMin,iMax,jMin,jMax,bi,bj,myThid )
 #endif /* SEAICE_PRECOND_EXTRA_EXCHANGE */
 #ifndef OBCS_UVICE_OLD
 C--     prevent tri-diagonal solver from modifying OB values:
-         DO J=jMin,jMax
-          DO I=iMin,iMax
-           IF ( maskInC(i,j,bi,bj)*maskInC(i-1,j,bi,bj) .EQ. 0. ) THEN
-            rhsU(I,J,bi,bj) = duIce(I,J,bi,bj)
-           ENDIF
+          DO J=jMin,jMax
+           DO I=iMin,iMax
+            IF ( maskInC(i,j,bi,bj)*maskInC(i-1,j,bi,bj) .EQ. 0. ) THEN
+             rhsU(I,J,bi,bj) = duIce(I,J,bi,bj)
+            ENDIF
 #ifndef SEAICE_PRECOND_EXTRA_EXCHANGE
-           IF ( maskInC(i,j,bi,bj)*maskInC(i,j-1,bi,bj) .EQ. 0. ) THEN
-            rhsV(I,J,bi,bj) = dvIce(I,J,bi,bj)
-           ENDIF
+            IF ( maskInC(i,j,bi,bj)*maskInC(i,j-1,bi,bj) .EQ. 0. ) THEN
+             rhsV(I,J,bi,bj) = dvIce(I,J,bi,bj)
+            ENDIF
 #endif /* SEAICE_PRECOND_EXTRA_EXCHANGE */
+           ENDDO
           ENDDO
-         ENDDO
 #endif /* OBCS_UVICE_OLD */
-
+         ENDIF
+         
 C Solve for uIce :
          CALL SEAICE_LSR_TRIDIAGU(
      I        AU, BU, CU, uRt1, uRt2, rhsU, uTmp, seaiceMaskU, WFAU,

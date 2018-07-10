@@ -33,6 +33,8 @@ C     SEAICEuseKrylov   :: If true, use matrix-free Krylov solver with Picard
 C                          solver instead of LSR (default: false)
 C     SEAICEuseJFNK     :: If true, use Jacobi-free Newton-Krylov solver
 C                          instead of LSR (default: false)
+C     SEAICEuseFullPrecondMatrix :: experimental flag, default=.FALSE. because
+C                          convergence seems better that way
 C     SEAICEuseORDJ     :: If true, use Operator Related Damped Jacobian
 C                          to support JFNK solver (default: false)
 C     SEAICEuseIMEX     :: use IMplicit/EXplicit scheme with JFNK
@@ -119,7 +121,7 @@ C     SEAICE_mon_mnc    :: write monitor to netcdf file
      &     SEAICEuseEVP, SEAICEuseEVPstar, SEAICEuseEVPrev,
      &     SEAICEuseEVPpickup,
      &     SEAICEuseMultiTileSolver,
-     &     SEAICEuseLSR, SEAICEuseKrylov,
+     &     SEAICEuseLSR, SEAICEuseKrylov, SEAICEuseFullPrecondMatrix,
      &     SEAICEuseJFNK, SEAICEuseORDJ, SEAICEuseIMEX, SEAICEuseBDF2,
      &     SEAICEusePicardAsPrecon,
      &     useHibler79IceStrength, SEAICEsimpleRidging,
@@ -147,7 +149,7 @@ C     SEAICE_mon_mnc    :: write monitor to netcdf file
      &     SEAICEuseEVP, SEAICEuseEVPstar, SEAICEuseEVPrev,
      &     SEAICEuseEVPpickup,
      &     SEAICEuseMultiTileSolver,
-     &     SEAICEuseLSR, SEAICEuseKrylov,
+     &     SEAICEuseLSR, SEAICEuseKrylov, SEAICEuseFullPrecondMatrix,
      &     SEAICEuseJFNK, SEAICEuseORDJ, SEAICEuseIMEX, SEAICEuseBDF2,
      &     SEAICEusePicardAsPrecon,
      &     useHibler79IceStrength, SEAICEsimpleRidging,
@@ -337,6 +339,7 @@ C     JFNKres_tFac       :: if set, JFNKres_t=JFNKres_tFac*(initial residual)
 C     SEAICE_JFNKepsilon :: step size for the FD-gradient in s/r seaice_jacvec
 C     SEAICE_JFNKphi     :: [0,1] parameter for inexact Newton Method (def = 1)
 C     SEAICE_JFNKalpha   :: (1,2] parameter for inexact Newton Method (def = 1)
+C     SEAICElambdaMin    :: minimum of ORDJ parameter SEAICElambda (def = 0.2)
 C     SEAICE_zetaMaxFac  :: factor determining the maximum viscosity    (s)
 C                          (default = 5.e+12/2.e4 = 2.5e8)
 C     SEAICE_zetaMin     :: lower bound for viscosity (default = 0)    (N s/m^2)
@@ -489,7 +492,7 @@ C
       _RL OCEAN_drag, LSR_ERROR, DIFF1
       _RL SEAICEnonLinTol, JFNKres_t, JFNKres_tFac
       _RL JFNKgamma_lin_min, JFNKgamma_lin_max, SEAICE_JFNKepsilon
-      _RL SEAICE_JFNKphi, SEAICE_JFNKalpha
+      _RL SEAICE_JFNKphi, SEAICE_JFNKalpha, SEAICElambdaMin
       _RL SEAICE_deltaMin
       _RL SEAICE_area_reg, SEAICE_hice_reg
       _RL SEAICE_area_floor, SEAICE_area_max
@@ -541,7 +544,7 @@ C
      &    OCEAN_drag, LSR_ERROR, DIFF1,
      &    SEAICEnonLinTol, JFNKres_t, JFNKres_tFac,
      &    JFNKgamma_lin_min, JFNKgamma_lin_max, SEAICE_JFNKepsilon,
-     &    SEAICE_JFNKphi, SEAICE_JFNKalpha,
+     &    SEAICE_JFNKphi, SEAICE_JFNKalpha, SEAICElambdaMin,
      &    SEAICE_deltaMin, SEAICE_area_reg, SEAICE_hice_reg,
      &    SEAICE_area_floor, SEAICE_area_max,
      &    SEAICEdiffKhArea, SEAICEdiffKhHeff, SEAICEdiffKhSnow,

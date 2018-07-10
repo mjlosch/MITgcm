@@ -197,7 +197,7 @@ C     initialise some diagnostic counters for the JFNK solver
       totalKrylovIters   = 0
       totalKrylovFails   = 0
       totalJFNKtimeSteps = 0
-      SEAICElambdaDampedJacobian = 1. _d 0
+      SEAICElambda       = 1. _d 0
       _END_MASTER(myThid)
 C     this cannot be done here, because globalArea is only defined
 C     after S/R PACKAGES_INIT_FIXED, so we move it to S/R SEAICE_INIT_VARIA

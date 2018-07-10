@@ -204,6 +204,7 @@ C     u/vIceRHS :: righ hand side of momentum equations
 
 C     i,j,bi,bj :: loop indices
       INTEGER i,j,bi,bj
+      _RL oneMlambda
 CEOP
 
 C     Initialise
@@ -245,23 +246,24 @@ C     viscosities are required
      O     eta, etaZ, zeta, zetaZ, press, deltaC,
      I     krylovIter, myTime, myIter, myThid )
 
-      IF ( SEAICElambdaDampedJacobian .LT. 1. _d 0 ) THEN
-CML       DO bj=myByLo(myThid),myByHi(myThid)
-CML        DO bi=myBxLo(myThid),myBxHi(myThid)
-CML         DO J=1-Oly,sNy+Oly
-CML          DO I=1-Olx,sNx+Olx
-           zeta  = (1. _d 0 - SEAICElambdaDampedJacobian)*zetaPre
-     &      + SEAICElambdaDampedJacobian * zeta
-           eta   = (1. _d 0 - SEAICElambdaDampedJacobian)*etaPre
-     &      + SEAICElambdaDampedJacobian * eta
-           zetaZ = (1. _d 0 - SEAICElambdaDampedJacobian)*zetaZPre
-     &      + SEAICElambdaDampedJacobian * zetaZ
-           etaZ  = (1. _d 0 - SEAICElambdaDampedJacobian)*etaZPre
-     &      + SEAICElambdaDampedJacobian * etaZ
-CML          ENDDO
-CML         ENDDO
-CML        ENDDO
-CML       ENDDO
+      IF ( SEAICElambda .LT. 1. _d 0 ) THEN
+       oneMlambda = 1. _d 0 - SEAICElambda
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+         DO J=1-Oly,sNy+Oly
+          DO I=1-Olx,sNx+Olx
+           zeta(I,J,bi,bj)  = oneMlambda*  zetaPre(I,J,bi,bj)
+     &      + SEAICElambda *  zeta(I,J,bi,bj)
+           eta(I,J,bi,bj)   = oneMlambda *  etaPre(I,J,bi,bj)
+     &      + SEAICElambda *   eta(I,J,bi,bj)
+           zetaZ(I,J,bi,bj)= oneMlambda * zetaZPre(I,J,bi,bj)
+     &      + SEAICElambda * zetaZ(I,J,bi,bj)
+           etaZ(I,J,bi,bj) = oneMlambda *  etaZPre(I,J,bi,bj)
+     &      + SEAICElambda *  etaZ(I,J,bi,bj)
+          ENDDO
+         ENDDO
+        ENDDO
+       ENDDO
       ENDIF
 C     The scheme is backward Euler in time, i.e. the rhs-vector contains 
 C     only terms that are independent of u/vIce, except for the time 

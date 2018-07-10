@@ -11,8 +11,8 @@ C \ev
 CEOP
 
 #if (defined SEAICE_ALLOW_JFNK) || (defined SEAICE_ALLOW_KRYLOV)
-      COMMON/SEAICE_DAMPED_JACOBIAN/SEAICElambdaDampedJacobian
-      _RL SEAICElambdaDampedJacobian
+      COMMON/SEAICE_DAMPED_JACOBIAN/SEAICElambda
+      _RL SEAICElambda
       COMMON/SEAICE_DAMPED_JACOBIAN_FIELD/
      &     etaPre,etaZPre,zetaPre,zetaZPre
       _RL zetaPre (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)

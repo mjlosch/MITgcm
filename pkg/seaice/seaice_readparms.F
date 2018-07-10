@@ -115,12 +115,13 @@ C--   SEAICE parameters
      & SEAICE_evpAlpha, SEAICE_evpBeta,
      & SEAICEaEVPcoeff, SEAICEaEVPcStar, SEAICEaEVPalphaMin,
      & SEAICE_zetaMin, SEAICE_zetaMaxFac, SEAICEusePicardAsPrecon,
-     & SEAICEuseKrylov, SEAICEuseJFNK, SEAICEuseORDJ,
+     & SEAICEuseKrylov, SEAICEuseJFNK,
+     & SEAICEuseFullPrecondMatrix, SEAICEuseORDJ,
      & SEAICEnonLinIterMax, SEAICElinearIterMax, SEAICEnonLinTol,
      & SEAICEnewtonIterMax, SEAICEkrylovIterMax, JFNKgamma_nonlin,
      & SEAICEpreconNL_Iter, SEAICEpreconLinIter,
      & SEAICE_JFNK_lsIter, SEAICE_JFNK_tolIter, JFNKres_t,JFNKres_tFac,
-     & JFNKgamma_lin_min,JFNKgamma_lin_max,
+     & JFNKgamma_lin_min,JFNKgamma_lin_max, SEAICElambdaMin,
      & SEAICE_JFNKepsilon, SEAICE_OLx, SEAICE_OLy,
      & SEAICE_JFNKphi, SEAICE_JFNKalpha, SEAICEuseIMEX, SEAICEuseBDF2,
      & SEAICEuseLinRemapITD,
@@ -309,6 +310,7 @@ C     JFNK stuff
       SEAICEuseJFNK       = .FALSE.
       SEAICEuseORDJ       = .FALSE.
       SEAICEuseIMEX       = .FALSE.
+      SEAICEuseFullPrecondMatrix = .FALSE.
       SEAICE_JFNK_lsIter  = UNSET_I
       SEAICE_JFNK_tolIter = 100
 C     This should be the default for both JFNK and for LSR but in order
@@ -329,6 +331,8 @@ C     factor for inexact Newton forcing, .gt. 0 and .le. 1
       SEAICE_JFNKphi      = 1. _d 0
 C     exponent for inexact Newton forcing .gt. 1 and .le. 2
       SEAICE_JFNKalpha    = 1. _d 0
+C     minimum of ORDJ parameter SEAICElambda
+      SEAICElambdaMin     = 0.2 _d 0
 C     Hunke, JCP, 2001 use 615 kg/m^2 for this, but does not recommend using it
       SEAICE_evpDampC    = -1. _d 0
       SEAICE_zetaMin     = 0. _d 0

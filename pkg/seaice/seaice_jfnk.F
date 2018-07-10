@@ -79,7 +79,7 @@ C     FGMRES flag that indicates what fgmres wants us to do next
       INTEGER iCode
       _RL     JFNKresidual
       _RL     JFNKresidualKm1
-      _RL     previousLambdaDampedJacobian
+      _RL     previousLambda
 C     parameters to compute convergence criterion
       _RL     JFNKgamma_lin
       _RL     FGMRESeps
@@ -125,7 +125,7 @@ C     Initialise
       FGMRESeps           = 0. _d 0
       recip_deltaT        = 1. _d 0 / SEAICE_deltaTdyn
 C
-      SEAICElambdaDampedJacobian = 1. _d 0
+      SEAICElambda = 1. _d 0
 
       iOutFGMRES=0
 C     with iOutFgmres=1, seaice_fgmres prints the residual at each iteration
@@ -222,28 +222,26 @@ C     Eisenstat and Walker (1996), eq.(2.6)
 C     operator related damped Jacobian
        IF ( SEAICEuseORDJ ) THEN
         IF ( newtonIter.EQ.1 ) THEN
-         SEAICElambdaDampedJacobian = 1. _d 0
+         SEAICElambda = 1. _d 0
         ELSE
-         previousLambdaDampedJacobian = SEAICElambdaDampedJacobian
-         SEAICElambdaDampedJacobian = SEAICElambdaDampedJacobian*(
+         previousLambda = SEAICElambda
+         SEAICElambda = SEAICElambda*(
      &        0.2 _d 0
      &        + 4. _d 0/(0.7+EXP(1.5*JFNKresidual/JFNKresidualKm1)))
          IF ( debugLevel.GE.debLevA ) THEN
           WRITE(msgBuf,'(2(A,I6),3(A,E10.3),2(A,F5.3))')
      &         ' S/R SEAICE_JFNK: Newton iterate / total = ',newtonIter,
-     &         ' / ', totalNewtonItersLoc,
-     &         ', JFNKres/JFNKresKm1/ratio ',
+     &         ' / ', totalNewtonItersLoc,', JFNKres/JFNKresKm1/ratio ',
      &         JFNKresidual, ' / ', JFNKresidualKm1, ' / ',
      &         JFNKresidual/JFNKresidualKm1, 
      &         ', SEAICElambda old/new = ',
-     &         previousLambdaDampedJacobian, ' / ',
-     &         SEAICElambdaDampedJacobian
+     &         previousLambda, ' / ', SEAICElambda
           CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &         SQUEEZE_RIGHT, myThid )
          ENDIF
-         SEAICElambdaDampedJacobian=MIN(1.,  SEAICElambdaDampedJacobian)
-         IF ( SEAICElambdaDampedJacobian .LT. 0.55 _d 0 )
-     &        SEAICElambdaDampedJacobian = 1. _d 0
+         SEAICElambda=MIN(1.,  SEAICElambda)
+         IF ( SEAICElambda .LT. SEAICElambdaMin )
+     &        SEAICElambda = 1. _d 0
         ENDIF
        ENDIF
 C     save the residual for the next iteration
@@ -342,13 +340,6 @@ C     some output diagnostics
      &        ' S/R SEAICE_JFNK: Newton iterate / total = ',newtonIter,
      &        ' / ', totalNewtonItersLoc,
      &        ', Nb. of FGMRES iterations = ', krylovIter
-         CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
-     &        SQUEEZE_RIGHT, myThid )
-         WRITE(msgBuf,'(2(A,I6),A,E12.5)')
-     &        ' S/R SEAICE_JFNK: Newton iterate / total = ',newtonIter,
-     &        ' / ', totalNewtonItersLoc,
-     &        ', SEAICElambdaDampedJacobian = ',
-     &        SEAICElambdaDampedJacobian
          CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &        SQUEEZE_RIGHT, myThid )
          _END_MASTER( myThid )
