@@ -79,6 +79,7 @@ C     FGMRES flag that indicates what fgmres wants us to do next
       INTEGER iCode
       _RL     JFNKresidual
       _RL     JFNKresidualKm1
+      _RL     previousLambdaDampedJacobian
 C     parameters to compute convergence criterion
       _RL     JFNKgamma_lin
       _RL     FGMRESeps
@@ -208,7 +209,6 @@ C     constant for the preconditioner
        ENDDO
 C     compute convergence criterion for linear preconditioned FGMRES
        JFNKgamma_lin = JFNKgamma_lin_max
-       SEAICElambdaDampedJacobian = 1. _d 0
        IF ( newtonIter.GT.1.AND.newtonIter.LE.SEAICE_JFNK_tolIter
      &      .AND.JFNKresidual.LT.JFNKres_t ) THEN
 C     Eisenstat and Walker (1996), eq.(2.6)
@@ -217,22 +217,34 @@ C     Eisenstat and Walker (1996), eq.(2.6)
         JFNKgamma_lin = min(JFNKgamma_lin_max, JFNKgamma_lin)
         JFNKgamma_lin = max(JFNKgamma_lin_min, JFNKgamma_lin)
        ENDIF
+       IF ( JFNKgamma_lin_min .GT. JFNKgamma_lin_max )
+     &      JFNKgamma_lin = JFNKgamma_lin_max
 C     operator related damped Jacobian
        IF ( SEAICEuseORDJ ) THEN
         IF ( newtonIter.EQ.1 ) THEN
          SEAICElambdaDampedJacobian = 1. _d 0
         ELSE
+         previousLambdaDampedJacobian = SEAICElambdaDampedJacobian
          SEAICElambdaDampedJacobian = SEAICElambdaDampedJacobian*(
      &        0.2 _d 0
      &        + 4. _d 0/(0.7+EXP(1.5*JFNKresidual/JFNKresidualKm1)))
-         write(*,*) 'ml-SEAICElambdaDampedJacobian = ',
-     &        SEAICElambdaDampedJacobian, JFNKresidual/JFNKresidualKm1
+         IF ( debugLevel.GE.debLevA ) THEN
+          WRITE(msgBuf,'(2(A,I6),3(A,E10.3),2(A,F5.3))')
+     &         ' S/R SEAICE_JFNK: Newton iterate / total = ',newtonIter,
+     &         ' / ', totalNewtonItersLoc,
+     &         ', JFNKres/JFNKresKm1/ratio ',
+     &         JFNKresidual, ' / ', JFNKresidualKm1, ' / ',
+     &         JFNKresidual/JFNKresidualKm1, 
+     &         ', SEAICElambda old/new = ',
+     &         previousLambdaDampedJacobian, ' / ',
+     &         SEAICElambdaDampedJacobian
+          CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+     &         SQUEEZE_RIGHT, myThid )
+         ENDIF
          SEAICElambdaDampedJacobian=MIN(1.,  SEAICElambdaDampedJacobian)
          IF ( SEAICElambdaDampedJacobian .LT. 0.55 _d 0 )
      &        SEAICElambdaDampedJacobian = 1. _d 0
         ENDIF
-        IF ( JFNKgamma_lin_min .GT. JFNKgamma_lin_max )
-     &       JFNKgamma_lin = JFNKgamma_lin_max
        ENDIF
 C     save the residual for the next iteration
        JFNKresidualKm1 = JFNKresidual
