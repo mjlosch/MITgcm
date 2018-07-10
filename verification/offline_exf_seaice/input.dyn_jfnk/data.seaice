@@ -9,6 +9,7 @@
  SEAICEetaZmethod    = 3,
  SEAICEuseJFNK       = .TRUE.,
  SEAICEpreconLinIter = 10,
+ SEAICEuseFullPrecondMatrix = .TRUE.,
  SEAICEnonLinIterMax = 200,
  SEAICElinearIterMax = 50,
  SEAICEnonLinTol     = 1.e-09,
