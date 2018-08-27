@@ -1,0 +1,7 @@
+# Packages
+ &PACKAGES
+#useGGL90=.TRUE.,
+ useSalt_Plume = .TRUE.,
+ useDiagnostics=.TRUE.,
+ useMNC=.TRUE.,
+ &
