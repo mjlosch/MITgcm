@@ -20,7 +20,7 @@
   \vtau_{ocean} - m \vec{\nabla}{\phi(0)} + \vec{\nabla}\cdot\bm{\sigma},
   \end{align}
   with $m=\rho\,h\,c$, $\rho$=density, $h$=thickness, $c$=concentration (sea ice fraction), etc., $H=h\,c$
-\item VP-rheology (Reiner-Riplin relation):
+\item VP-rheology (Reiner-Rivlin relation):
   \begin{align}
     \label{eq:vp}\sigma_{ij} &= 2 \eta \sr_{ij} +\left[(\zeta-\eta)\sr_{kk}-\frac{P}{2}\right]\delta_{ij}\\
                              &= \left[\bm{K}(\zeta-\eta,\eta):\srb
@@ -73,17 +73,20 @@
     = 2\,M\,\sr_{-}\\
     \intertext{principle stress components:}
     \sigma_1 &=\frac{\sigma_{11}+\sigma_{22}}{2}
-               + \sqrt{\frac{(\sigma_{11}-\sigma_{22})^2}{2}+\sigma_{12}}\\
+               +\sqrt{\left(\frac{\sigma_{11}
+               - \sigma_{22}}{2}\right)^2+\sigma_{12}^2}\\
     \sigma_2 &=\frac{\sigma_{11}+\sigma_{22}}{2}
-               - \sqrt{\frac{(\sigma_{11}-\sigma_{22})^2}{2}+\sigma_{12}}\\
+               - \sqrt{\left(\frac{\sigma_{11} -
+               \sigma_{22}}{2}\right)^2+\sigma_{12}^2}\\
     \intertext{stress invariants:}
-    \text{divergence:}\qquad\sigma_{I} &= \sigma_1+\sigma_2
-                                         = \sigma_{11}+\sigma_{22}\\
-    \text{shear:}\qquad\sigma_{II} &= \sigma_1-\sigma_2=
-                                    \sqrt{(\sigma_{11}-\sigma_{22})^2+4\sigma_{12}^{2}}
-                   \\
+    \text{divergent stress:}\qquad\sigma_{I}
+           &= \frac{1}{2}\left(\sigma_1+\sigma_2\right)
+             = \frac{1}{2}\left(\sigma_{11}+\sigma_{22}\right)\\
+    \text{shear stress:}\qquad\sigma_{II}
+           &= \frac{1}{2}\left(\sigma_1-\sigma_2\right)
+             =  \frac{1}{2}\sqrt{(\sigma_{11}-\sigma_{22})^2+4\sigma_{12}^{2}}
   \end{align}
-  and similar for $\sr_{ij}$.
+  and similarly for $\sr_{ij}$.
 \item some parameters:
   \begin{alignat}{1}
     E_0&\approx 10^{9}\text{\,N\,m$^{-2}$}
