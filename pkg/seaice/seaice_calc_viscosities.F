@@ -116,7 +116,7 @@ CML     &        /(1.-2.*SEAICEpoissonRatio)
           DO i=1-OLx,sNx+OLx
            denom  = 1./(1.+SEAICE_deltaTdyn*recip_rlx(I,J))
            mu     = press0(i,j,bi,bj) * SEAICEmebMu * SEAICE_deltaTdyn
-     &          * denom * maskC(I,J,k,bi,bj)
+     &          * denom * HEFFM(I,J,bi,bj)
            zeta (i,j,bi,bj) = mu*(poissonFac + 1. _d 0)
            eta  (i,j,bi,bj) = mu
            press(i,j,bi,bj) = 0. _d 0
