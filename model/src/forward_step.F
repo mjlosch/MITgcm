@@ -31,6 +31,9 @@
 #ifdef ALLOW_DIC
 # include "DIC_OPTIONS.h"
 #endif
+#ifdef ALLOW_BLING
+# include "BLING_OPTIONS.h"
+#endif
 #ifdef ALLOW_EXF
 # include "EXF_OPTIONS.h"
 #endif
@@ -274,11 +277,11 @@ C     == Global variables ==
 #  include "GMREDI.h"
 # endif
 # ifdef ALLOW_EXF
-#  include "EXF_FIELDS.h"
-#  include "EXF_PARAM.h"
 #  ifdef ALLOW_BULKFORMULAE
 #   include "EXF_CONSTANTS.h"
 #  endif
+#  include "EXF_INTERP_SIZE.h"
+#  include "EXF_FIELDS.h"
 # endif
 # ifdef ALLOW_CD_CODE
 #  include "CD_CODE_VARS.h"

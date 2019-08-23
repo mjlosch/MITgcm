@@ -1,6 +1,338 @@
     Notes on tags used in MITgcmUV
     ==============================
 
+o pkg/mom_common & model/src:
+  - new S/R MOM_U/V_BOTDRAG_COEF used both for explicit and implicit bottom drag
+    computation (thus replacing both MOM_U/V_BOTTOMDRAG in explicit case and
+    MOM_U/V_BOTDRAG_IMPL in implicit case) to return a drag coefficient.
+    This modification affects results at machine truncation level.
+  - change diagnostics 'Um_dPHdx' & 'Vm_dPHdy' to 'Um_dPhiX' & 'Vm_dPhiY'
+    for full pressure gradient tendencies (including surf & NH contribution);
+  - remove bottom drag tendency diags (UBotDrag & VBotDrag); add bottom stress
+    diagnostics and implicit viscous tendency diagnostics, both accurate also
+    if using implicit bottom drag (selectImplicitDrag=2).
+o pkg/exf:
+  - re-arrange EXF interpolation header files: move setting of "MAX_LAT_INC"
+    from EXF_PARAM.h to EXF_INTERP_SIZE.h (more logical place). But to avoid
+    having to include EXF_INTERP_SIZE.h each time EXF_PARAM.h is included,
+    move EXF interpolation parameters outside EXF_PARAM.h in new header file:
+    EXF_INTERP_PARAM.h
+  - add S/R to define input grid setting (stored in EXF_INTERP_PARAM.h) to be
+    used for EXF interpolated fields as default input grid.
+o compon_interf pkgs:
+  - fix bi loop range in few initialisation subroutines (2 in each pkg),
+    fixing issue #270
+
+checkpoint67k (2019/07/19)
+o model/src:
+  - fix format in printing 1 error message from S/R SET_PARMS
+o pkg/bling:
+  - add missing components of SIBLING
+  - add Manizza et al 2005 light attenuation. Enable with PHYTO_SELF_SHADING
+  - Replace hard coding of max mixing depth with runtime parameter MLmix_max
+o pkg/ctrl:
+  - fix reccord number setting in S/R CTRL_GET_GEN_REC ("startrec" substracted
+    for no reason).
+o doc:
+  - add a sub-section about optim_m1qn3
+o pkg/ctrl:
+  - fix in rescaling option for control vector ("doscaling/noscaling" option,
+    S/R CTRL_MAP_INI_GENARR & CTRL_MAP_INI_GENTIM2D); proper counting of
+    non-zero control vector when weight-mask is different from ocean-mask.
+    Expect differences only when (a) weight-mask is different from ocean mask
+    and (b) xx_genarr2d_preproc='noscaling' (doscaling=.false.).
+o pkg/exf:
+  - new run-time parameter "diags_opOceWeighted" (default=T) to weight some exf
+    surface diagnostics (all net and upward fluxes) with open-ocean fraction.
+    Option is turned off when no sea-ice pkg (seaice or thsice) is used.
+  - new S/R EXF_WEIGHT_SFX_DIAGS to do some exf diags as open-ocean weighted
+    according to input argument ice fraction. Called from the right location
+    in time-stepping to get diagnostics that are consistent with wind-stress
+    and buoyancy fluxes that ocean receive.
+
+checkpoint67j (2019/06/18)
+o pkg/bling:
+  - Cleanly seperate NBLING (default), BLING_V1 (enabled with USE_BLING_V1),
+    and also add Silica option (enabled with USE_SIBLING);
+  - New algorithm for calculating mixed layer depth (old enabled with
+    BLING_USE_THRESHOLD_MLD);
+  - Options for updated carbon chemistry (from J. Lauderdale) enabled with
+    CARBONCHEM_SOLVESAPHE or CARBONCHEM_TOTALPHSCALE ;
+  - And other minor spring cleaning changes;
+  - update calls in pkg/gchem for BLING(V1) or NBLING (with Silica).
+o pkg/salt_plume:
+  - fix calculation index range in salt_plume_apply.F (#ifdef SALT_PLUME_VOLUME)
+o pkg/ecco:
+  - fix/simplify local file names in ecco_cost_init_barfiles.F (within
+    #ifdef ALLOW_GENCOST_CONTRIBUTION ).
+o pkg/mom_vecinv:
+  - add 2 Coriolis schemes which satisfy: d/dt U = f V ; d/dt V = -f U
+    (with U,V = vertically integrated flow).
+  - add new run-time coriolis-scheme selector "selectCoriScheme" to replace
+    "useJamartWetPoints" and "useEnergyConservingCoriolis"; but keep these 2
+    in namelist (backward compatible) to set "selectCoriScheme" accordingly.
+o pkg/ctrl:
+  - Fix bug in ctrl_map_ini_genarr.F regarding missing initialization of
+    igen_uvel & igen_vvel (just like all the other variables).
+o pkg/dic:
+  - Implement SolveSAPHE (Munhoven, 2013), a robust algorithm to calculate
+    oceanic pH/pCO2 ; compiled when CARBONCHEM_SOLVESAPHE is defined (in
+    DIC_OPTIONS.h) and used when (in data.dic) selectPHsolver > 0 ;
+    Add several options for selecting dissociation coefficients, available
+    when CARBONCHEM_SOLVESAPHE is defined.
+  - Change experiment "so_box_biogeo" to compile with CARBONCHEM_SOLVESAPHE
+    defined and add secondary test "saphe" (dir: input.saphe) to this experiment
+    to test GENERAL pH solver (selectPHsolver=1).
+o pkg/seaice:
+  - add alternative version of seaice thermodynamics two routines that provide
+    accurate adjoint. Switched by defining CPP option: ALLOW_SEAICE_GROWTH_ADX
+o pkg/mdsio:
+  - in meta file, write number of records with longer format (10 digits vs 5
+    previously) to accommodate large number of floats.
+
+checkpoint67i (2019/05/08)
+o autofdiff:
+  - fix to avoid TAF recomputations in ggl90 & salt_plume pkgs
+    and in model/src PCELL_MIX_CODE.
+o pkg/mom_common & pkg/gmredi:
+  - add quasi-geostrophic variant of Leith dynamic visocity
+  - use the quasi-geostrophic Leith dynamic visocity as GM diffusivity
+  - new verification experiment to test QG-Leith (variant of MLAdjust)
+  - updated documentation about new option
+o pkg/seaice:
+  - add Hlimit to seaice namelist in data.seaice
+  - use verification seaice_itd.thermo to test this feature with default
+    values (experiment does not change)
+  - clean up related output in seaice_init_fixed.F a little
+o verification/testreport:
+  - for file run_ADM_DIVA, fix sed search syntax so that it works with BSD-sed
+o model/src:
+  - fix small bug (wrong balanceEmPmR report) in config_summary.F, spotted by
+    Christopher Wolfe ; add report of balancePrintMean to summary.
+o verification/verification_parser.py
+  - ensure Travis test suite fails when a build or a run fails.
+
+checkpoint67h (2019/03/21)
+o tools/genmake2:
+  - fix option "-nocat4ad" for latest version of TAF: now needs to add TAF
+    option "-fixed" to process *.flowdir files with newer (after 4.1.1) version
+    of TAF (otherwise assumed now to be in free format).
+o model/src:
+  - remove argument tFld & sFld from S/R CALC_PHI_HYD and from 2 related S/R
+o tools/genmake2:
+  - allow to skip "check_fortran_compiler" part (as, e.g., in opt-file:
+     tools/build_options/linux_ia64_cray_archer).
+o verification/tutorial_barotropic_gyre:
+  - add 1rst tutorial documentation to new manual and update corresponding setup
+o pkg/atm_phys:
+  - add 3-D input file for stratospheric ozone
+  - add code from Matt Kasoar for SW absorption by stratospheric ozone,
+    based on following papers:
+    Lacis and Hansen (JAS, 1974) and Forster and Shine (JGR, 1997).
+  - turned on using 2 local run-time parameter: ozone_in_SW (downward)
+    and two_stream_SW (also in upward); default are off.
+  - clean up S/R "radiation_up": rename "net" to "flux_lw" (better name)
+    and remove un-used local (dyn-allocated) arrays.
+  - also avoid division by zero in Rel-Humid diagnostics (atm_phys_driver.F)
+o pkg/seaice:
+  - fix missing update of sIceLoad in the case usePW79thermodynamics=F.
+o pkg/dic:
+  - Adjust unit conversions for dissociation coefficients aks, aksi, and akf
+    (#define CARBONCHEM_TOTALPHSCALE).
+o tools/genmake2:
+  - improve Fortran Compiler check, section: running MPI executable ; also
+    refine the "conclusion" printed message.
+
+checkpoint67g (2019/01/03)
+o doc:
+  - add documentation for pkg/streamice
+o model/src:
+  - change ordering of pkg calls in initialisation: streamice / shelfice and
+    then seaice / salt_plume / thsice;
+  - fix thin ice-shelf issue with pkg/seaice ; implemented by updating (recently
+    added) seaice masks (requiring new ordering of calls).
+o pkg/shelfice:
+  - allow to include thin ice-shelf (i.e., such that hFacC(k=1) > 0 ) when
+    using pkg/thsice, by preventing seaice to form where there is an ice-shelf.
+  - prevent short-wave heating below an ice-shelf (previously still happening
+    below thin ice-shelf); also fix Qnet there (but only for diagnostics).
+o pkg/seaice:
+  - move initialisation of masks and metric coefficients and KGEO from
+    seaice_init_varia.F to seaice_init_fixed.F
+  - remove all reference to global masks maskC/maskW/maskS:
+   * introduce new masks SIMaskU/V
+   * initialise HEFFM/SIMaskU/V as copies of surface maskC/W/S
+   * replace maskC/W/S with HEFFM/SIMaskU/SIMaskV; in some places this requires
+     including SEAICE.h and as a consequence renaming a few local variables to
+     avoid name overlap
+  - remove TAF storage directives for "heffm" (no longer needed) and simplify
+    seaice calls and TAF storage dir in do_oceanic_phys.F
+o pkg/monitor:
+  - fix local array declaration in mon_stats_latbnd_rl.F
+o tools/example_scripts:
+  - remove all files in tools/example_scripts/
+    (updated testing scripts are all in MITgcm_contrib/test_scripts)
+o verification:
+  - remove un-tested experiments: cpl_atm2d+ocn, tidal_basin_2d and
+    tutorial_offline
+
+checkpoint67f (2018/11/23)
+o pkg/seaice:
+  - add advection ppm and pqm advection schemes ;
+  - test new scheme in verification/offline_exf_seaice.dyn_lsr
+o pkg/generic_advection:
+  - regularize ppm and pqm advection schemes:
+  - replace unsafe division in the case of numerical underflows by
+    regularized expression sign(max(abs(uCFL),1.d-20),uCFL) and similar,
+    in anology to other advection routines, e.g. gad_os7mp_adv_x/y/z.F
+  - affects verification/advect_xz at truncation level -> updated
+o eesupp & model:
+  - add entry points for 2-way nesting pkgs.
+o pkg/dic:
+  - fix out-of-bounds error in S/R CAR_FLUX_OMEGA_TOP (#define CAR_DISS)
+o pkg/streamice:
+  - new implementation of grounding line smoothing by smoothing of basal
+     traction in partly grounded cell, in streamice_upd_ffrac_uncoupled.F
+  - rename CPP directives: previous smoothing functionality now enabled with
+    STREAMICE_SMOOTH_FLOATATION2, new functionality enabled via
+    STREAMICE_SMOOTH_FLOATATION
+  - affects verification/halfpipe_streamice, FWD, TAF and OpenAD adjoint.
+o pkg/atm_phys:
+  - change IR absorption formulation regarding the dependence on Water-Vapor
+    in the case wv_exponent = -1 ; update results of experiment "atm_gray.ape"
+    from verification_other repos.
+o pkg/seaice: clean up advection and SEAICE_ITD
+  - make SEAICEmultiDimAdvection a global variable that is set in
+    seaice_readparams.F
+  - do not allow SEAICE_ITD with old 2nd order advection scheme anymore
+  - re-organize SEAICE_ITD code in seaice_advdiff.F
+  - make it possible to compile pkg/seaice without pkg/generic_advdiff
+o pkg/autodiff:
+  - created addummy_for_etan.F to correctly print adjoint variable for etaN
+
+checkpoint67e (2018/10/16)
+o pkg/seaice:
+  - fix possible division by zero if LSR_mixIniGuess > 0
+o pkg/streamice:
+  - fix bugs relating to ice front advance:
+    streamice_advect_thickness.F -- overlap update of array passed to
+     streamice_adv_front which was leading to spurious ice area values
+    streamice_init_varia.F -- proper initialisation of area_shelf_streamice
+     which is used for ice front advance (only affects diagnostics)
+o verification/*/data
+  - set "rhoConst" instead of "rhoNil" (unless using Linear EOS)
+  - for net surface heat flux, set "surfQnetFile" instead of "surfQfile"
+    (unless net surface shortwave is also specified).
+  - fix OpenAD/input_oad.kpp set-up where net surface heat flux was used
+    as net heat-flux minus short-wave and update the output.
+
+checkpoint67d (2018/09/04)
+o doc:
+  - update few pieces of documentation including addition (in "getting_started"
+    section) of main CPP OPTIONS description and main code full list of
+    run-time parameters.
+o pkg/generic_advdiff:
+  - move masking of (explicit) vertical diffusive flux to S/R that compute each
+    contribution (pass maskUp as a new argument): This ensures that diagnostics
+    of explicit vertical diffusive flux are properly masked.
+o tools/do_tst_2+2
+  - Fix up to use absolute paths for results directories.
+o pkg/seaice: some new and hopefully more sensible defaults:
+  - SEAICEscaleSurfStress = .TRUE.
+  - SEAICEaddSnowMass = .TRUE.
+  - SEAICEadvScheme = 77
+  - SEAICE_useMultDimSnow = .TRUE.
+  - SEAICE_Olx/y = Olx/y - 2
+  - SEAICEetaZmethod = 3
+  - SEAICE_drag = 0.001
+  - CPP-flag SEAICE_ZETA_SMOOTHREG defined by default
+  - change SEAICE_waterDrag default to 5.5e-3 and add reference density
+    rhoConst to scale it. Add a warning if SEAICE_waterDrag > 1.
+    This change also involves a slight re-organization (= simplification)
+    in seaice_oceandrag_coeffs.F
+  - all verification experiments are affected, so that all but four
+    data.seaice are adjusted to restore the old defaults. The four experiments
+    that use the new defaults are
+    + global_ocean.cs32x15.seaice
+    + offline_exf_seaice
+    + offline_exf_seaice.dyn_jfnk
+    + offline_exf_seaice.dyn_lsr
+  - updated documentation
+o pkg/dic:
+  - Promote constants in S/R CARBON_COEFFS_PRESSURE_DEP and
+    S/R CAR_FLUX_OMEGA_TOP to double precision.
+o pkg/seaice:
+  - fix bug in seaice B-grid code (call to seaice_advdiff, see issue #134);
+    Note: B-grid code not tested in any verification exp. (only compiled in one)
+    so no need to update any output.txt
+o pkg/diagnostics:
+  - Print adjoint variables for theta, salt, uvel, vvel, wvel, and etan
+    through diagnostics package.
+o pkg/shelfice:
+  - fix ice shelf mask for very-thin ice shelf case, when hFacMin
+    and hFacMinDr criteria leave no room for ice (hFac(k=1)=1).
+    Note: thin ice-shelf that results in 0< hFac(k=1) <1 still need
+    to be fixed when using any seaice pkg.
+o pkg/ecco:
+  - Replace "mskTrVol" and "gencost_errfile" with "gencost_mask" in
+    "cost_gencost_transp", mirroring "m_horflux_vol".
+  - Document and warn user (via STDERR) of potential issues with using
+    "cost_gencost_transp" to compute volume, heat, or salt transport.
+
+checkpoint67c (2018/06/26)
+o pkg/generic_advdiff:
+  - Add per tracer run-time param to switch on/off Smolarkiewicz-Hack:
+    Run-time switch for Temp & Salt are set from main param file "data"
+    (default value = FALSE); and for pTracers, they are set from parameter
+    file "data.ptracers" (default value = TRUE).
+  - Add a test in verification exp. global_ocean.90x40x15.down_slope for
+    Smolarkiewicz-Hack (switched on for Salt and pTracer(1)) but results
+    remains unchanged since, in this exp., Salt & pTr(1) are well above 0.
+o pkg/mdsio:
+  - apply same substitution to remaining calls to MDSREADFIELD/MDSWRITEFIELD
+    in pkg/ctrl and in pkg/seaice.
+  - disable the use of obsolete MDSREADFIELD and MDSWRITEFIELD S/R (unless
+    USE_OBSOLETE_MDS_RW_FIELD is defined).
+o pkg/ecco:
+  - replace calls to (obsolete) MDSREADFIELD and MDSWRITEFIELD with calls to
+    pkg/rw S/R: READ_REC_3D_RL and WRITE_REC_3D_RL ; this enable to use pkg/ecco
+    without pkg/autodiff.
+o verification exp:
+  - update few (10) adm & tlm output after latest TAF update, from version 3.9.0
+    to version 3.9.6 on May 16-18.
+
+checkpoint67b (2018/05/05)
+o pkg/exf/exf_wind.F:
+  - fix a bug detected by Stanislav Martyanov: replace wStress by SQRT(wStress)
+    in computing ustar ; this bug does not appear to affect the verification
+    experiments but has been around for a while (inherited from the ecco-branch)
+o pkg/seaice:
+  - new run-time parameter to skip the update of ocean surface stress ; could be
+    useful for testing or when seaice-dynamics is off (add a warning otherwise).
+
+checkpoint67a (2018/03/10)
+o pkg/layers
+  - add Moist Static Energy coordinate in layers package
+o pkg/aim_v23:
+  - change parameter "aim_abs_pCO2" default value (used if aim_select_pCO2=1,3)
+    to calibrated value (from David Ferreira).
+o pkg/layers
+  - fixed up units reported in diagnostics for THETA and SALT term induced layer
+    thickness changes.
+o pkg/seaice:
+  - move wind-stress over seaice out of SEAICE.h into local seaice_dynsolver.F
+    common block ; move initialisation of TAUX & TAUY accordingly and add them
+    to argument list of S/R SEAICE_OCEAN_STRESS (like SEAICE_GET_DYNFORCING).
+    This enable to remove CPP option "SEAICE_EXCLUDE_WIND_STRESS" (hack from
+    June 2016) in pkg/dic/dic_fields_update.F
+o doc:
+  - first addition of reST/sphinx documentation (formerly in
+    https://github.com/altMITgcm/MITgcm/doc/), converted from original MITgcm
+    LaTeX manual in: https://github.com/MITgcm/manual-archive with edits
+    (including new sections) from @jrscott and @edoddridge ;
+  - update section on Ocean State Estimation packages by @gaelforget ;
+  - updated seaice pkg description by @mjlosch.
+
 checkpoint67 (2018/02/05)
 o add Sphinx configuration for documentation on https://mitgcm.readthedocs.io
 o add Travis configuration for testing pull requests

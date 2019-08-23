@@ -1,6 +1,4 @@
 #! /usr/bin/env bash
-#
-#
 
 usage()
 {
@@ -830,7 +828,7 @@ runmodel()
 	#- Divided Adjoint Run:
 	#  get the number of additional runs (add_DIVA_runs) from file "run_ADM_DIVA"
 	    if test $KIND = 2 -a -f run_ADM_DIVA ; then
-	      adm_diva_nb=`sed -n '/^ *add_DIVA_runs\>.*=/p' run_ADM_DIVA | sed 's/ //g'`
+	      adm_diva_nb=`sed -n '/^ *add_DIVA_runs *=/p' run_ADM_DIVA | sed 's/ //g'`
 	      echo " Divided Adjoint Run: $adm_diva_nb" >> $RUNLOG
 	      eval "let $adm_diva_nb"
 	      if [ $add_DIVA_runs -ge 1 ] ; then
@@ -1526,7 +1524,7 @@ for dir in $TESTDIRS ; do
 	    rm -f SIZE.h.mpi genmake.tr_log make.tr_log
 	    rm -rf mpi_headers
 	)
-	if test -d $dir/$rundir/CVS ; then
+	if test -d $dir/$rundir ; then
 	    echo -n '  --- dir:' $dir/$rundir ': '
 	    run_clean $dir/$rundir
 	fi
@@ -1739,22 +1737,24 @@ for dir in $TESTDIRS ; do
 		grep '^Get compiler version using:' $gmkLog > /dev/null 2>&1
 		RETVAL=$?
 		if test "x$RETVAL" = x0 ; then
-		  echo -n "from '$gmkLog', " >> $DRESULTS/genmake_state
+		  echo -n "from '$gmkLog', "	>> $DRESULTS/genmake_state
 		  echo "extract compiler version:"   >> $DRESULTS/genmake_state
 		  sed -n '/Get compiler version/,/<-- compiler version/p' \
 		     $gmkLog | grep -v '^... compiler version ' > tmp.tr_log
-		  sed -n '1p' tmp.tr_log >> $DRESULTS/genmake_state
+		  sed -n '1p' tmp.tr_log	>> $DRESULTS/genmake_state
 		  sed -n '2,/^$/p' tmp.tr_log | sed '/^$/d' | sed 's/^./ &/' \
-					 >> $DRESULTS/genmake_state
+						>> $DRESULTS/genmake_state
 		  rm -f tmp.tr_log
 		fi
+		grep ' set FC_CHECK=' $gmkLog	>> $DRESULTS/genmake_state
 	    fi
 	    gmkLog=$dir/$builddir/genmake_state
 	    if test -r $gmkLog ; then
-		echo -n "from '$gmkLog', "      >> $DRESULTS/genmake_state
-		echo "get genmake settings:"    >> $DRESULTS/genmake_state
+		echo -n "from '$gmkLog', "	>> $DRESULTS/genmake_state
+		echo "get genmake settings:"	>> $DRESULTS/genmake_state
 		sed -n '/^HAVE_/p' $gmkLog | sed 's/^./ &/' \
 						>> $DRESULTS/genmake_state
+		sed -n '/^THIS[A-Z]*=/p' $gmkLog >> $DRESULTS/genmake_state
 	    fi
 	fi
     fi
@@ -1768,6 +1768,8 @@ for dir in $TESTDIRS ; do
     echo "-------------------------------------------------------------------------------"
 
 done
+grep '^HAVE_LAPACK' */$builddir/genmake_state 2> /dev/null \
+			| head -1 >> $DRESULTS/genmake_state
 
 printf "Start time:  " >> $SUMMARY
 echo "$start_date" >> $SUMMARY

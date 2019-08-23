@@ -31,10 +31,6 @@ C     in a separate external package, for example, pkg/exf, and then
 C     modified for sea-ice effects by pkg/seaice.
 #define SEAICE_EXTERNAL_FLUXES
 
-C--   Exclude Wind-Stress common block (in SEAICE.h). This option
-C     should ALWAYS been left undef (just listed here for the record)
-#undef SEAICE_EXCLUDE_WIND_STRESS
-
 C--   This CPP flag has been retired.  The number of ice categories
 C     used to solve for seaice flux is now specified by run-time
 C     parameter SEAICE_multDim.
@@ -87,9 +83,10 @@ C--   grease ice uses SItracer:
 # define ALLOW_SITRACER_ADVCAP
 #endif
 
-C--   By default the seaice model is discretized on a B-Grid (for
-C     historical reasons). Define the following flag to use a new
-C     (not thoroughly) test version on a C-grid
+C--   Historically, the seaice model was discretized on a B-Grid. This
+C     discretization should still work but it is not longer actively tested
+C     and supported. The following flag should always be set in order to use
+C     the operational C-grid discretization.
 #define SEAICE_CGRID
 
 C--   Only for the C-grid version it is possible to
@@ -115,7 +112,7 @@ C     better differentiability
 C     regularize zeta to zmax with a smooth tanh-function instead
 C     of a min(zeta,zmax). This improves convergence of iterative
 C     solvers (Lemieux and Tremblay 2009, JGR). No effect on EVP
-# undef SEAICE_ZETA_SMOOTHREG
+# define SEAICE_ZETA_SMOOTHREG
 C     allow the truncated ellipse rheology (runtime flag SEAICEuseTEM)
 # undef SEAICE_ALLOW_TEM
 C     allow using a damage parameter that records violations of a Mohr
@@ -174,6 +171,10 @@ C     like all of the others -- residuals heat and fw stocks are passed to
 C     the ocean at the end of seaice_growth in a conservative manner.
 C     SEAICE_CAP_SUBLIM is not needed as of now, but kept just in case.
 #undef SEAICE_CAP_SUBLIM
+
+C--   Enable the adjointable sea-ice thermodynamic model
+C     uses seaice_growth_adx.F and seaice_solve4temp_adx.F
+#undef ALLOW_SEAICE_GROWTH_ADX
 
 C--   Enable free drift code
 #undef SEAICE_ALLOW_FREEDRIFT
