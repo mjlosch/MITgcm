@@ -6,7 +6,7 @@
 CBOP
 CStartOfInterface
       SUBROUTINE SEAICE_CALC_VISCOSITIES(
-     I     e11, e22, e12, zMin, zMax, hEffM, press0, tnsFac, 
+     I     e11, e22, e12, zMin, zMax, hEffM, press0, tnsFac,
 #ifdef SEAICE_ALLOW_DAMAGE
      I     damage,
 #endif /* SEAICE_ALLOW_DAMAGE */
@@ -21,10 +21,6 @@ C     *==========================================================*
 C     | written by Martin Losch, Mar 2006                        |
 C     *==========================================================*
       IMPLICIT NONE
-C ############ dringeis modi beg #################################
-      _RL SMOOTH_MIN
-      EXTERNAL SMOOTH_MIN
-C ############ dringeis modi end #################################
 
 C     === Global variables ===
 #include "SIZE.h"
@@ -82,9 +78,6 @@ C     em            - e11-e22 (abbreviation)
       _RL e12Csq(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 #ifdef SEAICE_ALLOW_TEM
       _RL etaMax, etaDen
-C  ############ dringeis modi beg #################################
-      _RL recip_Ppar
-C  ############ dringeis modi end #################################
 #endif /* SEAICE_ALLOW_TEM */
       INTEGER k
       _RL sumNorm, maskZ
@@ -107,7 +100,7 @@ C
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
 #ifdef SEAICE_ALLOW_MEB
-        IF ( SEAICEuseMEB ) THEN  
+        IF ( SEAICEuseMEB ) THEN
          SEAICEmebMu = 0.5 _d 0 /(1. _d 0+SEAICEpoissonRatio)
 C     this may be wrong for two reasons
 C     1. 4->2 (not idea where the "4" came from)?
@@ -117,7 +110,7 @@ CML         poissonFac1 = 4. _d 0*SEAICEpoissonRatio
 CML     &        /(1.-2.*SEAICEpoissonRatio)
          poissonFac = 2. _d 0*SEAICEpoissonRatio
      &        /(1. _d 0 - SEAICEpoissonRatio)
-         CALL SEAICE_RECIP_RELAXTIME( 
+         CALL SEAICE_RECIP_RELAXTIME(
      I        damage,
      O        recip_rlx,
      I        bi, bj, myTime, myIter, myThid )
@@ -173,14 +166,14 @@ C     (and energy conserving)
           deltaCsq = ep*ep+recip_e2*(em*em+4. _d 0*e12Csq(i,j))
 CML The old formulation does not ensure that deltaC**2 is always positive,
 CML but in case you need it to reproduce old results, here it is:
-CML          deltaCsq = 
+CML          deltaCsq =
 CML     &         (e11(i,j,bi,bj)**2+e22(i,j,bi,bj)**2)*(ONE+recip_e2)
 CML     &         + 4. _d 0*recip_e2*e12Csq(i,j)
 CML     &         + 2. _d 0*e11(i,j,bi,bj)*e22(i,j,bi,bj)*(ONE-recip_e2)
 #ifdef ALLOW_AUTODIFF_TAMC
 C     avoid sqrt of 0
           deltaC(I,J,bi,bj) = 0. _d 0
-          IF ( deltaCsq .GT. 0. _d 0 ) 
+          IF ( deltaCsq .GT. 0. _d 0 )
      &         deltaC(I,J,bi,bj) = SQRT(deltaCsq)
 #else
           deltaC(I,J,bi,bj) = SQRT(deltaCsq)
@@ -201,7 +194,7 @@ C     solvers (Lemieux and Tremblay 2009, JGR). No effect on EVP
           zeta (I,J,bi,bj) = ZMAX(I,J,bi,bj)
      &         *(1. _d 0 - argTmp)/(1. _d 0 + argTmp)
 #else
-          zeta (I,J,bi,bj) = HALF*( press0(I,J,bi,bj) 
+          zeta (I,J,bi,bj) = HALF*( press0(I,J,bi,bj)
      &         * ( 1. _d 0 + tnsFac(I,J,bi,bj) )
      &         )/deltaCreg
 C     put min and max viscosities in
@@ -225,30 +218,17 @@ CML     &         ) * ( 1. _d 0 - tnsFac(I,J,bi,bj) )
         ENDDO
 #ifdef SEAICE_ALLOW_TEM
         IF ( SEAICEuseTEM ) THEN
-C  ############ dringeis modi beg #################################
-        recip_Ppar=1.0 / SEAICEmcPpar
          DO j=1-OLy+1,sNy+OLy-1
           DO i=1-OLx+1,sNx+OLx-1
-           press(I,J,bi,bj)=SEAICEmcPfac*2*deltaC(I,J,bi,bj)
-     &      *zeta(I,J,bi,bj)
            ep = e11(i,j,bi,bj)+e22(i,j,bi,bj)
            em = e11(i,j,bi,bj)-e22(i,j,bi,bj)
            etaDen = em*em + 4. _d 0 * e12Csq(i,j)
-#ifdef SEAICE_DELTA_SMOOTHREG
-           etaDen = SEAICEmcDpar*SQRT(deltaMinSq + etaDen)
-#else
-           etaDen = SEAICEmcDpar*SQRT(MAX(deltaMinSq,etaDen))
-#endif /* SEAICE_DELTA_SMOOTHREG */
-           etaMax = (recip_Ppar *press(I,J,bi,bj)-zeta(I,J,bi,bj)*ep
+           etaDen = SQRT(MAX(deltaMinSq,etaDen))
+           etaMax = ( 0.5 _d 0*press(I,J,bi,bj)-zeta(I,J,bi,bj)*ep
      &          )/etaDen
-#ifdef ETA_SMOOTH_MIN
-           eta(I,J,bi,bj) = SMOOTH_MIN(eta(I,J,bi,bj),etaMax)
-#else
            eta(I,J,bi,bj) = MIN(eta(I,J,bi,bj),etaMax)
-#endif /* ETA_SMOOTH_MIN */
           ENDDO
          ENDDO
-C  ############ dringeis modi end #################################
         ENDIF
 #endif /* SEAICE_ALLOW_TEM */
 C     end if not SEAICEuseMEB
@@ -286,63 +266,3 @@ C     about the no-slip boundary conditions
 #endif /* SEAICE_ALLOW_DYNAMICS and SEAICE_CGRID */
       RETURN
       END
-
-C  ############ dringeis modi beg #################################
-#ifdef ETA_SMOOTH_MIN
-C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
-
-      _RL FUNCTION SMOOTH_MIN( a, b )
-
-      IMPLICIT NONE
-
-      _RL a, b
-
-      _RL SMOOTH_ABS
-      EXTERNAL SMOOTH_ABS
-
-Cml      smoothMin_R8 = .5*(a+b)
-      SMOOTH_MIN = .5*( a+b - SMOOTH_ABS(a-b) )
-Cml      smoothMin_R8 = MIN(a,b)
-
-      RETURN
-      END
-
-      _RL FUNCTION SMOOTH_ABS( x )
-
-      IMPLICIT NONE
-C     === Global variables ===
-#include "SIZE.h"
-#include "EEPARAMS.h"
-#include "PARAMS.h"
-C     input parameter
-      _RL x
-c     local variable
-      _RL sf, rsf
-      
-
-      IF ( smoothAbsFuncRange .LT. 0.0 ) THEN
-c     limit of smoothMin(a,b) = .5*(a+b)
-         SMOOTH_ABS = 0.
-      ELSE
-         IF ( smoothAbsFuncRange .NE. 0.0 ) THEN
-            sf  = 10.0D0/smoothAbsFuncRange
-            rsf = 1.D0/sf
-         ELSE
-c     limit of smoothMin(a,b) = min(a,b)
-            sf  = 0.D0
-            rsf = 0.D0
-         ENDIF
-c
-         IF ( x .GE. smoothAbsFuncRange ) THEN
-            SMOOTH_ABS = x
-         ELSEIF ( x .LE. -smoothAbsFuncRange ) THEN
-            SMOOTH_ABS = -x
-         ELSE
-            SMOOTH_ABS = log((exp(x*sf)+exp(-x*sf)))*rsf
-         ENDIF
-      ENDIF
-
-      RETURN
-      END
-#endif /* ETA_SMOOTH_MIN */
-C  ############ dringeis modi end #################################
