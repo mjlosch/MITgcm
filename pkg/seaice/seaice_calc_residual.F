@@ -128,8 +128,8 @@ C     sea-surface tilt and wind stress: FORCEX0, FORCEY0
 C     + mass*(u/vIceNm1)/deltaT
 C     + Cdrag*(uVel*cosWat - vVel*sinWat)/(vVel*cosWat + uVel*sinWat)
       CALL SEAICE_CALC_RHS(
-     O      uIceRHS, vIceRHS,
-     I      newtonIter, krylovIter, myTime, myIter, myThid )
+     O     uIceRHS, vIceRHS,
+     I     newtonIter, krylovIter, myTime, myIter, myThid )
 
 C     Left-hand side contributions:
 C     + mass*(u/vIce)/deltaT
@@ -138,27 +138,27 @@ C     + CdragBot*uIce/vIce
 C     - mass*f*vIce/+mass*f*uIce
 C     - dsigma/dx / -dsigma/dy, eta and zeta are only computed once per
 C     Newton iterate
-       CALL SEAICE_CALC_LHS(
-     I      uIceLoc, vIceLoc,
-     O      uIceLHS, vIceLHS,
-     I      newtonIter, myTime, myIter, myThid )
+      CALL SEAICE_CALC_LHS(
+     I     uIceLoc, vIceLoc,
+     O     uIceLHS, vIceLHS,
+     I     newtonIter, myTime, myIter, myThid )
 
 C     Right-hand side contributions only need to be computed once per
 C     time step, therefore we will put them into a separate routine
 C     and call them elsewhere to save floating point operations
 
 C     Calculate the residual
-       DO bj=myByLo(myThid),myByHi(myThid)
-        DO bi=myBxLo(myThid),myBxHi(myThid)
-         DO J=1,sNy
-          DO I=1,sNx
-           uIceRes(I,J,bi,bj) = uIceLHS(I,J,bi,bj) - uIceRHS(I,J,bi,bj)
-           vIceRes(I,J,bi,bj) = vIceLHS(I,J,bi,bj) - vIceRHS(I,J,bi,bj)
-          ENDDO
+      DO bj=myByLo(myThid),myByHi(myThid)
+       DO bi=myBxLo(myThid),myBxHi(myThid)
+        DO J=1,sNy
+         DO I=1,sNx
+          uIceRes(I,J,bi,bj) = uIceLHS(I,J,bi,bj) - uIceRHS(I,J,bi,bj)
+          vIceRes(I,J,bi,bj) = vIceLHS(I,J,bi,bj) - vIceRHS(I,J,bi,bj)
          ENDDO
         ENDDO
        ENDDO
+      ENDDO
 #endif /* SEAICE_ALLOW_JFNK */
 
-       RETURN
-       END
+      RETURN
+      END
