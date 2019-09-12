@@ -123,7 +123,8 @@ C--   SEAICE parameters
      & SEAICEnonLinIterMax, SEAICElinearIterMax, SEAICEnonLinTol,
      & SEAICEnewtonIterMax, SEAICEkrylovIterMax, JFNKgamma_nonlin,
      & SEAICEpreconNL_Iter, SEAICEpreconLinIter,
-     & SEAICE_JFNK_lsIter, SEAICE_JFNK_tolIter, JFNKres_t,JFNKres_tFac,
+     & SEAICE_JFNK_lsIter, SEAICE_JFNK_tolIter, SEAICElsIterMax,
+     & JFNKres_t,JFNKres_tFac,
      & JFNKgamma_lin_min,JFNKgamma_lin_max, SEAICElambdaMin,
      & SEAICE_JFNKepsilon, SEAICE_OLx, SEAICE_OLy,
      & SEAICE_JFNKphi, SEAICE_JFNKalpha, SEAICEuseIMEX, SEAICEuseBDF2,
@@ -317,6 +318,7 @@ C     JFNK stuff
       SEAICEuseFullPrecondMatrix = .FALSE.
       SEAICE_JFNK_lsIter  = UNSET_I
       SEAICE_JFNK_tolIter = 100
+      SEAICElsIterMax     = 4
 C     This should be the default for both JFNK and for LSR but in order
 C     to not jeopardize any existing results, and because it does not yet
 C     work for llc/cubed-sphere topologies, we require that the user knows

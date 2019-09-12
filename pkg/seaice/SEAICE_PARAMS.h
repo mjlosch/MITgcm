@@ -34,7 +34,7 @@ C                          solver instead of LSR (default: false)
 C     SEAICEuseJFNK     :: If true, use Jacobi-free Newton-Krylov solver
 C                          instead of LSR (default: false)
 C     SEAICEuseFullPrecondMatrix :: experimental flag, default=.FALSE. because
-C                          convergence seems better that way
+C                          JFNK convergence seems better that way
 C     SEAICEuseORDJ     :: If true, use Operator Related Damped Jacobian
 C                          to support JFNK solver (default: false)
 C     SEAICEuseIMEX     :: use IMplicit/EXplicit scheme with JFNK
@@ -199,6 +199,7 @@ C     SEAICEmomStartBDF   :: number of previous u/vIce time levels available
 C                          to start (or restart) BDF2 scheme.
 C     SEAICE_JFNK_lsIter  :: number of Newton iterations after which the
 C                            line search is started
+C     SEAICElsIterMax     :: maximum number of line search iterations
 C     SEAICE_JFNK_tolIter :: number of Newton iterations after which the
 C                            the tolerance is relaxed again (default = 100)
 C     SEAICE_OLx/y      :: overlaps for LSR-solver and for the
@@ -257,7 +258,7 @@ C
       INTEGER LSR_mixIniGuess
       INTEGER SEAICEnEVPstarSteps
       INTEGER SEAICEmomStartBDF
-      INTEGER SEAICE_JFNK_lsIter, SEAICE_JFNK_tolIter
+      INTEGER SEAICE_JFNK_lsIter, SEAICE_JFNK_tolIter, SEAICElsIterMax
       INTEGER SEAICE_OLx, SEAICE_OLy
       INTEGER SEAICEselectKEscheme, SEAICEselectVortScheme
       INTEGER SEAICEadvScheme
@@ -282,8 +283,8 @@ C
      &     LSR_mixIniGuess,
      &     SEAICEnEVPstarSteps,
      &     SEAICEmomStartBDF,
-     &     SEAICE_JFNK_lsIter, SEAICE_OLx, SEAICE_OLy,
-     &     SEAICE_JFNK_tolIter,
+     &     SEAICE_JFNK_lsIter, SEAICElsIterMax,
+     &     SEAICE_JFNK_tolIter, SEAICE_OLx, SEAICE_OLy,
      &     SEAICEpresPow0, SEAICEpresPow1,
      &     SEAICEpartFunc, SEAICEredistFunc, SEAICEridgingIterMax,
      &     SEAICEselectKEscheme, SEAICEselectVortScheme,
