@@ -101,6 +101,7 @@ C     viscosities are required
      I     krylovIter, myTime, myIter, myThid )
 
       IF ( SEAICEuseORDJ .AND. SEAICElambda .LT. 1. _d 0 ) THEN
+C     average between linearized and actual viscosities
        oneMlambda = 1. _d 0 - SEAICElambda
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)

@@ -103,11 +103,12 @@ C     du/vIce   :: ice velocity increment to be added to u/vIce
       _RL dvIce  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C     precomputed (= constant per Newton iteration) versions of
 C     zeta, eta, and DWATN, press
-CML      _RL zetaPre (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-CML      _RL zetaZPre(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-CML      _RL etaPre  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-CML      _RL etaZPre (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL dwatPre (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+C     now defined in SEAICE_JFNK.h
+C     _RL zetaPre (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+C     _RL zetaZPre(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+C     _RL etaPre  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+C     _RL etaZPre (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C     work arrays
       _RL rhs(nVec,nSx,nSy), sol(nVec,nSx,nSy)
       _RL vv(nVec,im+1,nSx,nSy), w(nVec,im,nSx,nSy)
@@ -142,7 +143,7 @@ C     backward difference extrapolation factors
         bdfFac = 0.5 _d 0
        ENDIF
       ENDIF
-      bdfAlpha = 1. _d 0 + bdfFac 
+      bdfAlpha = 1. _d 0 + bdfFac
 
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
@@ -157,9 +158,9 @@ C     backward difference extrapolation factors
 C     cycle ice velocities
         DO J=1-OLy,sNy+OLy
          DO I=1-OLx,sNx+OLx
-          duIcNm1(I,J,bi,bj) = uIce(I,J,bi,bj) * bdfAlpha 
+          duIcNm1(I,J,bi,bj) = uIce(I,J,bi,bj) * bdfAlpha
      &         + ( uIce(I,J,bi,bj) - uIceNm1(I,J,bi,bj) ) * bdfFac
-          dvIcNm1(I,J,bi,bj) = vIce(I,J,bi,bj) * bdfAlpha 
+          dvIcNm1(I,J,bi,bj) = vIce(I,J,bi,bj) * bdfAlpha
      &         + ( vIce(I,J,bi,bj) - vIceNm1(I,J,bi,bj) ) * bdfFac
           uIceNm1(I,J,bi,bj) = uIce(I,J,bi,bj)
           vIceNm1(I,J,bi,bj) = vIce(I,J,bi,bj)
@@ -185,14 +186,14 @@ C     Start nonlinear Newton iteration: outer loop iteration
       DO WHILE ( newtonIter.LT.SEAICEnonLinIterMax .AND.
      &     .NOT.JFNKconverged )
        newtonIter = newtonIter + 1
-C     Compute initial residual F(u), (includes computation of global
-C     variables DWATN, zeta, and eta)
+C     Compute initial residual F(u), including global variables
+C     DWATN, zeta, and eta
        IF ( newtonIter .EQ. 1 ) CALL SEAICE_JFNK_UPDATE(
      I      duIce, dvIce,
      U      uIce, vIce, JFNKresidual,
      O      uIceRes, vIceRes,
      I      newtonIter, myTime, myIter, myThid )
-C     local copies of precomputed coefficients that are to stay
+C     copies of precomputed coefficients that are to stay
 C     constant for the preconditioner
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
@@ -209,6 +210,7 @@ C     constant for the preconditioner
        ENDDO
 C     compute convergence criterion for linear preconditioned FGMRES
        JFNKgamma_lin = JFNKgamma_lin_max
+c     newtonIter >= SEAICE_JFNK_tolIter turns off inexact Newton method
        IF ( newtonIter.GT.1.AND.newtonIter.LE.SEAICE_JFNK_tolIter
      &      .AND.JFNKresidual.LT.JFNKres_t ) THEN
 C     Eisenstat and Walker (1996), eq.(2.6)
@@ -217,14 +219,15 @@ C     Eisenstat and Walker (1996), eq.(2.6)
         JFNKgamma_lin = min(JFNKgamma_lin_max, JFNKgamma_lin)
         JFNKgamma_lin = max(JFNKgamma_lin_min, JFNKgamma_lin)
        ENDIF
-       IF ( JFNKgamma_lin_min .GT. JFNKgamma_lin_max )
-     &      JFNKgamma_lin = JFNKgamma_lin_max
 C     operator related damped Jacobian
        IF ( SEAICEuseORDJ ) THEN
         IF ( newtonIter.EQ.1 ) THEN
          SEAICElambda = 1. _d 0
         ELSE
          previousLambda = SEAICElambda
+C     this is the magic formula for reducing lambda as a function of the
+C     ratio of residuals. The free parameters are a results of a
+C     tuning exercise.
          SEAICElambda = SEAICElambda*(
      &        0.2 _d 0
      &        + 4. _d 0/(0.7+EXP(1.5*JFNKresidual/JFNKresidualKm1)))
@@ -233,7 +236,7 @@ C     operator related damped Jacobian
      &         ' S/R SEAICE_JFNK: Newton iterate / total = ',newtonIter,
      &         ' / ', totalNewtonItersLoc,', JFNKres/JFNKresKm1/ratio ',
      &         JFNKresidual, ' / ', JFNKresidualKm1, ' / ',
-     &         JFNKresidual/JFNKresidualKm1, 
+     &         JFNKresidual/JFNKresidualKm1,
      &         ', SEAICElambda old/new = ',
      &         previousLambda, ' / ', SEAICElambda
           CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
@@ -292,7 +295,7 @@ C
      I        FGMRESeps,SEAICElinearIterMax,iOutFGMRES,
      U        iCode,
      I        myThid)
-C     
+C
          IF ( iCode .EQ. 0 ) THEN
 C     map sol(ution) vector to du/vIce
           CALL SEAICE_MAP2VEC(nVec,duIce,dvIce,sol,.FALSE.,myThid)
@@ -596,8 +599,8 @@ C     product that SEAICE_FGMRES does
        resLoc = SQRT(resLoc)
 C     Determine, if we need more iterations
        doLineSearch = resLoc .GE. JFNKresidual
-C     Limit the maximum number of iterations arbitrarily to four
-       doLineSearch = doLineSearch .AND. l .LT. 10
+C     Limit the maximum number of iterations
+       doLineSearch = doLineSearch .AND. l .LT. SEAICElsIterMax
 C     For the first iteration du/vIce = 0 and there will be no
 C     improvement of the residual possible, so we do only the first
 C     iteration

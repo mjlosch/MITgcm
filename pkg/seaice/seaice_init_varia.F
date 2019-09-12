@@ -470,6 +470,14 @@ C     S/R PACKAGES_INIT_FIXED, so we move this computation here.
          scalarProductMetric(i,1,bi,bj) =
      &        scalarProductMetric(i,1,bi,bj)/globalArea
         ENDDO
+        DO j=1-OLy,sNy+OLy
+         DO i=1-OLx,sNx+OLx
+          zetaPre(I,J,bi,bj) = 0. _d 0
+          zetaZPre(I,J,bi,bj)= 0. _d 0
+          etaPre(I,J,bi,bj)  = 0. _d 0
+          etaZPre(I,J,bi,bj) = 0. _d 0
+         ENDDO
+        ENDDO
        ENDDO
       ENDDO
 #endif /* SEAICE_ALLOW_JFNK */

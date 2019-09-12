@@ -234,31 +234,6 @@ C                the bottom of ocean surface level
       COMMON /SEAICE_SW_R/
      &       SWFracB
 
-CML#if (defined SEAICE_ALLOW_JFNK) || (defined SEAICE_ALLOW_KRYLOV)
-CML      COMMON/SEAICE_DAMPED_JACOBIAN/
-CML      _RL SEAICElambdaDampedJacobian
-CML      COMMON/SEAICE_DAMPED_JACOBIAN_FIELD/
-CML     &     etaPre,etaZPre,zetaPre,zetaZPre
-CML      _RL zetaPre (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-CML      _RL zetaZPre(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-CML      _RL etaPre  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-CML      _RL etaZPre (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-CMLC     diagnostics for the JFNK and Krylov solver
-CML      INTEGER totalNewtonIters
-CML      INTEGER totalNewtonFails
-CML      INTEGER totalKrylovIters
-CML      INTEGER totalKrylovFails
-CML      INTEGER totalJFNKtimeSteps
-CML      COMMON /SEAICE_SOLVER_I/
-CML     &     totalNewtonIters, totalNewtonFails,
-CML     &     totalKrylovIters, totalKrylovFails,
-CML     &     totalJFNKtimeSteps
-CML      INTEGER nVec
-CML      PARAMETER ( nVec=2*sNx*sNy )
-CML      _RL scalarProductMetric( nVec, 1, nSx, nSy )
-CML      COMMON /SEAICE_KRYLOV_RL/ scalarProductMetric
-CML#endif /* SEAICE_ALLOW_JFNK or SEAICE_ALLOW_KRYLOV */
-
 CEH3 ;;; Local Variables: ***
 CEH3 ;;; mode:fortran ***
 CEH3 ;;; End: ***
