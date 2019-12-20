@@ -175,6 +175,11 @@ C     and only kept for testing purposes
            ELSE
             seaiceMaskV(I,J,bi,bj) = 0. _d 0
            ENDIF
+C     make sure that topography is masked (especially thin walls)
+           seaiceMaskU(I,J,bi,bj) = seaiceMaskU(I,J,bi,bj)
+     &          * SIMaskU(i,j,bi,bj)
+           seaiceMaskV(I,J,bi,bj) = seaiceMaskV(I,J,bi,bj)
+     &          * SIMaskV(i,j,bi,bj)
           ENDDO
          ENDDO
         ENDDO
@@ -275,6 +280,13 @@ C--   now add in tilt
         ENDDO
         ENDIF
 
+        DO j=1-OLy+1,sNy+OLy
+         DO i=1-OLx+1,sNx+OLx
+          FORCEX0(I,J,bi,bj)=FORCEX0(I,J,bi,bj)*SImaskU(I,J,bi,bj)
+          FORCEY0(I,J,bi,bj)=FORCEY0(I,J,bi,bj)*SImaskV(I,J,bi,bj)
+         ENDDO
+        ENDDO
+
         CALL SEAICE_CALC_ICE_STRENGTH( bi, bj, myTime, myIter, myThid )
 
        ENDDO
@@ -349,6 +361,18 @@ C     Jacobian-free Newton Krylov solver (Lemieux et al. 2010, 2012)
        ENDIF
 # endif /*  ALLOW_AUTODIFF_TAMC */
 #endif /* SEAICE_ALLOW_JFNK */
+
+C     Apply masks
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+         DO J=1-OLy,sNy+OLy
+          DO I=1-OLx,sNx+OLx
+           uIce(I,J,bi,bj)=uIce(I,J,bi,bj) * seaiceMaskU(I,J,bi,bj)
+           vIce(I,J,bi,bj)=vIce(I,J,bi,bj) * seaiceMaskV(I,J,bi,bj)
+          ENDDO
+         ENDDO
+        ENDDO
+       ENDDO
 
 C End of IF (SEAICEuseDYNAMICS ...
       ENDIF

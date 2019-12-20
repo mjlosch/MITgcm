@@ -192,6 +192,11 @@ C--   we need to re-initialize seaiceMaskU/V here for TAF/TAMC
           IF(mask_uice.GT.1.5 _d 0) seaiceMaskU(i,j,bi,bj)=1.0 _d 0
           mask_uice=HEFFM(i,j,bi,bj)+HEFFM(i  ,j-1,bi,bj)
           IF(mask_uice.GT.1.5 _d 0) seaiceMaskV(i,j,bi,bj)=1.0 _d 0
+C     make sure that topography is masked (especially thin walls)
+          seaiceMaskU(I,J,bi,bj) = seaiceMaskU(I,J,bi,bj)
+     &         * SIMaskU(i,j,bi,bj)
+          seaiceMaskV(I,J,bi,bj) = seaiceMaskV(I,J,bi,bj)
+     &         * SIMaskV(i,j,bi,bj)
          ENDDO
         ENDDO
        ENDDO
