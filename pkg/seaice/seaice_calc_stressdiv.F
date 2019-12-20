@@ -12,8 +12,8 @@ CBOP
 C !ROUTINE: SEAICE_CALC_STRESSDIV
 C !INTERFACE: ==========================================================
       SUBROUTINE SEAICE_CALC_STRESSDIV(
-     I     e11, e22, e12, press, zeta, eta, etaZ,
-     O     stressDivergenceX, stressDivergenceY,
+     I     e11l, e22l, e12l, pressl, zetal, etal, etaZl,
+     O     stressDivX, stressDivY,
      I     bi, bj, myTime, myIter, myThid )
 
 C !DESCRIPTION: \bv
@@ -31,6 +31,9 @@ C !USES: ===============================================================
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "GRID.h"
+#include "SEAICE_SIZE.h"
+#include "SEAICE_PARAMS.h"
+#include "SEAICE.h"
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     === Routine arguments ===
@@ -39,19 +42,19 @@ C     press  :: maximal compressive strength
 C     zeta   :: bulk viscosity
 C     eta    :: shear viscosity
 C     etaZ   :: shear viscosity at vorticity points
-C     stressDivergenceX/Y :: x/y-component of stress divergence
+C     stressDivX/Y :: x/y-component of stress divergence
 C     myTime :: Simulation time
 C     myIter :: Simulation timestep number
 C     myThid :: my Thread Id. number
-      _RL e11  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL e22  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL e12  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL press(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL zeta (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL eta  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL etaZ (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL stressDivergenceX(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL stressDivergenceY(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL e11l  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL e22l  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL e12l  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL pressl(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL zetal (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL etal  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL etaZl (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL stressDivX(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL stressDivY(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       INTEGER bi, bj
       _RL     myTime
       INTEGER myIter
@@ -66,9 +69,11 @@ C     i,j       :: inner loop counters
       _RL sig22(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig12(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       INTEGER i, j
+      _RL hFacU, hFacV
+      _RL e12W, e12E, e12S, e12N
 
       CALL SEAICE_CALC_STRESS(
-     I     e11, e22, e12, press, zeta, eta, etaZ,
+     I     e11l, e22l, e12l, pressl, zetal, etal, etaZl,
      O     sig11, sig22, sig12,
      I     bi, bj, myTime, myIter, myThid )
 
@@ -76,20 +81,55 @@ C     compute divergence of stress tensor
 
       DO J=1,sNy
        DO I=1,sNx
-        stressDivergenceX(i,j,bi,bj) =
+        stressDivX(i,j,bi,bj) =
      &       ( sig11(i  ,j  ) * _dyF(i  ,j,bi,bj)
-     &       - sig11(i-1,J  ) * _dyF(i-1,J,bi,bj)
+     &       - sig11(i-1,j  ) * _dyF(i-1,j,bi,bj)
      &       + sig12(i  ,j+1) * _dxV(i,j+1,bi,bj)
      &       - sig12(i  ,j  ) * _dxV(i,j  ,bi,bj)
      &       ) * recip_rAw(i,j,bi,bj)
-        stressDivergenceY(i,j,bi,bj) =
+        stressDivY(i,j,bi,bj) =
      &       ( sig22(i  ,j  ) * _dxF(i,j  ,bi,bj)
      &       - sig22(i  ,j-1) * _dxF(i,j-1,bi,bj)
-     &       + sig12(i+1,J  ) * _dyU(i+1,J,bi,bj)
+     &       + sig12(i+1,j  ) * _dyU(i+1,j,bi,bj)
      &       - sig12(i  ,j  ) * _dyU(i  ,j,bi,bj)
      &       ) * recip_rAs(i,j,bi,bj)
        ENDDO
       ENDDO
+      IF ( SEAICE_no_slip ) THEN
+       DO J=1,sNy
+        DO I=1,sNx
+         hFacU = SIMaskU(i,j,bi,bj) - SIMaskU(i,j-1,bi,bj)
+         e12E = (1. - SImaskU(i+1,j,bi,bj)*SImaskU(i+1,j-1,bi,bj))
+     &        * (- vIce(i,j,bi,bj) *  _recip_dxV(i+1,j,bi,bj))
+     &        + ( uIce(i,j,bi,bj) + uIce(i,j-1,bi,bj) )
+     &        * _recip_dyU(i,j,bi,bj) * hFacU
+         hFacU = SIMaskU(i,j+1,bi,bj) - SIMaskU(i,j,bi,bj)
+         e12W = (1. - SImaskU(i  ,j,bi,bj)*SImaskU(i  ,j-1,bi,bj))
+     &        *    vIce(i,j,bi,bj) *  _recip_dxV(i  ,j,bi,bj)
+     &        + ( uIce(i,j,bi,bj) + uIce(i,j+1,bi,bj) )
+     &        * _recip_dyU(i,j+1,bi,bj) * hFacU
+         hFacV = SIMaskV(i,j,bi,bj) - SIMaskV(i-1,j,bi,bj)
+         e12S = (1. - SImaskV(i,j  ,bi,bj)*SImaskV(i-1,j  ,bi,bj))
+     &        *    uIce(i,j,bi,bj) *  _recip_dyU(i,j  ,bi,bj)
+     &        + ( vIce(i,j,bi,bj) + vIce(i-1,j,bi,bj) )
+     &        * _recip_dxV(i,j,bi,bj) * hFacV
+         hFacV = SIMaskV(i+1,j,bi,bj) - SIMaskV(i,j,bi,bj)
+         e12N = (1. - SImaskV(i,j+1,bi,bj)*SImaskV(i-1,j+1,bi,bj))
+     &        * (- uIce(i,j,bi,bj) *  _recip_dyU(i,j+1,bi,bj))
+     &        + ( vIce(i,j,bi,bj) + vIce(i+1,j,bi,bj) )
+     &        * _recip_dxV(i,j+1,bi,bj) * hFacV
+CML       if (myiter.eq.1) print *, 'ml-e12: ', i,j,e12S, e12N, e12W, e12E
+         stressDivX(i,j,bi,bj) = stressDivX(i,j,bi,bj) +
+     &        ( 2.*etaZl(i  ,j+1,bi,bj) * e12N * _dxV(i,j+1,bi,bj)
+     &        - 2.*etaZl(i  ,j  ,bi,bj) * e12S * _dxV(i,j  ,bi,bj)
+     &        ) * recip_rAw(i,j,bi,bj)
+         stressDivY(i,j,bi,bj) = stressDivY(i,j,bi,bj) +
+     &        ( 2.*etaZl(i+1,j  ,bi,bj) * e12E * _dyU(i+1,j,bi,bj)
+     &        - 2.*etaZl(i  ,j  ,bi,bj) * e12W * _dyU(i  ,j,bi,bj)
+     &        ) * recip_rAs(i,j,bi,bj)
+        ENDDO
+       ENDDO
+      ENDIF
 
       RETURN
       END
