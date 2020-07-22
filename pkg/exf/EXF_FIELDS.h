@@ -273,22 +273,25 @@ C     zen_fsol_daily     :: incoming solar radiation (daily mean)
 #endif
 
 #ifdef ALLOW_RUNOFF
-      COMMON /exfl_runoff_r/ runoff, runoff0, runoff1
+      COMMON /exf_runoff_r/ runoff
       _RL runoff    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      COMMON /exfl_runoff_r/ runoff0, runoff1
       _RL runoff0   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL runoff1   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 #endif
 
 #ifdef ALLOW_RUNOFTEMP
-      COMMON /exfl_runoftemp_r/ runoftemp, runoftemp0, runoftemp1
+      COMMON /exf_runoftemp_r/ runoftemp
       _RL runoftemp (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      COMMON /exfl_runoftemp_r/ runoftemp0, runoftemp1
       _RL runoftemp0(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL runoftemp1(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 #endif
 
 #ifdef ALLOW_SALTFLX
-      COMMON /exfl_saltflx_r/ saltflx, saltflx0, saltflx1
+      COMMON /exf_saltflx_r/ saltflx
       _RL saltflx   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      COMMON /exfl_saltflx_r/ saltflx0, saltflx1
       _RL saltflx0  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL saltflx1  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 #endif
@@ -338,4 +341,3 @@ C     zen_fsol_daily     :: incoming solar radiation (daily mean)
       _RL climvstr0      (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL climvstr1      (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 #endif
-
