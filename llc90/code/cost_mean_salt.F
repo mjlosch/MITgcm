@@ -30,7 +30,7 @@ C     ========= Local variables =========================
       INTEGER i, j, k
       INTEGER bi, bj
       INTEGER Nk
-      _RL locfc,tmp
+      _RL locfc,tmp,volwght
       _RL mask_arc_oc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 
       Nk = 2
@@ -44,21 +44,22 @@ C  Total number of wet temperature point
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
         locfc = 0. _d 0
-        DO j=1,sNy
-         DO i=1,sNx
-          IF ( mask_arc_oc(i,j,bi,bj).GT.0. ) THEN
-           DO k=1, Nk
-            print*, 'mean salinity: ',cMeanSalt(i,j,k,bi,bj)
-            IF ( cMeanSalt(i,j,k,bi,bj).LT.35. ) THEN
-             tmp = tmp + drF(k)*hFacC(i,j,k,bi,bj)*rA(i,j,bi,bj)
-             locfc = locfc +
-     &            drF(k)*hFacC(i,j,k,bi,bj)*rA(i,j,bi,bj)*
-     &            cMeanSalt(i,j,k,bi,bj)
-             print*, 'salinity smaller 35'
-             print*, 'mean of tile:',locfc
-            ENDIF
-           ENDDO
-          ENDIF
+        DO k=1, Nk 
+         DO j=1,sNy
+          DO i=1,sNx
+           print*, 'mean salinity: ',cMeanSalt(i,j,k,bi,bj)
+           volwght = drF(k)*hFacC(i,j,k,bi,bj)*rA(i,j,bi,bj)*
+     &          mask_arc_oc(i,j,bi,bj)*
+     &          (1-1/(1+exp(-20*(cMeanSalt(i,j,k,bi,bj)-35))))
+           tmp = tmp + volwght
+           locfc = locfc + volwght*
+     &          cMeanSalt(i,j,k,bi,bj)
+           print*, 'arctic coean mask:', mask_arc_oc(i,j,bi,bj)
+           print*, 'logistic equation:'
+           print*, (1-1/(1+exp(-20*(cMeanSalt(i,j,k,bi,bj)-35))))
+           print*, 'weighted volume', volwght
+           print*, 'mean of tile:',locfc
+          ENDDO
          ENDDO
         ENDDO
         objf_mean_salt(bi,bj) = locfc
