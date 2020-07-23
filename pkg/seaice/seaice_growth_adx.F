@@ -1143,21 +1143,21 @@ c     Bound area, heff, and hsnow
           tmpscal3 = HSNOW(I,J,bi,bj)
           HSNOW(I,J,bi,bj) = MAX(ZERO, tmpscal3)
 
-c     Sanity checks
-          IF ( HEFF(I,J,bi,bj) .LE. ZERO .OR.
-     &         AREA(I,J,bi,bj) .LE. ZERO ) THEN
-
-           AREA(I,J,bi,bj)       = 0. _d 0
-           HEFF(I,J,bi,bj)       = 0. _d 0
-           hiceActual(I,J)       = 0. _d 0
-           HSNOW(I,J,bi,bj)      = 0. _d 0
-           hsnowActual(I,J)      = 0. _d 0
-
-          ELSE
-c     recalcuate the actual ice and snow thicknesses
-           hiceActual(I,J)  =  HEFF(I,J,bi,bj)/AREA(I,J,bi,bj)
-           hsnowActual(I,J) = HSNOW(I,J,bi,bj)/AREA(I,J,bi,bj)
-          ENDIF
+CMLc     Sanity checks
+CML          IF ( HEFF(I,J,bi,bj) .LE. ZERO .OR.
+CML     &         AREA(I,J,bi,bj) .LE. ZERO ) THEN
+CML
+CML           AREA(I,J,bi,bj)       = 0. _d 0
+CML           HEFF(I,J,bi,bj)       = 0. _d 0
+CML           hiceActual(I,J)       = 0. _d 0
+CML           HSNOW(I,J,bi,bj)      = 0. _d 0
+CML           hsnowActual(I,J)      = 0. _d 0
+CML
+CML          ELSE
+CMLc     recalcuate the actual ice and snow thicknesses
+CML           hiceActual(I,J)  =  HEFF(I,J,bi,bj)/AREA(I,J,bi,bj)
+CML           hsnowActual(I,J) = HSNOW(I,J,bi,bj)/AREA(I,J,bi,bj)
+CML          ENDIF
 
          ENDDO
         ENDDO
