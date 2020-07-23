@@ -30,7 +30,7 @@ C allow use of legacy ecco/ctrl codes
 #define ECCO_CTRL_DEPRECATED
 
 C desperate attempt to reduce memory footprint
-#undef EXCLUDE_CTRL_PACK
+#define EXCLUDE_CTRL_PACK
 #undef ALLOW_NONDIMENSIONAL_CONTROL_IO
 
 C       >>> Initial values.
