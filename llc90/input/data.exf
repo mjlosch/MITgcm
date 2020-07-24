@@ -1,0 +1,158 @@
+# *********************
+# External Forcing Data
+# *********************
+#
+ &EXF_NML_01
+#see MITgcm/verification/global_ocean.cs32x15/input.icedyn/data.exf
+# exf_debugLev      = 5,
+ exf_albedo        = 0.066,
+ ht                = 10.,
+ ocean_emissivity  = 0.97,
+ atmrho            = 1.22,
+ humid_fac         = .608,
+#
+ exf_iprec         = 32,
+ exf_yftype        = 'RL',
+ useExfCheckRange  = .FALSE.,
+ useExfYearlyFields= .TRUE.,
+#repeatPeriod      = 31536000.,
+ useAtmWind        = .TRUE.,
+#useRelativeWind   = .true.,
+ /
+#
+ &EXF_NML_02
+ atempfile         = '/work/ollie/mlosch/raslyboca/datasets/ERAinterim/t2m_ERAi_6hourly',
+ aqhfile           = '/work/ollie/mlosch/raslyboca/datasets/ERAinterim/q_ERAi_6hourly',
+ swdownfile        = '/work/ollie/mlosch/raslyboca/datasets/ERAinterim/ssrd_ERAi_6hourly',
+ lwdownfile        = '/work/ollie/mlosch/raslyboca/datasets/ERAinterim/strd_ERAi_6hourly',
+ uwindfile         = '/work/ollie/mlosch/raslyboca/datasets/ERAinterim/u10_ERAi_6hourly',
+ vwindfile         = '/work/ollie/mlosch/raslyboca/datasets/ERAinterim/v10_ERAi_6hourly',
+ precipfile        = '/work/ollie/mlosch/raslyboca/datasets/ERAinterim/tp_corrected_ERAi_6hourly',
+# precipfile        = '/work/ollie/mlosch/raslyboca/datasets/ERAinterim/tp_ERAi_6hourly',
+ runofffile        = '/work/ollie/mlosch/raslyboca/datasets/CORE2_IAF/runoff_CORE2_iaf_monthly',
+#climsssfile       = 'SSS_WPv3_M_eccollc_90x50_pm05atl.bin',
+#
+ atempstartdate1=19790101,
+ atempstartdate2=000000,
+ atempperiod=21600.0,
+#
+ aqhstartdate1=19790101,
+ aqhstartdate2=000000,
+ aqhperiod=21600.0,
+#
+ swdownstartdate1=19790101,
+ swdownstartdate2=030000,
+ swdownperiod=21600.0,
+#
+ lwdownstartdate1=19790101,
+ lwdownstartdate2=030000,
+ lwdownperiod=21600.0,
+#
+ uwindstartdate1=19790101,
+ uwindstartdate2=000000,
+ uwindperiod=21600.0,
+#
+ vwindstartdate1=19790101,
+ vwindstartdate2=000000,
+ vwindperiod=21600.0,
+#
+# wspeedstartdate1   = 19470101,
+# wspeedstartdate2   = 120000,
+# wspeedperiod       = 21600.0,
+##
+# ustressstartdate1   = 19470101,
+# ustressstartdate2   = 030000,
+# ustressperiod       = 21600.0,
+##
+# vstressstartdate1   = 19470101,
+# vstressstartdate2   = 030000,
+# vstressperiod       = 21600.0,
+#
+ precipstartdate1=19790101,
+ precipstartdate2=030000,
+ precipperiod=21600.0,
+#
+ runoffstartdate1  = 19790115,
+ runoffstartdate2  = 000000,
+ runoffperiod      = 2629800.0,
+#
+ apressurestartdate1=19790101,
+ apressurestartdate2=000000,
+ apressureperiod=21600.0,
+#
+#climsssperiod     = -12.,
+#climsssTauRelax   = 15768000.,
+#climsssTauRelax   = 25920000.,
+ /
+#
+ &EXF_NML_03
+#NOT FOR EIG exf_offset_atemp  = 273.3971,
+# exf_offset_atemp  = 273.15,
+# scale Precipitation (to much Freshwater input)
+# exf_inscal_precip = 0.975,
+#not with core2_cnyf exf_inscal_runoff = 1.e-06,
+# to compensate for sea level rise for nlfs/realFWF
+# precip_exfremo_intercept = 1.073E-9,
+# precip_exfremo_slope = -3.340E-18,
+ /
+#
+ &EXF_NML_04
+ atemp_lon0       = 0.00D0,
+ atemp_lon_inc    = 0.75D0,
+ atemp_lat0       = -90.0D0,
+ atemp_lat_inc    = 240*0.75D0,
+ atemp_nlon       = 480, 
+ atemp_nlat       = 241,
+#
+ aqh_lon0         = 0.00D0,
+ aqh_lon_inc      = 0.75D0,
+ aqh_lat0         = -90.0D0,
+ aqh_lat_inc      = 240*0.75D0,
+ aqh_nlon        = 480, 
+ aqh_nlat        = 241,
+##
+ swdown_lon0      = 0.00D0,
+ swdown_lon_inc   = 0.75D0,
+ swdown_lat0      = -90.0D0,
+ swdown_lat_inc   = 240*0.75D0,
+ swdown_nlon        = 480, 
+ swdown_nlat        = 241,
+##
+ lwdown_lon0      = 0.00D0,
+ lwdown_lon_inc   = 0.75D0,
+ lwdown_lat0      = -90.0D0,
+ lwdown_lat_inc   = 240*0.75D0,
+ lwdown_nlon      = 480, 
+ lwdown_nlat      = 241,
+##
+ uwind_lon0       = 0.00D0,
+ uwind_lon_inc    = 0.75D0,
+ uwind_lat0       = -90.0D0,
+ uwind_lat_inc    = 240*0.75D0,
+ uwind_nlon       = 480, 
+ uwind_nlat       = 241,
+##
+ vwind_lon0       = 0.00D0,
+ vwind_lon_inc    = 0.75D0,
+ vwind_lat0       = -90.0D0,
+ vwind_lat_inc    = 240*0.75D0,
+ vwind_nlon        = 480, 
+ vwind_nlat        = 241,
+##
+ precip_lon0      = 0.00D0,
+ precip_lon_inc   = 0.75D0,
+ precip_lat0      = -90.0D0,
+ precip_lat_inc   = 240*0.75D0,
+ precip_nlon        = 480, 
+ precip_nlat        = 241,
+##
+ runoff_interpMethod = 0,
+ climsss_interpMethod = 0,
+#
+ apressure_lon0   = 0.00D0,
+ apressure_lon_inc= 0.75D0,
+ apressure_lat0   = -90.0D0,
+ apressure_lat_inc= 240*0.75D0,
+ apressure_nlon     = 480, 
+ apressure_nlat     = 241,
+/

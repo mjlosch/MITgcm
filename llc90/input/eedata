@@ -1,0 +1,6 @@
+&EEPARMS
+ nTx=1,
+ nTy=1,
+ useCubedSphereExchange = .TRUE.,
+ printMapIncludesZeros = .TRUE.
+&
