@@ -47,6 +47,10 @@ C     myThid :: my Thread Id number
       ENDIF
       SEAICEadjMODE=SEAICEapproxLevInAd
       SINegFac = SIregFacInAd
+      SEAICEadvSchArea = 30
+      SEAICEadvSchHeff = 30
+      SEAICEadvSchSnow = 30
+      SEAICEadvSchSalt = 30
 #endif /* ALLOW_SEAICE */
       viscFacAdj=viscFacInAd
 
