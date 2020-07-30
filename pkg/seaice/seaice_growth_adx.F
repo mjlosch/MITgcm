@@ -83,7 +83,6 @@ c     CHARACTER*(MAX_LEN_MBUF) msgBuf
 C     constants
       _RL tempFrz, ICE2SNOW, SNOW2ICE, surf_theta
       _RL QI, QS
-      _RL RHOSW
       _RL lhSublim
 
 C     Regularization values squared
@@ -309,8 +308,6 @@ C  Heat Flux * QI = [W] [m^3/kg] [kg/J] = [m^3/s] or [m/s] per unit area
 C  Heat Flux * QS = [W] [m^3/kg] [kg/J] = [m^3/s] or [m/s] per unit area
       QS           = ONE/(SEAICE_rhoSnow*SEAICE_lhFusion)
 
-c     A reference seawater density (kg m^-3)
-      RHOSW = 1026. _d 0
 C     ICE LATENT HEAT CONSTANT
       lhSublim = SEAICE_lhEvap + SEAICE_lhFusion
 
@@ -891,7 +888,8 @@ c     inflection point
         tmpscal0 = 0.4 _d 0
 c     steepness/inflection point
         tmpscal1 = 7.0 _d 0/tmpscal0
-
+c     avoid recomputing constant coefficients
+        tmpscal2 = STANTON_NUMBER*USTAR_BASE*rhoConst*HeatCapacity_Cp
 C     Calcuate the heat fluxes from the ocean to the sea ice
         DO J=1,sNy
          DO I=1,sNx
@@ -914,8 +912,7 @@ c          ELSE
 c            MLTF = MCPHEE_TAPER_FAC
 c          ENDIF
 
-          F_mi(I,J) = -STANTON_NUMBER * USTAR_BASE * RHOSW *
-     &      HeatCapacity_Cp * (surf_theta - tempFrz) * MLTF(I,J)
+          F_mi(I,J) = - tmpscal2 * (surf_theta - tempFrz) * MLTF(I,J)
 
           IceGrowthRateMixedLayer (I,J) = F_mi(I,J) * QI
 
@@ -1143,21 +1140,15 @@ c     Bound area, heff, and hsnow
           tmpscal3 = HSNOW(I,J,bi,bj)
           HSNOW(I,J,bi,bj) = MAX(ZERO, tmpscal3)
 
-CMLc     Sanity checks
-CML          IF ( HEFF(I,J,bi,bj) .LE. ZERO .OR.
-CML     &         AREA(I,J,bi,bj) .LE. ZERO ) THEN
-CML
-CML           AREA(I,J,bi,bj)       = 0. _d 0
-CML           HEFF(I,J,bi,bj)       = 0. _d 0
-CML           hiceActual(I,J)       = 0. _d 0
-CML           HSNOW(I,J,bi,bj)      = 0. _d 0
-CML           hsnowActual(I,J)      = 0. _d 0
-CML
-CML          ELSE
-CMLc     recalcuate the actual ice and snow thicknesses
-CML           hiceActual(I,J)  =  HEFF(I,J,bi,bj)/AREA(I,J,bi,bj)
-CML           hsnowActual(I,J) = HSNOW(I,J,bi,bj)/AREA(I,J,bi,bj)
-CML          ENDIF
+c     Sanity checks
+          IF ( HEFF(I,J,bi,bj) .LE. ZERO .OR.
+     &         AREA(I,J,bi,bj) .LE. ZERO ) THEN
+
+           AREA(I,J,bi,bj)       = 0. _d 0
+           HEFF(I,J,bi,bj)       = 0. _d 0
+           HSNOW(I,J,bi,bj)      = 0. _d 0
+
+          ENDIF
 
          ENDDO
         ENDDO
@@ -1353,17 +1344,6 @@ CAB
          ENDDO
         ENDDO
 
-C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
-#ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE hiceActual       = comlev1_bibj,key=iicekey,byte=isbyte
-CADJ STORE hsnowActual      = comlev1_bibj,key=iicekey,byte=isbyte
-CADJ STORE AREApreTH        = comlev1_bibj,key=iicekey,byte=isbyte
-CADJ STORE HEFF(:,:,bi,bj)  = comlev1_bibj,key=iicekey,byte=isbyte
-CADJ STORE HSNOW(:,:,bi,bj) = comlev1_bibj,key=iicekey,byte=isbyte
-CADJ STORE AREA(:,:,bi,bj)  = comlev1_bibj,key=iicekey,byte=isbyte
-CADJ STORE salt(:,:,kSurface,bi,bj)
-CADJ &                      = comlev1_bibj,key=iicekey,byte=isbyte
-#endif /* ALLOW_AUTODIFF_TAMC */
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
 C     Sea Ice Load on the sea surface.
