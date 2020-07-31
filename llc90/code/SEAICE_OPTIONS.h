@@ -35,7 +35,7 @@ C     modified for sea-ice effects by pkg/seaice.
 #define SEAICE_EXTERNAL_FLUXES
 
 C--   Add for adjoint sea ice thermodynamics
-#define ALLOW_SEAICE_GROWTH_ADX
+#define SEAICE_USE_GROWTH_ADX
 
 
 C--   This CPP flag has been retired.  The number of ice categories
