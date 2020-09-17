@@ -16,10 +16,10 @@ C allow isotropic 3-D Smagorinsky viscosity
 #undef ALLOW_SMAG_3D
 
 C allow full 3D specification of horizontal Laplacian Viscosity
-#undef ALLOW_3D_VISCAH
+#define ALLOW_3D_VISCAH
 
 C allow full 3D specification of horizontal Biharmonic Viscosity
-#undef ALLOW_3D_VISCA4
+#define ALLOW_3D_VISCA4
 
 #endif /* ALLOW_MOM_COMMON */
 #endif /* MOM_COMMON_OPTIONS_H */
