@@ -128,7 +128,6 @@ C-    viscosity and diffusivity default value:
       viscC2LeithQG       = 0. _d 0
       viscC2smag          = 0. _d 0
       viscArDefault       = 0. _d -3
-      viscFacFwd          = 0. _d 0
       viscFacAdj          = 0. _d 0
       no_slip_sides       = .TRUE.
       no_slip_bottom      = .TRUE.

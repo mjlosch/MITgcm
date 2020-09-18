@@ -63,12 +63,13 @@ C       >= 1 (and useSEAICEinAdMode)    : omit pieces of seaice thermo adjoint
 
 C--   COMMON /AUTODIFF_PARM_R/ "Real" valued parameters used by the pkg.
 C     viscFacInAd :: viscosity factor for adjoint
+C     viscFacInFw :: viscosity factor for forward model
 C     SIregFacInAd :: Factor for over shoots in AD
 C     SIregFacInFw :: Factor for over shoots in FW
-      _RL viscFacInAd
+      _RL viscFacInAd, viscFacInFw
       _RL SIregFacInAd, SIregFacInFw
       COMMON /AUTODIFF_PARM_R/
-     &  viscFacInAd, SIregFacInAd, SIregFacInFw
+     &  viscFacInAd, viscFacInFw, SIregFacInAd, SIregFacInFw
 
 C--   COMMON /AUTODIFF_PARM_C/ Character valued parameters used by the pkg.
 

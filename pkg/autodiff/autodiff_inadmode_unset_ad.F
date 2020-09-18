@@ -53,7 +53,7 @@ C     SIregFacInFw = UNSET_RL by default, so we need to check this here
       SEAICEadvSchSnow = SEAICEadvScheme
       SEAICEadvSchSalt = SEAICEadvScheme
 #endif /* ALLOW_SEAICE */
-      viscFacAdj=viscFacFwd
+      viscFacAdj=viscFacInFw
 
       IF ( debugLevel.GE.debLevC ) THEN
        WRITE(msgBuf,'(A,L5)')
