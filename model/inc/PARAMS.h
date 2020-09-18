@@ -802,6 +802,7 @@ C     psiEuler      :: Euler angle, rotation about new z-axis
      & deltaT, deltaTMom, dTtracerLev, deltaTFreeSurf, deltaTClock,
      & abEps, alph_AB, beta_AB,
      & f0, beta, fPrime, omega, rotationPeriod,
+     & viscFacFwd,
      & viscFacAdj, viscAh, viscAhW, smag3D_coeff,
      & viscAhMax, viscAhGrid, viscAhGridMax, viscAhGridMin,
      & viscC2leith, viscC2leithD, viscC2LeithQG,
@@ -877,6 +878,7 @@ C     psiEuler      :: Euler angle, rotation about new z-axis
       _RL hFacInf
       _RL hFacSup
       _RL viscArNr(Nr)
+      _RL viscFacFwd
       _RL viscFacAdj
       _RL viscAh
       _RL viscAhW
