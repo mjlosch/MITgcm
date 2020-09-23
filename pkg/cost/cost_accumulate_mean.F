@@ -46,6 +46,9 @@ C--   Calculate cost function on tile of this instance
                 cMeanTheta(i,j,k,bi,bj) = cMeanTheta(i,j,k,bi,bj)
      &                + theta(i,j,k,bi,bj)
      &                /lastinterval*deltaTClock
+                cMeanSalt(i,j,k,bi,bj) = cMeanSalt(i,j,k,bi,bj)
+     &                + salt(i,j,k,bi,bj)
+     &                /lastinterval*deltaTClock
                 cMeanUVel(i,j,k,bi,bj) = cMeanUVel(i,j,k,bi,bj)
      &               + uVel(i,j,k,bi,bj)
      &               /lastinterval*deltaTClock
@@ -65,10 +68,6 @@ C--   Calculate cost function on tile of this instance
      &                 /2.*vvel(i,j,k,bi,bj)
      &                 *maskS(i,j,k,bi,bj)*maskC(i,j,k,bi,bj)
      &                 /lastinterval*deltaTClock
-
-                cMeanSalt(i,j,k,bi,bj) = cMeanSalt(i,j,k,bi,bj)
-     &                + salt(i,j,k,bi,bj)
-     &                /lastinterval*deltaTClock
               end do
             end do
           end do
