@@ -30,35 +30,69 @@ C     ========= Local variables =========================
       INTEGER i, j, k
       INTEGER bi, bj
       INTEGER Nk
-      _RL locfc,tmp,volwght
-      _RL mask_arc_oc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL locfc,tmp,volwght,saltTmp
+      _RS mask_arc_oc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
+      _RL volWghtFld (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      integer itlo,ithi
+      integer jtlo,jthi
+
+      jtlo = mybylo(mythid)
+      jthi = mybyhi(mythid)
+      itlo = mybxlo(mythid)
+      ithi = mybxhi(mythid)
 
       Nk = 2
 C Read annual mean Levitus temperature
 
-      CALL READ_FLD_XY_RL('mask_Arctic_Ocean_depth_mask_500.data',
+      CALL READ_FLD_XY_RS('mask_arctic_ocean.data',
      &                    ' ',mask_arc_oc,0,myThid)
 
-C  Total number of wet temperature point
+CML      CALL WRITE_FLD_XY_RS('maskArcticTest',' ',mask_arc_oc,-1,myThid)
+
+C  first compute volume weights
       tmp  = 0. _d 0
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
-        locfc = 0. _d 0
-        DO k=1, Nk 
+        volWghtFld(:,:,:,bi,bj) = 0. _d 0
+        DO k=1,Nr
          DO j=1,sNy
           DO i=1,sNx
-           print*, 'mean salinity: ',cMeanSalt(i,j,k,bi,bj)
-           volwght = drF(k)*hFacC(i,j,k,bi,bj)*rA(i,j,bi,bj)*
-     &          mask_arc_oc(i,j,bi,bj)*
-     &          (1-1/(1+exp(-20*(cMeanSalt(i,j,k,bi,bj)-35))))
+           saltTmp = cMeanSalt(i,j,k,bi,bj)
+CML           saltTmp = salt(i,j,k,bi,bj)
+           IF ( saltTmp .LE. 34. _d 0 ) THEN
+            volwght = mask_arc_oc(i,j,bi,bj)
+     &          *drF(k)*hFacC(i,j,k,bi,bj)*rA(i,j,bi,bj)
+CML     &          *(1.-1./(1.+exp(-20. _d 0 *(saltTmp-35. _d 0)))
+           ELSE
+            volwght = 0. _d 0
+           ENDIF
+CML           volwght = 1. _d 0
+           volWghtFld(i,j,k,bi,bj) = volwght
            tmp = tmp + volwght
-           locfc = locfc + volwght*
-     &          cMeanSalt(i,j,k,bi,bj)
-           print*, 'arctic coean mask:', mask_arc_oc(i,j,bi,bj)
-           print*, 'logistic equation:'
-           print*, (1-1/(1+exp(-20*(cMeanSalt(i,j,k,bi,bj)-35))))
-           print*, 'weighted volume', volwght
-           print*, 'mean of tile:',locfc
+          ENDDO
+         ENDDO
+        ENDDO
+       ENDDO
+      ENDDO
+      _GLOBAL_SUM_RL( tmp , myThid )
+      IF ( tmp.GT.0. ) tmp = 1. _d 0 / tmp
+C
+      DO bj=myByLo(myThid),myByHi(myThid)
+       DO bi=myBxLo(myThid),myBxHi(myThid)
+        locfc = 0. _d 0
+        DO k=1,Nr
+         DO j=1,sNy
+          DO i=1,sNx
+           saltTmp = cMeanSalt(i,j,k,bi,bj) - 35. _d 0
+CML           saltTmp = salt(i,j,k,bi,bj) - 35. _d 0
+C     scale with tmp to reduce truncation error?
+           locfc = locfc + volWghtFld(i,j,k,bi,bj) * saltTmp ! * tmp
+CML           print*, 'mean salinity: ',cMeanSalt(i,j,k,bi,bj)
+CML           print*, 'arctic coean mask:', mask_arc_oc(i,j,bi,bj)
+CML           print*, 'logistic equation:'
+CML           print*, (1-1/(1+exp(-20*(cMeanSalt(i,j,k,bi,bj)-35))))
+CML           print*, 'weighted volume', volwght
+CML           print*, 'mean of tile:',locfc
           ENDDO
          ENDDO
         ENDDO
@@ -66,13 +100,13 @@ C  Total number of wet temperature point
        ENDDO
       ENDDO
 
-      _GLOBAL_SUM_RL( tmp , myThid )
-      IF ( tmp.GT.0. ) tmp = 1. _d 0 / tmp
-
+C     diagnostics
+      CALL WRITE_FLD_XYZ_RL('maskArcticVol',' ',volWghtFld,-1,myThid)
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
-        objf_mean_salt(bi,bj) = objf_mean_salt(bi,bj)*tmp
-c        print*,'objf_mean_salt =',locfc,startTime,endTime,tmp
+        write(standardmessageunit,*)
+     &       'ml-objf_mean_salt =',objf_mean_salt(bi,bj),
+     &       tmp,startTime,endTime
        ENDDO
       ENDDO
 
