@@ -1,6 +1,3 @@
-C $Header: /u/gcmpack/MITgcm/pkg/gmredi/GMREDI_OPTIONS.h,v 1.9 2005/07/29 18:24:35 edhill Exp $
-C $Name:  $
-
 C CPP options file for GM/Redi package
 C
 C Use this file for selecting options within the GM/Redi package
@@ -8,9 +5,13 @@ C Use this file for selecting options within the GM/Redi package
 #ifndef GMREDI_OPTIONS_H
 #define GMREDI_OPTIONS_H
 #include "PACKAGES_CONFIG.h"
-#ifdef ALLOW_GMREDI
-
 #include "CPP_OPTIONS.h"
+
+#ifdef ALLOW_GMREDI
+C     Package-specific Options & Macros go here
+
+C Designed to simplify the Ajoint code:
+#define GMREDI_WITH_STABLE_ADJOINT
 
 #undef GMREDI_COS_SCALING
 C Designed to simplify the Ajoint code:

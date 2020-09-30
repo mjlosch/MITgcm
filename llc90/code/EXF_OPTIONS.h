@@ -1,5 +1,14 @@
-C $Header: /u/gcmpack/MITgcm_contrib/gael/verification/global_oce_llc90/code/EXF_OPTIONS.h,v 1.1 2012/08/24 16:33:53 gforget Exp $
-C $Name:  $
+CBOP
+C !ROUTINE: EXF_OPTIONS.h
+C !INTERFACE:
+C #include "EXF_OPTIONS.h"
+
+C !DESCRIPTION:
+C *==================================================================*
+C | CPP options file for EXternal Forcing (EXF) package:
+C | Control which optional features to compile in this package code.
+C *==================================================================*
+CEOP
 
 #ifndef EXF_OPTIONS_H
 #define EXF_OPTIONS_H

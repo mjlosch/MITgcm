@@ -26,71 +26,36 @@ C   are specific to this package are assumed to be set in ECCO_CPPOPTIONS.h
 C   ==================================================================
 C-- Package-specific Options & Macros go here
 
-C allow use of legacy ecco/ctrl codes
-#define ECCO_CTRL_DEPRECATED
-
-C desperate attempt to reduce memory footprint
+C o I/O and pack settings
 #define EXCLUDE_CTRL_PACK
+#define CTRL_SET_PREC_32
 #undef ALLOW_NONDIMENSIONAL_CONTROL_IO
+#undef ALLOW_PACKUNPACK_METHOD2
 
-C       >>> Initial values.
-#define ALLOW_THETA0_CONTROL
-#define ALLOW_SALT0_CONTROL
-#undef ALLOW_TR10_CONTROL
-#undef ALLOW_TAUU0_CONTROL
-#undef ALLOW_TAUV0_CONTROL
-#undef ALLOW_SFLUX0_CONTROL
-#undef ALLOW_HFLUX0_CONTROL
-#undef ALLOW_SSS0_CONTROL
-#undef ALLOW_SST0_CONTROL
+C This allows for GMREDI controls
+#define ALLOW_KAPGM_CONTROL
+# undef ALLOW_KAPGM_CONTROL_OLD
+#define ALLOW_KAPREDI_CONTROL
+# undef ALLOW_KAPREDI_CONTROL_OLD
 
-C       >>> Surface fluxes.
-#undef ALLOW_HFLUX_CONTROL
-#undef ALLOW_SFLUX_CONTROL
-#undef ALLOW_USTRESS_CONTROL
-#undef ALLOW_VSTRESS_CONTROL
-#undef ALLOW_SWFLUX_CONTROL
-#undef ALLOW_LWFLUX_CONTROL
+C o sets of controls
+#define ALLOW_GENTIM2D_CONTROL
+#define ALLOW_GENARR2D_CONTROL
+#define ALLOW_GENARR3D_CONTROL
 
-C       >>> Atmospheric state.
-#define ALLOW_ATEMP_CONTROL
-#define ALLOW_AQH_CONTROL
-#define ALLOW_UWIND_CONTROL
-#define ALLOW_VWIND_CONTROL
-#define ALLOW_PRECIP_CONTROL
-#define ALLOW_RUNOFF_CONTROL
-
-C       >>> Other Control.
-#undef ALLOW_DIFFKR_CONTROL
-#undef ALLOW_KAPGM_CONTROL
-#undef ALLOW_KAPREDI_CONTROL
-#undef ALLOW_BOTTOMDRAG_CONTROL
-
-C#define ALLOW_HFLUXM_CONTROL
-C#define ALLOW_ECCO_OPTIMIZATION
-
-C       >>> Generic Control.
-#undef ALLOW_GENARR2D_CONTROL
-#undef ALLOW_GENARR3D_CONTROL
-#undef ALLOW_GENTIM2D_CONTROL
-
-C  o Rotation of wind/stress controls adjustments
-C    from Eastward/Northward to model grid directions
-#undef ALLOW_ROTATE_UV_CONTROLS
-
+C  o use pkg/smooth correlation operator (incl. smoother) for 3D controls (Weaver, Courtier 01)
+C    This CPP option just sets the default for ctrlSmoothCorrel23 to .TRUE.
+#undef ALLOW_SMOOTH_CORREL3D
 C  o use pkg/smooth correlation operator (incl. smoother) for 2D controls (Weaver, Courtier 01)
 C    This CPP option just sets the default for ctrlSmoothCorrel2D to .TRUE.
 #undef ALLOW_SMOOTH_CORREL2D
-C  o use pkg/smooth correlation operator (incl. smoother) for 3D controls (Weaver, Courtier 01)
-C    This CPP option just sets the default for ctrlSmoothCorrel3D to .TRUE.
-#undef ALLOW_SMOOTH_CORREL3D
 
-C  o apply pkg/ctrl/ctrl_smooth.F to 2D controls (outside of ctrlSmoothCorrel2D)
-#undef ALLOW_CTRL_SMOOTH
-C  o apply pkg/smooth/smooth_diff2d.F to 2D controls (outside of ctrlSmoothCorrel2D)
-#undef ALLOW_SMOOTH_CTRL2D
-C  o apply pkg/smooth/smooth_diff3d.F to 3D controls (outside of ctrlSmoothCorrel3D)
-#undef ALLOW_SMOOTH_CTRL3D
+C  o impose bounds on controls
+#undef ALLOW_ADCTRLBOUND
+
+C   o rotate u/v vector control to zonal/meridional
+C   components
+#define ALLOW_ROTATE_UV_CONTROLS
 
 C   ==================================================================
 #endif /* ndef ECCO_CPPOPTIONS_H */
