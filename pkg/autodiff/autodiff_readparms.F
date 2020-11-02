@@ -124,6 +124,9 @@ C     store value of usePKG as it will be set in S/R ADAUTODIFF_INADMODE_SET
       useGGL90inAdMode  = useGGL90inAdMode  .AND. useGGL90
       useSALT_PLUMEinAdMode = useSALT_PLUMEinAdMode .AND. useSALT_PLUME
 
+C     set this parameter to something we want to be able specify in a namelist
+      viscFacAdj = viscFacInFw
+
 #ifdef ALLOW_SEAICE
 c     level of approximation in seaice thermodynamics adjoint
       if (useSEAICEinFwdMode.AND.(.NOT.useSEAICEinAdMode))
