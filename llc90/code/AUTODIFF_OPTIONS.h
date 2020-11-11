@@ -54,6 +54,10 @@ C o use divided adjoint to split adjoint computations
 C o write separate tape files for each ptracer
 #undef AUTODIFF_PTRACERS_SPLIT_FILES
 
+C#define AUTODIFF_DISABLE_LEITH
+C#define AUTODIFF_DISABLE_REYNOLDS_SCALE
+
+
 C   ==================================================================
 #endif /* ndef ECCO_CPPOPTIONS_H */
 #endif /* ALLOW_AUTODIFF */

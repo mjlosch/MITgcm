@@ -9,12 +9,14 @@
  useCAL = .TRUE.,
  useEXF = .true.,
 #useMNC   =.true.,
- useDiagnostics = .true.,
+#useDiagnostics = .true.,
  usePTRACERS=.false.,
  useGCHEM = .false.,
- useDOWN_SLOPE = .TRUE., 
+#useDOWN_SLOPE = .TRUE., 
 # useRBCS = .TRUE.,
 # useGGL90=.TRUE.,
  useSALT_PlUME=.TRUE.,
+ useCTRL =.TRUE.,
+ useECCO = .FALSE.,
  &
   

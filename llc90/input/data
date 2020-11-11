@@ -27,7 +27,7 @@
 ### diffKrBL79deep=1.0E-4,
  bottomDragQuadratic = 0.001,
 #when using ggl90
-# ivdc_kappa=10.,
+#ivdc_kappa=10.,
  implicitDiffusion=.TRUE.,
  implicitViscosity=.TRUE.,
  useRealFreshWaterFlux=.TRUE.,
@@ -75,44 +75,36 @@
 # Time stepping parameters
  &PARM03
 # 1979,1,1
- nIter0=280512,
+#nIter0=280512,
 # 2000,1,1
  nIter0=464592,
-#2 lev2 for testing:
+# 2001,1,1
+#nIter0=473376,
+# 1999,1,1
+# nIter0=455832,
+# lev2 for testing:
 # 100 years, no leap year
-#endTime = 3153600000.,
-# nTimeSteps = 109501,
-# 38 years, dt=1h
- nTimeSteps = 48,
-# nTimeSteps = 332358,
-#nTimeSteps = 73000.,
-# nTimeSteps = 10.,
-# 50 years:
-# nTimeSteps=438000,
-# 0.5 years
-# nTimeSteps=4380
-#60 years
-#nTimeSteps=525985,
+#nTimeSteps = 109501,
+# 1 year1, dt=1h
+#nTimeSteps=8760,
+#deltaT    = 3600.,
+# 1 year1, dt=45min, requires adjusting the nIter0 and the pickups
+ nIter0=619456,
+ nTimeSteps=11680,
+ deltaT    = 2700.,
+ pickupSuff='0000464592',
+# 744 hours = 31 days
+#nTimeSteps=744,
+#nTimeSteps=10,
+#nTimeSteps=4,
+# 10 years, dt=1h
+# nTimeSteps=96432,
 #
  forcing_In_AB=.FALSE.,
  momDissip_In_AB=.FALSE.,
 #when using the cd scheme:
 # epsAB_CD = 0.25,
 # tauCD=172800.0,
- deltaT    = 3600.,
-#nIter0    = 1393776,
-#
-#eltaT    = 1200.,
-# nIter0=1683072,
-# deltaT    = 600.,
-# nIter0=2805120,
-# deltaT    = 360.,
-# asynchronous time stepping:
-# deltaTmom   =1200.,
-# time step 8h for better stability
-# deltaTtracer=28800.,
-# deltaTfreesurf=28800.,
-# deltaTClock =28800.,
 #when using ab2:
 # abEps = 0.1,
 #when using ab3:
@@ -128,18 +120,20 @@
 #chkptFreq   = 86400.0,
  monitorFreq = 86400.0,
 #monitorFreq = 1.0,
-# monitorFreq = 7200.0,
+#monitorFreq = 7200.0,
 #dumpInitAndLast = .FALSE.,
  writePickupAtEnd = .FALSE.,
 # pickupStrictlyMatch=.FALSE.,
- dumpFreq    =43200.0,
- adjDumpFreq = 1.,
+#dumpFreq    = 43200.0,
+ adjDumpFreq = 86400.,
+#adjDumpFreq = 21600.,
+#adjDumpFreq = 1.,
  /
 
 # Gridding parameters
  &PARM04
  usingCurvilinearGrid=.TRUE.,
- delR = 
+ delR =
      10.00, 10.00, 10.00, 10.00, 10.00, 10.00, 10.00, 10.01,
      10.03, 10.11, 10.32, 10.80, 11.76, 13.42, 16.04, 19.82, 24.85,
      31.10, 38.42, 46.50, 55.00, 63.50, 71.58, 78.90, 85.15, 90.18,
@@ -157,10 +151,10 @@
  bathyFile      ='bathy_eccollc_90x50_min2pts_mod3.bin',
  hydrogThetaFile='T_OWPv3_M_eccollc_90x50.bin',
  hydrogSaltFile ='S_OWPv3_M_eccollc_90x50.bin',
-# bathyFile      ='bathymetry_llc_v2.bin', 
+# bathyFile      ='bathymetry_llc_v2.bin',
 # hydrogThetaFile='t_init_llc90_12months_v2.bin',
 # hydrogSaltFile ='s_init_llc90_12months_v2.bin',
-# viscA4Dfile    ='viscA4Dfld_eccollc_90x50.bin',
-# viscA4Zfile    ='viscA4Zfld_eccollc_90x50.bin',
+  viscA4Dfile    ='viscA4Dfld.bin',
+  viscA4Zfile    ='viscA4Zfld.bin',
 #
  /

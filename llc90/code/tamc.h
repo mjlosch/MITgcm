@@ -55,15 +55,13 @@ c     nthreads_chkpt - Number of threads to be used; nth_chkpt .eq. nTx*nTy
       parameter ( nthreads_chkpt = 1 )
 
 #ifdef ALLOW_TAMC_CHECKPOINTING
-
+CML for ten years with deltaT=2700 we need this:
       integer    nchklev_1
-      parameter( nchklev_1      =    4 )
+      parameter( nchklev_1      =    5 )
       integer    nchklev_2
-      parameter( nchklev_2      =   10 )
-c      parameter( nchklev_2      =  150 )
+      parameter( nchklev_2      =  153 )
       integer    nchklev_3
-      parameter( nchklev_3      =   10 )
-c      parameter( nchklev_3      =  150 )
+      parameter( nchklev_3      =  153 )
 
 c--   Note always check for the correct sizes of the common blocks!
 

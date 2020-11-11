@@ -6,16 +6,17 @@
  &AUTODIFF_PARM01
 # inAdExact = .FALSE.,
  useKPPinAdMode = .FALSE.,
-# useGGL90inAdMode = .FALSE.,
+#useGGL90inAdMode = .FALSE.,
 # useGMRediInAdMode = .TRUE.,
 #useSALT_PLUMEinAdMode = .FALSE.,
 # useSmoothCorrel2DinAdMode,
 # inAdExact, SEAICEapproxLevInAd, 
  viscFacInAd = 2.,
+ viscFacInFw = 1.,
 #
 # SIregFacInAd, SIregFacInFw,
- useSEAICEinAdMode=.TRUE.,
-#useSEAICEinAdMode=.FALSE.,
+#useSEAICEinAdMode=.TRUE.,
+ useSEAICEinAdMode=.FALSE.,
 # SEAICEuseFREEDRIFTswitchInAd = .TRUE., 
- SEAICEuseDYNAMICSswitchInAd = .TRUE.,
+#SEAICEuseDYNAMICSswitchInAd = .TRUE.,
  &
