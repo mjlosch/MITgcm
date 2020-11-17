@@ -18,9 +18,6 @@ C#define ALLOW_KAPREDI_3DFILE
 C Designed to simplify the Ajoint code:
 #define GMREDI_WITH_STABLE_ADJOINT
 
-#undef GMREDI_COS_SCALING
-C Designed to simplify the Ajoint code:
-C #define GMREDI_WITH_STABLE_ADJOINT
 C -- exclude the clipping/tapering part of the code that is not used
 #define GM_EXCLUDE_CLIPPING
 #define GM_EXCLUDE_FM07_TAP
