@@ -10,6 +10,11 @@ C Use this file for selecting options within the GM/Redi package
 #ifdef ALLOW_GMREDI
 C     Package-specific Options & Macros go here
 
+C ECCO4v5
+C initialize KapGM and KapRedi from a file
+C#define ALLOW_KAPGM_3DFILE
+C#define ALLOW_KAPREDI_3DFILE
+
 C Designed to simplify the Ajoint code:
 #define GMREDI_WITH_STABLE_ADJOINT
 
@@ -25,6 +30,8 @@ C -- exclude the clipping/tapering part of the code that is not used
 
 C This allows to use Visbeck et al formulation to compute K_GM+Redi
 #define GM_VISBECK_VARIABLE_K
+C ECCO4v5
+C#undef GM_VISBECK_VARIABLE_K
 C Use old calculation (before 2007/05/24) of Visbeck etal K_GM+Redi
 C (which depends on tapering scheme)
 #undef OLD_VISBECK_CALC

@@ -51,6 +51,12 @@ C o use divided adjoint to split adjoint computations
 #undef AUTODIFF_USE_OLDSTORE_3D
 #undef AUTODIFF_USE_OLDSTORE_2D
 
+C ECCO4v5 has this, unclear why
+C#define AUTODIFF_USE_OLDSTORE_2D
+C#define AUTODIFF_USE_OLDSTORE_3D
+C#define EXCLUDE_WHIO_GLOBUFF_2D
+C#define ALLOW_INIT_WHTAPEIO
+
 C o write separate tape files for each ptracer
 #undef AUTODIFF_PTRACERS_SPLIT_FILES
 
