@@ -86,7 +86,7 @@ C
            saltTmp = cMeanSalt(i,j,k,bi,bj) - 35. _d 0
 CML           saltTmp = salt(i,j,k,bi,bj) - 35. _d 0
 C     scale with tmp to reduce truncation error?
-           locfc = locfc + volWghtFld(i,j,k,bi,bj) * saltTmp * tmp
+           locfc = locfc + volWghtFld(i,j,k,bi,bj) * saltTmp
 CML           print*, 'mean salinity: ',cMeanSalt(i,j,k,bi,bj)
 CML           print*, 'arctic coean mask:', mask_arc_oc(i,j,bi,bj)
 CML           print*, 'logistic equation:'
@@ -96,7 +96,7 @@ CML           print*, 'mean of tile:',locfc
           ENDDO
          ENDDO
         ENDDO
-        objf_mean_salt(bi,bj) = locfc
+        objf_mean_salt(bi,bj) = locfc * tmp
        ENDDO
       ENDDO
 
