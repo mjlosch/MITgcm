@@ -497,6 +497,18 @@ C  Harmonic on Div.u points
          viscAh_DMax(i,j)=MIN(viscAhGridMax*L2rdt,viscAhMax)
          viscAh_D(i,j)=MIN(viscAh_DMax(i,j),viscAh_D(i,j))
 
+#ifdef MOM_CUSTOMIZED_CODE
+C     begin customized code
+         if ( (yC(i,j,bi,bj).GE.33.) .AND.
+     &        (yC(i,j,bi,bj).LE.39.) .AND.
+     &        (xC(i,j,bi,bj).GE.-7.) .AND.
+     &        (xC(i,j,bi,bj).LE.-2.)
+     &        ) then
+          viscAh_D(i,j)=10. _d 0 * viscAh_D(i,j)
+         endif
+C     end customized code
+#enif /* MOM_CUSTOMIZED_CODE */
+
 C  BiHarmonic on Div.u points
          Alin=viscA4D+viscA4Grid*L4rdt
      &         + viscA4_DLth(i,j)+viscA4_DSmg(i,j)
@@ -617,6 +629,18 @@ C  Harmonic on Zeta points
          viscAh_Z(i,j)=MAX(viscAh_ZMin(i,j),Alin)
          viscAh_ZMax(i,j)=MIN(viscAhGridMax*L2rdt,viscAhMax)
          viscAh_Z(i,j)=MIN(viscAh_ZMax(i,j),viscAh_Z(i,j))
+
+#ifdef MOM_CUSTOMIZED_CODE
+C     begin customized code
+         if ( (yG(i,j,bi,bj).GE.33.) .AND.
+     &        (yG(i,j,bi,bj).LE.39.) .AND.
+     &        (xG(i,j,bi,bj).GE.-7.) .AND.
+     &        (xG(i,j,bi,bj).LE.-2.)
+     &        ) then
+          viscAh_Z(i,j)=10. _d 0 * viscAh_Z(i,j)
+         endif
+C     end customized code
+#endif /* MOM_CUSTOMIZED_CODE */
 
 C  BiHarmonic on Zeta points
          Alin=viscA4Z+viscA4Grid*L4rdt
