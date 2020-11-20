@@ -22,7 +22,7 @@ C allow full 3D specification of horizontal Biharmonic Viscosity
 #define ALLOW_3D_VISCA4
 
 C add some extra increase in viscosity near strait of Gibralta
-#define MOM_CUSTOMIZED_CODE
+#undef MOM_CUSTOMIZED_CODE
 
 #endif /* ALLOW_MOM_COMMON */
 #endif /* MOM_COMMON_OPTIONS_H */
