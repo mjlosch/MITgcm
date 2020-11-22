@@ -1,6 +1,19 @@
 #include "PACKAGES_CONFIG.h"
 #include "CPP_OPTIONS.h"
 
+#ifdef ALLOW_AUTODIFF
+# include "AUTODIFF_OPTIONS.h"
+# ifdef ALLOW_AUTODIFF_TAMC
+C----------------------------------------
+C subroutine  UPDATE_CG2D
+C----------------------------------------
+CADJ SUBROUTINE UPDATE_CG2D INPUT  = 1,2,3
+CADJ SUBROUTINE UPDATE_CG2D OUTPUT =
+CADJ SUBROUTINE UPDATE_CG2D DEPEND = 1,2,3
+CADJ SUBROUTINE UPDATE_CG2D REQUIRED
+# endif /* ALLOW_AUTODIFF_TAMC */
+#endif /* ALLOW_AUTODIFF */
+
 CBOP
 C     !ROUTINE: UPDATE_CG2D
 C     !INTERFACE:
