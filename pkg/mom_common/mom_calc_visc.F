@@ -507,7 +507,7 @@ C     begin customized code
           viscAh_D(i,j)=10. _d 0 * viscAh_D(i,j)
          endif
 C     end customized code
-#enif /* MOM_CUSTOMIZED_CODE */
+#endif /* MOM_CUSTOMIZED_CODE */
 
 C  BiHarmonic on Div.u points
          Alin=viscA4D+viscA4Grid*L4rdt
