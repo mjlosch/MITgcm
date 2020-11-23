@@ -1,14 +1,6 @@
 #include "PACKAGES_CONFIG.h"
 #include "CPP_OPTIONS.h"
 
-#ifdef ALLOW_AUTODIFF
-# include "AUTODIFF_OPTIONS.h"
-# ifdef ALLOW_AUTODIFF_TAMC
-C     Make TAF include this routine, even if not required
-CADJ SUBROUTINE UPDATE_CG2D REQUIRED
-# endif /* ALLOW_AUTODIFF_TAMC */
-#endif /* ALLOW_AUTODIFF */
-
 CBOP
 C     !ROUTINE: UPDATE_CG2D
 C     !INTERFACE:
