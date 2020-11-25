@@ -9,7 +9,8 @@
  mult_mean_salt = 1.,
 # mult_temp_tut  = 1.,
 # mult_hflux_tut = 2.,
-# lastinterval= 864000.,
+ lastinterval= 864000.,
+#lastinterval= 86400.,
 #lastinterval=31104000.,
- lastinterval=120000.,
+#lastinterval=120000.,
  &

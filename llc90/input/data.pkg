@@ -2,7 +2,6 @@
  &PACKAGES
  useGMRedi=.TRUE.,
  useKPP   =.TRUE.,
-#useGGL90 =.TRUE.,
  useSEAICE=.true.,
 #useTHSice=.true.,
 #useShelfIce = .true.,

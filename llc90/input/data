@@ -54,8 +54,12 @@
  exactConserv=.TRUE.,
  useSingleCpuIO=.TRUE.,
 #globalFiles = .TRUE.,
- tempAdvScheme=33,
- saltAdvScheme=33,
+ tempAdvScheme=30,
+ saltAdvScheme=30,
+ tempVertAdvScheme=3,
+ saltVertAdvScheme=3,
+ tempImplVertAdv=.TRUE.,
+ saltImplVertAdv=.TRUE.,
  staggerTimeStep=.TRUE.,
  vectorInvariantMomentum=.TRUE.,
 #when using the cd scheme:
@@ -86,13 +90,8 @@
 # 100 years, no leap year
 #nTimeSteps = 109501,
 # 1 year1, dt=1h
-#nTimeSteps=8760,
-#deltaT    = 3600.,
-# 1 year1, dt=45min, requires adjusting the nIter0 and the pickups
- nIter0=619456,
- nTimeSteps=11680,
- deltaT    = 2700.,
- pickupSuff='0000464592',
+ nTimeSteps=8760,
+ deltaT    = 3600.,
 # 744 hours = 31 days
 #nTimeSteps=744,
 #nTimeSteps=10,
@@ -121,7 +120,7 @@
  monitorFreq = 86400.0,
 #monitorFreq = 1.0,
 #monitorFreq = 7200.0,
-#dumpInitAndLast = .FALSE.,
+ dumpInitAndLast = .FALSE.,
  writePickupAtEnd = .FALSE.,
 # pickupStrictlyMatch=.FALSE.,
 #dumpFreq    = 43200.0,

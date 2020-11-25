@@ -7,7 +7,7 @@
 # inAdExact = .FALSE.,
  useKPPinAdMode = .FALSE.,
 #useGGL90inAdMode = .FALSE.,
-# useGMRediInAdMode = .TRUE.,
+#useGMRediInAdMode = .FALSE.,
 #useSALT_PLUMEinAdMode = .FALSE.,
 # useSmoothCorrel2DinAdMode,
 # inAdExact, SEAICEapproxLevInAd, 
@@ -15,8 +15,8 @@
  viscFacInFw = 1.,
 #
 # SIregFacInAd, SIregFacInFw,
-#useSEAICEinAdMode=.TRUE.,
- useSEAICEinAdMode=.FALSE.,
-# SEAICEuseFREEDRIFTswitchInAd = .TRUE., 
+ useSEAICEinAdMode=.TRUE.,
+#useSEAICEinAdMode=.FALSE.,
+ SEAICEuseFREEDRIFTswitchInAd = .TRUE., 
 #SEAICEuseDYNAMICSswitchInAd = .TRUE.,
  &

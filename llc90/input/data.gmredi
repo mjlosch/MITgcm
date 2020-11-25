@@ -13,12 +13,26 @@
 # GM_AdvForm     :	turn on GM Advective form       (default=Skew flux form)
 
  &GM_PARM01 
-  GM_background_K    = 10.,
-  GM_taper_scheme    = 'ldd97',
-  GM_maxSlope        = 1.e-2,
+  GM_Small_Number  = 1.D-20,
+  GM_slopeSqCutoff = 1.D+08,
+  GM_AdvForm         = .TRUE.,
+# GM_isopycK         = 1.D+3,
+# GM_background_K    = 1.D+3,
+  GM_background_K    = 1.D+1,
+  GM_maxSlope        = 4.D-3,
+  GM_taper_scheme    = 'stableGmAdjTap',
+# GM_Kmin_horiz      = 100.,
   GM_Kmin_horiz      = 50.,
-  GM_Scrit           = 4.e-3,
-  GM_Sd              = 1.e-3,
+  GM_Scrit           = 4.D-3,
+  GM_Sd              = 1.D-3,
+# GM_background_K3dFile='total_kapgm_r009bit11.bin'
+# GM_isopycK3dFile='total_kapredi_r009bit11.bin'
+# GM_background_K    = 10.,
+# GM_taper_scheme    = 'ldd97',
+# GM_maxSlope        = 1.e-2,
+# GM_Kmin_horiz      = 50.,
+# GM_Scrit           = 4.e-3,
+# GM_Sd              = 1.e-3,
 # parameters taken from Gnanadesikan et al 2006, JCL
   GM_Visbeck_alpha   = 0.07,
   GM_Visbeck_length  = 50.e+3,
