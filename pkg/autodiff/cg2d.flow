@@ -1,35 +1,21 @@
 C----------------------------------------
 C subroutine  cg2d
 C----------------------------------------
-CADJ SUBROUTINE cg2d    ADNAME  = cg2d
+CADJ SUBROUTINE cg2d    ADNAME  = cg2d_sad
 CADJ SUBROUTINE cg2d    FTLNAME = cg2d
 CADJ SUBROUTINE cg2d    INPUT   = 1,2,      6,7,8
 CADJ SUBROUTINE cg2d    OUTPUT  =   2,3,4,5,6,7
 CADJ SUBROUTINE cg2d    ACTIVE  = 1,2
-CADJ SUBROUTINE cg2d    DEPEND  =               8
-CMLCADJ SUBROUTINE cg2d COMMON CG2D_I_R INPUT = 1,2,3,4,5,6
+CADJ SUBROUTINE cg2d    DEPEND  =           6,7,8
+CADJ SUBROUTINE cg2d    COMMON CG2D_I_R INPUT = 1,2,3,4,5,6,7,8
 
 C----------------------------------------
 C subroutine  cg2d_sr
 C----------------------------------------
-CADJ SUBROUTINE cg2d_sr ADNAME  = cg2d_sr
+CADJ SUBROUTINE cg2d_sr ADNAME  = cg2d_sad
 CADJ SUBROUTINE cg2d_sr FTLNAME = cg2d_sr
 CADJ SUBROUTINE cg2d_sr INPUT   = 1,2,      6,7,8
 CADJ SUBROUTINE cg2d_sr OUTPUT  =   2,3,4,5,6,7
 CADJ SUBROUTINE cg2d_sr ACTIVE  = 1,2
-CADJ SUBROUTINE cg2d_sr DEPEND  =               8
-CMLCADJ SUBROUTINE cg2d_sr COMMON CG2D_I_R INPUT = 1,2,3,4,5,6
-
-CML This is a hack that is necessary because of the self-adjoint cg2d.
-CML It forces TAF to always include update_cg2d so that the inner tape
-CML computations are consistent with the forward compuations. The
-CML alternative is to completely describe the interface of cg2d (see
-CML commented directives above), but then TAF generates an update_cg2d_ad
-CML that uses AD variables as2d_ad, ps_ad, etc, that have never been
-CML intialised.
-CML We prefer a self-adjoint cg2d which implies an inaccurate AD-code
-CML because the correct solution would be very expensive
-C----------------------------------------
-C subroutine  update_cg2d
-C----------------------------------------
-CADJ SUBROUTINE update_cg2d REQUIRED
+CADJ SUBROUTINE cg2d_sr DEPEND  =           6,7,8
+CADJ SUBROUTINE cg2d_sr COMMON CG2D_I_R INPUT = 1,2,3,4,5,6,7,8
