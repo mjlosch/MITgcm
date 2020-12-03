@@ -5,12 +5,13 @@
   SEAICE_no_slip     = .FALSE.,
 # this advection scheme does not work for the adjoint
 # SEAICEadvScheme    = 33,
-  SEAICEadvScheme    = 77,
-# SEAICEadvScheme    = 30,
+# SEAICEadvScheme    = 77,
+  SEAICEadvScheme    = 30,
   SEAICE_drag        = 0.001,
   SEAICE_drag_south  = 0.002,
   SEAICE_wetAlbTemp  = 0.0,
   SEAICE_salt0       = 4.0,
+  LSR_ERROR = 1.e-6,
 # NO EFFECT in seaice_growth_adx
 # this value should be default for the McPhee parameterization
 # SEAICE_mcPheeTaper=0.92,
