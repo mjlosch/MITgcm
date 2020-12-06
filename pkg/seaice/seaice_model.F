@@ -216,14 +216,7 @@ C NOW DO ADVECTION and DIFFUSION
 #else /* SEAICE_CGRID */
         CALL SEAICE_ADVDIFF( uLoc, vLoc, myTime, myIter, myThid )
 #endif /* SEAICE_CGRID */
-<<<<<<< HEAD
-      ENDIF
-CADJ STORE heff  = comlev1, key=ikey_dynamics, kind=isbyte
-CADJ STORE area  = comlev1, key=ikey_dynamics, kind=isbyte
-CADJ STORE hsnow = comlev1, key=ikey_dynamics, kind=isbyte
-=======
        ENDIF
->>>>>>> origin/seaice_store_directives
 
 C     After advection, the sea ice variables may have unphysical values
 C     e.g., < 0, that are regularized here. Concentration as a special case
