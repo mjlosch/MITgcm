@@ -48,10 +48,6 @@ C     myThid :: my Thread Id number
       SEAICEadjMODE=SEAICEapproxLevInAd
 C     SIregFacInAd = UNSET_RL by default, so we need to check this here
       IF ( SIregFacInAd .NE. UNSET_RL ) SINegFac = SIregFacInAd
-CML      SEAICEadvSchArea = 30
-CML      SEAICEadvSchHeff = 30
-CML      SEAICEadvSchSnow = 30
-CML      SEAICEadvSchSalt = 30
 #endif /* ALLOW_SEAICE */
       viscFacAdj=viscFacInAd
 

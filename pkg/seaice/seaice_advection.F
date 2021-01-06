@@ -48,17 +48,20 @@ C !USES: ===============================================================
 #include "GRID.h"
 #include "SEAICE_SIZE.h"
 #include "SEAICE_PARAMS.h"
-#include "SEAICE.h"      
+#include "SEAICE.h"
 #ifdef ALLOW_GENERIC_ADVDIFF
 # include "GAD.h"
 #endif
+#ifdef ALLOW_AUTODIFF
+# include "AUTODIFF_PARAMS.h"
+#endif /* ALLOW_AUTODIFF */
 #ifdef ALLOW_AUTODIFF_TAMC
 # include "tamc.h"
 # include "tamc_keys.h"
 # ifdef ALLOW_PTRACERS
 #  include "PTRACERS_SIZE.h"
 # endif
-#endif
+#endif /* ALLOW_AUTODIFF_TAMC */
 #ifdef ALLOW_EXCH2
 #include "W2_EXCH2_SIZE.h"
 #include "W2_EXCH2_TOPOLOGY.h"
@@ -377,7 +380,14 @@ CADJ &     comlev1_bibj_k_gadice_pass, key=passkey, byte=isbyte
           CALL GAD_FLUXLIMIT_ADV_X( bi,bj,k, .TRUE.,
      I         SEAICE_deltaTtherm, uTrans, uFld, maskLocW, localTij,
      O         af, myThid )
-         ELSEIF (advectionScheme.EQ.ENUM_DST3 ) THEN
+#ifdef ALLOW_AUTODIFF
+         ELSEIF( advectionScheme.EQ.ENUM_DST3 .OR.
+     &          (advectionScheme.EQ.ENUM_DST3_FLUX_LIMIT .AND. inAdMode)
+     &         ) THEN
+C     This block is to trick the adjoint just as in gad_calc_rhs
+#else /* ALLOW_AUTODIFF */
+         ELSEIF( advectionScheme.EQ.ENUM_DST3 ) THEN
+#endif /* ALLOW_AUTODIFF */
           CALL GAD_DST3_ADV_X(      bi,bj,k, .TRUE.,
      I         SEAICE_deltaTtherm, uTrans, uFld, maskLocW, localTij,
      O         af, myThid )
@@ -591,7 +601,14 @@ CADJ &     comlev1_bibj_k_gadice_pass, key=passkey, byte=isbyte
           CALL GAD_FLUXLIMIT_ADV_Y( bi,bj,k, .TRUE.,
      I         SEAICE_deltaTtherm, vTrans, vFld, maskLocS, localTij,
      O         af, myThid )
-         ELSEIF (advectionScheme.EQ.ENUM_DST3 ) THEN
+#ifdef ALLOW_AUTODIFF
+         ELSEIF( advectionScheme.EQ.ENUM_DST3 .OR.
+     &          (advectionScheme.EQ.ENUM_DST3_FLUX_LIMIT .AND. inAdMode)
+     &         ) THEN
+C     This block is to trick the adjoint just as in gad_calc_rhs
+#else /* ALLOW_AUTODIFF */
+         ELSEIF( advectionScheme.EQ.ENUM_DST3 ) THEN
+#endif /* ALLOW_AUTODIFF */
           CALL GAD_DST3_ADV_Y(      bi,bj,k, .TRUE.,
      I         SEAICE_deltaTtherm, vTrans, vFld, maskLocS, localTij,
      O         af, myThid )

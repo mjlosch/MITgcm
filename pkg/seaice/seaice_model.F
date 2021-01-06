@@ -169,15 +169,6 @@ C--   Apply ice velocity open boundary conditions
       IF ( useOBCS ) CALL OBCS_ADJUST_UVICE( uice, vice, myThid )
 # endif /* DISABLE_SEAICE_OBCS */
 #endif /* ALLOW_OBCS */
-#if (defined ALLOW_AUTODIFF_TAMC) && (defined SEAICE_ALLOW_DYNAMICS) \
-       && (defined SEAICE_CGRID)
-CADJ STORE uice  = comlev1, key=ikey_dynamics, kind=isbyte
-CADJ STORE vice  = comlev1, key=ikey_dynamics, kind=isbyte
-CADJ STORE dwatn = comlev1, key=ikey_dynamics, kind=isbyte
-#ifdef SEAICE_ALLOW_BOTTOMDRAG
-CADJ STORE cbotc = comlev1, key=ikey_dynamics, kind=isbyte
-#endif /* SEAICE_ALLOW_BOTTOMDRAG */
-#endif /* ALLOW_AUTODIFF_TAMC+SEAICE_ALLOW_DYNAMICS+sEAICE_CGRID */
 
 #if (defined ALLOW_AUTODIFF_TAMC) && (defined SEAICE_ALLOW_DYNAMICS) \
        && (defined SEAICE_CGRID)
@@ -217,6 +208,13 @@ C NOW DO ADVECTION and DIFFUSION
         CALL SEAICE_ADVDIFF( uLoc, vLoc, myTime, myIter, myThid )
 #endif /* SEAICE_CGRID */
        ENDIF
+#ifdef ALLOW_AUTODIFF_TAMC
+CADJ STORE heff  = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE area  = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE hsnow = comlev1, key=ikey_dynamics, kind=isbyte
+# ifdef SEAICE_VARIABLE_SALINITY
+CADJ STORE hsalt = comlev1, key=ikey_dynamics, kind=isbyte
+# endif
 
 C     After advection, the sea ice variables may have unphysical values
 C     e.g., < 0, that are regularized here. Concentration as a special case

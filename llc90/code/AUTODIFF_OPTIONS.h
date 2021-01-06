@@ -60,9 +60,11 @@ C#define ALLOW_INIT_WHTAPEIO
 C o write separate tape files for each ptracer
 #undef AUTODIFF_PTRACERS_SPLIT_FILES
 
+C o allow using viscFacInAd to recompute viscosities in AD
+#define AUTODIFF_ALLOW_VISCFACADJ
+
 C#define AUTODIFF_DISABLE_LEITH
 C#define AUTODIFF_DISABLE_REYNOLDS_SCALE
-
 
 C   ==================================================================
 #endif /* ndef ECCO_CPPOPTIONS_H */
