@@ -27,7 +27,7 @@ C     myThid :: my Thread Id number
       INTEGER myThid
       CHARACTER*(MAX_LEN_MBUF) msgBuf
 
-      inAdMode  = inAdFalse
+      inAdMode  = .FALSE.
 
       useKPP    = useKPPinFwdMode
       useGMRedi = useGMRediInFwdMode
@@ -46,8 +46,10 @@ C     myThid :: my Thread Id number
         SEAICEuseDYNAMICS  = SEAICEuseDYNAMICSinFwdMode
       ENDIF
       SEAICEadjMODE=0
+C     SIregFacInFw = UNSET_RL by default, so we need to check this here
+      IF ( SIregFacInFw .NE. UNSET_RL ) SINegFac = SIregFacInFw
 #endif /* ALLOW_SEAICE */
-      viscFacAdj=1. _d 0
+      viscFacAdj=viscFacInFw
 
       IF ( debugLevel.GE.debLevC ) THEN
        WRITE(msgBuf,'(A,L5)')

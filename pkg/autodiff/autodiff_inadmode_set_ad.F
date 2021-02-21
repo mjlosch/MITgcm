@@ -27,7 +27,7 @@ C     myThid :: my Thread Id number
       INTEGER myThid
       CHARACTER*(MAX_LEN_MBUF) msgBuf
 
-      inAdMode  = inAdTrue
+      inAdMode  = .TRUE.
 
       useKPP    = useKPPinAdMode
       useGMRedi = useGMRediInAdMode
@@ -46,6 +46,8 @@ C     myThid :: my Thread Id number
         SEAICEuseDYNAMICS  = .NOT.SEAICEuseDYNAMICSinFwdMode
       ENDIF
       SEAICEadjMODE=SEAICEapproxLevInAd
+C     SIregFacInAd = UNSET_RL by default, so we need to check this here
+      IF ( SIregFacInAd .NE. UNSET_RL ) SINegFac = SIregFacInAd
 #endif /* ALLOW_SEAICE */
       viscFacAdj=viscFacInAd
 

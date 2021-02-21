@@ -81,6 +81,13 @@ C               for mixing of tracers vertically ( units of r^2/s )
       _RL  diffKr (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
 #endif
 
+#ifdef ALLOW_SMAG_3D_DIFFUSIVITY
+C     smag3D_diffK :: isotropic 3D diffusivity from Smagorisky viscosity
+C                     at grid-cell center (units: m^2/s )
+      COMMON /DYNVARS_DIFFK_SMAG3D/ smag3D_diffK
+      _RL smag3D_diffK(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+#endif
+
 C   The following blocks containing requires anomaly fields of control vars
 C   and related to Options:
 C   ALLOW_KAPGM_CONTROL , ALLOW_KAPREDI_CONTROL and ALLOW_BOTTOMDRAG_CONTROL
@@ -113,6 +120,16 @@ C                     = 0 (not convecting) or 1 (convecting)
       _RL  rhoInSitu(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       _RL  hMixLayer(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL  IVDConvCount(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+
+#if (defined (ALLOW_SIGMAR_COST_CONTRIBUTION) || defined (ALLOW_LEITH_QG))
+C     Leith QG dynamic viscosity scheme requires buoyancy frequency.
+C     ECCO sometimes uses sigmaR (with ALLOW_SIGMAR_COST_CONTRIBUTION).
+C     Store sigmaRfield to avoid computing density multiple times and give
+C     access to all levels during the k-loop
+C     sigmaRfield           :: vertical gradient of buoyancy.
+      COMMON /DYNVARS_sigmaR/ sigmaRfield
+      _RL sigmaRfield  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+#endif /* ALLOW_SIGMAR_COST_CONTRIBUTION or ALLOW_LEITH_QG */
 
 #ifdef ALLOW_SOLVE4_PS_AND_DRAG
 C     Variables for Implicit friction (& vert. visc) in 2-D pressure solver
