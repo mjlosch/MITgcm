@@ -55,6 +55,7 @@ C     myThid :: Thread no. that called this routine.
       INTEGER myIter, myThid
 CEOP
 
+#ifdef SEAICE_USE_GROWTH_ADX
 #if (defined ALLOW_EXF) && (defined ALLOW_ATM_TEMP)
 C     !FUNCTIONS:
 #ifdef ALLOW_DIAGNOSTICS
@@ -1004,13 +1005,13 @@ C       Update the area, heff, and hsnow
         DO J=1,sNy
          DO I=1,sNx
           HEFF(I,J,bi,bj)  = HEFFpreTH(I,J) +
-     &         SEAICE_deltaTtherm * S_h(I,J)
+     &         SEAICE_deltaTtherm * S_h(I,J) * HEFFM(I,J,bi,bj)
 
           AREA(I,J,bi,bj)  = AREApreTH(I,J) +
-     &         SEAICE_deltaTtherm * S_a(I,J)
+     &         SEAICE_deltaTtherm * S_a(I,J) * HEFFM(I,J,bi,bj)
 
           HSNOW(I,J,bi,bj) = HSNWpreTH(I,J) +
-     &         SEAICE_deltaTtherm * S_hsnow(I,J)
+     &         SEAICE_deltaTtherm * S_hsnow(I,J) * HEFFM(I,J,bi,bj)
          ENDDO
         ENDDO
 
@@ -1420,6 +1421,7 @@ C
 #else  /* ALLOW_EXF and ALLOW_ATM_TEMP */
       STOP 'SEAICE_GROWTH_ADX not compiled with EXF and ALLOW_ATM_TEMP'
 #endif /* ALLOW_EXF and ALLOW_ATM_TEMP */
+#endif /* SEAICE_USE_GROWTH_ADX */
 
       RETURN
       END
