@@ -1125,8 +1125,8 @@ C     x-direction
            chiX(i,j) = tmpTrac/localVol(i,j)
 C     y-direction
            tmpTrac = chiX(i,j)*localVol(i,j)
-     &      -deltaTLev(k)*( afy(i,j+1)*r_vTrans(i,j+1)
-     &                    - afy(i,j  )*r_vTrans(i,j) )
+     &      -deltaTLev(k)*( afy(i,j+1)**2*r_vTrans(i,j+1)
+     &                    - afy(i,j  )**2*r_vTrans(i,j) )
      &                   *maskInC(i,j,bi,bj)
            localVol(i,j) = localVol(i,j)
      &      -deltaTLev(k)*( vTrans(i,j+1) - vTrans(i,j) )
@@ -1135,7 +1135,7 @@ C     y-direction
 C     r-direction
            tmpTrac = chiX(i,j)*locVol3d(i,j,k)
      &      -deltaTLev(k)*( fVerT(i,j,kDown)**2 * r_rTransKp(i,j)
-     &                     -fVerT(i,j,kUp)**2   * r_rrTrans(i,j) )
+     &                     -fVerT(i,j,kUp)**2   * r_rTrans(i,j) )
      &                   *rkSign*maskInC(i,j,bi,bj)
            localVol(i,j) = locVol3d(i,j,k)
      &      -deltaTLev(k)*( rTransKp(i,j) - rTrans(i,j) )
