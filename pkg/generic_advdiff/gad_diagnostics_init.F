@@ -174,6 +174,13 @@ C-     Diffusive flux:
      I      diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 #endif /* GAD_ALLOW_TS_SOM_ADV */
 
+       diagUnits = DIAGS_MK_UNITS( 'm^3/s ('//trUnits//')^2', myThid )
+       diagName  = 'VarD'//diagSufx
+       diagTitle = 'Mass-weighted Variance Decay of pot. temperature'
+       diagCode  = 'SMR     MR      '
+       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I      diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
 C-     add diagnostics of advective & diffusive flux of Salt :
@@ -307,6 +314,13 @@ C-     Diffusive flux:
        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I      diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 #endif /* GAD_ALLOW_TS_SOM_ADV */
+
+       diagUnits = DIAGS_MK_UNITS( 'm^3/s ('//trUnits//')^2', myThid )
+       diagName  = 'VarD'//diagSufx
+       diagTitle = 'Mass-weighted Variance Decay of salinity'
+       diagCode  = 'SMR     MR      '
+       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I      diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
