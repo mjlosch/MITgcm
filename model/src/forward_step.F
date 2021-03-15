@@ -725,6 +725,13 @@ CADJ STORE KPPdiffKzT         = comlev1, key = ikey_dynamics,
 CADJ &     kind = isbyte
 # endif
 
+# ifdef ALLOW_SHELFICE
+C     These store directives avoid an (expensive) extra
+C     "call do_oceanic_phys", from which shelfice_thermodynamics is called
+CADJ STORE shelficeForcingT = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE shelficeForcingS = comlev1, key=ikey_dynamics, kind=isbyte
+# endif /* ALLOW_SHELFICE */
+
 # if (defined NONLIN_FRSURF) || (defined ALLOW_DEPTH_CONTROL)
 CADJ STORE theta,salt = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE etaH = comlev1, key = ikey_dynamics, kind = isbyte
@@ -987,6 +994,11 @@ C       (+ update "etaN" & "etaH", exact volume conservation):
         CALL TIMER_STOP ('INTEGR_CONTINUITY   [FORWARD_STEP]',myThid)
       ENDIF
 
+#ifdef ALLOW_AUTODIFF_TAMC
+C--   This simple store directive makes an (expensive) extra
+C     "call solve_for_pressure" go away
+CADJ STORE wVel = comlev1, key = ikey_dynamics, kind = isbyte
+#endif
 #ifdef NONLIN_FRSURF
       IF ( select_rStar.NE.0 ) THEN
 # ifndef DISABLE_RSTAR_CODE
