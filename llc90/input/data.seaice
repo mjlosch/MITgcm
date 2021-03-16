@@ -4,9 +4,9 @@
 # SEAICEheatConsFix  = .TRUE.,
   SEAICE_no_slip     = .FALSE.,
 # this advection scheme does not work for the adjoint
-# SEAICEadvScheme    = 33,
+  SEAICEadvScheme    = 33,
 # SEAICEadvScheme    = 77,
-  SEAICEadvScheme    = 30,
+# SEAICEadvScheme    = 30,
   SEAICE_drag        = 0.001,
   SEAICE_drag_south  = 0.002,
   SEAICE_wetAlbTemp  = 0.0,
