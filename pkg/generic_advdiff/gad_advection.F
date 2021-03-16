@@ -168,8 +168,6 @@ C     msgBuf     :: Informational/error message buffer
       CHARACTER*8 diagName
       CHARACTER*4 diagSufx
       LOGICAL     doDiagAdvX, doDiagAdvY, doDiagAdvR
-      _RL small_rl
-      PARAMETER ( small_rl = 0.D0 )
       _RL r_uTrans  (1:sNx+1,1:sNy+1)
       _RL r_vTrans  (1:sNx+1,1:sNy+1)
       _RL r_rTrans  (1:sNx,1:sNy)
@@ -1088,8 +1086,8 @@ C     and consistent with linFSConserveTr and "surfExpan_" monitor.
         IF ( DIAGNOSTICS_IS_ON( diagName, myThid ) ) THEN
          DO j=1,sNy+1
           DO i=1,sNx+1
-           r_uTrans(i,j) = small_rl
-           r_vTrans(i,j) = small_rl
+           r_uTrans(i,j) = 0. _d 0
+           r_vTrans(i,j) = 0. _d 0
            IF ( uTrans(i,j) .NE. 0. _d 0 )
      &          r_uTrans(i,j) = 1. _d 0 / uTrans(i,j)
            IF ( vTrans(i,j) .NE. 0. _d 0 )
@@ -1098,8 +1096,8 @@ C     and consistent with linFSConserveTr and "surfExpan_" monitor.
          ENDDO
          DO j=1,sNy
           DO i=1,sNx
-           r_rTrans  (i,j) = small_rl
-           r_rTransKp(i,j) = small_rl
+           r_rTrans  (i,j) = 0. _d 0
+           r_rTransKp(i,j) = 0. _d 0
            IF ( rTrans(i,j) .NE. 0. _d 0 )
      &          r_rTrans(i,j) = 1. _d 0 / rTrans(i,j)
            IF ( rTransKp(i,j) .NE. 0. _d 0 )
@@ -1126,7 +1124,7 @@ C     x-direction
 C     y-direction
            tmpTrac = chiX(i,j)*localVol(i,j)
      &      -deltaTLev(k)*( afy(i,j+1)**2*r_vTrans(i,j+1)
-     &                    - afy(i,j  )**2*r_vTrans(i,j) )
+     &                    - afy(i,j  )**2*r_vTrans(i,j  ) )
      &                   *maskInC(i,j,bi,bj)
            localVol(i,j) = localVol(i,j)
      &      -deltaTLev(k)*( vTrans(i,j+1) - vTrans(i,j) )
@@ -1140,7 +1138,6 @@ C     r-direction
            localVol(i,j) = locVol3d(i,j,k)
      &      -deltaTLev(k)*( rTransKp(i,j) - rTrans(i,j) )
      &                   *rkSign*maskInC(i,j,bi,bj)
-C- localTij only needed for Variance Bugget: can be move there
            chiX(i,j) = tmpTrac/localVol(i,j)
 #else /* GAD_MULTIDIM_COMPRESSIBLE */
            chiX(i,j) = 0. _d 0
