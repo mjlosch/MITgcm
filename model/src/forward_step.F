@@ -22,6 +22,9 @@
 #ifdef ALLOW_SEAICE
 # include "SEAICE_OPTIONS.h"
 #endif
+#ifdef ALLOW_SALT_PLUME
+# include "SALT_PLUME_OPTIONS.h"
+#endif
 #ifdef ALLOW_PTRACERS
 # include "PTRACERS_OPTIONS.h"
 #endif
@@ -734,6 +737,18 @@ CADJ STORE KPPdiffKzT         = comlev1, key = ikey_dynamics,
 CADJ &     kind = isbyte
 # endif
 
+# ifdef ALLOW_GGL90
+CADJ STORE GGL90diffKr = comlev1, key = ikey_dynamics, kind = isbyte
+# endif
+
+# ifdef ALLOW_SALT_PLUME
+#  include "salt_plume_ad_check_lev1_dir.h"
+#  ifdef SALT_PLUME_VOLUME
+CADJ STORE SPforcingS = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE SPforcingT = comlev1, key = ikey_dynamics, kind = isbyte
+#  endif
+# endif /* ALLOW_SALT_PLUME */
+
 # ifdef ALLOW_SHELFICE
 C     These store directives avoid an (expensive) extra
 C     "call do_oceanic_phys", from which shelfice_thermodynamics is called
@@ -788,12 +803,16 @@ CADJ STORE wVel = comlev1, key = ikey_dynamics, kind = isbyte
         CALL TIMER_START('THERMODYNAMICS      [FORWARD_STEP]',myThid)
         CALL THERMODYNAMICS( myTime, myIter, myThid )
         CALL TIMER_STOP ('THERMODYNAMICS      [FORWARD_STEP]',myThid)
-CML#ifdef ALLOW_AUTODIFF_TAMC
+#ifdef ALLOW_AUTODIFF_TAMC
 CML# ifdef ALLOW_OBCS
 CMLCADJ STORE salt  = comlev1, key=ikey_dynamics, kind=isbyte
 CMLCADJ STORE theta = comlev1, key=ikey_dynamics, kind=isbyte
 CML# endif /* ALLOW_OBCS */
-CML#endif /* ALLOW_AUTODIFF_TAMC */
+# ifdef ALLOW_DOWN_SLOPE
+CADJ STORE salt  = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE theta = comlev1, key=ikey_dynamics, kind=isbyte
+# endif /* ALLOW_DOWN_SLOPE */
+#endif /* ALLOW_AUTODIFF_TAMC */
 C--     if not staggerTimeStep: end
       ENDIF
 
@@ -1077,12 +1096,16 @@ CADJ STORE wVel = comlev1, key = ikey_dynamics, kind = isbyte
         CALL TIMER_START('THERMODYNAMICS      [FORWARD_STEP]',myThid)
         CALL THERMODYNAMICS( myTime, myIter, myThid )
         CALL TIMER_STOP ('THERMODYNAMICS      [FORWARD_STEP]',myThid)
-CML#ifdef ALLOW_AUTODIFF_TAMC
+#ifdef ALLOW_AUTODIFF_TAMC
 CML# ifdef ALLOW_OBCS
 CMLCADJ STORE salt  = comlev1, key=ikey_dynamics, kind=isbyte
 CMLCADJ STORE theta = comlev1, key=ikey_dynamics, kind=isbyte
 CML# endif /* ALLOW_OBCS */
-CML#endif /* ALLOW_AUTODIFF_TAMC */
+# ifdef ALLOW_DOWN_SLOPE
+CADJ STORE salt  = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE theta = comlev1, key=ikey_dynamics, kind=isbyte
+# endif /* ALLOW_DOWN_SLOPE */
+#endif /* ALLOW_AUTODIFF_TAMC */
 
 C--    if staggerTimeStep: end
       ENDIF
