@@ -5,6 +5,7 @@
 #
  &AUTODIFF_PARM01
 # inAdExact = .FALSE.,
+ useApproxAdvectionInAdMode = .TRUE.,
  useKPPinAdMode = .FALSE.,
 #useGGL90inAdMode = .FALSE.,
 #useGMRediInAdMode = .FALSE.,
