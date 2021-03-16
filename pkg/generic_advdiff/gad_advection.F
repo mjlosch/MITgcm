@@ -1107,7 +1107,7 @@ C     and consistent with linFSConserveTr and "surfExpan_" monitor.
          DO j=1,sNy
           DO i=1,sNx
 #ifdef GAD_MULTIDIM_COMPRESSIBLE
-           chiX(i,j) = 0. _d 0
+           chiX(i,j) = tracer(i,j,k,bi,bj)**2
 C     reset local volume
            localVol(i,j) = rA(i,j,bi,bj)*deepFac2C(k)
      &          *rhoFacC(k)*drF(k)*hFacC(i,j,k,bi,bj)
@@ -1140,7 +1140,7 @@ C     r-direction
      &                   *rkSign*maskInC(i,j,bi,bj)
            chiX(i,j) = tmpTrac/localVol(i,j)
 #else /* GAD_MULTIDIM_COMPRESSIBLE */
-           chiX(i,j) = 0. _d 0
+           chiX(i,j) = tracer(i,j,k,bi,bj)**2
 C     x-direction
            chiX(i,j) = chiX(i,j)
      &      -deltaTLev(k)*recip_rhoFacC(k)
@@ -1169,6 +1169,7 @@ C     r-direction
      &         -tracer(i,j,k,bi,bj)**2*(rTransKp(i,j)-rTrans(i,j))
      &        )*rkSign*maskInC(i,j,bi,bj)
 #endif /* GAD_MULTIDIM_COMPRESSIBLE */
+           chiX(i,j) = (localTij(i,j)**2 - chiX(i,j))/deltaTlev(k)
 C     mask weighting
            chiX(i,j) = chiX(i,j)*hFacC(i,j,k,bi,bj)
           ENDDO
