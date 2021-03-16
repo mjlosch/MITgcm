@@ -244,6 +244,9 @@ CEOP
 
 #ifdef ALLOW_AUTODIFF_TAMC
 c--   Initialize storage for the cost function evaluation.
+c--
+c--   This first tape is reserved for the dummy variables and mainly
+c--   serves the purpose of suppressing TAF recomputation warnings.
 CADJ  INIT dummytape = common, 1
 c--
 #  ifdef ALLOW_GENTIM2D_CONTROL
