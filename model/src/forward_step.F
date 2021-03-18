@@ -742,10 +742,15 @@ CADJ STORE GGL90diffKr = comlev1, key = ikey_dynamics, kind = isbyte
 # endif
 
 # ifdef ALLOW_SALT_PLUME
-#  include "salt_plume_ad_check_lev1_dir.h"
+CADJ STORE saltplumeflux      = comlev1, key = ikey_dynamics,
+CADJ &     kind = isbyte
+CADJ STORE saltPlumeDepth     = comlev1, key = ikey_dynamics,
+CADJ &     kind = isbyte
 #  ifdef SALT_PLUME_VOLUME
-CADJ STORE SPforcingS = comlev1, key = ikey_dynamics, kind = isbyte
-CADJ STORE SPforcingT = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE SPforcingS         = comlev1, key = ikey_dynamics,
+CADJ &     kind = isbyte
+CADJ STORE SPforcingT         = comlev1, key = ikey_dynamics,
+CADJ &     kind = isbyte
 #  endif
 # endif /* ALLOW_SALT_PLUME */
 
