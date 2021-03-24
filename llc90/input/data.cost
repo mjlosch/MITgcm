@@ -7,6 +7,10 @@
 #
  mult_test = 0.,
  mult_mean_salt = 1.,
+# mult_sflux_bering = 1.,
+# mult_sflux_fram = 1.,
+# mult_sflux_barents = 1.,
+# mult_sflux_caa = 1.,
 # mult_temp_tut  = 1.,
 # mult_hflux_tut = 2.,
  lastinterval= 864000.,

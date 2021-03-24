@@ -158,8 +158,9 @@ C     compute fluxes of salt through specific sections:
         DO k=1,Nr
          DO j=1,sNy
           DO i=1,sNx
-           hfw = hFacW(i,j,k,bi,bj)*drF(k)*dyG(i,j,bi,bj)
-           hfs = hFacS(i,j,k,bi,bj)*drF(k)*dxG(i,j,bi,bj)
+C     convert volume flux to g/kg Sverdup = 1e6 (g/kg)(m^3/s) to deal with smaller values
+           hfw = hFacW(i,j,k,bi,bj)*drF(k)*dyG(i,j,bi,bj) * 1. _d -6
+           hfs = hFacS(i,j,k,bi,bj)*drF(k)*dxG(i,j,bi,bj) * 1. _d -6
 C     Bering Strait
            objf_sflux_bering (bi,bj) =  objf_sflux_bering (bi,bj)
      &          + cMeanSaltUVel(i,j,k,bi,bj)*maskUloc(i,j,1,bi,bj)*hfw
