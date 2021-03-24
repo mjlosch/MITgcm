@@ -43,6 +43,8 @@ C     ========= Local variables =========================
       character*(MAX_LEN_FNAM) fname
       integer itlo,ithi
       integer jtlo,jthi
+C Functions
+      INTEGER ILNBLNK, il
 
       jtlo = mybylo(mythid)
       jthi = mybyhi(mythid)
@@ -58,8 +60,9 @@ C     Read masks
       IF ( exst ) THEN
        CALL READ_FLD_XY_RS(fname,' ',mask_arc_oc,0,myThid)
       ELSE
+       il = ILNBLNK(fname)
        WRITE(standardmessageunit,*)
-     &       'S/R COST_MEAN_SALT: ',TRIM(fname), ' does not exist'
+     &       'S/R COST_MEAN_SALT: ',fname(1:il), ' does not exist'
       ENDIF
 
 #ifdef ALLOW_MDSIO
@@ -71,8 +74,9 @@ C     Read masks
      O      dummyRL, maskUloc,
      I      1, myThid )
       ELSE
+       il = ILNBLNK(fname)
        WRITE(standardmessageunit,*)
-     &       'S/R COST_MEAN_SALT: ',TRIM(fname), ' does not exist'
+     &       'S/R COST_MEAN_SALT: ',fname(1:il), ' does not exist'
       ENDIF
       fname = 'maskU_arctic_sections.data'
       INQUIRE(file = fname, exist = exst)
@@ -82,8 +86,9 @@ C     Read masks
      O      dummyRL, maskUloc,
      I      1, myThid )
       ELSE
+       il = ILNBLNK(fname)
        WRITE(standardmessageunit,*)
-     &       'S/R COST_MEAN_SALT: ',TRIM(fname), ' does not exist'
+     &       'S/R COST_MEAN_SALT: ',fname(1:il), ' does not exist'
       ENDIF
 #else
       cost_mean_salt.F: Oops!
