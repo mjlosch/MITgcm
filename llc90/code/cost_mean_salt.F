@@ -78,12 +78,12 @@ C     Read masks
        WRITE(standardmessageunit,*)
      &       'S/R COST_MEAN_SALT: ',fname(1:il), ' does not exist'
       ENDIF
-      fname = 'maskU_arctic_sections.data'
+      fname = 'maskV_arctic_sections.data'
       INQUIRE(file = fname, exist = exst)
       IF ( exst ) THEN
        CALL MDS_READ_FIELD(
      I      fname, readBinaryPrec, .FALSE., 'RS', nMsk, 1, nMsk,
-     O      dummyRL, maskUloc,
+     O      dummyRL, maskVloc,
      I      1, myThid )
       ELSE
        il = ILNBLNK(fname)
@@ -176,15 +176,6 @@ C     Canadian Arctic Archipelago
            objf_sflux_caa    (bi,bj) =  objf_sflux_caa    (bi,bj)
      &          + cMeanSaltUVel(i,j,k,bi,bj)*maskUloc(i,j,4,bi,bj)*hfw
      &          + cMeanSaltVVel(i,j,k,bi,bj)*maskVloc(i,j,4,bi,bj)*hfs
-CML           saltTmp = cMeanSalt(i,j,k,bi,bj) - 35. _d 0
-CMLC     scale with tmp to reduce truncation error?
-CML           locfc = locfc + volWghtFld(i,j,k,bi,bj) * saltTmp
-CML           print*, 'mean salinity: ',cMeanSalt(i,j,k,bi,bj)
-CML           print*, 'arctic coean mask:', mask_arc_oc(i,j,bi,bj)
-CML           print*, 'logistic equation:'
-CML           print*, (1-1/(1+exp(-20*(cMeanSalt(i,j,k,bi,bj)-35))))
-CML           print*, 'weighted volume', volwght
-CML           print*, 'mean of tile:',locfc
           ENDDO
          ENDDO
         ENDDO
@@ -193,11 +184,37 @@ CML           print*, 'mean of tile:',locfc
 
 C     diagnostics
       CALL WRITE_FLD_XYZ_RL('maskArcticVol',' ',volWghtFld,-1,myThid)
+      mask_arc_oc = maskUloc(:,:,1,:,:)
+      CALL WRITE_FLD_XY_RL('maskArcticBeringU',' ', mask_arc_oc,
+     &     -1, myThid)
+      mask_arc_oc = maskUloc(:,:,2,:,:)
+      CALL WRITE_FLD_XY_RL('maskArcticBarentsU',' ', mask_arc_oc,
+     &     -1, myThid)
+      mask_arc_oc = maskVloc(:,:,2,:,:)
+      CALL WRITE_FLD_XY_RL('maskArcticBarentsV',' ', mask_arc_oc,
+     &     -1, myThid)
+      mask_arc_oc = maskUloc(:,:,3,:,:)
+      CALL WRITE_FLD_XY_RL('maskArcticFramU',' ', mask_arc_oc,
+     &     -1, myThid)
+      mask_arc_oc = maskUloc(:,:,4,:,:)
+      CALL WRITE_FLD_XY_RL('maskArcticCaaU',' ', mask_arc_oc,
+     &     -1, myThid)
+      mask_arc_oc = maskVloc(:,:,4,:,:)
+      CALL WRITE_FLD_XY_RL('maskArcticCaaV',' ', mask_arc_oc,
+     &     -1, myThid)
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
         write(standardmessageunit,*)
-     &       'ml-objf_mean_salt =',objf_mean_salt(bi,bj),
+     &       'ml-objf_mean_salt     =',objf_mean_salt(bi,bj),
      &       tmp,startTime,endTime
+        write(standardmessageunit,*)
+     &       'ml-objf_sflux_bering  =', objf_sflux_bering (bi,bj)
+        write(standardmessageunit,*)
+     &       'ml-objf_sflux_barents =', objf_sflux_barents(bi,bj)
+        write(standardmessageunit,*)
+     &       'ml-objf_sflux_fram    =', objf_sflux_fram   (bi,bj)
+        write(standardmessageunit,*)
+     &       'ml-objf_sflux_caa     =', objf_sflux_caa    (bi,bj)
        ENDDO
       ENDDO
 
