@@ -59,6 +59,10 @@ cHFLUXM_CONTROL
 cHFLUXM_CONTROL
 #ifdef ALLOW_COST_MEAN_SALT
      &               ,objf_mean_salt
+     &               ,objf_sflux_bering
+     &               ,objf_sflux_fram
+     &               ,objf_sflux_barents
+     &               ,objf_sflux_caa
 #endif
 
       _RL  objf_atl  (nsx,nsy)
@@ -78,7 +82,11 @@ cHFLUXM_CONTROL
       _RL  objf_temp_tut (nsx,nsy)
 cHFLUXM_CONTROL
 #ifdef ALLOW_COST_MEAN_SALT
-      _RL  objf_mean_salt (nsx,nsy)
+      _RL  objf_mean_salt    (nsx,nsy)
+      _RL  objf_sflux_bering (nsx,nsy)
+      _RL  objf_sflux_fram   (nsx,nsy)
+      _RL  objf_sflux_barents(nsx,nsy)
+      _RL  objf_sflux_caa    (nsx,nsy)
 #endif
 
       common /cost_param_r/
@@ -122,6 +130,10 @@ cHFLUXM_CONTROL
 cHFLUXM_CONTROL
 #ifdef ALLOW_COST_MEAN_SALT
      &                   ,mult_mean_salt
+     &                   ,mult_sflux_bering
+     &                   ,mult_sflux_fram
+     &                   ,mult_sflux_barents
+     &                   ,mult_sflux_caa
 #endif
 
       _RL  mult_atl
@@ -147,6 +159,10 @@ cHFLUXM_CONTROL
 cHFLUXM_CONTROL
 #ifdef ALLOW_COST_MEAN_SALT
       _RL  mult_mean_salt
+      _RL  mult_sflux_bering
+      _RL  mult_sflux_fram
+      _RL  mult_sflux_barents
+      _RL  mult_sflux_caa
 #endif
 
 #ifdef ALLOW_COST_TEST
@@ -162,13 +178,16 @@ cHFLUXM_CONTROL
 #ifdef ALLOW_COST
       COMMON /COST_MEAN_R/
      &                     cMeanTheta, cMeanSalt, cMeanUVel, cMeanVVel,
-     &                     cMeanThetaUVel, cMeanThetaVVel
-      _RL cMeanTheta(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
-      _RL cMeanSalt (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
-      _RL cMeanUVel (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
-      _RL cMeanVVel (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+     &                     cMeanThetaUVel, cMeanThetaVVel,
+     &                     cMeanSaltUVel,  cMeanSaltVVel
+      _RL cMeanTheta    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL cMeanSalt     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL cMeanUVel     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL cMeanVVel     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       _RL cMeanThetaUVel(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       _RL cMeanThetaVVel(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL cMeanSaltVVel (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL cMeanSaltUVel (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
 #endif
 
 c     ==================================================================

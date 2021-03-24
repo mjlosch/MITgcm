@@ -49,7 +49,11 @@ cHFLUXM_CONTROL
      &                 , mult_temp_tut, mult_hflux_tut
 cHFLUXM_CONTROL
 #ifdef ALLOW_COST_MEAN_SALT
-     &       , mult_mean_salt
+     &     , mult_mean_salt
+     &     , mult_sflux_bering
+     &     , mult_sflux_fram
+     &     , mult_sflux_barents
+     &     , mult_sflux_caa
 #endif
 
       _BEGIN_MASTER( myThid )
@@ -75,6 +79,10 @@ cHFLUXM_CONTROL
 cHFLUXM_CONTROL
 #ifdef ALLOW_COST_MEAN_SALT
         mult_mean_salt        =      0. _d 0
+        mult_sflux_bering     =      0. _d 0
+        mult_sflux_fram       =      0. _d 0
+        mult_sflux_barents    =      0. _d 0
+        mult_sflux_caa        =      0. _d 0
 #endif
 
 c--     30*24*3600 = 2592000 = 1 model month

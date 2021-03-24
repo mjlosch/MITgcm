@@ -30,9 +30,17 @@ C     ========= Local variables =========================
       INTEGER i, j, k
       INTEGER bi, bj
       INTEGER Nk
+      INTEGER nMsk
+      PARAMETER (nMsk=4)
       _RL locfc,tmp,volwght,saltTmp
       _RS mask_arc_oc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
       _RL volWghtFld (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RS maskUloc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nMsk,nSx,nSy)
+      _RS maskVloc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nMsk,nSx,nSy)
+      _RS hfw, hfs
+      _RL dummyRL(1)
+      LOGICAL exst
+      character*(MAX_LEN_FNAM) fname
       integer itlo,ithi
       integer jtlo,jthi
 
@@ -42,10 +50,44 @@ C     ========= Local variables =========================
       ithi = mybxhi(mythid)
 
       Nk = 2
-C Read annual mean Levitus temperature
+C     Read masks
 
-      CALL READ_FLD_XY_RS('mask_arctic_ocean.data',
-     &                    ' ',mask_arc_oc,0,myThid)
+      exst=.FALSE.
+      fname = 'mask_arctic_ocean.data'
+      INQUIRE(file = fname, exist = exst)
+      IF ( exst ) THEN
+       CALL READ_FLD_XY_RS(fname,' ',mask_arc_oc,0,myThid)
+      ELSE
+       WRITE(standardmessageunit,*)
+     &       'S/R COST_MEAN_SALT: ',TRIM(fname), ' does not exist'
+      ENDIF
+
+#ifdef ALLOW_MDSIO
+      fname = 'maskU_arctic_sections.data'
+      INQUIRE(file = fname, exist = exst)
+      IF ( exst ) THEN
+       CALL MDS_READ_FIELD(
+     I      fname, readBinaryPrec, .FALSE., 'RS', nMsk, 1, nMsk,
+     O      dummyRL, maskUloc,
+     I      1, myThid )
+      ELSE
+       WRITE(standardmessageunit,*)
+     &       'S/R COST_MEAN_SALT: ',TRIM(fname), ' does not exist'
+      ENDIF
+      fname = 'maskU_arctic_sections.data'
+      INQUIRE(file = fname, exist = exst)
+      IF ( exst ) THEN
+       CALL MDS_READ_FIELD(
+     I      fname, readBinaryPrec, .FALSE., 'RS', nMsk, 1, nMsk,
+     O      dummyRL, maskUloc,
+     I      1, myThid )
+      ELSE
+       WRITE(standardmessageunit,*)
+     &       'S/R COST_MEAN_SALT: ',TRIM(fname), ' does not exist'
+      ENDIF
+#else
+      cost_mean_salt.F: Oops!
+#endif
 
 CML      CALL WRITE_FLD_XY_RS('maskArcticTest',' ',mask_arc_oc,-1,myThid)
 
@@ -97,6 +139,50 @@ CML           print*, 'mean of tile:',locfc
          ENDDO
         ENDDO
         objf_mean_salt(bi,bj) = locfc * tmp
+       ENDDO
+      ENDDO
+
+C     compute fluxes of salt through specific sections:
+      DO bj=myByLo(myThid),myByHi(myThid)
+       DO bi=myBxLo(myThid),myBxHi(myThid)
+        locfc = 0. _d 0
+        objf_sflux_bering (bi,bj) = locfc
+        objf_sflux_barents(bi,bj) = locfc
+        objf_sflux_fram   (bi,bj) = locfc
+        objf_sflux_caa    (bi,bj) = locfc
+        DO k=1,Nr
+         DO j=1,sNy
+          DO i=1,sNx
+           hfw = hFacW(i,j,k,bi,bj)*drF(k)*dyG(i,j,bi,bj)
+           hfs = hFacS(i,j,k,bi,bj)*drF(k)*dxG(i,j,bi,bj)
+C     Bering Strait
+           objf_sflux_bering (bi,bj) =  objf_sflux_bering (bi,bj)
+     &          + cMeanSaltUVel(i,j,k,bi,bj)*maskUloc(i,j,1,bi,bj)*hfw
+     &          + cMeanSaltVVel(i,j,k,bi,bj)*maskVloc(i,j,1,bi,bj)*hfs
+C     Barents Sea
+           objf_sflux_barents(bi,bj) =  objf_sflux_barents(bi,bj)
+     &          + cMeanSaltUVel(i,j,k,bi,bj)*maskUloc(i,j,2,bi,bj)*hfw
+     &          + cMeanSaltVVel(i,j,k,bi,bj)*maskVloc(i,j,2,bi,bj)*hfs
+C     Fram Strait
+           objf_sflux_fram   (bi,bj) =  objf_sflux_fram   (bi,bj)
+     &          + cMeanSaltUVel(i,j,k,bi,bj)*maskUloc(i,j,3,bi,bj)*hfw
+     &          + cMeanSaltVVel(i,j,k,bi,bj)*maskVloc(i,j,3,bi,bj)*hfs
+C     Canadian Arctic Archipelago
+           objf_sflux_caa    (bi,bj) =  objf_sflux_caa    (bi,bj)
+     &          + cMeanSaltUVel(i,j,k,bi,bj)*maskUloc(i,j,4,bi,bj)*hfw
+     &          + cMeanSaltVVel(i,j,k,bi,bj)*maskVloc(i,j,4,bi,bj)*hfs
+CML           saltTmp = cMeanSalt(i,j,k,bi,bj) - 35. _d 0
+CMLC     scale with tmp to reduce truncation error?
+CML           locfc = locfc + volWghtFld(i,j,k,bi,bj) * saltTmp
+CML           print*, 'mean salinity: ',cMeanSalt(i,j,k,bi,bj)
+CML           print*, 'arctic coean mask:', mask_arc_oc(i,j,bi,bj)
+CML           print*, 'logistic equation:'
+CML           print*, (1-1/(1+exp(-20*(cMeanSalt(i,j,k,bi,bj)-35))))
+CML           print*, 'weighted volume', volwght
+CML           print*, 'mean of tile:',locfc
+          ENDDO
+         ENDDO
+        ENDDO
        ENDDO
       ENDDO
 
