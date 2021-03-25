@@ -22,6 +22,9 @@
 #ifdef ALLOW_SEAICE
 # include "SEAICE_OPTIONS.h"
 #endif
+#ifdef ALLOW_SALT_PLUME
+# include "SALT_PLUME_OPTIONS.h"
+#endif
 #ifdef ALLOW_PTRACERS
 # include "PTRACERS_OPTIONS.h"
 #endif
@@ -650,6 +653,15 @@ CADJ STORE qsw = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE phi0surf = comlev1, key = ikey_dynamics, kind = isbyte
 # endif
 cph-test)
+# ifdef ALLOW_OBCS
+CADJ STORE salt               = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE theta              = comlev1, key=ikey_dynamics, kind=isbyte
+#include "obcs_ad_check_lev1_dir.h"
+CML#  ifdef ALLOW_OBCS_STEVENS
+CMLCADJ STORE gsNm1              = comlev1, key=ikey_dynamics, kind=isbyte
+CMLCADJ STORE gtNm1              = comlev1, key=ikey_dynamics, kind=isbyte
+CML#  endif
+# endif /* ALLOW_OBCS */
 
 # ifdef ALLOW_DEPTH_CONTROL
 CADJ STORE hFacC, hFacS, hFacW
@@ -725,6 +737,30 @@ CADJ STORE KPPdiffKzT         = comlev1, key = ikey_dynamics,
 CADJ &     kind = isbyte
 # endif
 
+# ifdef ALLOW_GGL90
+CADJ STORE GGL90diffKr = comlev1, key = ikey_dynamics, kind = isbyte
+# endif
+
+# ifdef ALLOW_SALT_PLUME
+CADJ STORE saltplumeflux      = comlev1, key = ikey_dynamics,
+CADJ &     kind = isbyte
+CADJ STORE saltPlumeDepth     = comlev1, key = ikey_dynamics,
+CADJ &     kind = isbyte
+#  ifdef SALT_PLUME_VOLUME
+CADJ STORE SPforcingS         = comlev1, key = ikey_dynamics,
+CADJ &     kind = isbyte
+CADJ STORE SPforcingT         = comlev1, key = ikey_dynamics,
+CADJ &     kind = isbyte
+#  endif
+# endif /* ALLOW_SALT_PLUME */
+
+# ifdef ALLOW_SHELFICE
+C     These store directives avoid an (expensive) extra
+C     "call do_oceanic_phys", from which shelfice_thermodynamics is called
+CADJ STORE shelficeForcingT = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE shelficeForcingS = comlev1, key=ikey_dynamics, kind=isbyte
+# endif /* ALLOW_SHELFICE */
+
 # if (defined NONLIN_FRSURF) || (defined ALLOW_DEPTH_CONTROL)
 CADJ STORE theta,salt = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE etaH = comlev1, key = ikey_dynamics, kind = isbyte
@@ -772,6 +808,16 @@ CADJ STORE wVel = comlev1, key = ikey_dynamics, kind = isbyte
         CALL TIMER_START('THERMODYNAMICS      [FORWARD_STEP]',myThid)
         CALL THERMODYNAMICS( myTime, myIter, myThid )
         CALL TIMER_STOP ('THERMODYNAMICS      [FORWARD_STEP]',myThid)
+#ifdef ALLOW_AUTODIFF_TAMC
+CML# ifdef ALLOW_OBCS
+CMLCADJ STORE salt  = comlev1, key=ikey_dynamics, kind=isbyte
+CMLCADJ STORE theta = comlev1, key=ikey_dynamics, kind=isbyte
+CML# endif /* ALLOW_OBCS */
+# ifdef ALLOW_DOWN_SLOPE
+CADJ STORE salt  = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE theta = comlev1, key=ikey_dynamics, kind=isbyte
+# endif /* ALLOW_DOWN_SLOPE */
+#endif /* ALLOW_AUTODIFF_TAMC */
 C--     if not staggerTimeStep: end
       ENDIF
 
@@ -987,6 +1033,11 @@ C       (+ update "etaN" & "etaH", exact volume conservation):
         CALL TIMER_STOP ('INTEGR_CONTINUITY   [FORWARD_STEP]',myThid)
       ENDIF
 
+#ifdef ALLOW_AUTODIFF_TAMC
+C--   This simple store directive makes an (expensive) extra
+C     "call solve_for_pressure" go away
+CADJ STORE wVel = comlev1, key = ikey_dynamics, kind = isbyte
+#endif
 #ifdef NONLIN_FRSURF
       IF ( select_rStar.NE.0 ) THEN
 # ifndef DISABLE_RSTAR_CODE
@@ -1050,6 +1101,16 @@ CADJ STORE wVel = comlev1, key = ikey_dynamics, kind = isbyte
         CALL TIMER_START('THERMODYNAMICS      [FORWARD_STEP]',myThid)
         CALL THERMODYNAMICS( myTime, myIter, myThid )
         CALL TIMER_STOP ('THERMODYNAMICS      [FORWARD_STEP]',myThid)
+#ifdef ALLOW_AUTODIFF_TAMC
+CML# ifdef ALLOW_OBCS
+CMLCADJ STORE salt  = comlev1, key=ikey_dynamics, kind=isbyte
+CMLCADJ STORE theta = comlev1, key=ikey_dynamics, kind=isbyte
+CML# endif /* ALLOW_OBCS */
+# ifdef ALLOW_DOWN_SLOPE
+CADJ STORE salt  = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE theta = comlev1, key=ikey_dynamics, kind=isbyte
+# endif /* ALLOW_DOWN_SLOPE */
+#endif /* ALLOW_AUTODIFF_TAMC */
 
 C--    if staggerTimeStep: end
       ENDIF
@@ -1065,6 +1126,12 @@ C--   Apply adjustments to Tracers arrays (T,S,+pTracers)
       CALL TIMER_START('TRC_CORRECTION_STEP [FORWARD_STEP]',myThid)
       CALL TRACERS_CORRECTION_STEP(myTime, myIter, myThid)
       CALL TIMER_STOP ('TRC_CORRECTION_STEP [FORWARD_STEP]',myThid)
+#ifdef ALLOW_AUTODIFF_TAMC
+# ifdef ALLOW_OBCS
+CADJ STORE salt  = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE theta = comlev1, key=ikey_dynamics, kind=isbyte
+# endif /* ALLOW_OBCS */
+#endif /* ALLOW_AUTODIFF_TAMC */
 
 #ifdef ALLOW_LONGSTEP
       IF ( usePTRACERS ) THEN
