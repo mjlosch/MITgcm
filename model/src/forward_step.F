@@ -808,18 +808,13 @@ CADJ STORE wVel = comlev1, key = ikey_dynamics, kind = isbyte
         CALL TIMER_START('THERMODYNAMICS      [FORWARD_STEP]',myThid)
         CALL THERMODYNAMICS( myTime, myIter, myThid )
         CALL TIMER_STOP ('THERMODYNAMICS      [FORWARD_STEP]',myThid)
-#ifdef ALLOW_AUTODIFF_TAMC
-CML# ifdef ALLOW_OBCS
-CMLCADJ STORE salt  = comlev1, key=ikey_dynamics, kind=isbyte
-CMLCADJ STORE theta = comlev1, key=ikey_dynamics, kind=isbyte
-CML# endif /* ALLOW_OBCS */
-# ifdef ALLOW_DOWN_SLOPE
-CADJ STORE salt  = comlev1, key=ikey_dynamics, kind=isbyte
-CADJ STORE theta = comlev1, key=ikey_dynamics, kind=isbyte
-# endif /* ALLOW_DOWN_SLOPE */
-#endif /* ALLOW_AUTODIFF_TAMC */
 C--     if not staggerTimeStep: end
       ENDIF
+#ifdef ALLOW_AUTODIFF_TAMC
+C# if defined ALLOW_OBCS || defined ALLOW_DOWN_SLOPE || defined ALLOW_SALT_PLUME
+CADJ STORE salt, theta = comlev1, key=ikey_dynamics, kind=isbyte
+C# endif
+#endif /* ALLOW_AUTODIFF_TAMC */
 
 #ifdef ALLOW_LONGSTEP
       IF ( usePTRACERS .AND. LS_whenToSample .EQ. 1 ) THEN
@@ -1101,19 +1096,14 @@ CADJ STORE wVel = comlev1, key = ikey_dynamics, kind = isbyte
         CALL TIMER_START('THERMODYNAMICS      [FORWARD_STEP]',myThid)
         CALL THERMODYNAMICS( myTime, myIter, myThid )
         CALL TIMER_STOP ('THERMODYNAMICS      [FORWARD_STEP]',myThid)
-#ifdef ALLOW_AUTODIFF_TAMC
-CML# ifdef ALLOW_OBCS
-CMLCADJ STORE salt  = comlev1, key=ikey_dynamics, kind=isbyte
-CMLCADJ STORE theta = comlev1, key=ikey_dynamics, kind=isbyte
-CML# endif /* ALLOW_OBCS */
-# ifdef ALLOW_DOWN_SLOPE
-CADJ STORE salt  = comlev1, key=ikey_dynamics, kind=isbyte
-CADJ STORE theta = comlev1, key=ikey_dynamics, kind=isbyte
-# endif /* ALLOW_DOWN_SLOPE */
-#endif /* ALLOW_AUTODIFF_TAMC */
 
 C--    if staggerTimeStep: end
       ENDIF
+#ifdef ALLOW_AUTODIFF_TAMC
+C# if defined ALLOW_OBCS || defined ALLOW_DOWN_SLOPE || defined ALLOW_SALT_PLUME
+CADJ STORE salt, theta = comlev1, key=ikey_dynamics, kind=isbyte
+C# endif
+#endif /* ALLOW_AUTODIFF_TAMC */
 C---+--------+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
 #ifdef ALLOW_AUTODIFF_TAMC
@@ -1126,12 +1116,6 @@ C--   Apply adjustments to Tracers arrays (T,S,+pTracers)
       CALL TIMER_START('TRC_CORRECTION_STEP [FORWARD_STEP]',myThid)
       CALL TRACERS_CORRECTION_STEP(myTime, myIter, myThid)
       CALL TIMER_STOP ('TRC_CORRECTION_STEP [FORWARD_STEP]',myThid)
-#ifdef ALLOW_AUTODIFF_TAMC
-# ifdef ALLOW_OBCS
-CADJ STORE salt  = comlev1, key=ikey_dynamics, kind=isbyte
-CADJ STORE theta = comlev1, key=ikey_dynamics, kind=isbyte
-# endif /* ALLOW_OBCS */
-#endif /* ALLOW_AUTODIFF_TAMC */
 
 #ifdef ALLOW_LONGSTEP
       IF ( usePTRACERS ) THEN
