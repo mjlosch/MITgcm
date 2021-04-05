@@ -6,7 +6,11 @@ C---  Fields need in autodiff_store.F and autodiff_restore.F
 #else
       PARAMETER (NDV3D  = 10)
 #endif
+#ifdef EXCLUDE_FFIELDS_LOAD
+      PARAMETER (NDV2D  =  4)
+#else
       PARAMETER (NDV2D  = 22)
+#endif
       _RL StoreDynVars3D
      &    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy,NDV3D)
       _RL StoreDynVars2D

@@ -94,43 +94,45 @@ C-      2D arrays
         DO J=1-OLy,sNy+OLy
          DO I=1-OLx,sNx+OLx
           StoreDynVars2D(I,J,bi,bj,1) = etaN(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,2) = taux0(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,3) = taux1(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,4) = tauy0(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,5) = tauy1(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,6) = qnet0(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,7) = qnet1(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,8)  = empmr0(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,9) = empmr1(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,10) = sst0(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,11) = sst1(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,12) = sss0(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,13) = sss1(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,14) = saltflux0(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,15) = saltflux1(I,J,bi,bj)
-#ifdef SHORTWAVE_HEATING
-          StoreDynVars2D(I,J,bi,bj,16) = qsw0(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,17) = qsw1(I,J,bi,bj)
+#ifdef EXACT_CONSERV
+          StoreDynVars2D(I,J,bi,bj,2) = etaH(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj,3) = dEtaHdt(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj,4) = PmEpR(I,J,bi,bj)
 #else
-          StoreDynVars2D(I,J,bi,bj,16) = 0.
-          StoreDynVars2D(I,J,bi,bj,17) = 0.
+          StoreDynVars2D(I,J,bi,bj,2) = 0.
+          StoreDynVars2D(I,J,bi,bj,3) = 0.
+          StoreDynVars2D(I,J,bi,bj,4) = 0.
+#endif
+#ifndef EXCLUDE_FFIELDS_LOAD
+          StoreDynVars2D(I,J,bi,bj, 5) = taux0(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj, 6) = taux1(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj, 7) = tauy0(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj, 8) = tauy1(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj, 9) = qnet0(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj,10) = qnet1(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj,11) = empmr0(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj,12) = empmr1(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj,13) = sst0(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj,14) = sst1(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj,15) = sss0(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj,16) = sss1(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj,17) = saltflux0(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj,18) = saltflux1(I,J,bi,bj)
+#ifdef SHORTWAVE_HEATING
+          StoreDynVars2D(I,J,bi,bj,19) = qsw0(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj,10) = qsw1(I,J,bi,bj)
+#else
+          StoreDynVars2D(I,J,bi,bj,19) = 0.
+          StoreDynVars2D(I,J,bi,bj,20) = 0.
 #endif
 #ifdef ATMOSPHERIC_LOADING
-          StoreDynVars2D(I,J,bi,bj,18) = pload0(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,19) = pload1(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj,21) = pload0(I,J,bi,bj)
+          StoreDynVars2D(I,J,bi,bj,22) = pload1(I,J,bi,bj)
 #else
-          StoreDynVars2D(I,J,bi,bj,18) = 0.
-          StoreDynVars2D(I,J,bi,bj,19) = 0.
-#endif
-#ifdef EXACT_CONSERV
-          StoreDynVars2D(I,J,bi,bj,20) = etaH(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,21) = dEtaHdt(I,J,bi,bj)
-          StoreDynVars2D(I,J,bi,bj,22) = PmEpR(I,J,bi,bj)
-#else
-          StoreDynVars2D(I,J,bi,bj,20) = 0.
           StoreDynVars2D(I,J,bi,bj,21) = 0.
           StoreDynVars2D(I,J,bi,bj,22) = 0.
 #endif
+#endif /* ndef EXCLUDE_FFIELDS_LOAD */
          ENDDO
         ENDDO
 #endif /* AUTODIFF_USE_OLDSTORE_2D */
