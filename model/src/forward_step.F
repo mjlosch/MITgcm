@@ -599,28 +599,36 @@ C--     Step forward fields and calculate time tendency terms.
       CALL TIMER_STOP ('DO_ATMOSPHERIC_PHYS [FORWARD_STEP]',myThid)
 
 #ifdef ALLOW_AUTODIFF_TAMC
+C     store forcing fields, so that they do not need to be read again
+C     in AD-mode
+CADJ STORE EmPmR      = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE Qnet       = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE Qsw        = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE SST        = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE SSS        = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE pLoad      = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE saltFlux   = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE fu, fv     = comlev1, key = ikey_dynamics, kind = isbyte
 # ifdef ALLOW_KPP
-CADJ STORE uVel, vVel = comlev1, key = ikey_dynamics,
-CADJ &     kind = isbyte
+CADJ STORE uVel, vVel = comlev1, key = ikey_dynamics, kind = isbyte
 # endif /* ALLOW_KPP */
 # ifdef EXACT_CONSERV
-CADJ STORE EmPmR              = comlev1, key=ikey_dynamics, kind=isbyte
-CADJ STORE PmEpR              = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE EmPmR      = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE PmEpR      = comlev1, key = ikey_dynamics, kind = isbyte
 # endif
 # ifdef ALLOW_OBCS
-CADJ STORE salt               = comlev1, key=ikey_dynamics, kind=isbyte
-CADJ STORE totphihyd          = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE salt       = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE totphihyd  = comlev1, key = ikey_dynamics, kind = isbyte
 #  ifdef ALLOW_OBCS_STEVENS
-CADJ STORE gsNm1              = comlev1, key=ikey_dynamics, kind=isbyte
-CADJ STORE gtNm1              = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE gsNm1      = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE gtNm1      = comlev1, key = ikey_dynamics, kind = isbyte
 #  endif
 # endif /* ALLOW_OBCS */
 # ifdef ALLOW_PTRACERS
-CADJ STORE pTracer               = comlev1, key = ikey_dynamics,
-CADJ &     kind = isbyte
+CADJ STORE pTracer    = comlev1, key = ikey_dynamics, kind = isbyte
 # endif /* ALLOW_PTRACERS */
 # ifdef ALLOW_DEPTH_CONTROL
-CADJ STORE hFacC = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE hFacC      = comlev1, key = ikey_dynamics, kind = isbyte
 # endif
 #endif /* ALLOW_AUTODIFF_TAMC */
 
@@ -654,12 +662,12 @@ CADJ STORE phi0surf = comlev1, key = ikey_dynamics, kind = isbyte
 # endif
 cph-test)
 # ifdef ALLOW_OBCS
-CADJ STORE salt               = comlev1, key=ikey_dynamics, kind=isbyte
-CADJ STORE theta              = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE salt            = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE theta           = comlev1, key=ikey_dynamics, kind=isbyte
 #include "obcs_ad_check_lev1_dir.h"
 CML#  ifdef ALLOW_OBCS_STEVENS
-CMLCADJ STORE gsNm1              = comlev1, key=ikey_dynamics, kind=isbyte
-CMLCADJ STORE gtNm1              = comlev1, key=ikey_dynamics, kind=isbyte
+CMLCADJ STORE gsNm1           = comlev1, key=ikey_dynamics, kind=isbyte
+CMLCADJ STORE gtNm1           = comlev1, key=ikey_dynamics, kind=isbyte
 CML#  endif
 # endif /* ALLOW_OBCS */
 
@@ -726,31 +734,26 @@ CADJ &     kind = isbyte
 #  endif
 # endif
 
-# ifdef ALLOW_KPP
-CADJ STORE KPPghat            = comlev1, key = ikey_dynamics,
-CADJ &     kind = isbyte
-CADJ STORE KPPfrac            = comlev1, key = ikey_dynamics,
-CADJ &     kind = isbyte
-CADJ STORE KPPdiffKzS         = comlev1, key = ikey_dynamics,
-CADJ &     kind = isbyte
-CADJ STORE KPPdiffKzT         = comlev1, key = ikey_dynamics,
-CADJ &     kind = isbyte
+# ifdef ALLOW_GGL90
+CADJ STORE GGL90diffKr  = comlev1, key = ikey_dynamics, kind = isbyte
 # endif
 
-# ifdef ALLOW_GGL90
-CADJ STORE GGL90diffKr = comlev1, key = ikey_dynamics, kind = isbyte
+# ifdef ALLOW_KPP
+CADJ STORE KPPghat      = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE KPPfrac      = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE KPPdiffKzS   = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE KPPdiffKzT   = comlev1, key = ikey_dynamics, kind = isbyte
+#  ifdef ALLOW_SALT_PLUME
+CADJ STORE KPPplumeFrac = comlev1, key = ikey_dynamics, kind = isbyte
+#  endif
 # endif
 
 # ifdef ALLOW_SALT_PLUME
-CADJ STORE saltplumeflux      = comlev1, key = ikey_dynamics,
-CADJ &     kind = isbyte
-CADJ STORE saltPlumeDepth     = comlev1, key = ikey_dynamics,
-CADJ &     kind = isbyte
+CADJ STORE saltplumeflux  = comlev1, key=ikey_dynamics, kind = isbyte
+CADJ STORE saltPlumeDepth = comlev1, key=ikey_dynamics, kind = isbyte
 #  ifdef SALT_PLUME_VOLUME
-CADJ STORE SPforcingS         = comlev1, key = ikey_dynamics,
-CADJ &     kind = isbyte
-CADJ STORE SPforcingT         = comlev1, key = ikey_dynamics,
-CADJ &     kind = isbyte
+CADJ STORE SPforcingS   = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE SPforcingT   = comlev1, key = ikey_dynamics, kind = isbyte
 #  endif
 # endif /* ALLOW_SALT_PLUME */
 
