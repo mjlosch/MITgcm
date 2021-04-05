@@ -581,13 +581,15 @@ C-- Control variables for atmos. state
      &     wapressure, myTime, myIter, myThid )
 #endif
 
-#ifdef ALLOW_RUNOFF_CONTROL
-      CALL CTRL_GET_GEN (
-     &     xx_runoff_file, xx_runoffstartdate, xx_runoffperiod,
-     &     maskc, runoff, xx_runoff0, xx_runoff1, xx_runoff_dummy,
-     &     xx_runoff_remo_intercept, xx_runoff_remo_slope,
-     &     wrunoff, myTime, myIter, myThid )
-#endif
+cdm transferred from exf_init_runoff.F
+cdm functionality needs to be checked before turning on
+cdm #ifdef ALLOW_RUNOFF_CONTROL
+cdm       CALL CTRL_GET_GEN (
+cdm      &     xx_runoff_file, xx_runoffstartdate, xx_runoffperiod,
+cdm      &     maskc, runoff, xx_runoff0, xx_runoff1, xx_runoff_dummy,
+cdm      &     xx_runoff_remo_intercept, xx_runoff_remo_slope,
+cdm      &     wrunoff, 0., 0., myThid )
+cdm #endif
 
       IF ( useAtmWind ) THEN
 #ifndef ALLOW_ROTATE_UV_CONTROLS

@@ -17,11 +17,7 @@ C---  Fields need in autodiff_store.F and autodiff_restore.F
      &       StoreDynVars2D
 
       INTEGER NCTRL1
-#ifdef ALLOW_RUNOFF_CONTROL
-      PARAMETER (NCTRL1 = 22)
-#else
       PARAMETER (NCTRL1 = 20)
-#endif
       _RL StoreCTRLS1(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,NCTRL1)
       COMMON /AUTODIFF_STORE_CTRL/
      &       StoreCTRLS1

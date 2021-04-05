@@ -369,13 +369,6 @@ C-      2D arrays
           StoreCTRLS1(I,J,bi,bj,19) = 0.0
           StoreCTRLS1(I,J,bi,bj,20) = 0.0
 # endif
-# ifdef ALLOW_RUNOFF_CONTROL
-          StoreCTRLS1(I,J,bi,bj,21) = xx_runoff0(I,J,bi,bj)
-          StoreCTRLS1(I,J,bi,bj,22) = xx_runoff1(I,J,bi,bj)
-CML# else /* in this case StoreCTRLS1 has only 20 fields */
-CML          StoreCTRLS1(I,J,bi,bj,21) = 0.0
-CML          StoreCTRLS1(I,J,bi,bj,22) = 0.0
-# endif
          ENDDO
         ENDDO
        ENDDO

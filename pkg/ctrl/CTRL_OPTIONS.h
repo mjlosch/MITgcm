@@ -61,10 +61,6 @@ C       >>> Atmospheric state.
 #undef ALLOW_VWIND_CONTROL
 #undef ALLOW_PRECIP_CONTROL
 
-C       >>> River runoff is not quite like precip if there in seaice
-C           so we allow it to be a separate control variable
-#undef ALLOW_RUNOFF_CONTROL
-
 C       >>> Other Control.
 #undef ALLOW_DIFFKR_CONTROL
 #undef ALLOW_KAPGM_CONTROL

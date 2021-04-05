@@ -299,10 +299,6 @@ C-      2D arrays
           xx_apressure0(I,J,bi,bj) = StoreCTRLS1(I,J,bi,bj,19)
           xx_apressure1(I,J,bi,bj) = StoreCTRLS1(I,J,bi,bj,20)
 # endif
-# ifdef ALLOW_RUNOFF_CONTROL
-          xx_runoff0(I,J,bi,bj)    = StoreCTRLS1(I,J,bi,bj,21)
-          xx_runoff1(I,J,bi,bj)    = StoreCTRLS1(I,J,bi,bj,22)
-# endif
          ENDDO
         ENDDO
        ENDDO
