@@ -94,6 +94,20 @@ C       code is being compiled
       ENDIF
 #endif
 
+#ifndef ALLOW_LEITH_QG
+C     Check that Leith QG viscosity coefficeint is zero if the
+C     QGLeith code has not been compiled.
+      IF ( viscC2LeithQG.NE.zeroRL )  THEN
+        WRITE(msgBuf,'(2A)') 'CONFIG_CHECK: ',
+     &  'must #define ALLOW_LEITH_QG in MOM_COMMON_OPTIONS.h'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        WRITE(msgBuf,'(2A)') 'CONFIG_CHECK: ',
+     &  ' in order to use QG-Leith (viscC2LeithQG > 0)'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        errCount = errCount + 1
+      ENDIF
+#endif /* ALLOW_LEITH_QG */
+
 #ifndef ALLOW_SMAG_3D
       IF ( useSmag3D ) THEN
         WRITE(msgBuf,'(2A)') 'CONFIG_CHECK: ',
@@ -101,6 +115,17 @@ C       code is being compiled
         CALL PRINT_ERROR( msgBuf, myThid )
         WRITE(msgBuf,'(2A)') 'CONFIG_CHECK: ',
      &  '"#undef ALLOW_SMAG_3D" in MOM_COMMON_OPTIONS.h'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        errCount = errCount + 1
+      ENDIF
+#endif
+#ifndef ALLOW_SMAG_3D_DIFFUSIVITY
+      IF ( smag3D_diffCoeff.NE.zeroRL ) THEN
+        WRITE(msgBuf,'(2A)') 'CONFIG_CHECK: ',
+     &  'Cannot use smag3D_diffCoeff > 0 when compiled with'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        WRITE(msgBuf,'(2A)') 'CONFIG_CHECK: ',
+     &  '"#undef ALLOW_SMAG_3D_DIFFUSIVITY" in CPP_OPTIONS.h'
         CALL PRINT_ERROR( msgBuf, myThid )
         errCount = errCount + 1
       ENDIF
@@ -115,6 +140,18 @@ C       code is being compiled
      &   'CONFIG_CHECK: implicitIntGravWave is TRUE'
        IF ( nonHydrostatic ) WRITE(msgBuf,'(A)')
      &   'CONFIG_CHECK: nonHydrostatic is TRUE'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        errCount = errCount + 1
+      ENDIF
+#endif
+
+#ifndef ALLOW_QHYD_STAGGER_TS
+      IF ( quasiHydrostatic .AND. staggerTimeStep ) THEN
+        WRITE(msgBuf,'(2A)') 'CONFIG_CHECK: ',
+     &    'Cannot use quasiHydrostatic with staggerTimeStep'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        WRITE(msgBuf,'(2A)') 'CONFIG_CHECK: when compiled ',
+     &  'with "#undef ALLOW_QHYD_STAGGER_TS" in CPP_OPTIONS.h'
         CALL PRINT_ERROR( msgBuf, myThid )
         errCount = errCount + 1
       ENDIF

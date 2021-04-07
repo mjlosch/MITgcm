@@ -399,12 +399,62 @@ Currently, the available adjoint state variables are:
 
 ::
 
-   110 |ADJetan |  1 |       |SM A    M1|dJ/m            |dJ/dEtaN: Sensitivity to sea surface height anomaly
-   111 |ADJuvel | 50 |   112 |UURA    MR|dJ/(m/s)        |dJ/dU: Sensitivity to zonal velocity
-   112 |ADJvvel | 50 |   111 |VVRA    MR|dJ/(m/s)        |dJ/dV: Sensitivity to meridional velocity
-   113 |ADJwvel | 50 |       |WM A    LR|dJ/(m/s)        |dJ/dW: Sensitivity to vertical velocity
-   114 |ADJtheta| 50 |       |SMRA    MR|dJ/degC         |dJ/dTheta: Sensitivity to potential temperature
-   115 |ADJsalt | 50 |       |SMRA    MR|dJ/psu          |dJ/dSalt: Sensitivity to salinity
+   109 |ADJetan |  1 |       |SM A    M1|dJ/m            |dJ/dEtaN: Sensitivity to sea surface height anomaly
+   110 |ADJuvel | 15 |   111 |UURA    MR|dJ/(m/s)        |dJ/dU: Sensitivity to zonal velocity
+   111 |ADJvvel | 15 |   110 |VVRA    MR|dJ/(m/s)        |dJ/dV: Sensitivity to meridional velocity
+   112 |ADJwvel | 15 |       |WM A    LR|dJ/(m/s)        |dJ/dW: Sensitivity to vertical velocity
+   113 |ADJtheta| 15 |       |SMRA    MR|dJ/degC         |dJ/dTheta: Sensitivity to potential temperature
+   114 |ADJsalt | 15 |       |SMRA    MR|dJ/(psu)        |dJ/dSalt: Sensitivity to salinity
+   115 |ADJtaux |  1 |   116 |UU A    U1|dJ/(N/m^2)      |dJ/dTaux: Senstivity to zonal surface wind stress
+   116 |ADJtauy |  1 |   115 |VV A    U1|dJ/(N/m^2)      |dJ/dTauy: Sensitivity to merid. surface wind stress
+   117 |ADJempmr|  1 |       |SM A    U1|dJ/(kg/m^2/s)   |dJ/dEmPmR: Sensitivity to net surface Fresh-Water flux into the ocean
+   118 |ADJqnet |  1 |       |SM A    U1|dJ/(W/m^2)      |dJ/dQnet: Sensitivity to net surface heat fluxinto the ocean
+   119 |ADJqsw  |  1 |       |SM A    U1|dJ/(W/m^2)      |dJ/dQsw: Sensitivitiy to net Short-Wave radiation
+   120 |ADJsst  |  1 |       |SM A    M1|dJ/K            |dJ/dSST: Sensitivity to Sea Surface Temperature
+   121 |ADJsss  |  1 |       |SM A    M1|dJ/(psu)        |dJ/dSSS: Sensitivity to Sea Surface Salinity
+   122 |ADJbtdrg|  1 |       |SM A    M1|dJ/d()          |dJ/dCd: Sensitivity to bottom drag coefficient
+   123 |ADJdifkr| 15 |       |SMRA    MR|dJ/d(m^2/s))    |dJ/dKr: Sensitivity to vertical diffusivity
+   124 |ADJepsix| 15 |   125 |UURA    UR|dJ/(m^2/s)      |dJ/dEddyPsiX: Sensitivity to zonal eddystreamfunction
+   125 |ADJepsiy| 15 |   124 |VVRA    UR|dJ/(m^2/s)      |dJ/dEddyPsiY: Sensitivity to meridional eddystreamfunction
+
+
+Additionally the packages :ref:`gmredi <sub_phys_pkg_gmredi>`,
+:ref:`ptracrs <sub_phys_pkg_ptracers>`, :ref:`exf <sub_phys_pkg_exf>`, and
+:ref:`seaice <sub_phys_pkg_seaice>` have the following available adjoint diagnostics
+
+::
+
+   225 |ADJkapgm| 15 |       |SMRA    MR|dJ/d[m^2/s]     |dJ/dKgm: Sensitivity to GM Intensity
+   226 |ADJkapre| 15 |       |SMRA    MR|dJ/d[m^2/s]     |dJ/dKredi: Sensitivity to Redi Coefficient
+
+:: 
+
+   227 |TRAC01  | 15 |       |SMR     MR|mol C/m         |Dissolved Inorganic Carbon concentration
+   241 |ADJptr01| 15 |       |SMRA    MR|dJ/mol C/m      |sensitivity to Dissolved Inorganic Carbon concentration
+
+::
+
+   221 |ADJustrs|  1 |   222 |UU A    U1|dJ/(N/m^2)      |dJ/dustress: Senstivity to zonal surface wind stress
+   222 |ADJvstrs|  1 |   221 |VV A    U1|dJ/(N/m^2)      |dJ/dvstrs: Sensitivity to merid. surface wind stress
+   223 |ADJhflux|  1 |       |SM A    U1|dJ/(W/m^2)      |dJ/dhflux: Sensitivity to upward heat flux
+   224 |ADJsflux|  1 |       |SM A    U1|dJ/(m/s)        |dJ/dhflux: Sensitivity to upward fresh water flux
+   225 |ADJatemp|  1 |       |SM A    U1|dJ/K            |dJ/datemp: Sensitivity to atmos. surface temperature
+   226 |ADJpreci|  1 |       |SM A    U1|dJ/(m/s)        |dJ/daqh: Sensitivity to precipitation
+   227 |ADJroff |  1 |       |SM A    U1|dJ/(m/s)        |dJ/daqh: Sensitivity to river runoff
+   228 |ADJswdn |  1 |       |SM A    U1|dJ/(W/m^2)      |dJ/dswdown: Sensitivity to downward SW radiation
+   229 |ADJlwdn |  1 |       |SM A    U1|dJ/(W/m^2)      |dJ/dlwdown: Sensitivity to downward LW radiation
+   230 |ADJuwind|  1 |       |UM A    U1|dJ/d(m/s)       |dJ/duwind: Senstivity to zonal 10-m wind speed
+   231 |ADJvwind|  1 |       |VM A    U1|dJ/d(m/s)       |dJ/dvwind: Senstivity to meridional 10-m wind speed
+   232 |ADJclsst|  1 |       |SM A    U1|dJ/K            |dJ/dclimsst: Sensitivity to restoring SST
+   233 |ADJclsss|  1 |       |SM A    U1|dJ/(g/kg)       |dJ/dclimsss: Sensitivity to restoring SSS
+
+::
+
+   332 |ADJarea |  1 |       |SM A    M1|dJ/(m^2/m^2)    |dJ/darea: Sensitivity to seaice fractional ice-cover
+   333 |ADJheff |  1 |       |SM A    M1|dJ/dm           |dJ/dheff: Sensitvity to seaice ice thickness
+   334 |ADJhsnow|  1 |       |SM A    M1|dJ/dm           |dJ/dhsnow: Sensitivity to seaice snow thickness
+   335 |ADJuice |  1 |   336 |UU A    M1|dJ/(m/s)        |dJ/duice: sensitivity to zonal ice velocity
+   336 |ADJvice |  1 |   335 |VV A    M1|dJ/(m/s)        |dJ/dvice: sensitivity to meridional ice velocity
 
 Some notes to the user
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -413,8 +463,12 @@ Some notes to the user
 
 2. This feature does not work with the divided adjoint.
 
-3. `adEtaN` is broken in :filelink:`addummy_in_stepping.F <pkg/autodiff/addummy_in_stepping.F>`
-   so the output through diagnostics is zeros just as with the standard 'adjoint dump' method.
+3. The sensitivity to sea surface height `ADJetan` is technically one time step
+   ahead of other adjoint diagnostics printed at the same time step number. To be
+   concrete, if `ADJetan` is written via the diagnostics package at every
+   iteration, `n`, then each field will technically correspond to the written
+   iteration number, `n+1`. This is simply due to a techincality about when this
+   variable is printed in relation to the adjoint pressure solve.
 
 4. The diagStats options are not available for these variables.   
 
@@ -907,7 +961,7 @@ features and limitations:
     called “network byte order”) data. By handling byte-swapping within
     the model, MITgcm output is more easily ported between different
     machines, architectures, compilers, etc. Byteswapping can be turned
-    on/off at compile time within :filelink:`pkg/mdsio`` using the ``_BYTESWAPIO``
+    on/off at compile time within :filelink:`pkg/mdsio` using the ``_BYTESWAPIO``
     CPP macro which is usually set within a :filelink:`genmake2 <tools/genmake2>` options file or
     ``optfile`` (see :numref:`genmake2_optfiles`).
     Additionally, some compilers may have byte-swap options that are
@@ -1176,9 +1230,9 @@ available parameters currently include:
 +---------------------------------+---------+------------+----------------------------------------------+
 | :varlink:`monitor_mnc`          | L       | .TRUE.     | write :filelink:`pkg/monitor` output w/MNC   |
 +---------------------------------+---------+------------+----------------------------------------------+
-| :varlink:`timeave_mnc`          | L       | .TRUE.     | write :filelink:`pkg/timeave`` output w/MNC  |
+| :varlink:`timeave_mnc`          | L       | .TRUE.     | write :filelink:`pkg/timeave` output w/MNC   |
 +---------------------------------+---------+------------+----------------------------------------------+
-| :varlink:`autodiff_mnc`         | L       | .TRUE.     | write :filelink:`pkg/autodiff`` output w/MNC |
+| :varlink:`autodiff_mnc`         | L       | .TRUE.     | write :filelink:`pkg/autodiff` output w/MNC  |
 +---------------------------------+---------+------------+----------------------------------------------+
 | :varlink:`mnc_max_fsize`        | R       | 2.1e+09    | max allowable file size (<2GB)               |
 +---------------------------------+---------+------------+----------------------------------------------+
@@ -2387,3 +2441,11 @@ be written as:
      \vec{N_Q}_z &= J^B_z + J^F_z  \\
      J^B_z &= -\frac{f}{h}\left( \frac{\alpha Q_{net}}{C_w}-\rho_0 \beta S_{net}\right) \\
      J^F_z &= \frac{1}{\rho\delta_e} \vec{k}\times\tau\cdot\nabla\sigma_m \end{aligned}
+
+.. _sub_outp_pkg_flt:
+
+pkg/flt – Simulation of float / parcel displacements
+====================================================
+
+.. include:: flt.rst
+

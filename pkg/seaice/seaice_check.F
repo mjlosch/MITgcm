@@ -455,6 +455,16 @@ C--
        CALL PRINT_ERROR( msgBuf, myThid )
        STOP 'ABNORMAL END: S/R SEAICE_CHECK'
       ENDIF
+      IF ( SEAICElinearIterMax .GT. SOLV_MAX_FIXED ) THEN
+       WRITE(msgBuf,'(2A,I10,A,I10)') 'SEAICE_CHECK:',
+     &      'SEAICElinearIterMax = ', SEAICElinearIterMax,
+     &      ' > SOLV_MAX_FIXED = ', SOLV_MAX_FIXED
+       CALL PRINT_ERROR( msgBuf, myThid )
+       WRITE(msgBuf,'(2A,I10,A,I10)') 'SEAICE_CHECK:',
+     &'either increase SOLV_MAX_FIXED or decrease SEAICElinearIterMax'
+       CALL PRINT_ERROR( msgBuf, myThid )
+       STOP 'ABNORMAL END: S/R SEAICE_LSR'
+      ENDIF
       IF ( IMAX_TICE .GT. NMAX_TICE ) THEN
        WRITE(msgBuf,'(2A)') 'SEAICE_CHECK:',
      &  ' need to increase NMAX_TICE in SEAICE_PARAMS.h'
@@ -1036,6 +1046,39 @@ CML        STOP 'ABNORMAL END: S/R SEAICE_CHECK'
        CALL PRINT_ERROR( msgBuf, myThid )
        STOP 'ABNORMAL END: S/R SEAICE_CHECK'
       ENDIF
+
+C--   Some sanity checks for SEAICEdWatMin
+      IF ( SEAICEdWatMin .LT. 0. _d 0 ) THEN
+       WRITE(msgBuf,'(A,A,F5.2,A)') 'SEAICE_CHECK: ',
+     &      'SEAICEdWatMin (= ', SEAICEdWatMin, ') may not be < 0.'
+       CALL PRINT_ERROR( msgBuf , myThid)
+       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
+      ENDIF
+      IF ( SEAICE_waterDrag .EQ. 0. _d 0
+     &     .AND. SEAICEdWatMin .GT. 0. _d 0) THEN
+       WRITE(msgBuf,'(A,A,F5.2)') '** WARNING ** SEAICE_CHECK: ',
+     &      'SEAICE_waterDrag  = ', SEAICE_waterDrag
+       CALL PRINT_MESSAGE( msgBuf, errorMessageUnit,
+     &                     SQUEEZE_RIGHT, myThid )
+       WRITE(msgBuf,'(A,A,F5.2)') '** WARNING ** SEAICE_CHECK: ',
+     &      'but SEAICEdWatMin = ', SEAICEdWatMin
+       CALL PRINT_MESSAGE( msgBuf, errorMessageUnit,
+     &                     SQUEEZE_RIGHT, myThid )
+       WRITE(msgBuf,'(A,A)') '** WARNING ** SEAICE_CHECK: ',
+     &      'so that the ice-ocean drag will be non-zero'
+       CALL PRINT_MESSAGE( msgBuf, errorMessageUnit,
+     &                     SQUEEZE_RIGHT, myThid )
+      ENDIF
+#ifdef SEAICE_ALLOW_FREEDRIFT
+      IF ( SEAICE_waterDrag_South .EQ. 0. _d 0
+     &     .OR.  SEAICE_waterDrag .EQ. 0. _d 0 ) THEN
+       WRITE(msgBuf,'(A,A,A)') 'SEAICE_CHECK: ',
+     &      'When SEAICE_ALLOW_FREEDRIFT is defined, ',
+     &      'SEAICE_waterDrag or SEAICE_waterDragSouth may not be zero.'
+       CALL PRINT_ERROR( msgBuf , myThid)
+       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
+      ENDIF
+#endif /* SEAICE_ALLOW_FREEDRIFT */
 
 #ifndef SEAICE_ALLOW_BOTTOMDRAG
       IF ( SEAICEbasalDragK2 .GT. 0. _d 0 ) THEN

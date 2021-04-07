@@ -143,7 +143,7 @@ C--   SEAICE parameters
      & SEAICE_doOpenWaterGrowth, SEAICE_doOpenWaterMelt,
      & SEAICE_rhoAir, SEAICE_rhoIce, SEAICE_rhoSnow, ICE2WATR,
      & SEAICE_cpAir, SEAICEscaleSurfStress,
-     & SEAICE_drag, SEAICE_waterDrag, SEAICE_dryIceAlb,
+     & SEAICE_drag, SEAICE_waterDrag, SEAICEdWatMin, SEAICE_dryIceAlb,
      & SEAICE_wetIceAlb, SEAICE_drySnowAlb, SEAICE_wetSnowAlb, HO,
      & SEAICE_drag_south, SEAICE_waterDrag_south,
      & SEAICE_dryIceAlb_south, SEAICE_wetIceAlb_south,
@@ -376,6 +376,7 @@ C        c1=1.5/N, c2=42*c1, c3=3.3
       SEAICE_drag        = 0.001  _d 0
       OCEAN_drag         = 0.001  _d 0
       SEAICE_waterDrag   = 0.0055 _d 0
+      SEAICEdWatMin      = 0.25   _d 0
       SEAICE_dryIceAlb   = 0.75   _d 0
       SEAICE_wetIceAlb   = 0.66   _d 0
       SEAICE_drySnowAlb  = 0.84   _d 0
@@ -880,7 +881,11 @@ C-    different defaults for different linear solvers
       IF ( SEAICElinearIterMax .EQ. UNSET_I ) THEN
 C     maximum number of LSOR steps in default Picard solver
 C     (=previous default for retired SOLV_MAX_ITERS)
+#ifdef ALLOW_AUTODIFF
+       SEAICElinearIterMax = SOLV_MAX_FIXED
+#else
        SEAICElinearIterMax = 1500
+#endif
 C     the maximum number of Krylov dimensions of 50 is hard coded in
 C     S/R SEAICE_FGMRES, so that more than 50 linear iterations will
 C     restart GMRES

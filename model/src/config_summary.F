@@ -129,6 +129,10 @@ C-    Horizontal viscosity parameters:
       IF ( useSmag3D )
      & CALL WRITE_0D_RL( smag3D_coeff, INDEX_NONE, 'smag3D_coeff =',
      & ' /* Smagorinsky 3-D coefficient (Cs^2) (-) */')
+      IF ( smag3D_diffCoeff.GT.zeroRL )
+     & CALL WRITE_0D_RL( smag3D_diffCoeff, INDEX_NONE,
+     & 'smag3D_diffCoeff =',
+     & ' /* Smagorinsky 3-D diffusion coefficient (-) */')
       CALL WRITE_0D_RL( viscAh, INDEX_NONE, 'viscAh  =  ',
      & ' /* Lateral harmonic viscosity ( m^2/s ) */')
       IF ( viscAhD.NE.viscAh )
@@ -253,8 +257,7 @@ C-----
      &  ' /* Linear EOS haline contraction coefficient ( 1/psu ) */')
         CALL WRITE_0D_RL( rhoNil,  INDEX_NONE, 'rhoNil    =',
      &  ' /* Reference density for Linear EOS ( kg/m^3 ) */')
-      ENDIF
-      IF ( eosType .EQ. 'POLY3 ' ) THEN
+      ELSEIF ( eosType .EQ. 'POLY3 ' ) THEN
         WRITE(msgBuf,'(A)')
      &   'Polynomial EQS parameters ( from POLY3.COEFFS ):'
         CALL PRINT_MESSAGE( msgBuf, ioUnit, SQUEEZE_RIGHT, myThid )
@@ -265,6 +268,9 @@ C-----
         ENDDO
         WRITE(msgBuf,'(A)') '    ;'
         CALL PRINT_MESSAGE( msgBuf, ioUnit, SQUEEZE_RIGHT, myThid )
+      ELSEIF ( eosType .NE. 'IDEALG' ) THEN
+        CALL WRITE_0D_RL( eosRefP0, INDEX_NONE, 'eosRefP0 =',
+     &  ' /* Reference atmospheric pressure for EOS ( Pa ) */')
       ENDIF
       IF ( usingZCoords ) THEN
        WRITE(msgBuf,'(2A)') 'selectP_inEOS_Zc =',
@@ -279,6 +285,8 @@ C-----
        CALL PRINT_MESSAGE(endList, ioUnit, SQUEEZE_RIGHT, myThid )
       ENDIF
 C-----
+      CALL WRITE_0D_RL( surf_pRef, INDEX_NONE, 'surf_pRef =',
+     &  ' /* Surface reference pressure ( Pa ) */')
       IF ( fluidIsWater ) THEN
        CALL WRITE_0D_RL( HeatCapacity_Cp, INDEX_NONE,
      &   'HeatCapacity_Cp =',
