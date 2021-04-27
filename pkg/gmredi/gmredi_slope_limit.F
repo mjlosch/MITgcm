@@ -596,12 +596,17 @@ CADJ STORE SlopeY(:,:)     = comlev1_bibj, key=ikey, byte=isbyte
          DO i=1-OLx+1,sNx+OLx
           slopeSqTmp=SlopeX(i,j)*SlopeX(i,j)
      &              +SlopeY(i,j)*SlopeY(i,j)
-        
+
           IF ( slopeSqTmp .GT. slopeMax**2 ) then
            slopeTmp=sqrt(slopeSqTmp)
            SlopeX(i,j)=SlopeX(i,j)*slopeMax/slopeTmp
            SlopeY(i,j)=SlopeY(i,j)*slopeMax/slopeTmp
           ENDIF
+         ENDDO
+        ENDDO
+
+        DO j=1-OLy,sNy+OLy
+         DO i=1-OLx+1,sNx+OLx
           SlopeSqr(i,j) = SlopeX(i,j)*SlopeX(i,j)
      &                   +SlopeY(i,j)*SlopeY(i,j)
           taperFct(i,j) = 1. _d 0
