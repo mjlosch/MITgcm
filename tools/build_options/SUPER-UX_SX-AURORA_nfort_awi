@@ -6,6 +6,8 @@
 # before using this build-options file make sure you have the correct
 # modules loaded, currently:
 # module load ve.all
+# required for big endian files!!!!!
+# export VE_FORT_UFMTENDIAN=all
 
 CC='ncc'
 FC='nfort'
@@ -17,25 +19,25 @@ fi
 
 FC_NAMEMANGLE="#define FC_NAMEMANGLE(X)  X ## _"
 # nec use
-DEFINES='-DTARGET_NEC_SX -DWORDLENGTH=1 -DHAVE_CLOC -DSEAICE_VECTORIZE_LSR -DSEAICE_LSR_ZEBRA -DCG2D_OUTERLOOPITERS=10 -DCG3D_OUTERLOOPITERS=10'
+DEFINES='-DTARGET_NEC_SX -DWORDLENGTH=4 -DHAVE_CLOC -DSEAICE_VECTORIZE_LSR -DSEAICE_LSR_ZEBRA -DCG2D_OUTERLOOPITERS=10 -DCG3D_OUTERLOOPITERS=10'
 CPP='/lib/cpp -traditional -P'
 RMFILES='*.L'
 
 FFLAGS=" "
 #FFLAGS='$FFLAGS -x f77'
 #FFLAGS='-Pstack -sxace'
-# automatic inlining for routines < 50 lines (default) and in the same file
-# where they are to be inlined (we do not have too many of those)
-FFLAGS="$FFLAGS –finline-functions"
 
 # This is how you inline external routines if they are longer than 50 lines
 # and live in a separate file (the actual routines depend on the packages
 # used, therefore there are only a few examples here); unfortunately, these
 # flags break the genmake2 tests, so they get an extra flag variable that
 # is not tested in genmake2
-#FEXTRAFLAGS="-finline-directory='.'"
+# automatic inlining for routines < 50 lines (default) and in the same file
+# where they are to be inlined (we do not have too many of those)
+FEXTRAFLAGS=" -finline-functions"
+#FEXTRAFLAGS="$FEXTRAFLAGS -finline-directory='.'"
 # unfortunately , this does not work either
-FEXTRAFLAGS="$FEXTRAFLAGS -finline-file='barrier.f:timestep_tracer.f:fool_the_compiler.f:bar2.f:utils.f:cycle_tracer.f:pressure_for_eos.f:seawater.f:gsw_teos10.f'"
+#FEXTRAFLAGS="$FEXTRAFLAGS -finline-file='barrier.f:timestep_tracer.f:fool_the_compiler.f:bar2.f:utils.f:cycle_tracer.f:pressure_for_eos.f:seawater.f:gsw_teos10.f'"
 # from nfort man-pages:
 # -mgenerate-il-file
 #        Outputs an IL file for cross-file inlining. The file is created in the current directory, under the name "source-file-name.fil".
