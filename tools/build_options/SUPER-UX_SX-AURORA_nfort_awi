@@ -1,0 +1,97 @@
+#!/bin/bash
+#
+# for cross compiling on aurora.awi.de
+# uname -a:
+# Linux aurora.awi.de 3.10.0-957.el7.x86_64 #1 SMP Thu Nov 8 23:39:32 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux
+# before using this build-options file make sure you have the correct
+# modules loaded, currently:
+# module load ve.all
+
+CC='ncc'
+FC='nfort'
+if test "x$MPI" = xtrue ; then
+  LINK='mpinfort'
+else
+  LINK='nfort'
+fi
+
+FC_NAMEMANGLE="#define FC_NAMEMANGLE(X)  X ## _"
+# nec use
+DEFINES='-DTARGET_NEC_SX -DWORDLENGTH=1 -DHAVE_CLOC -DSEAICE_VECTORIZE_LSR -DSEAICE_LSR_ZEBRA -DCG2D_OUTERLOOPITERS=10 -DCG3D_OUTERLOOPITERS=10'
+CPP='/lib/cpp -traditional -P'
+RMFILES='*.L'
+
+FFLAGS=" "
+#FFLAGS='$FFLAGS -x f77'
+#FFLAGS='-Pstack -sxace'
+# automatic inlining for routines < 50 lines (default) and in the same file
+# where they are to be inlined (we do not have too many of those)
+FFLAGS="$FFLAGS –finline-functions"
+
+# This is how you inline external routines if they are longer than 50 lines
+# and live in a separate file (the actual routines depend on the packages
+# used, therefore there are only a few examples here); unfortunately, these
+# flags break the genmake2 tests, so they get an extra flag variable that
+# is not tested in genmake2
+#FEXTRAFLAGS="-finline-directory='.'"
+# unfortunately , this does not work either
+FEXTRAFLAGS="$FEXTRAFLAGS -finline-file='barrier.f:timestep_tracer.f:fool_the_compiler.f:bar2.f:utils.f:cycle_tracer.f:pressure_for_eos.f:seawater.f:gsw_teos10.f'"
+# from nfort man-pages:
+# -mgenerate-il-file
+#        Outputs an IL file for cross-file inlining. The file is created in the current directory, under the name "source-file-name.fil".
+# -mread-il-file IL-file-name[:IL-file-name...]
+#        Read IL files separated by colon for procedures to inline.
+# this requires extra steps that need to be implemented, but it does not help anything either, so we will not do it now.
+#FEXTRAFLAGS="$FEXTRAFLAGS -mgenerate-il-file"
+#FEXTRAFLAGS="$FEXTRAFLAGS -mread-il-file 'barrier.fil:timestep_tracer.fil:fool_the_compiler.fil:bar2.fil:utils.fil:cycle_tracer.fil:pressure_for_eos.fil:seawater.fil:gsw_teos10.fil'"
+# additional candidates for inlining are parts of packages that are not
+# always used, therefore use this at your own risk:
+#FEXTRAFLAGS=
+#
+# Note: explicit inlining requires that all files (*.f) are already
+# available, so that the building sequence should be 
+# genmake2 [OPTIONS] && make depend && make small_f && make
+
+#-- additional options:
+# include a formated code listing and a listing of compiler transformations
+# in *.L files
+#FFLAGS="$FFLAGS -report-diagnostics"
+FFLAGS="$FFLAGS -report-all"
+# trace output for performance analysis
+FFLAGS=$FFLAGS' -ftrace'
+#FFLAGS=$FFLAGS' -p'
+#FFLAGS=$FFLAGS' -proginf'
+# default automatic optimization level
+#FOPTIM='-O2'
+
+# these files require lower optimization
+NOOPTFILES='ini_forcing.F mom_calc_visc.F'
+NOOPTFILES="$NOOPTFILES ptracers_dyn_state_data_mod.F ptracers_dyn_state_mod.F"
+if test "x$IEEE" = x ; then
+    # highest automatic optimization level, handle with care
+    FOPTIM='-O4 -w'
+    NOOPTFLAGS='-O3'
+else
+    if test "x$DEVEL" = x ; then  #- no optimisation + IEEE :
+	FOPTIM='-O0 -g -Wall'
+	NOOPTFLAGS=$FOPTIM
+    else                          #- development/check options:
+	# enable runtime checking of array bounds and arguments of routines
+	FOPTIM='-g -Wall -fcheck=all -minit-stack=nan'
+	NOOPTFLAGS="$FOPTIM -O0"
+        # remove extra flags and explicit inlining
+	FEXTRAFLAGS=
+    fi
+fi
+
+# awi specific paths and stuff, ideally set before running genmake2
+MPI_ROOT="/opt/nec/ve/mpi/2.5.0"
+NETCDF_ROOT="/opt/AWIsoft/ve/netcdf/4.7.4"
+INCLUDES=" " #-I${NETCDF_ROOT}/include"
+LIBS=" " #-L${NETCDF_ROOT}/lib -lnetcdf"
+
+if test "x$MPI" = xtrue ; then
+    # path to mpi header files, available only after "module load sxmpi"
+    INCLUDES="$INCLUDES -I${MPI_ROOT}/include"
+fi
+
