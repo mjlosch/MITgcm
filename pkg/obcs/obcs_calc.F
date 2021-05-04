@@ -166,9 +166,13 @@ C     Western OB
         DO k=1,Nr
           DO j=1-OLy,sNy+OLy
             IF ( OB_Iw(j,bi,bj).NE.OB_indexNone ) THEN
-              OBWu(j,k,bi,bj)=0.
-              OBWv(j,k,bi,bj)=0.
-              OBWt(j,k,bi,bj)=tRef(k)
+              i = OB_Iw(j,bi,bj)
+              OBWu(j,k,bi,bj)=uVel(i+2,j,k,bi,bj)
+              OBWv(j,k,bi,bj)=vVel(i+1,j,k,bi,bj)
+              OBWt(j,k,bi,bj)=theta(i+1,j,k,bi,bj)
+C             OBWu(j,k,bi,bj)=0.
+C             OBWv(j,k,bi,bj)=0.
+C             OBWt(j,k,bi,bj)=tRef(k)
               OBWs(j,k,bi,bj)=sRef(k)
 #ifdef ALLOW_NONHYDROSTATIC
               OBWw(j,k,bi,bj)=0.
