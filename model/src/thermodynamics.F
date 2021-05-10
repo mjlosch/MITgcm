@@ -61,9 +61,6 @@ C     == Global variables ===
 # ifdef ALLOW_EBM
 #  include "EBM.h"
 # endif
-# ifdef ALLOW_SALT_PLUME
-#  include "SALT_PLUME.h"
-# endif
 #endif /* ALLOW_AUTODIFF */
 
 C     !INPUT/OUTPUT PARAMETERS:
