@@ -597,7 +597,7 @@ C      Read in coupling data that I import.
 C******************************************************
 C     Store surface forcing fields if required to avoid
 C     calling load_fields_driver in forward_step_ad
-# include "checkpoint_lev1_forcing_directives.h"
+# include "check_lev1_dir_forcing.h"
 C******************************************************
 #endif /* ALLOW_AUTODIFF_TAMC */
 
@@ -665,17 +665,17 @@ C     computed in do_oceanics_phys. Storing them here avoids calling
 C     do_oceanic_phys again in forward_step_ad, which should improve
 C     performance because expensive parts of the model are not
 C     recomputed (e.g. seaice).
-# include "checkpoint_lev1_oceanicphys_directives.h"
+# include "check_lev1_dir_ocephys.h"
 C***********************************************************************
 #endif /* ALLOW_AUTODIFF_TAMC */
 
-#ifdef ALLOW_GCHEM
+#ifdef GCHEM_ADD2TR_TENDENCY
+#ifndef ALLOW_AUTODIFF
       IF ( useGCHEM ) THEN
+#endif
 #ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE pTracer  = comlev1, key = ikey_dynamics,
-CADJ &     kind = isbyte
-CADJ STORE theta, salt = comlev1, key = ikey_dynamics,
-CADJ &     kind = isbyte
+CADJ STORE pTracer     = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE theta, salt = comlev1, key=ikey_dynamics, kind=isbyte
 #endif
 #ifdef ALLOW_DEBUG
         IF (debugMode) CALL DEBUG_CALL('GCHEM_CALC_TENDENCY',myThid)
@@ -683,11 +683,13 @@ CADJ &     kind = isbyte
         CALL TIMER_START('GCHEM_CALC_TENDENCY [FORWARD_STEP]',myThid)
         CALL GCHEM_CALC_TENDENCY( myTime, myIter, myThid )
         CALL TIMER_STOP ('GCHEM_CALC_TENDENCY [FORWARD_STEP]',myThid)
+#ifdef ALLOW_AUTODIFF_TAMC
+CADJ STORE gchemTendency = comlev1, key=ikey_dynamics, kind=isbyte
+#endif
+#ifndef ALLOW_AUTODIFF
       ENDIF
-# ifdef ALLOW_AUTODIFF_TAMC
-#  include "gchem_ad_check_lev1_dir.h"
-# endif
-#endif /* ALLOW_GCHEM */
+#endif
+#endif /* GCHEM_ADD2TR_TENDENCY */
 
 #ifdef ALLOW_LONGSTEP
       IF ( usePTRACERS .AND. LS_whenToSample .EQ. 0 ) THEN
@@ -726,9 +728,9 @@ CADJ STORE wVel = comlev1, key = ikey_dynamics, kind = isbyte
         CALL TIMER_STOP ('THERMODYNAMICS      [FORWARD_STEP]',myThid)
 C--     if not staggerTimeStep: end
       ENDIF
-#ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE salt, theta = comlev1, key=ikey_dynamics, kind=isbyte
-#endif /* ALLOW_AUTODIFF_TAMC */
+#if (defined ALLOW_AUTODIFF_TAMC) && (defined ALLOW_OBCS)
+CADJ STORE salt, theta = comlev1, key = ikey_dynamics, kind = isbyte
+#endif /* ALLOW_AUTODIFF_TAMC && ALLOW_OBCS */
 
 #ifdef ALLOW_LONGSTEP
       IF ( usePTRACERS .AND. LS_whenToSample .EQ. 1 ) THEN
@@ -1116,7 +1118,7 @@ C--   Do "blocking" sends and receives for field "overlap" terms
       CALL DO_FIELDS_BLOCKING_EXCHANGES( myThid )
       CALL TIMER_STOP ('BLOCKING_EXCHANGES  [FORWARD_STEP]',myThid)
 #ifdef ALLOW_AUTODIFF_TAMC
-C     These store directives avoid extra subrotuine calls, for example,
+C     These store directives avoid extra subroutine calls, for example,
 C     thermodynamics, tracers_correction_step, gchem_forcing_sep, and
 C     do_fields_blocking_exchages
 CADJ STORE theta, salt = comlev1, key = ikey_dynamics, kind = isbyte
