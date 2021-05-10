@@ -601,8 +601,8 @@ CADJ STORE SlopeY(:,:)     = comlev1_bibj, key=ikey, byte=isbyte
          ENDDO
         ENDDO
 
-C move the assignemnt of SlopeSqr to its own do-loop block from the do-loop
-C block above to reduce TAF recomputations. The assignment of taperFct is
+C move the assignemnt of SlopeSqr to its own do-loop block from the do-loop 
+C block above to reduce TAF recomputations. The assignment of taperFct is 
 C also moved to keep the original order of operations.
         DO j=1-OLy,sNy+OLy
          DO i=1-OLx+1,sNx+OLx
