@@ -59,30 +59,32 @@ cHFLUXM_CONTROL
       _BEGIN_MASTER( myThid )
 
 c--     Set default values.
-        mult_atl              =      0. _d 0
-        mult_test             =      0. _d 0
-        mult_tracer           =      0. _d 0
-        multTheta             =      0. _d 0
-        multSalt              =      0. _d 0
-        multUvel              =      0. _d 0
-        multVvel              =      0. _d 0
-        multEtan              =      0. _d 0
+        mult_atl               =      0. _d 0
+        mult_test              =      0. _d 0
+        mult_tracer            =      0. _d 0
+        multTheta              =      0. _d 0
+        multSalt               =      0. _d 0
+        multUvel               =      0. _d 0
+        multVvel               =      0. _d 0
+        multEtan               =      0. _d 0
 #ifdef ALLOW_COST_TRANSPORT
-        mult_transport        =      0. _d 0
+        mult_transport         =      0. _d 0
 #endif
 #ifdef ALLOW_COST_DEPTH
-        mult_depth            =      0. _d 0
+        mult_depth             =      0. _d 0
 #endif
 cHFLUXM_CONTROL
-        mult_temp_tut         =      0. _d 0
-        mult_hflux_tut        =      0. _d 0
+        mult_temp_tut          =      0. _d 0
+        mult_hflux_tut         =      0. _d 0
 cHFLUXM_CONTROL
 #ifdef ALLOW_COST_MEAN_SALT
-        mult_mean_salt        =      0. _d 0
-        mult_sflux_bering     =      0. _d 0
-        mult_sflux_fram       =      0. _d 0
-        mult_sflux_barents    =      0. _d 0
-        mult_sflux_caa        =      0. _d 0
+        mult_mean_salt         =      0. _d 0
+        mult_mean_slvl_arc_oc  =      0. _d 0
+        mult_mean_slvl_arc_coa =      0. _d 0
+        mult_sflux_bering      =      0. _d 0
+        mult_sflux_fram        =      0. _d 0
+        mult_sflux_barents     =      0. _d 0
+        mult_sflux_caa         =      0. _d 0
 #endif
 
 c--     30*24*3600 = 2592000 = 1 model month

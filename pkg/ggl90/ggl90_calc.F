@@ -457,7 +457,7 @@ c         MaxLength=MAX(MaxLength,20. _d 0)
        STOP 'GGL90_CALC: Wrong mxlMaxFlag (mixing length limit)'
       ENDIF
 
-#ifdf ALLOW_AUTODIFF_TAMC
+#ifdef ALLOW_AUTODIFF_TAMC
 CADJ STORE GGL90TKE(:,:,:,bi,bj)
 CAJD &     = comlev1_bibj, key = itdkey, byte = isbyte
 C     not strictly necessary, but avoids some recomputations

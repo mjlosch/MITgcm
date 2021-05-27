@@ -82,11 +82,13 @@ cHFLUXM_CONTROL
       _RL  objf_temp_tut (nsx,nsy)
 cHFLUXM_CONTROL
 #ifdef ALLOW_COST_MEAN_SALT
-      _RL  objf_mean_salt    (nsx,nsy)
-      _RL  objf_sflux_bering (nsx,nsy)
-      _RL  objf_sflux_fram   (nsx,nsy)
-      _RL  objf_sflux_barents(nsx,nsy)
-      _RL  objf_sflux_caa    (nsx,nsy)
+      _RL  objf_mean_salt        (nsx,nsy)
+      _RL  objf_mean_slvl_arc_oc (nsx,nsy)
+      _RL  objf_mean_slvl_arc_coa(nsx,nsy)
+      _RL  objf_sflux_bering     (nsx,nsy)
+      _RL  objf_sflux_fram       (nsx,nsy)
+      _RL  objf_sflux_barents    (nsx,nsy)
+      _RL  objf_sflux_caa        (nsx,nsy)
 #endif
 
       common /cost_param_r/
@@ -130,6 +132,8 @@ cHFLUXM_CONTROL
 cHFLUXM_CONTROL
 #ifdef ALLOW_COST_MEAN_SALT
      &                   ,mult_mean_salt
+     &                   ,mult_mean_slvl_arc_oc
+     &                   ,mult_mean_slvl_arc_coa
      &                   ,mult_sflux_bering
      &                   ,mult_sflux_fram
      &                   ,mult_sflux_barents
@@ -159,6 +163,8 @@ cHFLUXM_CONTROL
 cHFLUXM_CONTROL
 #ifdef ALLOW_COST_MEAN_SALT
       _RL  mult_mean_salt
+      _RL  mult_mean_slvl_arc_oc
+      _RL  mult_mean_slvl_arc_coa
       _RL  mult_sflux_bering
       _RL  mult_sflux_fram
       _RL  mult_sflux_barents
@@ -179,7 +185,7 @@ cHFLUXM_CONTROL
       COMMON /COST_MEAN_R/
      &                     cMeanTheta, cMeanSalt, cMeanUVel, cMeanVVel,
      &                     cMeanThetaUVel, cMeanThetaVVel,
-     &                     cMeanSaltUVel,  cMeanSaltVVel
+     &                     cMeanSaltUVel,  cMeanSaltVVel, cMeanEtaTot
       _RL cMeanTheta    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       _RL cMeanSalt     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       _RL cMeanUVel     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
@@ -188,6 +194,7 @@ cHFLUXM_CONTROL
       _RL cMeanThetaVVel(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       _RL cMeanSaltVVel (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       _RL cMeanSaltUVel (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL cMeanEtaTot   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 #endif
 
 c     ==================================================================
