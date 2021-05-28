@@ -161,33 +161,33 @@ c--   Sum up all contributions.
 
          tile_fc(bi,bj) = tile_fc(bi,bj)
 #ifdef ALLOW_COST_TEST
-     &          + mult_test   * objf_test(bi,bj)
+     &            + mult_test   * objf_test(bi,bj)
 #endif
 #ifdef ALLOW_COST_TRACER
-     &          + mult_tracer * objf_tracer(bi,bj)
+     &            + mult_tracer * objf_tracer(bi,bj)
 #endif
 #if ( !defined (ALLOW_ECCO) || !defined (ALLOW_COST_ATLANTIC) )
 # ifdef ALLOW_COST_ATLANTIC_HEAT
-     &          + mult_atl    * objf_atl(bi,bj)
+     &            + mult_atl    * objf_atl(bi,bj)
 # endif
 #endif
 #ifdef ALLOW_COST_TRANSPORT
-     &          + mult_transport * objf_transport(bi,bj)
+     &            + mult_transport * objf_transport(bi,bj)
 #endif
 #ifdef ALLOW_COST_TEMP
-     &          + mult_temp_tut  * objf_temp_tut(bi,bj)
+     &            + mult_temp_tut  * objf_temp_tut(bi,bj)
 #endif
 #ifdef ALLOW_COST_HFLUXM
-     &          + mult_hflux_tut * objf_hflux_tut(bi,bj)
+     &            + mult_hflux_tut * objf_hflux_tut(bi,bj)
 #endif
 #ifdef ALLOW_COST_MEAN_SALT
-     &          + mult_mean_salt     * objf_mean_salt(bi,bj)
-     &          + mult_mean_slvl_arc_oc * objf_mean_slvl_arc_oc(bi,bj)
-     &          + mult_mean_slvl_arc_coa * objf_mean_slvl_arc_coa(bi,bj)
-     &          + mult_sflux_bering  * objf_sflux_bering(bi,bj)
-     &          + mult_sflux_fram    * objf_sflux_fram(bi,bj)
-     &          + mult_sflux_barents * objf_sflux_barents(bi,bj)
-     &          + mult_sflux_caa     * objf_sflux_caa(bi,bj)
+     &            + mult_mean_salt     * objf_mean_salt(bi,bj)
+     &            + mult_sflux_bering  * objf_sflux_bering(bi,bj)
+     &            + mult_sflux_fram    * objf_sflux_fram(bi,bj)
+     &            + mult_sflux_barents * objf_sflux_barents(bi,bj)
+     &            + mult_sflux_caa     * objf_sflux_caa(bi,bj)
+     &         + mult_mean_slvl_arc_oc * objf_mean_slvl_arc_oc(bi,bj)
+     &        + mult_mean_slvl_arc_coa * objf_mean_slvl_arc_coa(bi,bj)
 #endif
 
 #ifdef ALLOW_PROFILES

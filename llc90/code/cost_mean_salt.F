@@ -33,11 +33,11 @@ C     ========= Local variables =========================
       INTEGER nMsk
       PARAMETER (nMsk=4)
       _RL locfc,tmp,tmp2,volwght,saltTmp,slvl_arc_oc,slvl_arc_coa
-      _RS mask_arc_oc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
-      _RS mask_arc_coa(1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
-      _RL volWghtFld (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
-      _RL areaWghtFld_oc (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL areaWghtFld_coa (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RS mask_arc_oc    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
+      _RS mask_arc_coa   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
+      _RL areaWghtFld_oc (1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
+      _RL areaWghtFld_coa(1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
+      _RL volWghtFld     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       _RS maskUloc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nMsk,nSx,nSy)
       _RS maskVloc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nMsk,nSx,nSy)
       _RS hfw, hfs
@@ -204,8 +204,6 @@ C     Compute sea level cost function
        ENDDO
       ENDDO
 
-
-      
 C     compute fluxes of salt through specific sections:
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)

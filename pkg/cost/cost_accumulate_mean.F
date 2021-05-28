@@ -80,7 +80,7 @@ C--   Calculate cost function on tile of this instance
      &               + (salt(i,j,k,bi,bj)+salt(i,j-1,k,bi,bj))
      &                 *0.5 _d 0*vvel(i,j,k,bi,bj)
      &                 *maskS(i,j,k,bi,bj)*maskC(i,j,k,bi,bj)
-     &               *dTfac
+     &                 *dTfac
               end do
             end do
           end do
