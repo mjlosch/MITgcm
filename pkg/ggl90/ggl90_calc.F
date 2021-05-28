@@ -129,6 +129,11 @@ C     gTKE     :: right hand side of diffusion equation
 #ifdef ALLOW_GGL90_SMOOTH
       _RL p4, p8, p16
 #endif
+#ifdef ALLOW_AUTODIFF_TAMC
+C     INTEGER act1, act2, act3, act4
+C     INTEGER max1, max2, max3
+      INTEGER ikeyLoc
+#endif
 CEOP
 
       PARAMETER( iMin = 2-OLx, iMax = sNx+OLx-1 )
@@ -147,9 +152,9 @@ CEOP
       act3 = myThid - 1
       max3 = nTx*nTy
       act4 = ikey_dynamics - 1
-      itdkey = (act1 + 1) + act2*max1
-     &                    + act3*max1*max2
-     &                    + act4*max1*max2*max3
+      ikeyLoc = (act1 + 1) + act2*max1
+     &                     + act3*max1*max2
+     &                     + act4*max1*max2*max3
 #endif /* ALLOW_AUTODIFF_TAMC */
 
 C     set separate time step (should be deltaTtracer)
@@ -202,7 +207,7 @@ C     Initialize local fields
        ENDDO
       ENDDO
 #ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE GGL90TKE(:,:,:,bi,bj)=comlev1_bibj, key=itdkey, byte=isbyte
+CADJ STORE GGL90TKE(:,:,:,bi,bj)=comlev1_bibj, key=ikeyLoc, kind=isbyte
 #endif
       DO j=1-OLy,sNy+OLy
        DO i=1-OLx,sNx+OLx
@@ -457,13 +462,6 @@ c         MaxLength=MAX(MaxLength,20. _d 0)
        STOP 'GGL90_CALC: Wrong mxlMaxFlag (mixing length limit)'
       ENDIF
 
-#ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE GGL90TKE(:,:,:,bi,bj)
-CADJ &     = comlev1_bibj, key = itdkey, byte = isbyte
-C     not strictly necessary, but avoids some recomputations
-CMLCADJ STORE GGL90mixingLength, rmixingLength
-CMLCADJ &     = comlev1_bibj, key = itdkey, byte = isbyte
-#endif
 C     start "proper" k-loop (the code above was moved out and up to
 C     implemement various mixing parameters efficiently)
       DO k=2,Nr
@@ -764,7 +762,7 @@ C      Dirichlet bottom boundary condition for TKE = GGL90TKEbottom
       ENDIF
 
 #ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE GGL90TKE(:,:,:,bi,bj)=comlev1_bibj, key=itdkey, byte=isbyte
+CADJ STORE GGL90TKE(:,:,:,bi,bj)=comlev1_bibj, key=ikeyLoc, kind=isbyte
 #endif
 C     solve tri-diagonal system
       errCode = -1
@@ -775,7 +773,7 @@ C     solve tri-diagonal system
      I                        bi, bj, myThid )
 
 #ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE GGL90TKE(:,:,:,bi,bj)=comlev1_bibj, key=itdkey, byte=isbyte
+CADJ STORE GGL90TKE(:,:,:,bi,bj)=comlev1_bibj, key=ikeyLoc, kind=isbyte
 #endif
       DO k=1,Nr
        DO j=jMin,jMax
