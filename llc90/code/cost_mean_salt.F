@@ -32,9 +32,12 @@ C     ========= Local variables =========================
       INTEGER Nk
       INTEGER nMsk
       PARAMETER (nMsk=4)
-      _RL locfc,tmp,volwght,saltTmp
+      _RL locfc,tmp,tmp2,volwght,saltTmp,slvl_arc_oc,slvl_arc_coa
       _RS mask_arc_oc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
+      _RS mask_arc_coa(1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
       _RL volWghtFld (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL areaWghtFld_oc (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL areaWghtFld_coa (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RS maskUloc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nMsk,nSx,nSy)
       _RS maskVloc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nMsk,nSx,nSy)
       _RS hfw, hfs
@@ -59,6 +62,16 @@ C     Read masks
       INQUIRE(file = fname, exist = exst)
       IF ( exst ) THEN
        CALL READ_FLD_XY_RS(fname,' ',mask_arc_oc,0,myThid)
+      ELSE
+       il = ILNBLNK(fname)
+       WRITE(standardmessageunit,*)
+     &       'S/R COST_MEAN_SALT: ',fname(1:il), ' does not exist'
+      ENDIF
+
+      fname = 'mask_Arcitc_Ocean_coast_100km.data'
+      INQUIRE(file = fname, exist = exst)
+      IF ( exst ) THEN
+       CALL READ_FLD_XY_RS(fname,' ',mask_arc_coa,0,myThid)
       ELSE
        il = ILNBLNK(fname)
        WRITE(standardmessageunit,*)
@@ -147,6 +160,52 @@ CML           print*, 'mean of tile:',locfc
        ENDDO
       ENDDO
 
+C     compute sea level change
+
+C     compute area weights
+      tmp  = 0. _d 0
+      tmp2 = 0. _d 0
+      DO bj=myByLo(myThid),myByHi(myThid)
+       DO bi=myBxLo(myThid),myBxHi(myThid)
+        areaWghtFld_oc(:,:,bi,bj)  = 0. _d 0
+        areaWghtFld_coa(:,:,bi,bj) = 0. _d 0
+        DO j=1,sNy
+         DO i=1,sNx
+          areaWghtFld_oc(i,j,bi,bj) = mask_arc_oc(i,j,bi,bj)
+     &          *hFacC(i,j,0,bi,bj)*rA(i,j,bi,bj)
+          areaWghtFld_coa(i,j,bi,bj) = mask_arc_coa(i,j,bi,bj)
+     &          *hFacC(i,j,0,bi,bj)*rA(i,j,bi,bj)
+          tmp = tmp + areaWghtFld_oc(i,j,bi,bj)
+          tmp2 = tmp2 + areaWghtFld_coa(i,j,bi,bj)
+         ENDDO
+        ENDDO
+       ENDDO
+      ENDDO
+      _GLOBAL_SUM_RL( tmp , myThid )
+      _GLOBAL_SUM_RL( tmp2 , myThid )
+      IF ( tmp.GT.0. ) tmp = 1. _d 0 / tmp
+      IF ( tmp2.GT.0. ) tmp2 = 1. _d 0 / tmp2
+
+C     Compute sea level cost function
+      DO bj=myByLo(myThid),myByHi(myThid)
+       DO bi=myBxLo(myThid),myBxHi(myThid)
+        slvl_arc_oc  = 0. _d 0
+        slvl_arc_coa  = 0. _d 0
+        DO j=1,sNy
+         DO i=1,sNx
+          slvl_arc_oc  = slvl_arc_oc + cMeanEtaTot(i,j,bi,bj)
+     &         *areaWghtFld_oc(i,j,bi,bj)
+          slvl_arc_coa = slvl_arc_coa + cMeanEtaTot(i,j,bi,bj)
+     &         *areaWghtFld_coa(i,j,bi,bj)
+         ENDDO
+        ENDDO
+        objf_mean_slvl_arc_oc(bi,bj)  = slvl_arc_oc * tmp
+        objf_mean_slvl_arc_coa(bi,bj) = slvl_arc_coa * tmp2
+       ENDDO
+      ENDDO
+
+
+      
 C     compute fluxes of salt through specific sections:
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
