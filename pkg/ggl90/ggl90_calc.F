@@ -459,7 +459,7 @@ c         MaxLength=MAX(MaxLength,20. _d 0)
 
 #ifdef ALLOW_AUTODIFF_TAMC
 CADJ STORE GGL90TKE(:,:,:,bi,bj)
-CAJD &     = comlev1_bibj, key = itdkey, byte = isbyte
+CADJ &     = comlev1_bibj, key = itdkey, byte = isbyte
 C     not strictly necessary, but avoids some recomputations
 CMLCADJ STORE GGL90mixingLength, rmixingLength
 CMLCADJ &     = comlev1_bibj, key = itdkey, byte = isbyte
