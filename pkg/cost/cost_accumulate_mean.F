@@ -87,8 +87,9 @@ C--   Calculate cost function on tile of this instance
           do j=1,sNy
             do i=1,sNx
               cMeanEtaTot(i,j,bi,bj) = cMeanEtaTot(i,j,bi,bj)
-     &             + (etaN(i,j,bi,bj) + (sIceLoad(i,j,bi,bj)
-     &                /recip_rhoConst)) * dTfac
+     &            + ( etaN(i,j,bi,bj)
+     &              + sIceLoad(i,j,bi,bj) * recip_rhoConst
+     &              ) * dTfac
             end do
           end do
         end do

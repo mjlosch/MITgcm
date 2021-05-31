@@ -194,6 +194,7 @@ CADJ STORE cMeanThetaUVel = tapelev2, key = ilev_2
 CADJ STORE cMeanThetaVVel = tapelev2, key = ilev_2
 CADJ STORE cMeanSaltUVel  = tapelev2, key = ilev_2
 CADJ STORE cMeanSaltVVel  = tapelev2, key = ilev_2
+CADJ STORE cMeanEtaTot    = tapelev2, key = ilev_2
 #endif
 
 #ifdef ALLOW_COST_TRACER

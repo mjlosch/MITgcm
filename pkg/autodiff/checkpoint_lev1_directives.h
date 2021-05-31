@@ -171,6 +171,7 @@ CADJ STORE cMeanThetaUVel = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE cMeanThetaVVel = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE cMeanSaltUVel  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE cMeanSaltVVel  = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE cMeanEtaTot    = comlev1, key = ikey_dynamics, kind = isbyte
 #endif
 
 #if (defined (ALLOW_COST_ATLANTIC) || defined (ALLOW_COST_ATLANTIC_HEAT))

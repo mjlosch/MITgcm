@@ -59,6 +59,8 @@ cHFLUXM_CONTROL
 cHFLUXM_CONTROL
 #ifdef ALLOW_COST_MEAN_SALT
      &               ,objf_mean_salt
+     &               ,objf_mean_slvl_arc_oc
+     &               ,objf_mean_slvl_arc_coa
      &               ,objf_sflux_bering
      &               ,objf_sflux_fram
      &               ,objf_sflux_barents

@@ -169,37 +169,38 @@ C     compute area weights
        DO bi=myBxLo(myThid),myBxHi(myThid)
         areaWghtFld_oc(:,:,bi,bj)  = 0. _d 0
         areaWghtFld_coa(:,:,bi,bj) = 0. _d 0
+        k = 1
         DO j=1,sNy
          DO i=1,sNx
-          areaWghtFld_oc(i,j,bi,bj) = mask_arc_oc(i,j,bi,bj)
-     &          *hFacC(i,j,0,bi,bj)*rA(i,j,bi,bj)
+          areaWghtFld_oc (i,j,bi,bj) = mask_arc_oc(i,j,bi,bj)
+     &          *hFacC(i,j,k,bi,bj)*rA(i,j,bi,bj)
           areaWghtFld_coa(i,j,bi,bj) = mask_arc_coa(i,j,bi,bj)
-     &          *hFacC(i,j,0,bi,bj)*rA(i,j,bi,bj)
-          tmp = tmp + areaWghtFld_oc(i,j,bi,bj)
+     &          *hFacC(i,j,k,bi,bj)*rA(i,j,bi,bj)
+          tmp  = tmp  + areaWghtFld_oc (i,j,bi,bj)
           tmp2 = tmp2 + areaWghtFld_coa(i,j,bi,bj)
          ENDDO
         ENDDO
        ENDDO
       ENDDO
       _GLOBAL_SUM_RL( tmp , myThid )
-      _GLOBAL_SUM_RL( tmp2 , myThid )
-      IF ( tmp.GT.0. ) tmp = 1. _d 0 / tmp
-      IF ( tmp2.GT.0. ) tmp2 = 1. _d 0 / tmp2
+      _GLOBAL_SUM_RL( tmp2, myThid )
+      IF ( tmp .GT.0. _d 0 ) tmp  = 1. _d 0 / tmp
+      IF ( tmp2.GT.0. _d 0 ) tmp2 = 1. _d 0 / tmp2
 
 C     Compute sea level cost function
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
         slvl_arc_oc  = 0. _d 0
-        slvl_arc_coa  = 0. _d 0
+        slvl_arc_coa = 0. _d 0
         DO j=1,sNy
          DO i=1,sNx
-          slvl_arc_oc  = slvl_arc_oc + cMeanEtaTot(i,j,bi,bj)
+          slvl_arc_oc  = slvl_arc_oc  + cMeanEtaTot(i,j,bi,bj)
      &         *areaWghtFld_oc(i,j,bi,bj)
           slvl_arc_coa = slvl_arc_coa + cMeanEtaTot(i,j,bi,bj)
      &         *areaWghtFld_coa(i,j,bi,bj)
          ENDDO
         ENDDO
-        objf_mean_slvl_arc_oc(bi,bj)  = slvl_arc_oc * tmp
+        objf_mean_slvl_arc_oc (bi,bj) = slvl_arc_oc  * tmp
         objf_mean_slvl_arc_coa(bi,bj) = slvl_arc_coa * tmp2
        ENDDO
       ENDDO
@@ -266,13 +267,17 @@ C     diagnostics
      &       'ml-objf_mean_salt     =',objf_mean_salt(bi,bj),
      &       tmp,startTime,endTime
         write(standardmessageunit,*)
-     &       'ml-objf_sflux_bering  =', objf_sflux_bering (bi,bj)
+     &       'ml-objf_sflux_bering      =', objf_sflux_bering (bi,bj)
         write(standardmessageunit,*)
-     &       'ml-objf_sflux_barents =', objf_sflux_barents(bi,bj)
+     &       'ml-objf_sflux_barents     =', objf_sflux_barents(bi,bj)
         write(standardmessageunit,*)
-     &       'ml-objf_sflux_fram    =', objf_sflux_fram   (bi,bj)
+     &       'ml-objf_sflux_fram        =', objf_sflux_fram   (bi,bj)
         write(standardmessageunit,*)
-     &       'ml-objf_sflux_caa     =', objf_sflux_caa    (bi,bj)
+     &       'ml-objf_sflux_caa         =', objf_sflux_caa    (bi,bj)
+        write(standardmessageunit,*)
+     &       'ml-objf_mean_slvl_arc_oc  =', objf_mean_slvl_arc_oc(bi,bj)
+        write(standardmessageunit,*)
+     &       'ml-objf_mean_slvl_arc_coa =',objf_mean_slvl_arc_coa(bi,bj)
        ENDDO
       ENDDO
 
