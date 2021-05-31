@@ -157,6 +157,12 @@ c--   Sum up all contributions.
           write(standardmessageunit,'(A,D22.15)')
      &         ' --> objf_sflux_caa(bi,bj)    = ',
      &         objf_sflux_caa(bi,bj)
+          write(standardmessageunit,'(A,D22.15)')
+     &         ' --> objf_mean_slvl_arc_oc(bi,bj)  = ',
+     &         objf_mean_slvl_arc_oc(bi,bj)
+          write(standardmessageunit,'(A,D22.15)')
+     &         ' --> objf_mean_slvl_arc_coa(bi,bj) = ',
+     &         objf_mean_slvl_arc_coa(bi,bj)
 #endif
 
          tile_fc(bi,bj) = tile_fc(bi,bj)
