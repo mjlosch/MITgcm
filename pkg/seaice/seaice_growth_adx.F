@@ -9,6 +9,8 @@
 # include "AUTODIFF_OPTIONS.h"
 #endif
 
+#undef SEAICE_GROWTH_ADX_STORE_MORE
+
 CBOP
 C     !ROUTINE: SEAICE_GROWTH_ADX
 C     !INTERFACE:
@@ -343,16 +345,16 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
      &                       + act4*max1*max2*max3
 #endif /* ALLOW_AUTODIFF_TAMC */
 
-C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 #ifdef ALLOW_AUTODIFF_TAMC
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 CADJ STORE area (:,:,bi,bj) = comlev1_bibj, key = iicekey, byte = isbyte
 CADJ STORE heff (:,:,bi,bj) = comlev1_bibj, key = iicekey, byte = isbyte
 CADJ STORE hsnow(:,:,bi,bj) = comlev1_bibj, key = iicekey, byte = isbyte
 CADJ STORE qnet (:,:,bi,bj) = comlev1_bibj, key = iicekey, byte = isbyte
 CADJ STORE qsw  (:,:,bi,bj) = comlev1_bibj, key = iicekey, byte = isbyte
 CADJ STORE tices(:,:,:,bi,bj)=comlev1_bibj, key = iicekey, byte = isbyte
-#endif
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+#endif
 
 C array initializations
 C =====================
@@ -867,19 +869,21 @@ C          ENDIF
          ENDDO
         ENDDO
 #ifdef ALLOW_AUTODIFF_TAMC
-C     These stores are also needed to avoid calling seaice_solve4temp
-C     in AD-mode.
+C     The first two store directives are also needed to avoid calling
+C     seaice_solve4temp in AD-mode.
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+CADJ STORE NetExistingIceGrowthRate      = comlev1_bibj,
+CADJ &     key = iicekey, byte = isbyte
+CADJ STORE IceGrowthRateMixedLayer       = comlev1_bibj,
+CADJ &     key = iicekey, byte = isbyte
+# ifdef SEAICE_GROWTH_ADX_STORE_MORE
 CADJ STORE SnowMeltRateFromSurface       = comlev1_bibj,
 CADJ &     key = iicekey, byte = isbyte
 CADJ STORE IceGrowthRateUnderExistingIce = comlev1_bibj,
 CADJ &     key = iicekey, byte = isbyte
 CADJ STORE IceGrowthRateFromSurface      = comlev1_bibj,
 CADJ &     key = iicekey, byte = isbyte
-CADJ STORE NetExistingIceGrowthRate      = comlev1_bibj,
-CADJ &     key = iicekey, byte = isbyte
-CADJ STORE IceGrowthRateMixedLayer       = comlev1_bibj,
-CADJ &     key = iicekey, byte = isbyte
+# endif
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 #endif /* ALLOW_AUTODIFF_TAMC */
 
