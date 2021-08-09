@@ -57,10 +57,7 @@ C     == Local variables ==
 #endif
 
 #ifdef ECCO_CTRL_DEPRECATED
-#if (defined ALLOW_TAUU0_CONTROL) || (defined ALLOW_TAUV0_CONTROL) ||\
-    (defined ALLOW_SFLUX0_CONTROL) || (defined ALLOW_HFLUX0_CONTROL) ||\
-    (defined ALLOW_SSS_CONTROL) || (defined ALLOW_SST_CONTROL) ||\
-    (defined ALLOW_HFLUXM_CONTROL)
+#if (defined ALLOW_TAUU0_CONTROL) || (defined ALLOW_TAUV0_CONTROL) || (defined ALLOW_SFLUX0_CONTROL) || (defined ALLOW_HFLUX0_CONTROL) || (defined ALLOW_SSS_CONTROL) || (defined ALLOW_SST_CONTROL) || (defined ALLOW_HFLUXM_CONTROL)
       integer itlo,ithi
       integer jtlo,jthi
       integer jmin,jmax
@@ -90,10 +87,7 @@ c     == end of interface ==
 CEOP
 
 #ifdef ECCO_CTRL_DEPRECATED
-#if (defined ALLOW_TAUU0_CONTROL) || (defined ALLOW_TAUV0_CONTROL) ||\
-    (defined ALLOW_SFLUX0_CONTROL) || (defined ALLOW_HFLUX0_CONTROL) ||\
-    (defined ALLOW_SSS_CONTROL) || (defined ALLOW_SST_CONTROL) ||\
-    (defined ALLOW_HFLUXM_CONTROL)
+#if (defined ALLOW_TAUU0_CONTROL) || (defined ALLOW_TAUV0_CONTROL) || (defined ALLOW_SFLUX0_CONTROL) || (defined ALLOW_HFLUX0_CONTROL) || (defined ALLOW_SSS_CONTROL) || (defined ALLOW_SST_CONTROL) || (defined ALLOW_HFLUXM_CONTROL)
 
       jtlo = mybylo(mythid)
       jthi = mybyhi(mythid)
