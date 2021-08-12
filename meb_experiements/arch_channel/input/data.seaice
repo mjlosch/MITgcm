@@ -1,0 +1,44 @@
+# SEAICE parameters
+ &SEAICE_PARM01
+ SEAICE_monFreq = 1.,
+ usePW79thermodynamics=.FALSE.,
+ SEAICE_strength    = 1.371e9,
+#SEAICE_strength    = 0.5000e+04,
+ SEAICE_drag        = 1.2e-3,
+ SEAICE_rhoAir      = 1.3,
+ SEAICE_waterDrag   = 5.5e-3,
+ SEAICE_no_Slip     = .TRUE.,
+ SEAICEuseMEB       = .TRUE.
+#SEAICEdamageTime   = 0.1,
+#SEAICEmohrCoulombSlope = 0.70710678118654746,
+ SEAICEintFrictCoeff = 1.0,
+ SEAICEcohesion     = 40.e3
+#SEAICEviscosity    = 0.,
+ SEAICEhealingTime  = 0.,
+#SEAICEdamageTime   = 2.,
+#
+ SEAICEuseKrylov = .TRUE.,
+#SEAICEuseJFNK = .TRUE.,
+#SEAICEuseIMEX = .TRUE.,
+ SEAICEnonLinIterMax = 50,
+ SEAICEpreconLinIter = 10,
+ SEAICElinearIterMax = 50,
+ SEAICEnonLinTol     = 1.e-04,
+ JFNKres_tFac        = 0.5,
+#SEAICE_JFNKepsilon  = 1.D-06,
+#SEAICE_JFNKphi      = 0.7,
+#SEAICE_JFNKalpha    = 1.5,
+ SEAICE_JFNK_lsIter = 0,
+ SEAICEadvScheme    = 77,
+ SEAICEadvSnow = .FALSE.,
+#SEAICE_initialHeff = 0.3,
+#AreaFile  = 'const100.bin',
+ HeffFile  = 'thickness_2000.bin',
+ HsnowFile = 'const_00_2000.bin',
+ SEAICEwriteState   = .TRUE.,
+ SEAICE_monFreq = 1.,
+#SEAICE_monFreq = 86400.,
+ &
+
+ &SEAICE_PARM03
+ &

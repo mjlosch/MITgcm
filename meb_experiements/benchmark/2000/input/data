@@ -1,0 +1,89 @@
+# ====================
+# | Model parameters |
+# ====================
+#
+ &PARM01
+ tRef= -1.62,
+ sRef= 30.,
+ no_slip_sides=.FALSE.,
+ no_slip_bottom=.TRUE.,
+#bottomDragLinear=1.E-3,
+ bottomDragQuadratic=5.E-3,
+ viscAr=3.E-2,
+ viscAh=3.E+2,
+ HeatCapacity_Cp = 3986.,
+ rhoNil          = 1030.,
+ rhoConstFresh   = 1000.,
+ eosType='LINEAR',
+ tAlpha=2.E-4,
+ sBeta= 0.,
+ staggerTimeStep=.TRUE.,
+ saltStepping=.FALSE.,
+ tempStepping=.FALSE.,
+#tempAdvection=.FALSE.,
+ momStepping=.FALSE.,
+ f0=0.e-4,
+ beta=0.,
+ useJamartWetPoints=.TRUE.,
+ rigidLid=.FALSE.,
+ implicitFreeSurface=.TRUE.,
+#exactConserv=.TRUE.,
+ convertFW2Salt=-1,
+ readBinaryPrec=64,
+ writeBinaryPrec=32,
+#globalFiles=.TRUE.,
+ useSingleCpuIO=.TRUE.,
+#debugLevel=4,
+ &
+
+# Elliptic solver parameters
+ &PARM02
+ cg2dMaxIters=500,
+ cg2dTargetResidual=1.E-12,
+ &
+
+# Time stepping parameters
+ &PARM03
+ startTime=0.0,
+#endTime=432000.,
+# 32 days
+ endTime = 2764800.,
+#nTimeSteps = 12
+#  4 days
+#endTime = 345600.,
+ deltaT=1800.0,
+ abEps=0.1,
+ forcing_In_AB = .FALSE.,
+ pChkptFreq=345600.,
+ chkptFreq=10800.,
+ dumpInitandLast = .FALSE.,
+ dumpFreq  = 0.,
+ monitorFreq=10800.,
+ monitorSelect=2,
+ &
+
+# Gridding parameters
+ &PARM04
+ usingCartesianGrid=.TRUE.,
+ delX=250*2.E3,
+ delY=250*2.E3,
+ ygOrigin=0.E3,
+#delR= 20., 30., 50.,
+ delR= 10.,
+ &
+
+# Input datasets
+ &PARM05
+ bathyFile       = 'bathy_3c_2000.bin',
+ uVelInitFile    = 'uVel_2000.bin',
+ vVelInitFile    = 'vVel_2000.bin',
+#uVelInitFile    = 'const_00_5000.bin',
+#vVelInitFile    = 'const_00_5000.bin',
+#pSurfInitFile   = 'const_00_5000.bin',
+#uVelInitFile    = 'uVel_3c1.bin',
+#vVelInitFile    = 'vVel_3c1.bin',
+#pSurfInitFile   = 'eta_3c1.bin',
+#bathyFile       = 'channel.bin',
+#uVelInitFile    = 'const+40.bin',
+#vVelInitFile    = 'const-10.bin',
+ &
