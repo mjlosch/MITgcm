@@ -110,7 +110,7 @@ c       tTitle = 'Conservative Temp.   '
         sTitle = ' Absolute Salinity  '
       ELSE
         tUnit4c= 'degC'
-        sUnit5c= 'psu  '
+        sUnit5c= 'g/kg '
 c       tTitle = 'Potential Temperature'
         sTitle = ' Salinity           '
       ENDIF
@@ -916,6 +916,15 @@ c     diagTitle = 'Free-Surface r-Position (Pressure, Height) (Pa,m)'
      I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
 # endif /* ALLOW_GMREDI */
 #endif /* ALLOW_EDDYPSI */
+
+#ifdef INCLUDE_SOUNDSPEED_CALC_CODE
+      diagName  = 'CSound  '
+      diagTitle = 'Speed of sound in seawater'
+      diagUnits = 'm/s             '
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#endif
 
 #ifdef ALLOW_AUTODIFF
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|

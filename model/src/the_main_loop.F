@@ -237,6 +237,19 @@ C     == Local variables ==
 #ifdef STORE_LOADEDREC_TEST
       INTEGER bi,bj
 #endif /* STORE_LOADEDREC_TEST */
+#ifdef ALLOW_AUTODIFF_TAMC
+      INTEGER ilev_1
+      INTEGER ilev_2
+# ifndef AUTODIFF_2_LEVEL_CHECKPOINT
+      INTEGER ilev_3
+#  endif
+# ifdef AUTODIFF_4_LEVEL_CHECKPOINT
+      INTEGER ilev_4
+# endif
+      INTEGER max_lev2
+      INTEGER max_lev3
+      INTEGER max_lev4
+#endif
 CEOP
 
 #ifdef ALLOW_DEBUG
@@ -277,16 +290,26 @@ CADJ  INIT tapelev3 = USER
 
 #ifdef ALLOW_AUTODIFF
       nIter0 = NINT( (startTime-baseTime)/deltaTClock )
-      ikey_dynamics = 1
 #endif
 
 #ifdef ALLOW_AUTODIFF_TAMC
+      ikey_dynamics = 1
 # ifdef NONLIN_FRSURF
-CADJ STORE hFacC = tapelev_init, key = 1
+CADJ STORE hFacC       = tapelev_init, key = 1
 CADJ STORE recip_hFacC = tapelev_init, key = 1
 # endif
 # ifdef ALLOW_GENTIM2D_CONTROL
 CADJ STORE xx_gentim2d_dummy = ctrltape, key = 1 , kind = isbyte
+# endif
+# if (defined ALLOW_SHELFICE) && (defined ALLOW_GENARR2D_CONTROL)
+CADJ STORE shelficeFreshwaterFlux = tapelev_init, key=1
+CADJ STORE shelficeHeatFlux       = tapelev_init, key=1
+CADJ STORE shiTransCoeffT         = tapelev_init, key=1
+CADJ STORE shiTransCoeffS         = tapelev_init, key=1
+# endif
+# if (defined ALLOW_STREAMICE) && (defined ALLOW_GENARR2D_CONTROL)
+CADJ STORE H_streamice = tapelev_init, key=1
+CADJ STORE B_glen      = tapelev_init, key=1
 # endif
 #endif
 
@@ -480,7 +503,7 @@ CADJ &       (sNx+2*OLx)*nSx*(sNy+2*OLy)*nSy*Nr*nthreads_chkpt
 #   endif /* AUTODIFF_DISABLE_LEITH */
 #   endif /* ALLOW_MOM_COMMON */
 c--
-#   if (defined (ALLOW_EXF) && defined (ALLOW_BULKFORMULAE))
+#   if (defined ALLOW_EXF && defined ALLOW_BULKFORMULAE)
 CADJ INIT comlev1_exf_1
 CADJ &     = COMMON,nchklev_1*sNx*nSx*sNy*nSy*nthreads_chkpt
 CADJ INIT comlev1_exf_2
@@ -526,8 +549,10 @@ CADJ INIT comlev1_thsice_3 = COMMON,
 CADJ &    nchklev_1*sNx*nSx*sNy*nSy*MaxTsf*nthreads_chkpt
 CADJ INIT comlev1_thsice_4 = COMMON,
 CADJ &    nchklev_1*nSx*nSy*maxpass*nthreads_chkpt
+#   if (defined ALLOW_EXF && defined ALLOW_BULKFORMULAE)
 CADJ INIT comlev1_thsice_5 = COMMON,
 CADJ &    nchklev_1*sNx*nSx*sNy*nSy*MaxTsf*(niter_bulk+1)*nthreads_chkpt
+#   endif
 CADJ INIT comlev1_thsice_s4t = COMMON,
 CADJ &    nchklev_1*nSx*nSy*maxtsf*nthreads_chkpt
 #   endif /* ALLOW_THSICE */
@@ -597,7 +622,7 @@ c--     >>> Loop body start <<<
 C--   Reset the model iteration counter and the model time.
       myIter = nIter0 + (iloop-1)
       myTime = startTime + deltaTClock*(iloop-1)
-# ifndef ALLOW_OPENAD
+# ifdef ALLOW_AUTODIFF_TAMC
       ikey_dynamics = ilev_1
 # endif
 #endif

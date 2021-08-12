@@ -19,7 +19,10 @@ C     etaN  :: free-surface r-anomaly (r unit) at current time level
 C     uVel  :: zonal velocity (m/s, i=1 held at western face)
 C     vVel  :: meridional velocity (m/s, j=1 held at southern face)
 C     theta :: potential temperature (oC, held at pressure/tracer point)
-C     salt  :: salinity (ppt, held at pressure/tracer point)
+C     salt  :: salinity (g/kg, held at pressure/tracer point; note that
+C              salinity is either a conductivity ratio or, if using TEOS10,
+C              a mass ratio;here we assume it is a mass ratio even though
+C              it is only correct for TEOS10)
 C     gX, gxNm1 :: Time tendencies at current and previous time levels.
 C     etaH  :: surface r-anomaly, advanced in time consistently
 C              with 2.D flow divergence (Exact-Conservation):
@@ -143,3 +146,11 @@ C                     pressure gradient in Y (no Units)
       _RL  dU_psFacX(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       _RL  dV_psFacY(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
 #endif /* ALLOW_SOLVE4_PS_AND_DRAG */
+
+#ifdef INCLUDE_SOUNDSPEED_CALC_CODE
+C     cSound       :: Speed of sound in seawater (m/s)
+C                     following Del Grosso (1974)
+      COMMON /DYNVARS_cSound/ cSound
+      _RL  cSound(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+#endif /* INCLUDE_SOUNDSPEED_CALC_CODE */
+

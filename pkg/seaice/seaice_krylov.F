@@ -445,7 +445,9 @@ C--   Output diagnostics
       ENDIF
 
       IF ( SEAICE_monFreq .GT. 0. _d 0 ) THEN
-C     Count iterations
+C     Only Master Thread updates counters in common block:
+      _BEGIN_MASTER(myThid)
+C     Cumulate some diagnostic counters for the Krylov solver
        totalJFNKtimeSteps = totalJFNKtimeSteps + 1
        totalNewtonIters   = totalNewtonIters + picardIter
        totalKrylovIters   = totalKrylovIters + totalKrylovItersLoc
@@ -454,6 +456,7 @@ C     Record failure
        IF ( picardIter .EQ. picardIterMax ) THEN
         totalNewtonfails = totalNewtonfails + 1
        ENDIF
+       _END_MASTER( myThid )
       ENDIF
 C     Decide whether it is time to dump and reset the counter
       writeNow = DIFFERENT_MULTIPLE(SEAICE_monFreq,
@@ -515,13 +518,13 @@ C     Decide whether it is time to dump and reset the counter
      &' // ======================================================='
        CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &      SQUEEZE_RIGHT, myThid )
-       _END_MASTER( myThid )
-C     reset and start again
+C     Reset and start again
        totalJFNKtimeSteps = 0
        totalNewtonIters   = 0
        totalKrylovIters   = 0
        totalKrylovFails   = 0
        totalNewtonfails   = 0
+       _END_MASTER( myThid )
       ENDIF
 
 C     Print more debugging information
