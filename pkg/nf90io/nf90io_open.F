@@ -2,7 +2,7 @@
 #include "CPP_OPTIONS.h"
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
-CBOP 0
+CBOP
 C     !ROUTINE: NF90IO_OPEN
 
 C     !INTERFACE:

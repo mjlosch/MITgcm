@@ -1,7 +1,7 @@
 #include "DIAG_OPTIONS.h"
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
-CBOP 0
+CBOP
 C     !ROUTINE: DIAGNOSTICS_NF90IO_OPEN
 
 C     !INTERFACE:
@@ -40,7 +40,7 @@ C     myThid  :: my Thread Id number
 C     !OUTPUT PARAMETERS:
 C     ncid    :: file id of netCDF file opened
       INTEGER ncid
-C     EOP
+CEOP
 
 #ifdef ALLOW_NF90IO
 

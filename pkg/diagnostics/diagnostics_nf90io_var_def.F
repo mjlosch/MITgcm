@@ -1,7 +1,7 @@
 #include "DIAG_OPTIONS.h"
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
-CBOP 0
+CBOP
 C     !ROUTINE: DIAGNOSTICS_NF90IO_VAR_DEF
 
 C     !INTERFACE:
@@ -38,7 +38,7 @@ C     myThid          :: my Thread Id number
       INTEGER listId, ndId
       _RL     myTime
       INTEGER myIter, myThid
-C     EOP
+CEOP
 
 #ifdef ALLOW_NF90IO
 

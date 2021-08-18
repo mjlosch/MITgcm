@@ -55,7 +55,7 @@ C     myThid          :: my Thread Id number
       INTEGER myIter, myThid
       _RL timeRec(2)
       LOGICAL incrementRec
-C     EOP
+CEOP
 
 #ifdef ALLOW_NF90IO
 
@@ -68,7 +68,6 @@ C     !LOCAL VARIABLES:
       INTEGER iRec
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
-c     IF (useMNC .AND. diag_mnc) THEN
 
       _BEGIN_MASTER( myThid )
 

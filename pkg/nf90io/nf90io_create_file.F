@@ -23,7 +23,7 @@ C     !INTERFACE:
       CHARACTER*(*) ncfilename
       INTEGER ncid
       INTEGER myThid
-C     EOP
+CEOP
 
       INTEGER mode_flag, err
       INTEGER i_dimid, j_dimid, k_dimid, varid
