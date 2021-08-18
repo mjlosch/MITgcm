@@ -6,7 +6,7 @@ CBOP 0
 C     !ROUTINE: NF90IO_OPEN
 
 C     !INTERFACE:
-      FUNCTION NF90IO_OPEN(fname, ncid)
+      INTEGER FUNCTION NF90IO_OPEN(fname, ncid)
 C     !DESCRIPTION:
 C     Convenience wrappper around NF90_OPEN that
 C     opens in non-parallel if usingMPI not set
@@ -17,7 +17,6 @@ C     !USES:
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "EESUPPORT.h"
-#include "NF90IO.h"
 
 C     !INPUT PARAMETERS:
 C     fname :: path to file to open
@@ -32,7 +31,10 @@ CEOP
 #ifdef ALLOW_NF90IO
 
 C     !LOCAL VARIABLES:
-      INTEGER i, err, info, mode
+      INTEGER err
+#ifdef ALLOW_USE_MPI
+      INTEGER i, info, mode
+#endif
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 

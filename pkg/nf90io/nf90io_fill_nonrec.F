@@ -11,8 +11,8 @@ C     !INTERFACE:
       SUBROUTINE NF90IO_FILL_NONREC (
      I                              ncid,
      I                              myThid )
-        use netcdf
-        IMPLICIT NONE
+      use netcdf
+      IMPLICIT NONE
 
 #include "SIZE.h"
 #include "BUILD_INFO.h"
@@ -28,17 +28,17 @@ C #include "NF90IO.h"
 #include "NH_VARS.h"
 #endif
 
+C     !FUNCTIONS:
+      INTEGER  NF90IO_VAR_PAR_ACCESS
+      EXTERNAL NF90IO_VAR_PAR_ACCESS
+
         INTEGER ncid
         INTEGER myThid
 
-        INTEGER mode_flag, err, i, j, k, t
+        INTEGER err, i, k, t
         INTEGER bi, bj
-        INTEGER i_dimid, j_dimid, k_dimid, dimids(4), varid
-        INTEGER ig_dimid, jg_dimid, kl_dimid, ku_dimid, kp1_dimid
-        INTEGER start(4), count(4), rec_dimid
-        LOGICAL iAmDoingIO
-        character*(MAX_LEN_MBUF) msgbuf
-        _RL     a(sNx,sNy,Nr)
+        INTEGER varid
+        INTEGER start(4), count(4)
         _RL     is(sNx+10)
         _RL     js(sNy+10)
         _RL     ks(Nr+10)
@@ -242,7 +242,7 @@ C     Hfacs
         CALL NF90IO_FILL_3Dnorec(ncid, "hFacW", hFacW, myThid)
         CALL NF90IO_FILL_3Dnorec(ncid, "hFacS", hFacS, myThid)
 
-C     Depth:  Special because model doesn't store
+C     Depth:  Special because model does not store
         err = nf90_inq_varid(ncid, "Depth", varid)
         CALL nf90ERR(err, "Getting varid Depth",myThid)
         err = nf90io_var_par_access(ncid, varid)

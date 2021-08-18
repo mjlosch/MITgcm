@@ -1,7 +1,7 @@
 #include "DIAG_OPTIONS.h"
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
-CBOP 0
+CBOP
 C     !ROUTINE: DIAGNOSTICS_NF90IO_VAR_OUT
 
 C     !INTERFACE:
@@ -29,8 +29,8 @@ C     !USES:
 #include "DIAGNOSTICS.h"
 #ifdef ALLOW_NF90IO
 #include "NF90IO.h"
-C #include "mpif.h"
-C #include "NF90IO.h"
+C     #include "mpif.h"
+C     #include "NF90IO.h"
 #endif
 
 C     !INPUT PARAMETERS:
@@ -55,12 +55,16 @@ C     myThid          :: my Thread Id number
       INTEGER myIter, myThid
       _RL timeRec(2)
       LOGICAL incrementRec
-CEOP
+C     EOP
 
 #ifdef ALLOW_NF90IO
 
+C     !FUNCTIONS:
+      INTEGER  NF90IO_VAR_PAR_ACCESS
+      EXTERNAL NF90IO_VAR_PAR_ACCESS
+
 C     !LOCAL VARIABLES:
-      INTEGER varid, rec_dimid, i_dimid, j_dimid, k_dimid, err
+      INTEGER varid, rec_dimid, err
       INTEGER iRec
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
@@ -72,59 +76,61 @@ C     get the variable id
       err = nf90_inq_varid(ncid, cdiag(ndId), varid)
       CALL nf90ERR(err, "Get variable varid", myThid)
 
-C TODO: the mnc routines had a bunch of stuff setting the missing value in here.
-C     Need to figure out what record number we are on and increment if we need to
+C     TODO: the mnc routines had a bunch of stuff setting the missing
+C     value in here. Need to figure out what record number we are on
+C     and increment if we need to
       err = nf90_inq_dimid(ncid, "record", rec_dimid)
       err = nf90_inquire_dimension(ncid, rec_dimid, len=iRec)
       CALL nf90ERR(err, "Getting length of unlimited dimension",myThid)
       IF (incrementRec) THEN
-        iRec = iRec+1
-        err = nf90_inq_varid(ncid, "record", varid)
-        CALL nf90ERR(err, "Get the record varid",myThid)
-        err = nf90io_var_par_access(ncid, varid)
-        err = nf90_put_var(ncid, varid, (/ iRec /), start = (/ iRec /),
-     $       count = (/ 1 /) )
-        CALL nf90ERR(err, "Write iRec to the record variable",myThid)
-C       TIME: We should add TIMESTART and TIMEEND so that we can spec avg interval
-        err = nf90_inq_varid(ncid, "time", varid)
-        CALL nf90ERR(err, "Get the time varid",myThid)
-        err = nf90io_var_par_access(ncid, varid)
-        err = nf90_put_var(ncid, varid, (/ myTime /), start = (/ iRec /)
-     $       ,count = (/ 1 /) )
-        CALL nf90ERR(err, "Write time variable",myThid)
+       iRec = iRec+1
+       err = nf90_inq_varid(ncid, "record", varid)
+       CALL nf90ERR(err, "Get the record varid",myThid)
+       err = nf90io_var_par_access(ncid, varid)
+       err = nf90_put_var(ncid, varid, (/ iRec /), start = (/ iRec /),
+     $      count = (/ 1 /) )
+       CALL nf90ERR(err, "Write iRec to the record variable",myThid)
+C     TIME: We should add TIMESTART and TIMEEND so that we can spec avg
+C     interval
+       err = nf90_inq_varid(ncid, "time", varid)
+       CALL nf90ERR(err, "Get the time varid",myThid)
+       err = nf90io_var_par_access(ncid, varid)
+       err = nf90_put_var(ncid, varid, (/ myTime /), start = (/ iRec /)
+     $      ,count = (/ 1 /) )
+       CALL nf90ERR(err, "Write time variable",myThid)
 
-        err = nf90_inq_varid(ncid, "timestart", varid)
-        CALL nf90ERR(err, "Get the timestart varid",myThid)
-        err = nf90io_var_par_access(ncid, varid)
-        err = nf90_put_var(ncid, varid, (/ timeRec(1) /), start = (/
-     $       iRec /),count = (/ 1 /) )
-        CALL nf90ERR(err, "Write timestart variable",myThid)
-        err = nf90_inq_varid(ncid, "timeend", varid)
-        CALL nf90ERR(err, "Get the timeend varid",myThid)
-        err = nf90io_var_par_access(ncid, varid)
-        err = nf90_put_var(ncid, varid, (/ timeRec(2) /), start = (/
-     $       iRec /),count = (/ 1 /) )
-        CALL nf90ERR(err, "Write timeend variable",myThid)
-C       ITERATION
-        err = nf90_inq_varid(ncid, "iter", varid)
-        CALL nf90ERR(err, "Get the time varid",myThid)
-        err = nf90io_var_par_access(ncid, varid)
-        err = nf90_put_var(ncid, varid, (/ myIter /), start = (/ iRec /)
-     $       ,count = (/ 1 /) )
-        CALL nf90ERR(err, "Write iter variable",myThid)
+       err = nf90_inq_varid(ncid, "timestart", varid)
+       CALL nf90ERR(err, "Get the timestart varid",myThid)
+       err = nf90io_var_par_access(ncid, varid)
+       err = nf90_put_var(ncid, varid, (/ timeRec(1) /), start = (/
+     $      iRec /),count = (/ 1 /) )
+       CALL nf90ERR(err, "Write timestart variable",myThid)
+       err = nf90_inq_varid(ncid, "timeend", varid)
+       CALL nf90ERR(err, "Get the timeend varid",myThid)
+       err = nf90io_var_par_access(ncid, varid)
+       err = nf90_put_var(ncid, varid, (/ timeRec(2) /), start = (/
+     $      iRec /),count = (/ 1 /) )
+       CALL nf90ERR(err, "Write timeend variable",myThid)
+C     ITERATION
+       err = nf90_inq_varid(ncid, "iter", varid)
+       CALL nf90ERR(err, "Get the time varid",myThid)
+       err = nf90io_var_par_access(ncid, varid)
+       err = nf90_put_var(ncid, varid, (/ myIter /), start = (/ iRec /)
+     $      ,count = (/ 1 /) )
+       CALL nf90ERR(err, "Write iter variable",myThid)
       ENDIF
 
 C     Write the data
       IF (nLevOutp.EQ.1) THEN
-         CALL NF90IO_FILL_3D(ncid, cdiag(ndId), qtmp(:,:,1,:,:), iRec,
-     $        myThid)
+       CALL NF90IO_FILL_3D(ncid, cdiag(ndId), qtmp(:,:,1,:,:), iRec,
+     $      myThid)
       ELSEIF (nLevOutp.LT.Nr) THEN
-         CALL NF90IO_FILL_4DNlev(ncid, cdiag(ndId), nLevOutp,
-     $        qtmp(:,:,1:nLevOutp,:,: ), iRec, myThid)
+       CALL NF90IO_FILL_4DNlev(ncid, cdiag(ndId), nLevOutp,
+     $      qtmp(:,:,1:nLevOutp,:,: ), iRec, myThid)
 
       ELSE
-         CALL NF90IO_FILL_4D(ncid, cdiag(ndId), qtmp(:,:,1:Nr,:,: ),
-     $        iRec, myThid)
+       CALL NF90IO_FILL_4D(ncid, cdiag(ndId), qtmp(:,:,1:Nr,:,: ),
+     $      iRec, myThid)
       ENDIF
 
       _END_MASTER( myThid )

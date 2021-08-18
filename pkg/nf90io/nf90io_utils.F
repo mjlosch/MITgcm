@@ -2,15 +2,12 @@
 #include "CPP_OPTIONS.h"
 
 CCCCCCCCCCCCCCC
-      FUNCTION NF90IO_VAR_PAR_ACCESS(ncid, varid)
+      INTEGER FUNCTION NF90IO_VAR_PAR_ACCESS(ncid, varid)
 
       use netcdf
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "EESUPPORT.h"
-#include "NF90IO.h"
-
-
 
 C     !DESCRIPTION:
 C     Convenience wrappper around NF90_VAR_PAR_ACCESS that
@@ -37,16 +34,16 @@ C     errors.
       implicit none
 #include "SIZE.h"
 #include "EEPARAMS.h"
-#include "PARAMS.h"
-#include "GRID.h"
-#include "NF90IO.h"
 
+C     !FUNCTIONS:
+      INTEGER NF90IO_VAR_PAR_ACCESS
+      EXTERNAL NF90IO_VAR_PAR_ACCESS
 
       character*(*) vname
-      INTEGER ncid, myThid, iRec
+      INTEGER ncid, myThid
       _RL dat (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
 
-      INTEGER start(3), count(3), rec_dimid
+      INTEGER start(3), count(3)
       INTEGER bi, bj, err, varid
 
       err = nf90_inq_varid(ncid, vname, varid)
@@ -83,16 +80,17 @@ C     errors.
       implicit none
 #include "SIZE.h"
 #include "EEPARAMS.h"
-#include "PARAMS.h"
-#include "GRID.h"
-#include "NF90IO.h"
+
+C     !FUNCTIONS:
+      INTEGER NF90IO_VAR_PAR_ACCESS
+      EXTERNAL NF90IO_VAR_PAR_ACCESS
 
 
       character*(*) vname
       INTEGER ncid, myThid, iRec
       _RL dat (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
 
-      INTEGER start(4), count(4), rec_dimid
+      INTEGER start(4), count(4)
       INTEGER bi, bj, err, varid
 
       err = nf90_inq_varid(ncid, vname, varid)
@@ -131,15 +129,16 @@ C     errors.
       implicit none
 #include "SIZE.h"
 #include "EEPARAMS.h"
-#include "PARAMS.h"
-#include "GRID.h"
-#include "NF90IO.h"
+
+C     !FUNCTIONS:
+      INTEGER NF90IO_VAR_PAR_ACCESS
+      EXTERNAL NF90IO_VAR_PAR_ACCESS
 
       character*(*) vname
       INTEGER ncid, myThid, nlev, iRec
       _RL dat (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nlev,nSx,nSy)
 
-      INTEGER start(4), count(4), rec_dimid
+      INTEGER start(4), count(4)
       INTEGER bi, bj, err, varid
 
       err = nf90_inq_varid(ncid, vname, varid)
@@ -178,16 +177,16 @@ C     errors.
       implicit none
 #include "SIZE.h"
 #include "EEPARAMS.h"
-#include "PARAMS.h"
-#include "GRID.h"
-#include "NF90IO.h"
 
+C     !FUNCTIONS:
+      INTEGER NF90IO_VAR_PAR_ACCESS
+      EXTERNAL NF90IO_VAR_PAR_ACCESS
 
       character*(*) vname
       INTEGER ncid, myThid, iRec
       _RL dat (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 
-      INTEGER start(3), count(3), rec_dimid
+      INTEGER start(3), count(3)
       INTEGER bi, bj, err, varid
 
       err = nf90_inq_varid(ncid, vname, varid)
@@ -223,16 +222,16 @@ C     errors.
       implicit none
 #include "SIZE.h"
 #include "EEPARAMS.h"
-#include "PARAMS.h"
-#include "GRID.h"
-#include "NF90IO.h"
 
+C     !FUNCTIONS:
+      INTEGER NF90IO_VAR_PAR_ACCESS
+      EXTERNAL NF90IO_VAR_PAR_ACCESS
 
       character*(*) vname
       INTEGER ncid, myThid
       _RL dat (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 
-      INTEGER start(2), count(2), rec_dimid
+      INTEGER start(2), count(2)
       INTEGER bi, bj, err, varid
 
       err = nf90_inq_varid(ncid, vname, varid)
@@ -265,7 +264,6 @@ C     !USES:
       use netcdf
 
       implicit none
-#include "EEPARAMS.h"
       INTEGER  myThid, ncid
       CHARACTER(*) varname
       CHARACTER (len=250), dimension(:) :: dimnames
@@ -277,8 +275,8 @@ C     OUTPUT:
 CEOP
 
 C     !LOCAL VARIABLES:
-      integer i,lenm, dim1, dim2, dim3, dim4, err
-      integer dims(4), n
+      integer err
+      integer n
 
       n = size(dimnames(:4))
 

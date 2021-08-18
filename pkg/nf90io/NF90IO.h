@@ -6,10 +6,6 @@ C  Defines for NF90IO.h
       PARAMETER(NF90IO_MAX_N_INFO=64)
       PARAMETER(NF90IO_MAX_LEN_INFO=1024)
 
-C Functions that returns integer defined in nf90io_utils.F
-      INTEGER NF90IO_VAR_PAR_ACCESS
-      INTEGER NF90IO_OPEN
-
 C nf90io_fileFormat :: which netCDF file format to create:
 C                      1: CDF-1 (classic format)
 C                      2: CDF-2 (classic format with 64-bit offsets)
