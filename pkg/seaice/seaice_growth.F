@@ -53,6 +53,7 @@ C     myThid :: Thread no. that called this routine.
       INTEGER myIter, myThid
 CEOP
 
+#ifndef SEAICE_USE_GROWTH_ADX
 #if (defined ALLOW_EXF) && (defined ALLOW_ATM_TEMP)
 C     !FUNCTIONS:
 #ifdef ALLOW_DIAGNOSTICS
@@ -124,6 +125,8 @@ C     Regularization values squared
       _RL area_reg_sq, hice_reg_sq
 C     pathological cases thresholds
       _RL heffTooHeavy
+C     local copy of surface layer thickness in meters
+      _RL dzSurf
 
 C     Helper variables: reciprocal of some constants
       _RL recip_multDim
@@ -157,7 +160,9 @@ C     temporary variables available for the various computations
 #endif
 #endif /* ALLOW_SITRACER */
 #ifdef ALLOW_AUTODIFF_TAMC
-      INTEGER ilockey
+      INTEGER act1, act2, act3, act4
+      INTEGER max1, max2, max3
+      INTEGER iicekey
 #endif
 
 C==   local arrays ==
@@ -322,10 +327,12 @@ C ===================================================================
 C =================PART 0: constants and initializations=============
 C ===================================================================
 
-      IF ( buoyancyRelation .EQ. 'OCEANICP' ) THEN
-       kSurface        = Nr
+      IF ( usingPCoords ) THEN
+       kSurface = Nr
+       dzSurf   = drF(kSurface)*recip_rhoConst*recip_gravity
       ELSE
-       kSurface        = 1
+       kSurface = 1
+       dzSurf   = drF(kSurface)
       ENDIF
 
 C     avoid unnecessary divisions in loops
@@ -337,8 +344,7 @@ c     recip_multDim        = 1./float(SEAICE_multDim)
       recip_rhoIce      = ONE / SEAICE_rhoIce
 
 C     Cutoff for iceload
-      heffTooHeavy=drF(kSurface) / 5. _d 0
-
+      heffTooHeavy = dzSurf * 0.2 _d 0
 C     RATIO OF SEA ICE DENSITY to SNOW DENSITY
       ICE2SNOW     = SEAICE_rhoIce/SEAICE_rhoSnow
       SNOW2ICE     = ONE / ICE2SNOW
@@ -490,8 +496,8 @@ C for lateral melt parameterization:
          ENDDO
         ENDDO
 #if (defined (ALLOW_MEAN_SFLUX_COST_CONTRIBUTION) || defined (ALLOW_SSH_GLOBMEAN_COST_CONTRIBUTION))
-        DO J=1-oLy,sNy+oLy
-         DO I=1-oLx,sNx+oLx
+        DO J=1-OLy,sNy+OLy
+         DO I=1-OLx,sNx+OLx
           frWtrAtm(I,J,bi,bj)        = 0.0 _d 0
          ENDDO
         ENDDO
@@ -832,7 +838,8 @@ CADJ &     comlev1_bibj, key = iicekey, byte = isbyte
 #ifdef SEAICE_CAP_SUBLIM
      I        latentHeatFluxMaxMult(1,1,IT),
 #endif
-     U        ticeInMult(1,1,IT), ticeOutMult(1,1,IT),
+     I        ticeInMult(1,1,IT),
+     O        ticeOutMult(1,1,IT),
      O        a_QbyATMmult_cover(1,1,IT),
      O        a_QSWbyATMmult_cover(1,1,IT),
      O        a_FWbySublimMult(1,1,IT),
@@ -1039,7 +1046,7 @@ C efficiency of turbulent fluxes : dependency to sign of THETA-TBC
           IF ( theta(I,J,kSurface,bi,bj) .GE. tempFrz ) THEN
            tmpscal1 = SEAICE_mcPheePiston
           ELSE
-           tmpscal1 =SEAICE_frazilFrac*drF(kSurface)/SEAICE_deltaTtherm
+           tmpscal1 =SEAICE_frazilFrac*dzSurf/SEAICE_deltaTtherm
           ENDIF
 C efficiency of turbulent fluxes : dependency to AREA (McPhee cases)
           IF ( (AREApreTH(I,J) .GT. 0. _d 0).AND.
@@ -1055,7 +1062,7 @@ C efficiency of turbulent fluxes : dependency to AREA (McPhee cases)
 C maximum turbulent flux, in ice meters
           tmpscal2= - (HeatCapacity_Cp*rhoConst * recip_QI)
      &         * (theta(I,J,kSurface,bi,bj)-tempFrz)
-     &         * SEAICE_deltaTtherm * maskC(i,j,kSurface,bi,bj)
+     &         * SEAICE_deltaTtherm * HEFFM(i,j,bi,bj)
 C available turbulent flux
           a_QbyOCN(i,j) =
      &         tmpscal1 * tmpscal2 * MixedLayerTurbulenceFactor
@@ -2207,7 +2214,7 @@ CADJ STORE d_hsnwbyocnonsnw = comlev1_bibj,key=iicekey,byte=isbyte
      &           + d_HSNWbyNEG(I,J,bi,bj)*SNOW2ICE
      &           - convertPRECIP2HI *
      &             snowPrecip(i,j,bi,bj) * (ONE-AREApreTH(I,J))
-     &           ) * maskC(I,J,kSurface,bi,bj)
+     &           ) * HEFFM(I,J,bi,bj)
          ENDDO
         ENDDO
         DO J=1,sNy
@@ -2256,7 +2263,7 @@ C to diagnoze and/or apply the correction to QNET.
 catn: initialize tmpscal1
            tmpscal1 = ZERO
 C ocean water going to ice/snow, in precip units
-           tmpscal3=rhoConstFresh*maskC(I,J,kSurface,bi,bj)*(
+           tmpscal3=rhoConstFresh*HEFFM(I,J,bi,bj)*(
      &       ( d_HSNWbyATMonSNW(I,J)*SNOW2ICE
      &       + d_HSNWbyOCNonSNW(I,J)*SNOW2ICE
      &       + d_HEFFbyOCNonICE(I,J) + d_HEFFbyATMonOCN(I,J)
@@ -2309,17 +2316,17 @@ CML since it does not contribute to heating the air.
 CML So this diagnostic is only good for heat budget calculations within
 CML the ice-ocean system.
            SIatmQnt(I,J,bi,bj) =
-     &            maskC(I,J,kSurface,bi,bj)*convertHI2Q*(
+     &            HEFFM(I,J,bi,bj)*convertHI2Q*(
      &            a_QSWbyATM_cover(I,J) +
      &            a_QbyATM_cover(I,J) + a_QbyATM_open(I,J) )
 Cgf 2) SItflux (analogous to tflux; includes advection by water
 C             exchanged between atmosphere and ocean+ice)
 C solid water going to atm, in precip units
-           tmpscal1 = rhoConstFresh*maskC(I,J,kSurface,bi,bj)
+           tmpscal1 = rhoConstFresh*HEFFM(I,J,bi,bj)
      &       * convertHI2PRECIP * ( - d_HSNWbyRAIN(I,J)*SNOW2ICE
      &       + a_FWbySublim(I,J) - r_FWbySublim(I,J) )
 C liquid water going to atm, in precip units
-           tmpscal2=rhoConstFresh*maskC(I,J,kSurface,bi,bj)*
+           tmpscal2=rhoConstFresh*HEFFM(I,J,bi,bj)*
      &       ( ( EVAP(I,J,bi,bj)-PRECIP(I,J,bi,bj) )
      &         * ( ONE - AREApreTH(I,J) )
 #ifdef ALLOW_RUNOFF
@@ -2368,7 +2375,7 @@ C ==================================================
      &             +d_HSNWbyNEG(I,J,bi,bj)*SNOW2ICE
 C     If r_FWbySublim>0, then it is evaporated from ocean.
      &             +r_FWbySublim(I,J)
-          EmPmR(I,J,bi,bj)  = maskC(I,J,kSurface,bi,bj)*(
+          EmPmR(I,J,bi,bj)  = HEFFM(I,J,bi,bj)*(
      &         ( EVAP(I,J,bi,bj)-PRECIP(I,J,bi,bj) )
      &         * ( ONE - AREApreTH(I,J) )
 #ifdef ALLOW_RUNOFF
@@ -2380,10 +2387,10 @@ C     If r_FWbySublim>0, then it is evaporated from ocean.
 C     beware of the sign: fw2ObyRidge is snow mass moved into the ocean
 C     by ridging, so requires a minus sign
      &         - fw2ObyRidge(I,J,bi,bj)*recip_deltaTtherm
-     &           * maskC(I,J,kSurface,bi,bj)
+     &           * HEFFM(I,J,bi,bj)
 #endif /* SEAICE_ITD */
 C and the flux leaving/entering the ocean+ice
-           SIatmFW(I,J,bi,bj) = maskC(I,J,kSurface,bi,bj)*(
+           SIatmFW(I,J,bi,bj) = HEFFM(I,J,bi,bj)*(
      &          EVAP(I,J,bi,bj)*( ONE - AREApreTH(I,J) )
      &          - PRECIP(I,J,bi,bj)
 #ifdef ALLOW_RUNOFF
@@ -2399,7 +2406,7 @@ C and the flux leaving/entering the ocean+ice
 C--
         DO J=1,sNy
          DO I=1,sNx
-            frWtrAtm(I,J,bi,bj) = maskC(I,J,kSurface,bi,bj)*(
+            frWtrAtm(I,J,bi,bj) = HEFFM(I,J,bi,bj)*(
      &           PRECIP(I,J,bi,bj)
      &           - EVAP(I,J,bi,bj)*( ONE - AREApreTH(I,J) )
 # ifdef ALLOW_RUNOFF
@@ -2417,7 +2424,7 @@ C--
 # ifdef ALLOW_MEAN_SFLUX_COST_CONTRIBUTION
         DO J=1,sNy
          DO I=1,sNx
-          frWtrAtm(I,J,bi,bj) = maskC(I,J,kSurface,bi,bj)*(
+          frWtrAtm(I,J,bi,bj) = HEFFM(I,J,bi,bj)*(
      &         PRECIP(I,J,bi,bj)
      &         - EVAP(I,J,bi,bj)
      &         *( ONE - AREApreTH(I,J) )
@@ -2538,7 +2545,7 @@ C ===================================================================
 C three that actually need intermediate storage
          DO J=1,sNy
           DO I=1,sNx
-            DIAGarrayA(I,J) = maskC(I,J,kSurface,bi,bj)
+            DIAGarrayA(I,J) = HEFFM(I,J,bi,bj)
      &        * d_HSNWbyRAIN(I,J)*SEAICE_rhoSnow*recip_deltaTtherm
             DIAGarrayB(I,J) =  AREA(I,J,bi,bj)-AREApreTH(I,J)
           ENDDO
@@ -2549,7 +2556,7 @@ C three that actually need intermediate storage
      &      tmpscal1,1,'SIdA    ',0,1,3,bi,bj,myThid)
          DO J=1,sNy
           DO I=1,sNx
-           DIAGarrayB(I,J) = maskC(I,J,kSurface,bi,bj) *
+           DIAGarrayB(I,J) = HEFFM(I,J,bi,bj) *
      &       a_FWbySublim(I,J) * SEAICE_rhoIce * recip_deltaTtherm
           ENDDO
          ENDDO
@@ -2559,11 +2566,11 @@ C
          DO J=1,sNy
           DO I=1,sNx
 C the actual Freshwater flux of sublimated ice, >0 decreases ice
-           DIAGarrayA(I,J) = maskC(I,J,kSurface,bi,bj)
+           DIAGarrayA(I,J) = HEFFM(I,J,bi,bj)
      &       * (a_FWbySublim(I,J)-r_FWbySublim(I,J))
      &       * SEAICE_rhoIce * recip_deltaTtherm
 C the residual Freshwater flux of sublimated ice
-           DIAGarrayC(I,J) = maskC(I,J,kSurface,bi,bj)
+           DIAGarrayC(I,J) = HEFFM(I,J,bi,bj)
      &       * r_FWbySublim(I,J)
      &       * SEAICE_rhoIce * recip_deltaTtherm
 C the latent heat flux
@@ -2572,7 +2579,7 @@ C the latent heat flux
            tmpscal2= ( a_FWbySublim(I,J)-r_FWbySublim(I,J) )
      &             * convertHI2PRECIP
            tmpscal3= SEAICE_lhEvap+SEAICE_lhFusion
-           DIAGarrayB(I,J) = -maskC(I,J,kSurface,bi,bj)*rhoConstFresh
+           DIAGarrayB(I,J) = -HEFFM(I,J,bi,bj)*rhoConstFresh
      &             * ( tmpscal1*SEAICE_lhEvap + tmpscal2*tmpscal3 )
           ENDDO
          ENDDO
@@ -2658,8 +2665,8 @@ C           no qnet or tflux adjustement is needed
        ENDDO
        IF ( balancePrintMean ) THEN
         _BEGIN_MASTER( myThid )
-        WRITE(msgBuf,'(a,a,e24.17)') 'rm Global mean of ',
-     &       'SIatmFW = ', tmpscal0
+        WRITE(msgBuf,'(2A,1PE21.14,A,I10)') 'rm Global mean of',
+     &               ' SIatmFW = ', tmpscal0, '  @ it=', myIter
         CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &                      SQUEEZE_RIGHT, myThid )
         _END_MASTER( myThid )
@@ -2679,8 +2686,8 @@ C           no qnet or tflux adjustement is needed
        ENDDO
        IF ( balancePrintMean ) THEN
         _BEGIN_MASTER( myThid )
-        WRITE(msgBuf,'(a,a,e24.17)') 'rm Global mean of ',
-     &       'SItflux = ', tmpscal2
+        WRITE(msgBuf,'(2A,1PE21.14,A,I10)') 'rm Global mean of',
+     &               ' SItflux = ', tmpscal2, '  @ it=', myIter
         CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &                      SQUEEZE_RIGHT, myThid )
         _END_MASTER( myThid )
@@ -2706,6 +2713,7 @@ C SIatmFW follows the same convention as empmr -- SIatmFW diag does not
 #else  /* ALLOW_EXF and ALLOW_ATM_TEMP */
       STOP 'SEAICE_GROWTH not compiled without EXF and ALLOW_ATM_TEMP'
 #endif /* ALLOW_EXF and ALLOW_ATM_TEMP */
+#endif /* ndef SEAICE_USE_GROWTH_ADX */
 
       RETURN
       END

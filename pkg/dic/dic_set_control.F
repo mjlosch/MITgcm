@@ -6,7 +6,6 @@
 cphc$taf COMMON DIC_XX        adname = addic_xx
 cphc$taf COMMON DIC_COST_CTRL adname = ADDIC_COST_CTRL
 
-
 C !INTERFACE: ==========================================================
       SUBROUTINE DIC_SET_CONTROL( myThid )
 
@@ -42,7 +41,10 @@ C     == Local arguments ==
       LOGICAL ladinit
       LOGICAL equal
       CHARACTER*( 80)   fnamegen2d
-      _RL fac
+      _RL     fac
+#ifdef ALLOW_GEN2D_CONTROL
+      _RL     tmpfld2d(1-olx:snx+olx,1-oly:sny+oly,nsx,nsy)
+#endif
 c     == external ==
       INTEGER  ILNBLNK
       EXTERNAL ILNBLNK
@@ -64,6 +66,16 @@ CEOP
       print*,'QQ alpha before', alpha(20,10,1,1)
 
 #ifdef ALLOW_GEN2D_CONTROL
+      DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+          DO j = 1-OLy,sNy+OLy
+            DO i = 1-OLx,sNx+OLx
+              tmpfld2d(i,j,bi,bj) = 0. _d 0
+            ENDDO
+          ENDDO
+        ENDDO
+      ENDDO
+
       il=ILNBLNK( xx_gen2d_file )
       WRITE(fnamegen2d(1:80),'(2a,i10.10)')
      &     xx_gen2d_file(1:il),'.',optimcycle
@@ -99,7 +111,7 @@ cswd -- QQ limits
        DO bi=myBxLo(myThid),myBxHi(myThid)
          DO j = 1, sNy
           DO i = 1, sNx
-            feload(i,j,bi,bj) = feload(i,j,bi,bj)*(1. _d 0 +xx_dic(1))
+c           feload(i,j,bi,bj) = feload(i,j,bi,bj)*(1. _d 0 +xx_dic(1))
             rain_ratio(i,j,bi,bj) =
      &                      rain_ratio(i,j,bi,bj)*(1. _d 0 +xx_dic(2))
           ENDDO
@@ -109,7 +121,7 @@ cswd -- QQ limits
 
       _EXCH_XY_RL( alpha, myThid )
       _EXCH_XY_RL( rain_ratio, myThid )
-      _EXCH_XY_RL( feload, myThid )
+c     _EXCH_XY_RL( feload, myThid )
 
       KScav       = KScav       * ( 1. _d 0 + xx_dic(3)*1. _d 6 )
       ligand_stab = ligand_stab * ( 1. _d 0 + xx_dic(4)*1. _d 6 )
@@ -121,9 +133,8 @@ cswd -- QQ limits
 
 #endif /* ALLOW_DIC_CONTROL */
 
-#endif /* ALLOW_CTRL */
-
 cph#endif /* DIC_BIOTIC */
+#endif /* ALLOW_CTRL */
 
       RETURN
       END

@@ -336,12 +336,13 @@ Longwave Radiation
 ##################
 
 The longwave radiation package used in the fizhi package is thoroughly
-described by . As described in that document, IR fluxes are computed due
-to absorption by water vapor, carbon dioxide, and ozone. The spectral
-bands together with their absorbers and parameterization methods,
-configured for the fizhi package, are shown in :numref:`tab_phys_pkg_fizhi_longwave`.
+described by :cite:`chsz:94`. As described in that document, IR fluxes are
+computed due to absorption by water vapor, carbon dioxide, and ozone. The
+spectral bands together with their absorbers and parameterization methods,
+configured for the fizhi package, are shown in
+:numref:`tab_phys_pkg_fizhi_longwave`.
 
-.. table:: IR Spectral Bands, Absorbers, and Parameterization Method (from :cite:`chsz:94`)
+.. table:: IR Spectral Bands, Absorbers, and Parameterization Method
   :name: tab_phys_pkg_fizhi_longwave
 
   +----------------+------------------------------------+------------------------------+----------+
@@ -935,6 +936,9 @@ with the GCM’s moisture data. Below 300 mb, the model’s moisture data is
 used. Above 100 mb, the SAGE data is used. Between 100 and 300 mb, a
 linear interpolation (in pressure) is performed using the data from SAGE
 and the GCM.
+
+
+.. _fizhi_diagnostics:
 
 Fizhi Diagnostics
 +++++++++++++++++

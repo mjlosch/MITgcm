@@ -23,6 +23,9 @@ C     === Global variables ===
 #include "EEPARAMS.h"
 #include "PARAMS.h"
 #include "GRID.h"
+#ifdef ALLOW_GENERIC_ADVDIFF
+# include "GAD.h"
+#endif /* ALLOW_GENERIC_ADVDIFF */
 #include "SEAICE_SIZE.h"
 #include "SEAICE_PARAMS.h"
 #include "SEAICE_TRACER.h"
@@ -88,9 +91,10 @@ C     SEAICE_freeze     :: FREEZING TEMP. OF SEA WATER
 C--   SEAICE parameters
       NAMELIST /SEAICE_PARM01/
      & SEAICEuseDYNAMICS, SEAICEuseFREEDRIFT, SEAICEuseStrImpCpl,
+     & SEAICEuseMCS, SEAICEuseMCE, SEAICEuseTD, SEAICEusePL,
      & SEAICEuseTEM, SEAICEuseMetricTerms, SEAICEuseTilt,
-     & useHB87stressCoupling, SEAICEuseFlooding,
-     & usePW79thermodynamics, useMaykutSatVapPoly,
+     & useHB87stressCoupling, SEAICEupdateOceanStress,
+     & usePW79thermodynamics, useMaykutSatVapPoly, SEAICEuseFlooding,
      & SEAICErestoreUnderIce, SEAICE_growMeltByConv,
      & SEAICE_salinityTracer, SEAICE_ageTracer,
      & SEAICEadvHeff, SEAICEadvArea, SEAICEadvSnow,
@@ -98,7 +102,7 @@ C--   SEAICE parameters
      & SEAICEmomAdvection, SEAICEselectKEscheme, SEAICEselectVortScheme,
      & SEAICEhighOrderVorticity, SEAICEupwindVorticity,
      & SEAICEuseAbsVorticity, SEAICEuseJamartMomAdv,
-     & SEAICE_clipVelocities, SEAICE_maskRHS, 
+     & SEAICE_clipVelocities, SEAICE_maskRHS,
      & SEAICE_no_slip, SEAICE_2ndOrderBC,
      & SEAICEetaZmethod, LAD, IMAX_TICE, postSolvTempIter,
      & SEAICEuseFluxForm, SEAICEadvScheme, SEAICEadvSchArea,
@@ -111,11 +115,11 @@ C--   SEAICE parameters
      & SOLV_MAX_ITERS, SOLV_NCHECK, NPSEUDOTIMESTEPS,
      & LSR_ERROR, LSR_mixIniGuess, SEAICEuseMultiTileSolver,
      & SEAICE_deltaTevp, SEAICE_elasticParm, SEAICE_evpTauRelax,
-     & SEAICE_evpDampC, SEAICEnEVPstarSteps, 
+     & SEAICE_evpDampC, SEAICEnEVPstarSteps,
      & SEAICE_evpAlpha, SEAICE_evpBeta,
      & SEAICEaEVPcoeff, SEAICEaEVPcStar, SEAICEaEVPalphaMin,
      & SEAICE_zetaMin, SEAICE_zetaMaxFac, SEAICEusePicardAsPrecon,
-     & SEAICEuseKrylov, SEAICEuseJFNK, 
+     & SEAICEuseKrylov, SEAICEuseJFNK,
      & SEAICEnonLinIterMax, SEAICElinearIterMax, SEAICEnonLinTol,
      & SEAICEnewtonIterMax, SEAICEkrylovIterMax, JFNKgamma_nonlin,
      & SEAICEpreconNL_Iter, SEAICEpreconLinIter,
@@ -123,7 +127,7 @@ C--   SEAICE parameters
      & JFNKgamma_lin_min,JFNKgamma_lin_max,
      & SEAICE_JFNKepsilon, SEAICE_OLx, SEAICE_OLy,
      & SEAICE_JFNKphi, SEAICE_JFNKalpha, SEAICEuseIMEX, SEAICEuseBDF2,
-     & SEAICEuseLinRemapITD, 
+     & SEAICEuseLinRemapITD,
      & useHibler79IceStrength, SEAICEpartFunc, SEAICEredistFunc,
      & SEAICEridgingIterMax, SEAICEsimpleRidging, SEAICEsnowFracRidge,
      & SEAICEgStar, SEAICEhStar, SEAICEaStar, SEAICEshearParm,
@@ -135,7 +139,7 @@ C--   SEAICE parameters
      & SEAICE_doOpenWaterGrowth, SEAICE_doOpenWaterMelt,
      & SEAICE_rhoAir, SEAICE_rhoIce, SEAICE_rhoSnow, ICE2WATR,
      & SEAICE_cpAir, SEAICEscaleSurfStress,
-     & SEAICE_drag, SEAICE_waterDrag, SEAICE_dryIceAlb,
+     & SEAICE_drag, SEAICE_waterDrag, SEAICEdWatMin, SEAICE_dryIceAlb,
      & SEAICE_wetIceAlb, SEAICE_drySnowAlb, SEAICE_wetSnowAlb, HO,
      & SEAICE_drag_south, SEAICE_waterDrag_south,
      & SEAICE_dryIceAlb_south, SEAICE_wetIceAlb_south,
@@ -143,7 +147,8 @@ C--   SEAICE parameters
      & SEAICE_cBasalStar, SEAICEbasalDragU0, SEAICEbasalDragK1,
      & SEAICEbasalDragK2, SEAICE_wetAlbTemp, SEAICE_waterAlbedo,
      & SEAICE_strength, SEAICE_cStar, SEAICE_eccen,
-     & SEAICEpressReplFac, SEAICE_tensilFac, SEAICE_tensilDepth, 
+     & SEAICE_eccfr, SEAICEtdMU, SEAICEmcMu,
+     & SEAICEpressReplFac, SEAICE_tensilFac, SEAICE_tensilDepth,
      & SEAICE_lhFusion, SEAICE_lhEvap, SEAICE_dalton,
      & SEAICE_sensHeat, SEAICE_latentWater, SEAICE_latentIce,
      & SEAICE_salinity, SIsalFRAC, SIsal0,
@@ -163,14 +168,15 @@ C--   SEAICE parameters
      & SEAICE_airTurnAngle, SEAICE_waterTurnAngle,
      & MAX_HEFF, MIN_ATEMP, MIN_LWDOWN, MAX_TICE, MIN_TICE,
      & SEAICE_EPS, SEAICE_EPS_SQ,
-     & SEAICEwriteState, SEAICEuseEVPpickup, 
+     & SEAICEwriteState, SEAICEuseEVPpickup,
      & SEAICEuseEVPstar, SEAICEuseEVPrev,
      & SEAICE_monFreq, SEAICE_dumpFreq, SEAICE_taveFreq,
      & SEAICE_tave_mnc, SEAICE_dump_mnc, SEAICE_mon_mnc,
 #ifdef SEAICE_ITD
-     & Hlimit_c1, Hlimit_c2, Hlimit_c3,
+     & Hlimit_c1, Hlimit_c2, Hlimit_c3, Hlimit,
 #endif
-     & SEAICE_debugPointI, SEAICE_debugPointJ
+     & SEAICE_debugPointI, SEAICE_debugPointJ,
+     & SINegFac
 
 #ifdef ALLOW_COST
       NAMELIST /SEAICE_PARM02/
@@ -221,6 +227,10 @@ C--   set default sea ice parameters
       SEAICEuseTilt      = .TRUE.
       SEAICEheatConsFix  = .FALSE.
       SEAICEuseTEM       = .FALSE.
+      SEAICEuseMCS       = .FALSE.
+      SEAICEuseMCE       = .FALSE.
+      SEAICEuseTD        = .FALSE.
+      SEAICEusePL        = .FALSE.
       SEAICEuseMetricTerms = .TRUE.
       SEAICEuseEVPpickup = .TRUE.
       SEAICEuseEVPstar   = .FALSE.
@@ -230,8 +240,9 @@ C--   set default sea ice parameters
       SEAICE_salinityTracer = .FALSE.
       SEAICE_ageTracer      = .FALSE.
       useHB87stressCoupling = .FALSE.
-      SEAICEscaleSurfStress = .FALSE.
-      SEAICEaddSnowMass     = .FALSE.
+      SEAICEupdateOceanStress = .TRUE.
+      SEAICEscaleSurfStress = .TRUE.
+      SEAICEaddSnowMass     = .TRUE.
       usePW79thermodynamics = .TRUE.
 C     start of ridging parameters
       useHibler79IceStrength= .TRUE.
@@ -249,7 +260,7 @@ C     Thorndyke et al. (1975)
       SEAICEgStar           = 0.15 _d 0
 C     suggested by Hibler (1980), Flato and Hibler (1995)
 C     SEAICEhStar           = 100. _d 0
-C     but this value of 25 seems to give thinner ridges in better agreement 
+C     but this value of 25 seems to give thinner ridges in better agreement
 C     with observations (according to Lipscomb et al 2007)
       SEAICEhStar           =  25. _d 0
 C     according to Lipscomb et al. (2007) these values for aStar and mu
@@ -257,7 +268,7 @@ C     are approximately equivalent to gStar=0.15 (aStar = gStar/3) for
 C     SEAICEpartFunc = 1 ...
       SEAICEaStar           = 0.05 _d 0
 C     ... and hStar=25 for SEAICEredistFunc = 1
-C     Libscomb et al. (2007): mu =  3,  4,  5,   6 
+C     Libscomb et al. (2007): mu =  3,  4,  5,   6
 C     correspond to        hStar = 25, 50, 75, 100
       SEAICEmuRidging       = 3. _d 0
       SEAICEmaxRaft         = 1. _d 0
@@ -286,8 +297,8 @@ C     end ridging parampeters
       SEAICE_2ndOrderBC  = .FALSE.
       SEAICE_clipVelocities = .FALSE.
       SEAICE_maskRHS     = .FALSE.
-      SEAICEetaZmethod   = 0
-      SEAICEadvScheme    = 2
+      SEAICEetaZmethod   = 3
+      SEAICEadvScheme    = 77
       SEAICEadvSchArea   = UNSET_I
       SEAICEadvSchHeff   = UNSET_I
       SEAICEadvSchSnow   = UNSET_I
@@ -313,10 +324,8 @@ C     This should be the default for both JFNK and for LSR but in order
 C     to not jeopardize any existing results, and because it does not yet
 C     work for llc/cubed-sphere topologies, we require that the user knows
 C     what he/she is doing when turning this on.
-CML      SEAICE_OLx          = OLx-2
-CML      SEAICE_OLy          = OLy-2
-      SEAICE_OLx          = UNSET_I
-      SEAICE_OLy          = UNSET_I
+      SEAICE_OLx          = OLx-2
+      SEAICE_OLy          = OLy-2
       JFNKgamma_nonlin    = 1. _d -05
       JFNKgamma_lin_min   = 0.10 _d 0
       JFNKgamma_lin_max   = 0.99 _d 0
@@ -351,6 +360,9 @@ C      - original parameters of Lipscomb et al. (2001):
 C        c1=3.0/N, c2=15*c1, c3=3.0
 C      - and a higher resolution of thin end of ITD:
 C        c1=1.5/N, c2=42*c1, c3=3.3
+      DO l = 0, nITD
+       Hlimit(l) = UNSET_RL
+      ENDDO
       Hlimit_c1          = 3.0
       Hlimit_c2          = 15.
       Hlimit_c3          = 3.0
@@ -358,9 +370,10 @@ C        c1=1.5/N, c2=42*c1, c3=3.3
       SEAICE_rhoIce      = 0.91   _d +03
       SEAICE_rhoSnow     = 330.   _d 0
       ICE2WATR           = UNSET_RL
-      SEAICE_drag        = 0.002  _d 0
+      SEAICE_drag        = 0.001  _d 0
       OCEAN_drag         = 0.001  _d 0
-      SEAICE_waterDrag   = 5.5    _d 0
+      SEAICE_waterDrag   = 0.0055 _d 0
+      SEAICEdWatMin      = 0.25   _d 0
       SEAICE_dryIceAlb   = 0.75   _d 0
       SEAICE_wetIceAlb   = 0.66   _d 0
       SEAICE_drySnowAlb  = 0.84   _d 0
@@ -379,7 +392,7 @@ C     basal drag parameters following Lemieux et al. (2015)
       SEAICEbasalDragK1 =  8. _d 0
       SEAICEbasalDragK2 =  0. _d 0
 C     Lemieux et al. (2015) recommend: SEAICEbasalDragK2 = 15. _d 0
-C     
+C
       SEAICE_wetAlbTemp  = -1. _d -3
 #ifdef SEAICE_EXTERNAL_FLUXES
       SEAICE_waterAlbedo = UNSET_RL
@@ -390,8 +403,11 @@ C
       SEAICE_cStar       = 20.    _d 0
       SEAICEpressReplFac = 1.     _d 0
       SEAICE_eccen       = 2.     _d 0
+      SEAICE_eccfr       = UNSET_RL
       SEAICE_tensilFac   = 0.     _d 0
       SEAICE_tensilDepth = 0.     _d 0
+      SEAICEtdMU         = 1.     _d 0
+      SEAICEmcMu         = 1.     _d 0
 C     coefficients for flux computations/bulk formulae
       SEAICE_dalton      = 1.75   _d -03
 #ifdef ALLOW_EXF
@@ -437,14 +453,14 @@ C  after PARM01 was read (see below)
       SEAICE_PDF(1)     = 1. _d 0
       DO l=2,nITD
        SEAICE_PDF(l)     = 0. _d 0
-      ENDDO   
+      ENDDO
 #else
       SEAICE_multDim     = 1
       DO l=1,nITD
        SEAICE_PDF(l)     = UNSET_RL
-      ENDDO   
+      ENDDO
 #endif
-      SEAICE_useMultDimSnow = .FALSE.
+      SEAICE_useMultDimSnow = .TRUE.
 C     default to be set later (ocean-seaice turbulent flux coeff):
       SEAICE_mcPheeStepFunc = .FALSE.
       SEAICE_mcPheeTaper    = UNSET_RL
@@ -521,7 +537,7 @@ C     LSR parameters
 #endif
       SEAICE_debugPointI = UNSET_I
       SEAICE_debugPointJ = UNSET_I
-
+      SINegFac = 1. _d 0
 C-    Retired parameters:
 c     LAD        = 2
       LAD        = UNSET_I
@@ -660,6 +676,8 @@ C--   Set default values (if not specified in data.seaice namelist)
 
 C--   Default for regularizing Delta to remain backward compatible
       IF ( SEAICE_deltaMin .EQ. UNSET_RL ) SEAICE_deltaMin = SEAICE_EPS
+C--   Default is to have a normal flow rule if SEAICE_eccfr is not set
+      IF (SEAICE_eccfr .EQ. UNSET_RL ) SEAICE_eccfr = SEAICE_eccen
 
 C--   If no PDF was prescribed use the default uniform pdf
       tmp = SEAICE_multDim
@@ -710,15 +728,15 @@ C     yet been tried nor thought through.
 C     There are four ways to turn on EVP
 C     1. original EVP (Hunke, 2001)
       IF ( SEAICE_deltaTevp .NE. UNSET_RL )      SEAICEuseEVP = .TRUE.
-C     2. modified EVP (Lemieux et al., 2012) or revised EVP (Bouillon 
+C     2. modified EVP (Lemieux et al., 2012) or revised EVP (Bouillon
 C     et al., 2014) by setting alpha and beta
       IF ( SEAICE_evpAlpha  .NE. UNSET_RL
      &  .OR. SEAICE_evpBeta .NE. UNSET_RL )  SEAICEuseEVPstar = .TRUE.
 C     3. adaptive EVP
       IF ( SEAICEaEVPcoeff  .NE. UNSET_RL )  SEAICEuseEVPstar = .TRUE.
-C     4. modified EVP* (Lemieux et al., 2012) or revised EVP (Bouillon 
+C     4. modified EVP* (Lemieux et al., 2012) or revised EVP (Bouillon
 C     et al., 2014) by explicitly setting up specific flags
-      IF ( SEAICEuseEVPstar.OR.SEAICEuseEVPrev ) SEAICEuseEVP = .TRUE. 
+      IF ( SEAICEuseEVPstar.OR.SEAICEuseEVPrev ) SEAICEuseEVP = .TRUE.
 C     if EVP is turned on, a couple of parameters need to be computed
       IF ( SEAICEuseEVP ) THEN
        IF (    (SEAICE_deltaTdyn/SEAICE_deltaTevp) .NE.
@@ -738,9 +756,9 @@ C     if EVP is turned on, a couple of parameters need to be computed
        IF ( SEAICE_evpTauRelax .LE. 0. _d 0 )
      &      SEAICE_evpTauRelax = SEAICE_deltaTdyn*SEAICE_elasticParm
 C     default: evpAlpha = evpBeta
-       IF ( SEAICE_evpAlpha .NE. UNSET_RL .AND. 
+       IF ( SEAICE_evpAlpha .NE. UNSET_RL .AND.
      &  SEAICE_evpBeta .EQ. UNSET_RL ) SEAICE_evpBeta = SEAICE_evpAlpha
-       IF ( SEAICE_evpBeta .NE. UNSET_RL .AND. 
+       IF ( SEAICE_evpBeta .NE. UNSET_RL .AND.
      & SEAICE_evpAlpha .EQ. UNSET_RL ) SEAICE_evpAlpha = SEAICE_evpBeta
 C     derive other parameters
        IF ( SEAICE_evpBeta .EQ. UNSET_RL ) THEN
@@ -802,7 +820,7 @@ C     JFNK problem (and Krylov solver is not used)
      &     .NOT. SEAICEuseKrylov ) SEAICEuseLSR = .TRUE.
       IF ( SEAICEuseJFNK .AND. .NOT. SEAICEusePicardAsPrecon )
      &     SEAICEuseKrylov = .FALSE.
-      
+
 C     Set different defaults for different solvers
       IF ( SEAICEnonLinIterMax .EQ. UNSET_I ) THEN
 C     two nonlinear iterations correspond to the original modified
@@ -816,10 +834,14 @@ C     Make sure that we have least two pseudo time steps for Picard-LSR
 
 C-    different defaults for different linear solvers
       IF ( SEAICElinearIterMax .EQ. UNSET_I ) THEN
-C     maximum number of LSOR steps in default Picard solver 
+C     maximum number of LSOR steps in default Picard solver
 C     (=previous default for retired SOLV_MAX_ITERS)
+#ifdef ALLOW_AUTODIFF
+       SEAICElinearIterMax = SOLV_MAX_FIXED
+#else
        SEAICElinearIterMax = 1500
-C     the maximum number of Krylov dimensions of 50 is hard coded in 
+#endif
+C     the maximum number of Krylov dimensions of 50 is hard coded in
 C     S/R SEAICE_FGMRES, so that more than 50 linear iterations will
 C     restart GMRES
        IF ( SEAICEuseJFNK.OR.SEAICEuseKrylov ) SEAICElinearIterMax = 10
@@ -835,23 +857,10 @@ C     and EVP, JFNK, and Krylov solvers
       IF ( .NOT. SEAICE_no_slip ) SEAICE_2ndOrderBC = .FALSE.
       IF ( SEAICEuseLSR ) SEAICE_2ndOrderBC = .FALSE.
 
-C     So far we use the restrictive additive Schwartz method only in
-C     the preconditioner for the Krylov methods by default
-      IF ( SEAICE_OLx.EQ.UNSET_I ) THEN
-       SEAICE_OLx = 0
-       IF ( SEAICEuseJFNK .OR. SEAICEuseKrylov ) THEN
-        SEAICE_OLx = OLx-2
-C     2nd order boundary conditions require one more row of overlap
-        IF ( SEAICE_2ndOrderBC ) SEAICE_OLx = OLx-3
-       ENDIF
-      ENDIF
-      IF ( SEAICE_OLy.EQ.UNSET_I ) THEN
-       SEAICE_OLy = 0
-       IF ( SEAICEuseJFNK .OR. SEAICEuseKrylov ) THEN
-        SEAICE_OLy = OLy-2
-C     2nd order boundary conditions require one more row of overlap
-        IF ( SEAICE_2ndOrderBC ) SEAICE_OLy = OLy-3
-       ENDIF
+C     2nd order boundary conditions require one more row of overlap for the additive Schwartz method
+      IF ( SEAICE_2ndOrderBC ) THEN
+       SEAICE_OLx = OLx-3
+       SEAICE_OLy = OLy-3
       ENDIF
 
 C-    The old ways of specifying mcPheeTaper, mcPheePiston & frazilFrac:
@@ -971,6 +980,17 @@ C     Set diffusivity to some sensible values if not done in data.seaice
      &     SEAICEdiffKhSalt = SEAICEdiffKhHeff
       IF ( SEAICE_EPS_SQ .EQ. -99999. )
      &     SEAICE_EPS_SQ = SEAICE_EPS * SEAICE_EPS
+
+#ifdef ALLOW_GENERIC_ADVDIFF
+      SEAICEmultiDimAdvection = .TRUE.
+      IF ( SEAICEadvScheme.EQ.ENUM_CENTERED_2ND
+     & .OR.SEAICEadvScheme.EQ.ENUM_UPWIND_3RD
+     & .OR.SEAICEadvScheme.EQ.ENUM_CENTERED_4TH ) THEN
+       SEAICEmultiDimAdvection = .FALSE.
+      ENDIF
+#else
+      SEAICEmultiDimAdvection = .FALSE.
+#endif /* ALLOW_GENERIC_ADVDIFF */
 
 C-    Retired parameters
       IF ( SEAICEnewtonIterMax .NE. UNSET_I ) THEN
@@ -1305,6 +1325,35 @@ C     Check the consitency of a few parameters
      &      SEAICE_emissivity, '/5.67e-8.'
        CALL PRINT_ERROR( msgBuf , myThid)
        STOP 'ABNORMAL END: S/R SEAICE_READPARMS'
+      ENDIF
+
+C--   Since the default of SEAICE_waterDrag has changed, issue a warning
+C     in case of large values
+      chkFlag = .FALSE.
+      IF ( SEAICE_waterDrag .GT. 1. _d 0 ) THEN
+       WRITE(msgBuf,'(A,A,F5.2)') '** WARNING ** SEAICE_READPARMS: ',
+     &      'SEAICE_waterDrag = ', SEAICE_waterDrag
+       CALL PRINT_MESSAGE( msgBuf, errorMessageUnit,
+     &                     SQUEEZE_RIGHT, myThid )
+       chkFlag = .TRUE.
+      ENDIF
+      IF ( SEAICE_waterDrag_South .GT. 1. _d 0 ) THEN
+       WRITE(msgBuf,'(A,A,F5.2)') '** WARNING ** SEAICE_READPARMS: ',
+     &      'SEAICE_waterDrag_South = ', SEAICE_waterDrag_South
+       CALL PRINT_MESSAGE( msgBuf, errorMessageUnit,
+     &                     SQUEEZE_RIGHT, myThid )
+       chkFlag = .TRUE.
+      ENDIF
+      IF ( chkFlag ) THEN
+       WRITE(msgBuf,'(3A)') '** WARNING ** SEAICE_READPARMS: ',
+     &      'That is 3 orders of magnitude larger',
+     &      ' than the default of 5.5e-3.'
+       CALL PRINT_MESSAGE( msgBuf, errorMessageUnit,
+     &                     SQUEEZE_RIGHT, myThid )
+       WRITE(msgBuf,'(2A)') '** WARNING ** SEAICE_READPARMS: ',
+     &      'Are you maybe using an old (pre Jun2018) data.seaice?'
+       CALL PRINT_MESSAGE( msgBuf, errorMessageUnit,
+     &                     SQUEEZE_RIGHT, myThid )
       ENDIF
 
       IF ( DIFF1 .EQ. UNSET_RL ) THEN

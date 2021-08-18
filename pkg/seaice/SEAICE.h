@@ -31,10 +31,14 @@ C \ev
 CEOP
 
 C--   Grid variables for seaice
-      COMMON/ARRAY/HEFFM
+      COMMON/ARRAY/HEFFM, SIMaskU, SIMaskV
       _RL HEFFM      (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+C     static masks (depend only on geometry)
+      _RL SIMaskU    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL SIMaskV    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 #ifdef SEAICE_CGRID
       COMMON/ARRAYC/ seaiceMaskU, seaiceMaskV
+C     dynamic masks (depend on area)
       _RL seaiceMaskU(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL seaiceMaskV(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C     k1/2AtZ :: coefficients at C and Z points
@@ -198,14 +202,6 @@ C     stressDivergenceX/Y - divergence of stress tensor
       _RL stressDivergenceX(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL stressDivergenceY(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 #endif /* SEAICE_CGRID */
-
-#ifndef SEAICE_EXCLUDE_WIND_STRESS
-      COMMON/WIND_STRESS_ICE/TAUX,TAUY
-C     TAUX   - zonal      wind stress over ice at U point
-C     TAUY   - meridional wind stress over ice at V point
-      _RL TAUX       (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL TAUY       (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-#endif /* SEAICE_EXCLUDE_WIND_STRESS */
 
 #ifndef SEAICE_CGRID
       COMMON/WIND_STRESS_OCE/WINDX,WINDY

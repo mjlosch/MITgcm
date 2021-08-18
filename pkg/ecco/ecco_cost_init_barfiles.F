@@ -63,14 +63,12 @@ c     == local variables ==
       integer ilps, ils, ilt, irec
 
 #ifdef ALLOW_GENCOST_CONTRIBUTION
-      character*(128) fname_gencostbar(NGENCOST)
-      character*(128) adfname_gencostbar(NGENCOST)
+      character*(128) fname_gencostbar
+      character*(128) adfname_gencostbar
 #endif /* ALLOW_GENCOST_CONTRIBUTION */
 
-#ifndef ALLOW_CTRL
-      _RL tmpfld2d (1-olx:snx+olx,1-oly:sny+oly,nsx,nsy)
+      _RL tmpfld2d (1-olx:snx+olx,1-oly:sny+oly,   nsx,nsy)
       _RL tmpfld3d (1-olx:snx+olx,1-oly:sny+oly,nr,nsx,nsy)
-#endif
 
 #ifdef ECCO_CTRL_DEPRECATED
       character*(128) fnamepsbar
@@ -91,7 +89,7 @@ c     == local variables ==
       character*(128) fnameiestaubar
 #ifdef ALLOW_SIGMAR_COST_CONTRIBUTION
       character*(128) fnamesigmaRbar
-#endif 
+#endif
       character*(128) adfnamepsbar
       character*(128) adfnametbar
       character*(128) adfnamesbar
@@ -109,7 +107,7 @@ c     == local variables ==
       character*(128) adfnamesmrsssbar
 #ifdef ALLOW_SIGMAR_COST_CONTRIBUTION
       character*(128) adfnamesigmaRbar
-#endif 
+#endif
       character*(128) adfnameiestaubar
 #endif /* ECCO_CTRL_DEPRECATED */
 
@@ -417,8 +415,6 @@ c--   Save sfluxmeanbar on file.
 
 #endif /* ECCO_CTRL_DEPRECATED */
 
-
-
 #ifdef ALLOW_SEAICE
       if (useSEAICE) then
 
@@ -457,7 +453,6 @@ c initialize smr sss bar
       endif
 #endif /* ALLOW_SEAICE */
 
-
 #ifdef ALLOW_GENCOST_CONTRIBUTION
 c--   Save gencost_barfile on file.
       do k=1,NGENCOST
@@ -487,7 +482,5 @@ c--   Save gencost_barfile on file.
       enddo
 #endif /* ALLOW_GENCOST_CONTRIBUTION */
 
-
       return
       end
-
