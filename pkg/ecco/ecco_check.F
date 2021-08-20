@@ -1,4 +1,7 @@
 #include "ECCO_OPTIONS.h"
+#ifdef ALLOW_CTRL
+# include "CTRL_OPTIONS.h"
+#endif
 
 C--  File ecco_check.F:
 C--   Contents
@@ -505,7 +508,9 @@ c-- (upper/lower-case matters) in cost_gencost_customize
      &          (gencost_barfile(k)(1:13).EQ.'m_boxmean_eta').OR.
      &          (gencost_barfile(k)(1:14).EQ.'m_boxmean_salt').OR.
      &          (gencost_barfile(k)(1:17).EQ.'m_boxmean_ptracer').OR.
-     &          (gencost_barfile(k)(1:13).EQ.'m_horflux_vol')
+     &          (gencost_barfile(k)(1:16).EQ.'m_boxmean_shifwf').OR.
+     &          (gencost_barfile(k)(1:16).EQ.'m_boxmean_shihtf').OR.
+     &          (gencost_barfile(k)(1:14).EQ.'m_horflux_vol')
      &        )) then
             using_gencost(k)=.FALSE.
             il=ilnblnk(gencost_barfile(k))
@@ -698,7 +703,21 @@ c print result to screen
      &                      SQUEEZE_RIGHT , myThid)
       endif
 
+#endif /* ALLOW_GENCOST_CONTRIBUTION */
+
+C ============ other pkg/ecco related checks
+      _BEGIN_MASTER(myThid)
+
+#ifndef ALLOW_PSBAR_STERIC
+      IF (ecco_output_sterGloH) THEN
+         WRITE(msgBuf,'(3A)') 'ECCO_CHECK:',
+     &         ' Cannot set ecco_output_sterGloH to TRUE',
+     &         ' with #undef ALLOW_PSBAR_STERIC'
+         CALL PRINT_ERROR( msgBuf, myThid )
+         STOP 'ABNORMAL END: S/R ECCO_CHECK'
+      ENDIF
 #endif
+      _END_MASTER(myThid)
 
       RETURN
       END
