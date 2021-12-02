@@ -1,0 +1,31 @@
+#
+# *********************
+# External Forcing Data
+# *********************
+ &EXF_NML_01
+#
+ useExfCheckRange  = .TRUE.,
+ exf_iprec         = 32,
+#
+ &
+
+# *********************
+ &EXF_NML_02
+ &
+
+# *********************
+ &EXF_NML_03
+ atempconst      =253.,
+ aqhconst        =0.,
+ precipconst     =0.,
+ snowprecipconst =0.,
+ runoffconst     =0.,
+ uwindconst      =2.,
+ vwindconst      =0.,
+ swdownconst     =0.,
+ lwdownconst     =20.,
+ &
+
+# *********************
+ &EXF_NML_04
+ &
