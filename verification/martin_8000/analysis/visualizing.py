@@ -34,25 +34,26 @@ plt.figure()
 plt.pcolormesh(div_1, cmap="coolwarm", vmin= -0.5e-5, vmax=0.5e-5)
 plt.xlabel(ds.XC.long_name)
 plt.ylabel(ds.YC.long_name)
-plt.colorbar(label="Divergenz")
+cb = plt.colorbar(label="Divergenz")
 title = "iter =  "+ str(ds.iter[index].values) + ", time: " + str(pd.to_timedelta(ds.time[index].values))
 plt.title(title)
 plt.tight_layout()
 plt.savefig("/home/csys/mbourget/Desktop/Plots/div_1.pdf")
-plt.show()
+#plt.show()
 plt.cla()
-
+cb.remove()
 
 plt.pcolormesh(div_mit_diff_, cmap="coolwarm", vmin= -0.5e-5, vmax=0.5e-5)
 plt.xlabel(ds.XC.long_name)
 plt.ylabel(ds.YC.long_name)
-#plt.colorbar(label="Divergenz")
+cb = plt.colorbar(label="Divergenz")
 title = "iter =  "+ str(ds.iter[index].values) + ", time: " + str(pd.to_timedelta(ds.time[index].values))
 plt.title(title)
 plt.tight_layout()
 plt.savefig("/home/csys/mbourget/Desktop/Plots/div_diff.pdf")
-plt.show()
+#plt.show()
 plt.cla()
+cb.remove()
 
 #divergenz finite volumen methode
 div_2 = (np.roll(ds.SIuice[index].values, -1,1) * np.roll(ds.dyG.values, -1,0) - ds.SIuice[index].values * ds.dyG.values + np.roll(ds.SIvice[index].values, -1,0) * np.roll(ds.dxG.values, -1,1) - ds.SIvice[index].values * ds.dxG.values)/(ds.dxF.values * ds.dyF.values)
@@ -60,26 +61,38 @@ div_2 = (np.roll(ds.SIuice[index].values, -1,1) * np.roll(ds.dyG.values, -1,0) -
 plt.pcolormesh(div_2, cmap="coolwarm", vmin= -0.5e-5, vmax=0.5e-5)
 plt.xlabel(ds.XC.long_name)
 plt.ylabel(ds.YC.long_name)
-plt.colorbar(label="Divergenz")
+cb = plt.colorbar(label="Divergenz")
 title = "iter =  "+ str(ds.iter[index].values) + ", time: " + str(pd.to_timedelta(ds.time[index].values))
 plt.title(title)
 plt.tight_layout()
 plt.savefig("/home/csys/mbourget/Desktop/Plots/div_2.pdf")
+#plt.show()
+plt.cla()
+cb.remove()
+
+##effective hight
+plt.pcolormesh(ds.SIheff[index], cmap="coolwarm", vmin = 0.2)
+plt.xlabel(ds.XC.long_name)
+plt.ylabel(ds.YC.long_name)
+cb = plt.colorbar(label="Effective ice thickness")
+title = "iter =  "+ str(ds.iter[index].values) + ", time: " + str(pd.to_timedelta(ds.time[index].values))
+plt.title(title)
+plt.tight_layout()
+plt.savefig("/home/csys/mbourget/Desktop/Plots/heff.pdf")
 plt.show()
 plt.cla()
-
-
+cb.remove()
+#ds.SIheff[index].plot()
+#plt.tight_layout()
+#plt.show()
+#plt.cla()
 #Shear
 #ds.SIshear[index].plot()
 #plt.tight_layout()
 #plt.show()
 #plt.cla()
 #
-##effective hight
-#ds.SIheff[index].plot()
-#plt.tight_layout()
-#plt.show()
-#plt.cla()
+
 #
 ##fractional ice cover
 #ds.SIarea[index].plot()
