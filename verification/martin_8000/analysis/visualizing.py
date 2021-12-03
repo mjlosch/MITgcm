@@ -54,7 +54,20 @@ plt.savefig("/home/csys/mbourget/Desktop/Plots/div_diff.pdf")
 plt.show()
 plt.cla()
 
-#divergenz finite volumen
+#divergenz finite volumen methode
+div_2 = (np.roll(ds.SIuice[index].values, -1,1) * np.roll(ds.dyG.values, -1,0) - ds.SIuice[index].values * ds.dyG.values + np.roll(ds.SIvice[index].values, -1,0) * np.roll(ds.dxG.values, -1,1) - ds.SIvice[index].values * ds.dxG.values)/(ds.dxF.values * ds.dyF.values)
+
+plt.pcolormesh(div_2, cmap="coolwarm", vmin= -0.5e-5, vmax=0.5e-5)
+plt.xlabel(ds.XC.long_name)
+plt.ylabel(ds.YC.long_name)
+plt.colorbar(label="Divergenz")
+title = "iter =  "+ str(ds.iter[index].values) + ", time: " + str(pd.to_timedelta(ds.time[index].values))
+plt.title(title)
+plt.tight_layout()
+plt.savefig("/home/csys/mbourget/Desktop/Plots/div_2.pdf")
+plt.show()
+plt.cla()
+
 
 #Shear
 #ds.SIshear[index].plot()
