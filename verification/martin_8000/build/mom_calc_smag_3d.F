@@ -1,0 +1,1 @@
+../../../pkg/mom_common/mom_calc_smag_3d.F

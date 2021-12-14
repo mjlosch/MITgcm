@@ -1,0 +1,1 @@
+../../../pkg/thsice/thsice_get_precip.F

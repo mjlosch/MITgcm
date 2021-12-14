@@ -1,0 +1,1 @@
+../../../pkg/diagnostics/diagnostics_check.F

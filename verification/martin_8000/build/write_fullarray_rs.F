@@ -1,0 +1,1 @@
+../../../pkg/debug/write_fullarray_rs.F

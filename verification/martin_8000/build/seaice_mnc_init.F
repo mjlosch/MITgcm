@@ -1,0 +1,1 @@
+../../../pkg/seaice/seaice_mnc_init.F

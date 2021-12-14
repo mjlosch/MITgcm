@@ -1,0 +1,1 @@
+../../../pkg/diagnostics/diagnostics_init_varia.F

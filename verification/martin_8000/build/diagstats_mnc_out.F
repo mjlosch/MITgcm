@@ -1,0 +1,1 @@
+../../../pkg/diagnostics/diagstats_mnc_out.F

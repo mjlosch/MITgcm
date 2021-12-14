@@ -1,0 +1,1 @@
+../../../pkg/diagnostics/diag_cg2d.F
