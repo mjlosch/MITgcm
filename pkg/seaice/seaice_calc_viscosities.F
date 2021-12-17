@@ -63,6 +63,8 @@ C     shear viscosity
 C
 #ifdef SEAICE_ALLOW_DAMAGE
       _RL damage(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+#else
+      _RL damage(1)
 #endif /* SEAICE_ALLOW_DAMAGE */
 CEndOfInterface
 
