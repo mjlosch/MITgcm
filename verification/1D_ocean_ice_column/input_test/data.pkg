@@ -2,6 +2,6 @@
  &PACKAGES
   useEXF    = .TRUE.,
   useSEAICE = .TRUE.,
-#useDiagnostics = .TRUE.,
+  useDiagnostics = .TRUE.,
 #useMNC    = .TRUE,
  &
