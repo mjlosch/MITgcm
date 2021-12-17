@@ -26,7 +26,7 @@ import xarray as xr
 # Using a spherical polar grid, all X,Y variables in lon,lat coordinates
 # vertical grid provided in meters, area in m^2
 
-grid = xr.open_dataset('grid.nc')
+grid = xr.open_dataset("grid.nc")
 
 # We will be using the following fields from the grid file:
 # 1-D fields
@@ -61,7 +61,7 @@ Ny = grid.Y.size
    
 # load statistical diagnostic output (set to monthly time-avg output)
 # only one output region is defined: global (the default)
-dynStDiag = xr.open_dataset('dynStDiag.nc')
+dynStDiag = xr.open_dataset('mnc_test_0004/dynStDiag.0000000000.t001.nc')
 dynStDiag = dynStDiag.rename({'Zmd000015':'Z'})
 # includes diagnostics:
 # TRELAX_ave:   (time, region, depth); region=0 (global), depth=0 (surf-only)

@@ -11,6 +11,7 @@
 # momAdvection=.FALSE.,
  tempStepping=.FALSE.,
  saltStepping=.FALSE.,
+ useSingleCPUio=.True.,
  &
 
 # Elliptic solver parameters
@@ -22,12 +23,13 @@
 # Time stepping parameters
  &PARM03
  nIter0=0,
- nTimeSteps=10,
+ nTimeSteps=7200,
  deltaT=1200.0,
  pChkptFreq=31104000.0,
  chkptFreq=15552000.0,
- dumpFreq=15552000.0,
- monitorFreq=1200.,
+ dumpFreq=864000.0,
+ dumpinitAndLast=.FALSE.,
+ monitorFreq=864000.,
  monitorSelect=2,
 #-for longer run (3.0 yr):
 # nTimeSteps=77760,
@@ -47,7 +49,7 @@
 # Input datasets
  &PARM05
  bathyFile='bathy.bin'
- zonalWindFile='windx_cosy.bin',
-#zonalWindFile='windx_siny.bin',
+#zonalWindFile='windx_cosy.bin',
+ zonalWindFile='windx_siny.bin',
  meridWindFile=,
  &

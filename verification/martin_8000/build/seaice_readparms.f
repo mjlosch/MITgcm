@@ -4782,7 +4782,7 @@ C     MEB parameters
       SEAICEintFrictCoeff = UNSET_RL
       SEAICEmohrCoulombSlope = UNSET_RL
       SEAICEelasticWaveSp = 500.D0
-      SEAICEhealingTime   = 1.D5
+      SEAICEhealingTime   = 1.D15
       SEAICEdamageTime    = SEAICE_deltaTdyn
 
 C-    end retired parameters

@@ -19,6 +19,7 @@
  implicitFreeSurface=.TRUE.,
  exactConserv=.TRUE.,
  saltStepping=.FALSE.,
+ useSingleCPUio=.True.,
 # globalFiles=.TRUE.,
  &
 
@@ -31,17 +32,17 @@
 # Time stepping parameters
  &PARM03
  startTime=0.,
- endTime=12000.,
+#endTime=12000.,
  deltaT=1200.,
  pChkptFreq=622080000.,
  chkptFreq=155520000.,
  dumpFreq=31104000.,
- monitorFreq=1200.,
+#monitorFreq=1200.,
  monitorSelect=2,
  tauThetaClimRelax=2592000.,
 #-for longer run (100 yrs)
-# endTime = 3110400000.,
-# monitorFreq=2592000.,
+ endTime = 3110400000.,
+ monitorFreq=2592000.,
  &
 
 # Gridding parameters

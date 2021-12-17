@@ -4321,7 +4321,9 @@ C     hack to save principle stress before updating sigma
        DO bi=myBxLo(myThid),myBxHi(myThid)
         DO j=1,sNy+1
          DO i=1,sNx+1
-CML          seaice_sigma12(I,J,bi,bj) = fldAtZ(sig12C(:,:,bi,bj),i,j,bi,bj)
+c        seaice_sigma12(I,J,bi,bj) = sig12(i,j)
+c        seaice_sigma12(I,J,bi,bj) = 1.D0
+c     &         * fldAtZ(sig12C(:,:,bi,bj),i,j,bi,bj)
           seaice_sigma12(I,J,bi,bj) = sig12(I,J)
      &         * fldAtZ(dCrit(:,:,bi,bj),i,j,bi,bj)
 CML          seaice_sigma12(I,J,bi,bj) = .5*( seaice_sigma12(I,J,bj,bi)
@@ -5660,6 +5662,9 @@ C
       fldAtZ = sumNorm *
      &     ( fldIn(I,J  ) + fldIn(I-1,J  )
      &     + fldIn(I,J-1) + fldIn(I-1,J-1) )
+CML      fldAtZ = SQRT (sumNorm *
+CML     &     ( fldIn(I,J  )**2 + fldIn(I-1,J  )**2
+CML     &     + fldIn(I,J-1)**2 + fldIn(I-1,J-1)**2 ))
       RETURN
       END
 

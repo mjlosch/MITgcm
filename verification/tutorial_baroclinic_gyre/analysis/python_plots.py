@@ -17,7 +17,7 @@ import netCDF4 as nc
 # Using a spherical polar grid, all X,Y variables in lon,lat coordinates
 # vertical grid provided in meters, area in m^2
 
-grid = nc.Dataset('grid.nc')
+grid = nc.Dataset('../run/grid.nc')
 #  1-D fields
 RC = grid['RC'][:]    # vertical grid, cell center locations
 drF = grid['drF'][:]  # vertical spacing of grid cells (thickness of cells)
@@ -55,7 +55,7 @@ Ny = Y.size
    
 # load statistical diagnostic output (set to monthly time-avg output)
 # only one output region is defined: global (the default)
-dynStDiag = nc.Dataset('dynStDiag.nc')
+dynStDiag = nc.Dataset('../run/mnc_test_0004/dynStDiag.0000000000.t001.nc')
 TRELAX_ave = dynStDiag['TRELAX_ave'][:]      # (time, region, depth); region=0 (global), depth=0 (surf-only)
 THETA_lv_ave = dynStDiag['THETA_lv_ave'][:]  # (time, region, depth); region=0 (global)
 THETA_lv_std = dynStDiag['THETA_lv_std'][:]  # (time, region, depth); region=0 (global)
