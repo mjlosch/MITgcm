@@ -486,7 +486,19 @@ C     but we are looking for T = k*P = k*press/(1-k)
         ENDDO
        ENDIF
 # ifdef SEAICE_ALLOW_DAMAGE
-       CALL DIAGNOSTICS_FILL(damage,'SIdamage',0,1 ,0,1,1,myThid)
+       IF ( DIAGNOSTICS_IS_ON('SIdamage',myThid) ) THEN
+        DO bj = myByLo(myThid), myByHi(myThid)
+         DO bi = myBxLo(myThid), myBxHi(myThid)
+C     use sig1 as a temporary field
+          DO j=1,sNy
+           DO i=1,sNx
+            sig1(i,j) = (1. _d 0 - damage(i,j,bi,bj))*maskInC(i,j,bi,bj)
+           ENDDO
+          ENDDO
+          CALL DIAGNOSTICS_FILL(sig1,'SIdamage',0,1,2,bi,bj,myThid)
+         ENDDO
+        ENDDO
+       ENDIF
 # endif /* SEAICE_ALLOW_DAMAGE */
 C     If any of the stress or energy diagnostics are required,
 C     first recompute strainrates from up-to-date velocities
