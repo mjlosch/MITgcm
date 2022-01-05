@@ -548,8 +548,12 @@ C     PRESS = PRESS(n-1), n = number of sub-cycling steps
      &            + seaice_sigma12(i  ,j+1,bi,bj) )
              sigTmp = SQRT( sigm*sigm + 4. _d 0*sig12(i,j)*sig12(i,j) )
              recip_prs = 0. _d 0
-             IF ( press0(i,j,bi,bj) .GT. 1. _d -13 )
-     &            recip_prs = 1. _d 0 / press0(i,j,bi,bj)
+             IF ( SEAICEuseMEB) THEN
+C     do not normalize
+              recip_prs = 1. _d 0
+             ELSEIF ( press0(i,j,bi,bj) .GT. 1. _d -13 ) THEN
+              recip_prs = 1. _d 0 / press0(i,j,bi,bj)
+             ENDIF
              sig1(i,j) = 0.5 _d 0*(sigp + sigTmp)*recip_prs
              sig2(i,j) = 0.5 _d 0*(sigp - sigTmp)*recip_prs
             ENDDO
