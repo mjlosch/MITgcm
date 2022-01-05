@@ -550,7 +550,7 @@ C     PRESS = PRESS(n-1), n = number of sub-cycling steps
              recip_prs = 0. _d 0
              IF ( SEAICEuseMEB) THEN
 C     do not normalize
-              recip_prs = 1. _d 0
+              recip_prs = 1. _d 0 * HEFFM(i,j,bi,bj)
              ELSEIF ( press0(i,j,bi,bj) .GT. 1. _d -13 ) THEN
               recip_prs = 1. _d 0 / press0(i,j,bi,bj)
              ENDIF
