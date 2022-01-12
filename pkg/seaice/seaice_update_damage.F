@@ -226,9 +226,9 @@ CML     &         ( damageNm1(I,J,bi,bj) + deltaTloc*recip_healingTime )
 CML     &         /( 1. _d 0
 CML     &         - deltaTloc*recip_damageTime*(damageCrit - 1. _d 0) )
 C     Alternatively one can use dCrit=\Psi directly
-CML          damage(I,J,bi,bj) =
-CML     &         ( damageNm1(I,J,bi,bj) + deltaTloc*recip_healingTime )
-CML     &         /( 2. _d 0 - dCrit(i,j,bi,bj) )
+CMB          damage(I,J,bi,bj) =
+CMB     &         ( damageNm1(I,J,bi,bj) + deltaTloc*recip_healingTime )
+CMB     &         /( 2. _d 0 - dCrit(i,j,bi,bj) )
 C     exlicit (equation 58 in mebdoc.tex)
           damage(I,J,bi,bj) = deltaTloc*recip_healingTime
      &         + damageNm1(I,J,bi,bj) * dCrit(I,J,bi,bj)
@@ -400,7 +400,7 @@ CML     &     + fldIn(I,J-1)**2 + fldIn(I-1,J-1)**2 ) )
       INTEGER i,j, bi,bj
       _RL fldIn (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sumNorm
-C
+C     muss geändert werden sumNorm = 4
       sumNorm  = maskInC(I,J,  bi,bj)+maskInC(I+1,J,  bi,bj)
      &     +     maskInC(I,J+1,bi,bj)+maskInC(I+1,J+1,bi,bj)
       IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm

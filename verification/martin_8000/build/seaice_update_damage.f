@@ -4152,7 +4152,7 @@ C                       /divided by Delta
 C     seaice_shear   :: shear      strain rates, defined at Z-points times P
 C                       /divided by Delta
 C     sig11, sig22   :: sum and difference of diagonal terms of stress tensor
-C     modification for adaptive alpha and beta 
+C     modification for adaptive alpha and beta
 C               (see Kimmritz, Danilov, Losch 2015 for gamma << alpha beta)
 C     EVPcFac        ::SEAICE_deltaTdyn*SEAICEaEVPcStar*(SEAICEaEVPcoeff*PI)**2
 C                        with
@@ -4160,15 +4160,15 @@ C     SEAICEaEVPcStar:: multiple of stabilty factor: alpha*beta = cstar*gamma
 C     SEAICEaEvpcoeff:: largest stabilized frequency according to
 C                        gamma = zeta * (cfac/cellarea)*deltaT/m
 C                                with   (cfac/cellarea) <= pi**2/cellarea
-C     evpAlphaC/Z    :: alpha field on C points and on Z points 
+C     evpAlphaC/Z    :: alpha field on C points and on Z points
 C                        := sqrt(cstar gamma)
-C     evpBetaU/V     :: beta field on u and on v points 
+C     evpBetaU/V     :: beta field on u and on v points
 C                        := sqrt(cstar gamma)
-C     evpAlphaMin    :: lower limit of alpha and beta, regularisation 
-C                     to prevent singularities of system matrix, 
+C     evpAlphaMin    :: lower limit of alpha and beta, regularisation
+C                     to prevent singularities of system matrix,
 C                     e.g. when ice concentration is too low.
-C     betaFacP1U/V   :: = betaFacP1 in standard case, 
-C                          with varying beta in the adaptive case 
+C     betaFacP1U/V   :: = betaFacP1 in standard case,
+C                          with varying beta in the adaptive case
 C                           on u and on v point
 C     betaFacU/V     :: analog betaFacP1U/V
 
@@ -4180,6 +4180,7 @@ C     betaFacU/V     :: analog betaFacP1U/V
       Real*8 sumNorm
       Real*8 recip_healingTime, recip_damageTime
       Real*8 sig1, sig2, sigTmp, sigp, sigm
+      Real*8 dtmp(1-OLx:sNx+OLx,1-OLy:sNy+OLy), wght
 
       Real*8 sigmaT        (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       Real*8 sigmaC        (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -4193,7 +4194,7 @@ C     betaFacU/V     :: analog betaFacP1U/V
 
 CEOP
 
-C     
+C
       deltaTloc = SEAICE_deltaTdyn
 
 C     parameters
@@ -4242,7 +4243,28 @@ C     re-compute stress from most recent strain rates
      O        sig11, sig22, sig12,
      I        bi, bj, myTime, myIter, myThid )
         ENDIF
-       
+
+C     smooth sig12C a little
+        wght=0.0
+        IF ( SEAICEuseMEB ) THEN
+         DO j=1-OLy,sNy+OLy
+          DO i=1-OLx,sNx+OLx
+           dtmp(i,j) = sig12C(i,j,bi,bj)*maskInC(i,j,bi,bj)
+          ENDDO
+         ENDDO
+         DO j=1-OLy+1,sNy+OLy-1
+          DO i=1-OLx+1,sNx+OLx-1
+           sumNorm  = maskInC(i-1,j,bi,bj)+maskInC(i+1,j,bi,bj)
+     &          +     maskInC(i,j-1,bi,bj)+maskInC(i,j+1,bi,bj)
+           IF ( sumNorm.GT.0.D0 ) sumNorm = 1.D0 / sumNorm
+           sig12C(i,j,bi,bj) = ( dtmp(i,j) * (1. - wght)
+     &          + wght*( dtmp(i-1,j) + dtmp(i+1,j)
+     &                 + dtmp(i,j-1) + dtmp(i,j+1) )*sumNorm
+     &          ) * maskInC(I,J,bi,bj)
+          ENDDO
+         ENDDO
+        ENDIF
+
 CML        DO j=1-OLy,sNy+OLy
 CML         DO i=1-OLx,sNx+OLx
         DO j=1,sNy
@@ -4271,32 +4293,37 @@ C     the case when sig2 is below sigmaC+q*sig1
           damageCrit = MC_FAILURE(sig1,sig2,q,sigmaC(I,J),damageCrit)
 C     or above sigmaC+q*sig2
           damageCrit = MC_FAILURE(sig2,sig1,q,sigmaC(I,J),damageCrit)
-C     critical damage cannot be below zero
+C     critical damage cannot be below zero (eq 39 in mebdoc.tex)
           damageCrit = MAX(damageCrit, 0.D0)
 CML          dCrit(I,J,bi,bj) = damageCrit*maskInC(I,J,bi,bj)
 C     when damageTime == deltaTloc, this is the same:
           dCrit(I,J,bi,bj) = (deltaTloc*recip_damageTime*(damageCrit-1.)
      &         + 1.) * maskInC(I,J,bi,bj)
+C     dCrit is \Psi in eq 58 in mebdoc.tex
 CMLC     implicit
-CML          damage(I,J,bi,bj) = 
-CML     &         ( damageNm1(I,J,bi,bj) + deltaTloc*recip_healingTime ) 
+CML          damage(I,J,bi,bj) =
+CML     &         ( damageNm1(I,J,bi,bj) + deltaTloc*recip_healingTime )
 CML     &         /( 1.D0
 CML     &         - deltaTloc*recip_damageTime*(damageCrit - 1.D0) )
-C     exlicit
+C     Alternatively one can use dCrit=\Psi directly
+CMB          damage(I,J,bi,bj) =
+CMB     &         ( damageNm1(I,J,bi,bj) + deltaTloc*recip_healingTime )
+CMB     &         /( 2.D0 - dCrit(i,j,bi,bj) )
+C     exlicit (equation 58 in mebdoc.tex)
           damage(I,J,bi,bj) = deltaTloc*recip_healingTime
      &         + damageNm1(I,J,bi,bj) * dCrit(I,J,bi,bj)
 CML          ( 1.D0
 CML     &         + deltaTloc*recip_damageTime*(damageCrit - 1.D0) )
 CML          if ( i==122.and.j==37 ) print *, 'ml-damage:', myIter,
-CML     &         damage(i,j,bi,bj), damageCrit, 
+CML     &         damage(i,j,bi,bj), damageCrit,
 CML     &         sig1+sig2, sig1-sig2, sigmaT(I,J),sigmaC(I,J)
-CML          if (i==150 .and. j==51) print *, 'ml-damage', myIter, 
-CML     &         damage(i,j,bi,bj), damageCrit, 
+CML          if (i==150 .and. j==51) print *, 'ml-damage', myIter,
+CML     &         damage(i,j,bi,bj), damageCrit,
 CML     &         sig1+sig2, sig1-sig2, sigmaT(I,J),sigmaC(I,J)
 C     make sure that 0 < damage <=1
           damage(I,J,bi,bj) = MIN(1.D0, damage(I,J,bi,bj))
           damage(I,J,bi,bj) = MAX(0.D0, damage(I,J,bi,bj))
-          IF ( AREA(I,J,bi,bj) .EQ. 0.D0 ) 
+          IF ( AREA(I,J,bi,bj) .EQ. 0.D0 )
      &         damage(I,J,bi,bj) = 0.D0
 C     compute updated/reduced stress that lies on or within yield curve
           sig12C(I,J,bi,bj)  = sig12C(I,J,bi,bj) * dCrit(I,J,bi,bj)
@@ -4305,7 +4332,7 @@ C     compute updated/reduced stress that lies on or within yield curve
 C     just diagnostics
 C     hack to save principle stress before updating sigma
           sigTmp = 0.
-          IF ( HEFF(I,J,bi,bj).GT.1.D-4) 
+          IF ( HEFF(I,J,bi,bj).GT.1.D-4)
      &         sigTmp=1./SEAICE_strength/HEFF(I,J,bi,bj)
           sig11(I,J)  = sig1*sigTmp
           sig22(I,J)  = sig2*sigTmp
@@ -4317,13 +4344,30 @@ C     hack to save principle stress before updating sigma
       ENDDO
       CALL EXCH_XY_RL ( sig12C,  myThid  )
       CALL EXCH_XY_RL ( dCrit,  myThid  )
+      CALL EXCH_XY_RL ( damage,  myThid  )
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
+CMLC     smooth dCrit a little, but this has little to no effect
+CML        wght = 0.0
+CML        DO j=1-OLy,sNy+OLy
+CML         DO i=1-OLx,sNx+OLx
+CML          dtmp(i,j) = dCrit(i,j,bi,bj)*maskInC(i,j,bi,bj)
+CML         ENDDO
+CML        ENDDO
+CML        DO j=1-OLy+1,sNy+OLy-1
+CML         DO i=1-OLx+1,sNx+OLx-1
+CML          sumNorm  = maskInC(i-1,j,bi,bj)+maskInC(i+1,j,bi,bj)
+CML     &         +     maskInC(i,j-1,bi,bj)+maskInC(i,j+1,bi,bj)
+CML          IF ( sumNorm.GT.0.D0 ) sumNorm = 1.D0 / sumNorm
+CML          dCrit(i,j,bi,bj) = ( dtmp(i,j) * (1. - wght)
+CML     &         + wght*( dtmp(i-1,j) + dtmp(i+1,j)
+CML     &                + dtmp(i,j-1) + dtmp(i,j+1) )*sumNorm
+CML     &         ) * maskInC(I,J,bi,bj)
+CML         ENDDO
+CML        ENDDO
         DO j=1,sNy+1
          DO i=1,sNx+1
-c        seaice_sigma12(I,J,bi,bj) = sig12(i,j)
-c        seaice_sigma12(I,J,bi,bj) = 1.D0
-c     &         * fldAtZ(sig12C(:,:,bi,bj),i,j,bi,bj)
+CML          seaice_sigma12(I,J,bi,bj)=fldAtZ(sig12C(:,:,bi,bj),i,j,bi,bj)
           seaice_sigma12(I,J,bi,bj) = sig12(I,J)
      &         * fldAtZ(dCrit(:,:,bi,bj),i,j,bi,bj)
 CML          seaice_sigma12(I,J,bi,bj) = .5*( seaice_sigma12(I,J,bj,bi)
@@ -4343,6 +4387,25 @@ CML     &         *(dCrit(I,J,  bi,bj) + dCrit(I-1,J,  bi,bj)
 CML     &         + dCrit(I,J-1,bi,bj) + dCrit(I-1,J-1,bi,bj))
          ENDDO
         ENDDO
+CMLC     smooth damage a little, makes noise go away, but also damage
+CML        wght=0.1
+CML        DO j=1-OLy,sNy+OLy
+CML         DO i=1-OLx,sNx+OLx
+CML          dtmp(i,j) = damage(i,j,bi,bj)*maskInC(i,j,bi,bj)
+CML         ENDDO
+CML        ENDDO
+CML        DO j=1-OLy+1,sNy+OLy-1
+CML         DO i=1-OLx+1,sNx+OLx-1
+CML          sumNorm  = maskInC(i-1,j,bi,bj)+maskInC(i+1,j,bi,bj)
+CML     &         +     maskInC(i,j-1,bi,bj)+maskInC(i,j+1,bi,bj)
+CML          IF ( sumNorm.GT.0.D0 ) sumNorm = 1.D0 / sumNorm
+CML          damage(i,j,bi,bj) = ( dtmp(i,j) * (1. - wght)
+CML     &         + wght*( dtmp(i-1,j) + dtmp(i+1,j)
+CML     &                + dtmp(i,j-1) + dtmp(i,j+1) )*sumNorm
+CML     &         ) * maskInC(I,J,bi,bj)
+CML         ENDDO
+CML        ENDDO
+
 CML#  ifdef 
 CMLC     after damage is up to date, we need to update sigma to be consistent
 CMLC     with the damage, this time return result in global fields
@@ -4362,7 +4425,7 @@ CML      CALL EXCH_XY_RL ( seaice_sigma1 ,  myThid  )
 CML      CALL EXCH_XY_RL ( seaice_sigma2 ,  myThid  )
 CML      CALL EXCH_XY_RL ( seaice_sigma12,  myThid  )
 
-      
+
       RETURN
       END
 
@@ -4378,7 +4441,7 @@ C     compute Mohr-Coulomb failure criterion and updage damageCrit
       IF ( denom .LT. sigC ) mc_failure = MIN(damageCrit,sigC*rdenm)
       RETURN
       END
-      
+
       Real*8 FUNCTION TENSILE_FAILURE ( sig1, sig2, sigT, damageCrit )
       IMPLICIT NONE
 C     compute tensile failure criterion and updage damageCrit
@@ -4388,7 +4451,7 @@ C     compute tensile failure criterion and updage damageCrit
      &     tensile_failure = MIN(damageCrit,sigT/sig2)
       RETURN
       END
-      
+
       Real*8 FUNCTION fldAtZ ( fldIn, i, j, bi, bj )
       IMPLICIT NONE
 C $Header: /u/gcmpack/MITgcm/verification/offline_exf_seaice/code/SIZE.h,v 1.4 2012/12/08 00:34:29 jmc Exp $
@@ -5655,16 +5718,16 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
       INTEGER i,j, bi,bj
       Real*8 fldIn (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       Real*8 sumNorm
-C     
+C
       sumNorm  = maskInC(I,J,  bi,bj)+maskInC(I-1,J,  bi,bj)
      &     +     maskInC(I,J-1,bi,bj)+maskInC(I-1,J-1,bi,bj)
       IF ( sumNorm.GT.0.D0 ) sumNorm = 1.D0 / sumNorm
       fldAtZ = sumNorm *
      &     ( fldIn(I,J  ) + fldIn(I-1,J  )
      &     + fldIn(I,J-1) + fldIn(I-1,J-1) )
-CML      fldAtZ = SQRT (sumNorm *
+CML      fldAtZ = SQRT ( sumNorm *
 CML     &     ( fldIn(I,J  )**2 + fldIn(I-1,J  )**2
-CML     &     + fldIn(I,J-1)**2 + fldIn(I-1,J-1)**2 ))
+CML     &     + fldIn(I,J-1)**2 + fldIn(I-1,J-1)**2 ) )
       RETURN
       END
 
@@ -6934,7 +6997,7 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
       INTEGER i,j, bi,bj
       Real*8 fldIn (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       Real*8 sumNorm
-C     
+C
       sumNorm  = maskInC(I,J,  bi,bj)+maskInC(I+1,J,  bi,bj)
      &     +     maskInC(I,J+1,bi,bj)+maskInC(I+1,J+1,bi,bj)
       IF ( sumNorm.GT.0.D0 ) sumNorm = 1.D0 / sumNorm
@@ -6954,7 +7017,7 @@ CML     &     + rAz(I+1,J+1,bi,bj)*fldIn(I+1,J+1) )
 CBOP
 C     !ROUTINE: SEAICE_RECIP_RELAXTIME
 C     !INTERFACE:
-      SUBROUTINE SEAICE_RECIP_RELAXTIME( 
+      SUBROUTINE SEAICE_RECIP_RELAXTIME(
      I     damage,
      O     recip_rlx,
      I     bi, bj, myTime, myIter, myThid )
@@ -6962,7 +7025,7 @@ C     !INTERFACE:
 C     !DESCRIPTION: \bv
 C     *==========================================================*
 C     | SUBROUTINE SEAICE_UPDATE_DAMAGE
-C     | o determine relaxation time scale based on new damage 
+C     | o determine relaxation time scale based on new damage
 C     |   V. Dansereau et al, 2016, TC
 C     *==========================================================*
 C     | written by Martin Losch, Jun 2017
@@ -9223,13 +9286,14 @@ C     This is probably also a place for regularisation?
 CML        IF ( damage(i,j,bi,bj) .GT. SEAICEdamageMin )
 CML     &       recip_rlx(i,j) = recip_relaxTime
 CML     &       * EXP((1.-SEAICEdamageParm)*LOG(damage(i,j,bi,bj)))
-        IF ( damage(i,j,bi,bj) .GT. SEAICEdamageMin ) 
+        IF ( damage(i,j,bi,bj) .GT. SEAICEdamageMin )
      &       recip_rlx(i,j) = recip_relaxTime
      &       *damage(i,j,bi,bj)**(1.-SEAICEdamageParm)
         damage(i,j,bi,bj) = damage(i,j,bi,bj)*maskInC(i,j,bi,bj)
+        recip_rlx(i,j)    = recip_rlx(i,j)   *maskInC(i,j,bi,bj)
        ENDDO
       ENDDO
-      
+
       RETURN
       END
 
@@ -11505,11 +11569,11 @@ CEOP
 
 C     add stress divergence of previous timestep
       deltaTloc = SEAICE_deltaTdyn
-      CALL SEAICE_RECIP_RELAXTIME( 
+      CALL SEAICE_RECIP_RELAXTIME(
      I     damage,
      O     recip_rlx,
      I     bi, bj, myTime, myIter, myThid )
-C     recover sigma11 and sigma22 and scale by denominator 
+C     recover sigma11 and sigma22 and scale by denominator
 C     (1 + dt*Elasiticy/viscosity)
       DO j=0,sNy
        DO i=0,sNx
@@ -13820,7 +13884,7 @@ C     myThid :: my Thread Id. number
       Real*8 e22     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       Real*8 e12     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       Real*8 etaZ    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-C     
+C
       INTEGER bi, bj
       Real*8     myTime
       INTEGER myIter
@@ -16154,7 +16218,7 @@ C     derived parameters (should probably be global variables)
       SEAICEmebLambda = SEAICEmebMu * 2.D0*SEAICEpoissonRatio
      &     /(1.D0 - SEAICEpoissonRatio)
 C
-      CALL SEAICE_RECIP_RELAXTIME( 
+      CALL SEAICE_RECIP_RELAXTIME(
      I     damage,
      O     recip_rlx,
      I     bi, bj, myTime, myIter, myThid )

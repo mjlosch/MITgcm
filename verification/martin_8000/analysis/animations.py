@@ -6,11 +6,11 @@ import matplotlib.animation as animation
 import numpy as np
 import numpy.ma as ma
 import pandas as pd
-data_dir_1 = "../plane_symmetric_vp"
-data_dir_2 = "../plane_symmetric_meb_e8"
-data_dir_3 = "../benchmark_meb_softer"
-data_dir_4 = "../benchmark_meb_harder"
-data_dir_5 = "../test"
+data_dir_1 = "../simple_setup_vp"
+data_dir_2 = "../simple_setup_meb_t120"
+data_dir_3 = "../simple_setup_meb_t60"
+data_dir_4 = "../simple_setup_meb_t240"
+data_dir_5 = "../rough_landscape_meb_t120_slip"
 
 ds_1 = open_mdsdataset(data_dir_1)
 ds_2 = open_mdsdataset(data_dir_2)
@@ -21,6 +21,7 @@ ds_5 = open_mdsdataset(data_dir_5)
 #Mask
 mask = np.logical_not(ds_1.hFacC)
 mycmap = plt.cm.coolwarm
+print(ds_5.ETAN.values)
 
 ##Shear
 #fig = plt.figure()
@@ -84,21 +85,23 @@ mycmap = plt.cm.coolwarm
 #im_ani = animation.FuncAnimation(fig, animate, frames=ds_5.iter.values.max()-1, interval=50, blit=True)
 #im_ani.save('/home/csys/mbourget/Desktop/Plots/simple_setup/meb_shear_without_healing.gif')
 
-#one damage
-fig, ax = plt.subplots()
-shear_meb  = ma.masked_array(ds_5.SIdamage[0], mask)
-pc = ax.pcolormesh(shear_meb, cmap="coolwarm")
-fig.colorbar(pc, label="Damage")
-fig.suptitle("MEB-Rheology")
-
-def animate(i):
-    Z = ds_5.SIdamage[i].values
-    shear_meb = ma.masked_array(ds_5.SIdamage[i], mask)
-    pc = ax.pcolormesh(shear_meb, cmap="coolwarm")
-    return pc,
-
-im_ani = animation.FuncAnimation(fig, animate, frames=ds_5.iter.values.max()-1, interval=50, blit=True)
-im_ani.save('/home/csys/mbourget/Desktop/Plots/simple_setup/meb_damage_without-healing.gif')
+##one damage
+#fig, ax = plt.subplots()
+#shear_meb  = ma.masked_array(ds_5.SIdamage[0], mask)
+#pc = ax.pcolormesh(shear_meb, cmap="coolwarm")
+#fig.colorbar(pc, label="Damage")
+##fig.suptitle("MEB-Rheology")
+#
+#def animate(i):
+#    Z = ds_5.SIdamage[i].values
+#    shear_meb = ma.masked_array(ds_5.SIdamage[i], mask)
+#    pc = ax.pcolormesh(shear_meb, cmap="coolwarm")
+#    title = "iter =  "+ str(ds_5.iter[i].values) + ", time: " + str(pd.to_timedelta(ds_5.time[i].values))
+#    fig.suptitle(title)
+#    return pc,
+#
+#im_ani = animation.FuncAnimation(fig, animate, frames=ds_5.iter.values.max()-1, interval=50, blit=True)
+#im_ani.save('/home/csys/mbourget/Desktop/Plots/rough_landscape/meb_damage_t120_slip.gif')
 
 ##Forcing
 #fig, ax = plt.subplots()
@@ -191,7 +194,7 @@ im_ani.save('/home/csys/mbourget/Desktop/Plots/simple_setup/meb_damage_without-h
 #anim.save('/home/csys/mbourget/Desktop/Plots/constwind_2days/shear_compared.gif')
 
 ##compare Ice strength parameter damage
-#fig = plt.figure()
+#fig = plt.figure(figsize = (40.0, 20.0))
 #ax1 = fig.add_subplot(131)
 #ax2 = fig.add_subplot(132)
 #ax3 = fig.add_subplot(133)
@@ -203,7 +206,7 @@ im_ani.save('/home/csys/mbourget/Desktop/Plots/simple_setup/meb_damage_without-h
 #damage_3 = ds_4.SIdamage.where(ds_4.SIdamage!=0)
 #
 #pc_1 = ax1.pcolormesh(damage_2[k],vmin = 0.0, vmax = 1.0, cmap="coolwarm")
-#ax1.set_title(r"$5e6$")
+#ax1.set_title(r"$\Delta t = 60$")
 #ax1.set_xlabel(ds_3.XC.long_name)
 #ax1.set_ylabel(ds_3.YC.long_name)
 #ax1.axis("equal")
@@ -213,7 +216,7 @@ im_ani.save('/home/csys/mbourget/Desktop/Plots/simple_setup/meb_damage_without-h
 #cb = fig.colorbar(pc_1, cax=cax, orientation="vertical", label="Damage")
 #
 #pc_2 = ax2.pcolormesh(damage_1[k],vmin = 0.0, vmax = 1.0, cmap="coolwarm")
-#ax2.set_title(r"$5e8$")
+#ax2.set_title(r"$\Delta t = 120$")
 #ax2.set_xlabel(ds_2.XC.long_name)
 #ax2.set_ylabel(ds_2.YC.long_name)
 #ax2.axis("equal")
@@ -223,7 +226,7 @@ im_ani.save('/home/csys/mbourget/Desktop/Plots/simple_setup/meb_damage_without-h
 #cb = fig.colorbar(pc_2,  cax=cax, orientation='vertical', label="Damage")
 #
 #pc_3 = ax3.pcolormesh(damage_3[k],vmin = 0.0, vmax = 1.0, cmap="coolwarm")
-#ax3.set_title(r"$5e10$")
+#ax3.set_title(r"$\Delta t = 240$")
 #ax3.set_xlabel(ds_4.XC.long_name)
 #ax3.set_ylabel(ds_4.YC.long_name)
 #ax3.axis("equal")
@@ -246,61 +249,46 @@ im_ani.save('/home/csys/mbourget/Desktop/Plots/simple_setup/meb_damage_without-h
 #anim = animation.FuncAnimation(
 #    fig, animate, interval=100, frames=ds_2.iter.values.max()-1)
 # 
+#anim.save('/home/csys/mbourget/Desktop/Plots/simple_setup/damage_compared.gif')
+
+##compare Ice strength parameter
+#fig = plt.figure()
+#ax1 = fig.add_subplot(121)
+#ax2 = fig.add_subplot(122)
+#
+#k= 0
+#Z_1 = ds_2.SIdamage[0].values
+#damage_1 = ds_2.SIdamage.where(ds_2.SIdamage!=0)
+#Z_2 = ds_3.SIdamage[0].values
+#damage_2 = ds_3.SIdamage.where(ds_3.SIdamage!=0)
+#
+#pc_1 = ax1.pcolormesh(damage_1[k], cmap="coolwarm", vmin = 0.0, vmax = 1.0)
+#ax1.set_title(r"$5e8$")
+#ax1.set_xlabel(ds_1.XC.long_name)
+#ax1.set_ylabel(ds_1.YC.long_name)
+#ax1.axis("equal")
+#
+#divider = make_axes_locatable(ax1)
+#cax = divider.append_axes('right', size='5%', pad=0.05)
+#cb = fig.colorbar(pc_1, cax=cax, orientation="vertical", label="Damage")
+#
+#pc_2 = ax2.pcolormesh(damage_2[k], cmap="coolwarm",vmin = 0.0, vmax = 1.0)
+#ax2.set_title(r"$5e6$")
+#ax2.set_xlabel(ds_2.XC.long_name)
+#ax2.set_ylabel(ds_2.YC.long_name)
+#ax2.axis("equal")
+#
+#divider = make_axes_locatable(ax2)
+#cax = divider.append_axes('right', size='5%', pad=0.05)
+#cb = fig.colorbar(pc_2,  cax=cax, orientation='vertical', label="Damage")
+#plt.tight_layout()
+#
+#def animate(k):
+#    pc_1.set_array(damage_1[k].data.ravel())
+#    pc_2.set_array(damage_2[k].data.ravel())
+#    #ax1[0].title.set_text('iter = %i, time = %s'%(theta0.iter[k],np.datetime_as_string(theta0.time[k], unit='s')))
+#
+#anim = animation.FuncAnimation(
+#    fig, animate, interval=100, frames=ds_1.iter.values.max()-1)
+# 
 #anim.save('/home/csys/mbourget/Desktop/Plots/constwind_2days/damage_compared.gif')
-#Damage
-#fig, ax = plt.subplots()
-#damage = ma.masked_array(ds_2.SIdamage[0], mask)
-#pc = ax.pcolormesh(damage, cmap="coolwarm")
-#fig.colorbar(pc, label="Damage")
-#fig.suptitle("MEB-Rheology")
-#
-#def animate(i):
-#    damage = ma.masked_array(ds_2.SIdamage[i], mask)
-#    pc = ax.pcolormesh(damage, cmap="coolwarm")
-#    return pc,
-#
-#im_ani = animation.FuncAnimation(fig, animate, frames=ds_1.iter.values.max()-1, interval=50, blit=True)
-#im_ani.save('/home/csys/mbourget/Desktop/Plots/constwind_2days/meb_damage_softer.gif')
-#plt.clf()
-
-#compare Ice strength parameter
-fig = plt.figure()
-ax1 = fig.add_subplot(121)
-ax2 = fig.add_subplot(122)
-
-k= 0
-Z_1 = ds_2.SIdamage[0].values
-damage_1 = ds_2.SIdamage.where(ds_2.SIdamage!=0)
-Z_2 = ds_3.SIdamage[0].values
-damage_2 = ds_3.SIdamage.where(ds_3.SIdamage!=0)
-
-pc_1 = ax1.pcolormesh(damage_1[k], cmap="coolwarm", vmin = 0.0, vmax = 1.0)
-ax1.set_title(r"$5e8$")
-ax1.set_xlabel(ds_1.XC.long_name)
-ax1.set_ylabel(ds_1.YC.long_name)
-ax1.axis("equal")
-
-divider = make_axes_locatable(ax1)
-cax = divider.append_axes('right', size='5%', pad=0.05)
-cb = fig.colorbar(pc_1, cax=cax, orientation="vertical", label="Damage")
-
-pc_2 = ax2.pcolormesh(damage_2[k], cmap="coolwarm",vmin = 0.0, vmax = 1.0)
-ax2.set_title(r"$5e6$")
-ax2.set_xlabel(ds_2.XC.long_name)
-ax2.set_ylabel(ds_2.YC.long_name)
-ax2.axis("equal")
-
-divider = make_axes_locatable(ax2)
-cax = divider.append_axes('right', size='5%', pad=0.05)
-cb = fig.colorbar(pc_2,  cax=cax, orientation='vertical', label="Damage")
-plt.tight_layout()
-
-def animate(k):
-    pc_1.set_array(damage_1[k].data.ravel())
-    pc_2.set_array(damage_2[k].data.ravel())
-    #ax1[0].title.set_text('iter = %i, time = %s'%(theta0.iter[k],np.datetime_as_string(theta0.time[k], unit='s')))
-
-anim = animation.FuncAnimation(
-    fig, animate, interval=100, frames=ds_1.iter.values.max()-1)
- 
-anim.save('/home/csys/mbourget/Desktop/Plots/constwind_2days/damage_compared.gif')
