@@ -861,6 +861,7 @@ C     end if usePW79thermodynamics
         CALL PRINT_ERROR( msgBuf, myThid )
         errCount = errCount + 1
        ENDIF
+<<<<<<< HEAD
 # endif
 <<<<<<< HEAD
       IF ( .NOT.(SEAICEuseEVPstar.OR.SEAICEuseEVPrev)
@@ -916,6 +917,73 @@ C     end if usePW79thermodynamics
 #endif
 =======
 >>>>>>> 2ffc13e2be3c111a87b1c033e3b90d35cea0c446
+||||||| merged common ancestors
+# endif
+<<<<<<<<< Temporary merge branch 1
+||||||||| merged common ancestors
+      IF ( .NOT.(SEAICEuseEVPstar.OR.SEAICEuseEVPrev)
+     &     .AND. SEAICEnEVPstarSteps.NE.UNSET_I ) THEN
+       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEnEVPstarSteps is '//
+     &      'set, but SEAICEuseEVPstar = .FALSE.'
+       CALL PRINT_ERROR( msgBuf, myThid )
+       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
+      ENDIF
+#else
+      IF ( SEAICEuseEVP ) THEN
+       WRITE(msgBuf,'(A)')
+     &      'SEAICE_CHECK: SEAICEuseEVP = .TRUE., so EVP is turned on'
+       CALL PRINT_ERROR( msgBuf, myThid )
+       WRITE(msgBuf,'(A)')
+     &      'SEAICE_CHECK: by setting appropriate runtime parameters,'
+       CALL PRINT_ERROR( msgBuf, myThid )
+       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: but cpp-flag '//
+     &      'SEAICE_ALLOW_EVP is not defined in SEAICE_OPTIONS.h'
+       CALL PRINT_ERROR( msgBuf, myThid )
+       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
+      ENDIF
+#endif
+=========
+      IF ( .NOT.(SEAICEuseEVPstar.OR.SEAICEuseEVPrev)
+     &     .AND. SEAICEnEVPstarSteps.NE.UNSET_I ) THEN
+       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEnEVPstarSteps is '//
+     &      'set, but SEAICEuseEVPstar = .FALSE.'
+       CALL PRINT_ERROR( msgBuf, myThid )
+       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
+      ENDIF
+#else
+      IF ( SEAICEuseEVP ) THEN
+       WRITE(msgBuf,'(A)')
+     &      'SEAICE_CHECK: SEAICEuseEVP = .TRUE., so EVP is turned on'
+       CALL PRINT_ERROR( msgBuf, myThid )
+       WRITE(msgBuf,'(A)')
+     &      'SEAICE_CHECK: by setting appropriate runtime parameters,'
+       CALL PRINT_ERROR( msgBuf, myThid )
+       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: but cpp-flag '//
+     &      'SEAICE_ALLOW_EVP is not defined in SEAICE_OPTIONS.h'
+       CALL PRINT_ERROR( msgBuf, myThid )
+       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
+      ENDIF
+      IF ( SEAICEuseEVP .AND. SEAICEuseMEB ) THEN
+       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEuseMEB cannot be'
+       CALL PRINT_ERROR( msgBuf, myThid )
+       WRITE(msgBuf,'(A)')
+     &  'SEAICE_CHECK: used (yet?) with SEAICEuseEVP'
+       CALL PRINT_ERROR( msgBuf, myThid )
+       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
+      ENDIF
+#endif
+>>>>>>>>> Temporary merge branch 2
+=======
+       IF ( SEAICEuseEVP .AND. SEAICEuseMEB ) THEN
+        WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEuseMEB cannot be'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        WRITE(msgBuf,'(A)')
+     &       'SEAICE_CHECK: used (yet?) with SEAICEuseEVP'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        errCount = errCount + 1
+      ENDIF
+# endif
+>>>>>>> 43821c32a256ba17d52b190e17394fafe2a20a9a
 
 #ifdef SEAICE_ALLOW_EVP
        IF ( SEAICEuseEVP .AND. (SEAICE_eccfr.NE.SEAICE_eccen) ) THEN
@@ -1056,7 +1124,7 @@ C     SEAICEuseDynamics
       CALL PRINT_ERROR( msgBuf, myThid )
       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
 #endif
-      
+
 #ifndef SEAICE_CGRID
 
       IF ( SEAICEuseTEM
@@ -1217,12 +1285,24 @@ C--   SEAICE_ALLOW_FREEDRIFT and SEAICEuseFREEDRIFT
      &       'only allowed with SEAICEuseJFNK = .TRUE.'
         CALL PRINT_ERROR( msgBuf, myThid )
 <<<<<<< HEAD
+<<<<<<< HEAD
 CML        STOP 'ABNORMAL END: S/R SEAICE_CHECK'
 ||||||| merged common ancestors
         STOP 'ABNORMAL END: S/R SEAICE_CHECK'
 =======
         errCount = errCount + 1
 >>>>>>> 2ffc13e2be3c111a87b1c033e3b90d35cea0c446
+||||||| merged common ancestors
+<<<<<<<<< Temporary merge branch 1
+        errCount = errCount + 1
+||||||||| merged common ancestors
+        STOP 'ABNORMAL END: S/R SEAICE_CHECK'
+=========
+CML        STOP 'ABNORMAL END: S/R SEAICE_CHECK'
+>>>>>>>>> Temporary merge branch 2
+=======
+CML        errCount = errCount + 1
+>>>>>>> 43821c32a256ba17d52b190e17394fafe2a20a9a
        ENDIF
       ENDIF
       IF ( SEAICEuseIMEX ) THEN

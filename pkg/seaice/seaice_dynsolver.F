@@ -486,7 +486,19 @@ C     but we are looking for T = k*P = k*press/(1-k)
         ENDDO
        ENDIF
 # ifdef SEAICE_ALLOW_DAMAGE
-       CALL DIAGNOSTICS_FILL(damage,'SIdamage',0,1 ,0,1,1,myThid)
+       IF ( DIAGNOSTICS_IS_ON('SIdamage',myThid) ) THEN
+        DO bj = myByLo(myThid), myByHi(myThid)
+         DO bi = myBxLo(myThid), myBxHi(myThid)
+C     use sig1 as a temporary field
+          DO j=1,sNy
+           DO i=1,sNx
+            sig1(i,j) = (1. _d 0 - damage(i,j,bi,bj))*maskInC(i,j,bi,bj)
+           ENDDO
+          ENDDO
+          CALL DIAGNOSTICS_FILL(sig1,'SIdamage',0,1,2,bi,bj,myThid)
+         ENDDO
+        ENDDO
+       ENDIF
 # endif /* SEAICE_ALLOW_DAMAGE */
 C     If any of the stress or energy diagnostics are required,
 C     first recompute strainrates from up-to-date velocities
@@ -536,8 +548,12 @@ C     PRESS = PRESS(n-1), n = number of sub-cycling steps
      &            + seaice_sigma12(i  ,j+1,bi,bj) )
              sigTmp = SQRT( sigm*sigm + 4. _d 0*sig12(i,j)*sig12(i,j) )
              recip_prs = 0. _d 0
-             IF ( press0(i,j,bi,bj) .GT. 1. _d -13 )
-     &            recip_prs = 1. _d 0 / press0(i,j,bi,bj)
+             IF ( SEAICEuseMEB) THEN
+C     do not normalize
+              recip_prs = 1. _d 0 * HEFFM(i,j,bi,bj)
+             ELSEIF ( press0(i,j,bi,bj) .GT. 1. _d -13 ) THEN
+              recip_prs = 1. _d 0 / press0(i,j,bi,bj)
+             ENDIF
              sig1(i,j) = 0.5 _d 0*(sigp + sigTmp)*recip_prs
              sig2(i,j) = 0.5 _d 0*(sigp - sigTmp)*recip_prs
             ENDDO
