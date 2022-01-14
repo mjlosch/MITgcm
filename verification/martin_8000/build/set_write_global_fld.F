@@ -1,1 +1,0 @@
-../../../pkg/rw/set_write_global_fld.F

@@ -1,1 +1,0 @@
-../../../model/src/config_check.F

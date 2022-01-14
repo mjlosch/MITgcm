@@ -1,1 +1,0 @@
-../../../pkg/diagnostics/diagnostics_main_init.F

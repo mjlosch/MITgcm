@@ -1,1 +1,0 @@
-../../../pkg/thsice/THSICE_SIZE.h

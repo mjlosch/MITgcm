@@ -1,1 +1,0 @@
-../../../pkg/diagnostics/diagstats_ascii_out.F

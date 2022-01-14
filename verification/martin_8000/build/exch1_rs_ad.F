@@ -1,1 +1,0 @@
-../../../eesupp/src/exch1_rs_ad.F

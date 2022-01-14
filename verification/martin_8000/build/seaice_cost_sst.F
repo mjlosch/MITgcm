@@ -1,1 +1,0 @@
-../../../pkg/seaice/seaice_cost_sst.F

@@ -1,1 +1,0 @@
-../../../pkg/diagnostics/diagnostics_ini_io.F

@@ -1,1 +1,0 @@
-../../../eesupp/src/ini_communication_patterns.F

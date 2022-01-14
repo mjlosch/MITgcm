@@ -1,1 +1,0 @@
-../../../pkg/thsice/thsice_write_pickup.F

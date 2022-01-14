@@ -1,1 +1,0 @@
-../../../pkg/seaice/seaice_itd_pickup.F

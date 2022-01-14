@@ -1,1 +1,0 @@
-../../../pkg/mnc/MNC_CW_READWRITE_I.F

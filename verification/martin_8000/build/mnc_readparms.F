@@ -1,1 +1,0 @@
-../../../pkg/mnc/mnc_readparms.F

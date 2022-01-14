@@ -1,1 +1,0 @@
-../../../pkg/rw/read_fld_xyz_rs.F

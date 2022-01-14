@@ -1,1 +1,0 @@
-../../../pkg/thsice/thsice_init_fixed.F

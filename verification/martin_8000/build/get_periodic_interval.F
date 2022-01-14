@@ -1,1 +1,0 @@
-../../../eesupp/src/get_periodic_interval.F

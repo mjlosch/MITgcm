@@ -1,1 +1,0 @@
-../../../pkg/thsice/thsice_diffusion.F
