@@ -89,6 +89,7 @@ C     for vectorization
          DO i=1-OLx,sNx+OLx-1
           dudx(i,j) = _recip_dxF(i,j,bi,bj) *
      &         (uFld(i+1,j,bi,bj)-uFld(i,j,bi,bj))
+CMB         averaging
           uave(i,j) = 0.5 _d 0 * (uFld(i,j,bi,bj)+uFld(i+1,j,bi,bj))
          ENDDO
         ENDDO
@@ -96,12 +97,14 @@ C     for vectorization
          DO i=1-OLx,sNx+OLx-1
           dvdy(i,j) = _recip_dyF(i,j,bi,bj) *
      &         (vFld(i,j+1,bi,bj)-vFld(i,j,bi,bj))
+CMB         averaging
           vave(i,j) = 0.5 _d 0 * (vFld(i,j,bi,bj)+vFld(i,j+1,bi,bj))
          ENDDO
         ENDDO
 C     evaluate strain rates at C-points
         DO j=1-OLy,sNy+OLy-1
          DO i=1-OLx,sNx+OLx-1
+CMB         k2AtC = k2AtC = 0 for rectangular grid            
           e11Loc(i,j,bi,bj) = dudx(i,j) + vave(i,j) * k2AtC(i,j,bi,bj)
           e22Loc(i,j,bi,bj) = dvdy(i,j) + uave(i,j) * k1AtC(i,j,bi,bj)
          ENDDO
@@ -122,6 +125,7 @@ C     for vectorization
          DO i=1-OLx+1,sNx+OLx
           dudy(i,j) = ( uFld(i,j,bi,bj) - uFld(i  ,j-1,bi,bj) )
      &         * _recip_dyU(i,j,bi,bj)
+CMB         averaging
           uave(i,j) = 0.5 _d 0 * (uFld(i,j,bi,bj)+uFld(i  ,j-1,bi,bj))
          ENDDO
         ENDDO
@@ -129,6 +133,7 @@ C     for vectorization
          DO i=1-OLx+1,sNx+OLx
           dvdx(i,j) = ( vFld(i,j,bi,bj) - vFld(i-1,j  ,bi,bj) )
      &         * _recip_dxV(i,j,bi,bj)
+CMB         averaging
           vave(i,j) = 0.5 _d 0 * (vFld(i,j,bi,bj)+vFld(i-1,j  ,bi,bj))
          ENDDO
         ENDDO
