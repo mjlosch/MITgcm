@@ -848,14 +848,6 @@ C     end if usePW79thermodynamics
          errCount = errCount + 1
         ENDIF
        ENDIF
-       IF ( SEAICEuseEVP .AND. SEAICEuseMEB ) THEN
-        WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEuseMEB cannot be'
-        CALL PRINT_ERROR( msgBuf, myThid )
-        WRITE(msgBuf,'(A)')
-     &     'SEAICE_CHECK: used (yet?) with SEAICEuseEVP'
-        CALL PRINT_ERROR( msgBuf, myThid )
-        errCount = errCount + 1
-       ENDIF
 # else
        IF ( SEAICEuseEVP ) THEN
         WRITE(msgBuf,'(A)')
@@ -869,176 +861,6 @@ C     end if usePW79thermodynamics
         CALL PRINT_ERROR( msgBuf, myThid )
         errCount = errCount + 1
        ENDIF
-<<<<<<< HEAD
-# endif
-<<<<<<< HEAD
-||||||| merged common ancestors
-<<<<<<< HEAD
-      IF ( .NOT.(SEAICEuseEVPstar.OR.SEAICEuseEVPrev)
-     &     .AND. SEAICEnEVPstarSteps.NE.UNSET_I ) THEN
-       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEnEVPstarSteps is '//
-     &      'set, but SEAICEuseEVPstar = .FALSE.'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-      ENDIF
-#else
-      IF ( SEAICEuseEVP ) THEN
-       WRITE(msgBuf,'(A)')
-     &      'SEAICE_CHECK: SEAICEuseEVP = .TRUE., so EVP is turned on'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(A)')
-     &      'SEAICE_CHECK: by setting appropriate runtime parameters,'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: but cpp-flag '//
-     &      'SEAICE_ALLOW_EVP is not defined in SEAICE_OPTIONS.h'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-      ENDIF
-      IF ( SEAICEuseEVP .AND. SEAICEuseMEB ) THEN
-       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEuseMEB cannot be'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(A)')
-     &  'SEAICE_CHECK: used (yet?) with SEAICEuseEVP'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-      ENDIF
-#endif
-||||||| merged common ancestors
-      IF ( .NOT.(SEAICEuseEVPstar.OR.SEAICEuseEVPrev)
-     &     .AND. SEAICEnEVPstarSteps.NE.UNSET_I ) THEN
-       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEnEVPstarSteps is '//
-     &      'set, but SEAICEuseEVPstar = .FALSE.'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-      ENDIF
-#else
-      IF ( SEAICEuseEVP ) THEN
-       WRITE(msgBuf,'(A)')
-     &      'SEAICE_CHECK: SEAICEuseEVP = .TRUE., so EVP is turned on'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(A)')
-     &      'SEAICE_CHECK: by setting appropriate runtime parameters,'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: but cpp-flag '//
-     &      'SEAICE_ALLOW_EVP is not defined in SEAICE_OPTIONS.h'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-      ENDIF
-#endif
-=======
->>>>>>> 2ffc13e2be3c111a87b1c033e3b90d35cea0c446
-=======
-<<<<<<< HEAD
-      IF ( .NOT.(SEAICEuseEVPstar.OR.SEAICEuseEVPrev)
-     &     .AND. SEAICEnEVPstarSteps.NE.UNSET_I ) THEN
-       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEnEVPstarSteps is '//
-     &      'set, but SEAICEuseEVPstar = .FALSE.'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-      ENDIF
-#else
-      IF ( SEAICEuseEVP ) THEN
-       WRITE(msgBuf,'(A)')
-     &      'SEAICE_CHECK: SEAICEuseEVP = .TRUE., so EVP is turned on'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(A)')
-     &      'SEAICE_CHECK: by setting appropriate runtime parameters,'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: but cpp-flag '//
-     &      'SEAICE_ALLOW_EVP is not defined in SEAICE_OPTIONS.h'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-      ENDIF
-      IF ( SEAICEuseEVP .AND. SEAICEuseMEB ) THEN
-       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEuseMEB cannot be'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(A)')
-     &  'SEAICE_CHECK: used (yet?) with SEAICEuseEVP'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-      ENDIF
-#endif
-||||||| merged common ancestors
-      IF ( .NOT.(SEAICEuseEVPstar.OR.SEAICEuseEVPrev)
-     &     .AND. SEAICEnEVPstarSteps.NE.UNSET_I ) THEN
-       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEnEVPstarSteps is '//
-     &      'set, but SEAICEuseEVPstar = .FALSE.'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-      ENDIF
-#else
-      IF ( SEAICEuseEVP ) THEN
-       WRITE(msgBuf,'(A)')
-     &      'SEAICE_CHECK: SEAICEuseEVP = .TRUE., so EVP is turned on'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(A)')
-     &      'SEAICE_CHECK: by setting appropriate runtime parameters,'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: but cpp-flag '//
-     &      'SEAICE_ALLOW_EVP is not defined in SEAICE_OPTIONS.h'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-      ENDIF
-#endif
-=======
->>>>>>> 2ffc13e2be3c111a87b1c033e3b90d35cea0c446
-||||||| merged common ancestors
-# endif
-<<<<<<<<< Temporary merge branch 1
-||||||||| merged common ancestors
-      IF ( .NOT.(SEAICEuseEVPstar.OR.SEAICEuseEVPrev)
-     &     .AND. SEAICEnEVPstarSteps.NE.UNSET_I ) THEN
-       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEnEVPstarSteps is '//
-     &      'set, but SEAICEuseEVPstar = .FALSE.'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-      ENDIF
-#else
-      IF ( SEAICEuseEVP ) THEN
-       WRITE(msgBuf,'(A)')
-     &      'SEAICE_CHECK: SEAICEuseEVP = .TRUE., so EVP is turned on'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(A)')
-     &      'SEAICE_CHECK: by setting appropriate runtime parameters,'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: but cpp-flag '//
-     &      'SEAICE_ALLOW_EVP is not defined in SEAICE_OPTIONS.h'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-      ENDIF
-#endif
-=========
-      IF ( .NOT.(SEAICEuseEVPstar.OR.SEAICEuseEVPrev)
-     &     .AND. SEAICEnEVPstarSteps.NE.UNSET_I ) THEN
-       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEnEVPstarSteps is '//
-     &      'set, but SEAICEuseEVPstar = .FALSE.'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-      ENDIF
-#else
-      IF ( SEAICEuseEVP ) THEN
-       WRITE(msgBuf,'(A)')
-     &      'SEAICE_CHECK: SEAICEuseEVP = .TRUE., so EVP is turned on'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(A)')
-     &      'SEAICE_CHECK: by setting appropriate runtime parameters,'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: but cpp-flag '//
-     &      'SEAICE_ALLOW_EVP is not defined in SEAICE_OPTIONS.h'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-      ENDIF
-      IF ( SEAICEuseEVP .AND. SEAICEuseMEB ) THEN
-       WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEuseMEB cannot be'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(A)')
-     &  'SEAICE_CHECK: used (yet?) with SEAICEuseEVP'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-      ENDIF
-#endif
->>>>>>>>> Temporary merge branch 2
-=======
        IF ( SEAICEuseEVP .AND. SEAICEuseMEB ) THEN
         WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEuseMEB cannot be'
         CALL PRINT_ERROR( msgBuf, myThid )
@@ -1048,8 +870,6 @@ C     end if usePW79thermodynamics
         errCount = errCount + 1
       ENDIF
 # endif
->>>>>>> 43821c32a256ba17d52b190e17394fafe2a20a9a
->>>>>>> meb
 
 #ifdef SEAICE_ALLOW_EVP
        IF ( SEAICEuseEVP .AND. (SEAICE_eccfr.NE.SEAICE_eccen) ) THEN
@@ -1350,39 +1170,7 @@ C--   SEAICE_ALLOW_FREEDRIFT and SEAICEuseFREEDRIFT
         WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEuseIMEX = .TRUE. '//
      &       'only allowed with SEAICEuseJFNK = .TRUE.'
         CALL PRINT_ERROR( msgBuf, myThid )
-<<<<<<< HEAD
-||||||| merged common ancestors
-<<<<<<< HEAD
-CML        STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-||||||| merged common ancestors
-        STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-=======
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-CML        STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-||||||| merged common ancestors
-        STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-=======
->>>>>>> meb
-        errCount = errCount + 1
-<<<<<<< HEAD
-||||||| merged common ancestors
->>>>>>> 2ffc13e2be3c111a87b1c033e3b90d35cea0c446
-=======
->>>>>>> 2ffc13e2be3c111a87b1c033e3b90d35cea0c446
-||||||| merged common ancestors
-<<<<<<<<< Temporary merge branch 1
-        errCount = errCount + 1
-||||||||| merged common ancestors
-        STOP 'ABNORMAL END: S/R SEAICE_CHECK'
-=========
-CML        STOP 'ABNORMAL END: S/R SEAICE_CHECK'
->>>>>>>>> Temporary merge branch 2
-=======
 CML        errCount = errCount + 1
->>>>>>> 43821c32a256ba17d52b190e17394fafe2a20a9a
->>>>>>> meb
        ENDIF
       ENDIF
       IF ( SEAICEuseIMEX ) THEN
