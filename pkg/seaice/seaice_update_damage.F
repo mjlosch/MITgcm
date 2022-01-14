@@ -385,8 +385,10 @@ C
      &     +     maskInC(I,J-1,bi,bj)+maskInC(I-1,J-1,bi,bj)
       IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
       fldAtZ = sumNorm *
-     &     ( fldIn(I,J  ) + fldIn(I-1,J  )
-     &     + fldIn(I,J-1) + fldIn(I-1,J-1) )
+     &      ( fldIn(I,J  ) * maskInC(I,J,  bi,bj)
+     &      + fldIn(I-1,J  ) * maskInC(I-1,J,  bi,bj)
+     &      + fldIn(I,J-1) * maskInC(I,J-1,  bi,bj)
+     &      + fldIn(I-1,J-1) * maskInC(I-1,J-1,  bi,bj)  )
 CML      fldAtZ = SQRT ( sumNorm *
 CML     &     ( fldIn(I,J  )**2 + fldIn(I-1,J  )**2
 CML     &     + fldIn(I,J-1)**2 + fldIn(I-1,J-1)**2 ) )
@@ -401,14 +403,14 @@ CML     &     + fldIn(I,J-1)**2 + fldIn(I-1,J-1)**2 ) )
       _RL fldIn (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sumNorm
 C     muss geändert werden sumNorm = 4
-      sumNorm  = maskInC(I,J,  bi,bj)+maskInC(I+1,J,  bi,bj)
-     &     +     maskInC(I,J+1,bi,bj)+maskInC(I+1,J+1,bi,bj)
+      sumNorm  = 4
       IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
       fldAtC = SQRT( sumNorm * recip_rA(I,J,bi,bj) *
      &     ( rAz(I,  J,  bi,bj)*fldIn(I,  J  )**2
      &     + rAz(I+1,J,  bi,bj)*fldIn(I+1,J  )**2
      &     + rAz(I,  J+1,bi,bj)*fldIn(I,  J+1)**2
-     &     + rAz(I+1,J+1,bi,bj)*fldIn(I+1,J+1)**2 ) )
+     &     + rAz(I+1,J+1,bi,bj)*fldIn(I+1,J+1)**2 
+     &     )) * maskInC(I,J,  bi,bj)
 CML      fldAtC = sumNorm * recip_rA(I,J,bi,bj) *
 CML     &     ( rAz(I,  J,  bi,bj)*fldIn(I,  J  )
 CML     &     + rAz(I+1,J,  bi,bj)*fldIn(I+1,J  )
