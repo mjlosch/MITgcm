@@ -161,7 +161,6 @@ C     re-compute stress from most recent strain rates
      O        sig11, sig22, sig12,
      I        bi, bj, myTime, myIter, myThid )
         ENDIF
-
 #  ifdef SEAICE_ALLOW_MEB
 C     smooth sig12C a little
         wght=0.0
@@ -190,8 +189,10 @@ CML         DO i=1-OLx,sNx+OLx
         DO j=1,sNy
          DO i=1,sNx
 C     abbreviations
+CMB calculated sigp and sigm already but didn't save it in calc_stress for meb
           sigp   = sig11(I,J) + sig22(I,J)
           sigm   = sig11(I,J) - sig22(I,J)
+CMB ???sig12C wird nicht upgedated wenn nicht Allow Meb an ist
           sigTmp = SQRT( sigm*sigm + 4.*sig12C(I,J,bi,bj)**2 )
 C     principle components
           sig1   = 0.5 _d 0 * ( sigp + sigTmp )
@@ -246,11 +247,14 @@ C     make sure that 0 < damage <=1
           IF ( AREA(I,J,bi,bj) .EQ. 0. _d 0 )
      &         damage(I,J,bi,bj) = 0. _d 0
 C     compute updated/reduced stress that lies on or within yield curve
+CMB ???ist sig12C jetzt doch global, dann kann calc_meb_stress verändert 
+CMB werden, sonst macht update hier keinen Sinn
           sig12C(I,J,bi,bj)  = sig12C(I,J,bi,bj) * dCrit(I,J,bi,bj)
           seaice_sigma1(I,J,bi,bj) = sigp        * dCrit(I,J,bi,bj)
           seaice_sigma2(I,J,bi,bj) = sigm        * dCrit(I,J,bi,bj)
 C     just diagnostics
 C     hack to save principle stress before updating sigma
+CMB ??? warum passiert das nicht früher
           sigTmp = 0.
           IF ( HEFF(I,J,bi,bj).GT.1. _d -4)
      &         sigTmp=1./SEAICE_strength/HEFF(I,J,bi,bj)
@@ -362,7 +366,7 @@ C     compute Mohr-Coulomb failure criterion and updage damageCrit
       IF ( denom .LT. sigC ) mc_failure = MIN(damageCrit,sigC*rdenm)
       RETURN
       END
-
+C
       _RL FUNCTION TENSILE_FAILURE ( sig1, sig2, sigT, damageCrit )
       IMPLICIT NONE
 C     compute tensile failure criterion and updage damageCrit
@@ -705,7 +709,7 @@ C     !DESCRIPTION: \bv
 C     *==========================================================*
 C     | SUBROUTINE SEAICE_MEB_CALC_STRESS
 C     | o calculate new stress field from current ice state
-C     |   with up-to-date damae
+C     |   with up-to-date damage
 C     *==========================================================*
 C     | written by Martin Losch, Jun 2017
 C     *==========================================================*
@@ -792,9 +796,15 @@ CML       DO I=1,sNx
      &       * (sigPlus (I,J,bi,bj)+deltaTloc*2.*zetaLoc*ep)*denom
         sigm    = maskInC(I,J,bi,bj)
      &       * (sigMinus(I,J,bi,bj)+deltaTloc*2.* etaLoc*em)*denom
+CMB   averaging
         rhs12 = 2.*etaLoc * fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
+CMB   fldAtC should be multiplied with denom(n-1) if we use eq. 38 from Plante
+CMB averaging
         sig12C(I,J,bi,bj) = denom * ( deltaTLoc*rhs12 +
      &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
+CMB        sig12C(I,J,bi,bj) = denom * deltaTLoc*rhs12 +
+CMB     &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) * denomm
+C
 CML        sumNorm  = maskInC(I,  J,bi,bj)+maskInC(I  ,J+1,bi,bj)
 CML     &       +     maskInC(I+1,J,bi,bj)+maskInC(I+1,J+1,bi,bj)
 CML        IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
@@ -808,6 +818,7 @@ CML        sig12C(I,J,bi,bj) = denom * ( deltaTLoc*rhs12 + 0.25 _d 0 *
 CML     &       ( sigma12(I,  J,bi,bj) + sigma12(I,  J+1,bi,bj)
 CML     &       + sigma12(I+1,J,bi,bj) + sigma12(I+1,J+1,bi,bj) ) )
 CML        sig12C(I,J,bi,bj) = denom * ( deltaTLoc*rhs12 + sigma12(I,J,bi,bj) )
+C
 C     recover sigma11 and sigma22
         sig11(I,J) = 0.5 _d 0 * ( sigp+sigm )
         sig22(I,J) = 0.5 _d 0 * ( sigp-sigm )
@@ -825,9 +836,12 @@ CML        rhs12 = 2.*etaZ(I,J,bi,bj)*e12(I,J,bi,bj) ! contains old damage
 CML        etaLoc = SEAICEmebMu * sumNorm *
 CML     &          ( press0(I,J  ,bi,bj) + press0(I-1,J  ,bi,bj)
 CML     &          + press0(I,J-1,bi,bj) + press0(I-1,J-1,bi,bj) )
+CMB   averaging
         etaLoc = SEAICEmebMu * fldAtZ(press0(:,:,bi,bj),i,j,bi,bj)
         rhs12 = 2. _d 0 * etaLoc * e12(I,J,bi,bj)
+CMB   averaging
         denom = 1. _d 0/(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj) )
+C
 CML        denom = 1. _d 0/(1. _d 0+deltaTloc*sumNorm *
 CML     &          ( recip_rlx(I,J  ) + recip_rlx(I-1,J  )
 CML     &          + recip_rlx(I,J-1) + recip_rlx(I-1,J-1) ) )
