@@ -668,7 +668,7 @@ C     i,j :: loop indices
       _RL sig11   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig22   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig12   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RL sig12C  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,bi,bj)
+      _RL sig12C  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 CEOP
 
 C     update press0 to include new damage
