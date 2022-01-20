@@ -193,8 +193,6 @@ C     the non-linear drag coefficents
      &          (vIce(I,J,bi,bj) + vIceLin(I,J,bi,bj))
           ENDDO
          ENDDO
-         IF ( SEAICEuseIMEX .AND. SEAICEupdateDamage )
-     &   CALL SEAICE_CALC_ICE_STRENGTH( bi, bj, myTime, myIter, myThid )
         ENDDO
        ENDDO
 C     u/vIce have changed in Picard iteration so that new drag
@@ -409,6 +407,13 @@ C     criterion for the transition from accurate to approximate FGMRES
 #ifdef SEAICE_ALLOW_DAMAGE
        IF ( SEAICEupdateDamage .AND. SEAICEuseIMEX )
      &      CALL SEAICE_UPDATE_DAMAGE( .FALSE., myTime, myIter, myThid )
+C     after updating damage to the current picardIter, ice strength =
+C     elasticity needs to be recomputed
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+         CALL SEAICE_CALC_ICE_STRENGTH( bi, bj, myTime, myIter, myThid )
+        ENDDO
+       ENDDO
 #endif
 C     end of Picard iterate
       ENDDO
