@@ -182,7 +182,7 @@ C
       IF ( SEAICEupdateDamage ) THEN
        DO j=jMin,jMax
         DO i=iMin,iMax
-         press0(i,j,bi,bj)=press0(i,j,bi,bj)*damage(I,J,bi,bj)
+         press0(i,j,bi,bj)=press0(i,j,bi,bj)*damage(i,j,bi,bj)
         ENDDO
        ENDDO
       ENDIF
