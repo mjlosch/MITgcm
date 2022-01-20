@@ -176,6 +176,13 @@ C     Start nonlinear Newton iteration: outer loop iteration
        newtonIter = newtonIter + 1
 C     Compute initial residual F(u), (includes computation of global
 C     variables DWATN, zeta, and eta)
+#ifdef SEAICE_ALLOW_DAMAGE
+       IF ( SEAICEuseIMEX .AND. SEAICEupdateDamage ) THEN
+        CALL SEAICE_UPDATE_DAMAGE( .FALSE., myTime, myIter, myThid )
+CML        WRITE(msgBuf,'(I10.10)') newtonIter + 100*myIter
+CML        CALL WRITE_FLD_XY_RL('DAM.',msgBuf,damage,myIter,myThid)
+       ENDIF
+#endif /* SEAICE_ALLOW_DAMAGE */
        IF ( newtonIter .EQ. 1 ) CALL SEAICE_JFNK_UPDATE(
      I      duIce, dvIce,
      U      uIce, vIce, JFNKresidual,
@@ -361,6 +368,7 @@ C     some more output diagnostics
 C     after damage is up to date, we need to update sigma to be consistent
 C     with the damage, this time return result in global fields
       IF ( SEAICEuseMEB .AND. SEAICEuseIMEX ) THEN
+CML       CALL SEAICE_UPDATE_DAMAGE( .TRUE., myTime, myIter, myThid )
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
          CALL SEAICE_MEB_UPDATE_SIGMA(

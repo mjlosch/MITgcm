@@ -19,7 +19,8 @@ C--   o SEAICE_MEB_CALC_STRESS
 CBOP
 C     !ROUTINE: SEAICE_UPDATE_DAMAGE
 C     !INTERFACE:
-      SUBROUTINE SEAICE_UPDATE_DAMAGE( myTime, myIter, myThid )
+      SUBROUTINE SEAICE_UPDATE_DAMAGE(
+     &     updateSigma, myTime, myIter, myThid )
 
 C     !DESCRIPTION: \bv
 C     *==========================================================*
@@ -52,6 +53,7 @@ C     myThid :: my Thread Id. number
       _RL     myTime
       INTEGER myIter
       INTEGER myThid
+      LOGICAL updateSigma
 
 #if ( defined (SEAICE_CGRID) && defined (SEAICE_ALLOW_DYNAMICS) )
 # ifdef SEAICE_ALLOW_DAMAGE
@@ -245,10 +247,12 @@ C     make sure that 0 < damage <=1
           damage(I,J,bi,bj) = MAX(0. _d 0, damage(I,J,bi,bj))
           IF ( AREA(I,J,bi,bj) .EQ. 0. _d 0 )
      &         damage(I,J,bi,bj) = 0. _d 0
+          IF ( updateSigma ) THEN
 C     compute updated/reduced stress that lies on or within yield curve
           sig12C(I,J,bi,bj)  = sig12C(I,J,bi,bj) * dCrit(I,J,bi,bj)
           seaice_sigma1(I,J,bi,bj) = sigp        * dCrit(I,J,bi,bj)
           seaice_sigma2(I,J,bi,bj) = sigm        * dCrit(I,J,bi,bj)
+          ENDIF
 C     just diagnostics
 C     hack to save principle stress before updating sigma
           sigTmp = 0.
@@ -285,6 +289,7 @@ CML     &                + dtmp(i,j-1) + dtmp(i,j+1) )*sumNorm
 CML     &         ) * maskInC(I,J,bi,bj)
 CML         ENDDO
 CML        ENDDO
+        IF ( updateSigma ) THEN
         DO j=1,sNy+1
          DO i=1,sNx+1
 CML          seaice_sigma12(I,J,bi,bj)=fldAtZ(sig12C(:,:,bi,bj),i,j,bi,bj)
@@ -307,6 +312,7 @@ CML     &         *(dCrit(I,J,  bi,bj) + dCrit(I-1,J,  bi,bj)
 CML     &         + dCrit(I,J-1,bi,bj) + dCrit(I-1,J-1,bi,bj))
          ENDDO
         ENDDO
+        ENDIF
 CMLC     smooth damage a little, makes noise go away, but also damage
 CML        wght=0.1
 CML        DO j=1-OLy,sNy+OLy
@@ -385,8 +391,10 @@ C
      &     +     maskInC(I,J-1,bi,bj)+maskInC(I-1,J-1,bi,bj)
       IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
       fldAtZ = sumNorm *
-     &     ( fldIn(I,J  ) + fldIn(I-1,J  )
-     &     + fldIn(I,J-1) + fldIn(I-1,J-1) )
+     &     ( fldIn(I,  J  )*maskInC(I,  J,  bi,bj)
+     &     + fldIn(I-1,J  )*maskInC(I-1,J,  bi,bj)
+     &     + fldIn(I,  J-1)*maskInC(I  ,J-1,bi,bj)
+     &     + fldIn(I-1,J-1)*maskInC(I-1,J-1,bi,bj) )
 CML      fldAtZ = SQRT ( sumNorm *
 CML     &     ( fldIn(I,J  )**2 + fldIn(I-1,J  )**2
 CML     &     + fldIn(I,J-1)**2 + fldIn(I-1,J-1)**2 ) )
@@ -401,19 +409,22 @@ CML     &     + fldIn(I,J-1)**2 + fldIn(I-1,J-1)**2 ) )
       _RL fldIn (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sumNorm
 C
-      sumNorm  = maskInC(I,J,  bi,bj)+maskInC(I+1,J,  bi,bj)
-     &     +     maskInC(I,J+1,bi,bj)+maskInC(I+1,J+1,bi,bj)
-      IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
+CML      sumNorm  = maskInC(I,J,  bi,bj)+maskInC(I+1,J,  bi,bj)
+CML     &     +     maskInC(I,J+1,bi,bj)+maskInC(I+1,J+1,bi,bj)
+CML      IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
+      sumNorm  = 0.25 _d 0
       fldAtC = SQRT( sumNorm * recip_rA(I,J,bi,bj) *
      &     ( rAz(I,  J,  bi,bj)*fldIn(I,  J  )**2
      &     + rAz(I+1,J,  bi,bj)*fldIn(I+1,J  )**2
      &     + rAz(I,  J+1,bi,bj)*fldIn(I,  J+1)**2
-     &     + rAz(I+1,J+1,bi,bj)*fldIn(I+1,J+1)**2 ) )
+     &     + rAz(I+1,J+1,bi,bj)*fldIn(I+1,J+1)**2
+     &     ) ) * maskInC(I,J,bi,bj)
 CML      fldAtC = sumNorm * recip_rA(I,J,bi,bj) *
 CML     &     ( rAz(I,  J,  bi,bj)*fldIn(I,  J  )
 CML     &     + rAz(I+1,J,  bi,bj)*fldIn(I+1,J  )
 CML     &     + rAz(I,  J+1,bi,bj)*fldIn(I,  J+1)
 CML     &     + rAz(I+1,J+1,bi,bj)*fldIn(I+1,J+1) )
+CML     &     * maskInC(I,J,bi,bj)
       RETURN
       END
 

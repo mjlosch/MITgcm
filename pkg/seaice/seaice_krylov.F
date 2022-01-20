@@ -408,7 +408,7 @@ C     criterion for the transition from accurate to approximate FGMRES
        ENDIF
 #ifdef SEAICE_ALLOW_DAMAGE
        IF ( SEAICEupdateDamage .AND. SEAICEuseIMEX )
-     &      CALL SEAICE_UPDATE_DAMAGE( myTime, myIter, myThid )
+     &      CALL SEAICE_UPDATE_DAMAGE( .FALSE., myTime, myIter, myThid )
 #endif
 C     end of Picard iterate
       ENDDO
