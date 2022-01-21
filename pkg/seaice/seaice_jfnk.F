@@ -176,6 +176,18 @@ C     Start nonlinear Newton iteration: outer loop iteration
        newtonIter = newtonIter + 1
 C     Compute initial residual F(u), (includes computation of global
 C     variables DWATN, zeta, and eta)
+CML#ifdef SEAICE_ALLOW_DAMAGE
+CML       IF ( SEAICEuseIMEX .AND. SEAICEupdateDamage ) THEN
+CML        CALL SEAICE_UPDATE_DAMAGE( .FALSE., myTime, myIter, myThid )
+CMLCML        WRITE(msgBuf,'(I10.10)') newtonIter + 100*myIter
+CMLCML        CALL WRITE_FLD_XY_RL('DAM.',msgBuf,damage,myIter,myThid)
+CML        DO bj=myByLo(myThid),myByHi(myThid)
+CML         DO bi=myBxLo(myThid),myBxHi(myThid)
+CML          CALL SEAICE_CALC_ICE_STRENGTH(bi, bj, myTime, myIter, myThid)
+CML         ENDDO
+CML        ENDDO
+CML       ENDIF
+CML#endif /* SEAICE_ALLOW_DAMAGE */
        IF ( newtonIter .EQ. 1 ) CALL SEAICE_JFNK_UPDATE(
      I      duIce, dvIce,
      U      uIce, vIce, JFNKresidual,
@@ -185,8 +197,6 @@ C     local copies of precomputed coefficients that are to stay
 C     constant for the preconditioner
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
-         IF ( SEAICEuseIMEX .AND. SEAICEupdateDamage )
-     &   CALL SEAICE_CALC_ICE_STRENGTH( bi, bj, myTime, myIter, myThid )
          DO j=1-OLy,sNy+OLy
           DO i=1-OLx,sNx+OLx
            zetaPre(I,J,bi,bj) =  zeta(I,J,bi,bj)
@@ -361,6 +371,7 @@ C     some more output diagnostics
 C     after damage is up to date, we need to update sigma to be consistent
 C     with the damage, this time return result in global fields
       IF ( SEAICEuseMEB .AND. SEAICEuseIMEX ) THEN
+CML       CALL SEAICE_UPDATE_DAMAGE( .TRUE., myTime, myIter, myThid )
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
          CALL SEAICE_MEB_UPDATE_SIGMA(
@@ -624,8 +635,16 @@ C     Increment counter
 C     This is the new residual
       JFNKresidual = resLoc
 #ifdef SEAICE_ALLOW_DAMAGE
-      IF ( SEAICEupdateDamage .AND. SEAICEuseIMEX )
-     &     CALL SEAICE_UPDATE_DAMAGE( myTime, myIter, myThid )
+      IF ( SEAICEupdateDamage .AND. SEAICEuseIMEX ) THEN
+       CALL SEAICE_UPDATE_DAMAGE( .FALSE., myTime, myIter, myThid )
+C     after updating damage to the current newtonIter, ice strength =
+C     elasticity needs to be recomputed
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+         CALL SEAICE_CALC_ICE_STRENGTH(bi, bj, myTime, myIter, myThid)
+        ENDDO
+       ENDDO
+      ENDIF
 #endif
 
 #endif /* SEAICE_ALLOW_JFNK */

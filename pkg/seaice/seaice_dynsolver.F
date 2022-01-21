@@ -403,7 +403,7 @@ C     Jacobian-free Newton Krylov solver (Lemieux et al. 2010, 2012)
 #endif /* SEAICE_ALLOW_JFNK */
 #ifdef SEAICE_ALLOW_DAMAGE
        IF ( SEAICEupdateDamage .AND. .NOT.SEAICEuseIMEX )
-     &      CALL SEAICE_UPDATE_DAMAGE( myTime, myIter, myThid )
+     &      CALL SEAICE_UPDATE_DAMAGE( .TRUE., myTime, myIter, myThid )
 #endif /* SEAICE_ALLOW_DAMAGE */
 C End of IF (SEAICEuseDYNAMICS ...
       ENDIF
