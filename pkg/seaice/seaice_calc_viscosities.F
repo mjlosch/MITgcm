@@ -126,6 +126,8 @@ C     2. 1/(1-2nu) should be 1/(1-nu) because of 2D plane approximation
 C     make sure that this is consistent with S/R seaice_meb_calc_stress
 CML         poissonFac1 = 4. _d 0*SEAICEpoissonRatio
 CML     &        /(1.-2.*SEAICEpoissonRatio)
+CMB poissonFac = 2. _d 0*SEAICEpoissonRation
+CMB /(1. _d 0 - 2. _d 0*SEAICEpoissonRation)
          poissonFac = 2. _d 0*SEAICEpoissonRatio
      &        /(1. _d 0 - SEAICEpoissonRatio)
          CALL SEAICE_RECIP_RELAXTIME(
@@ -135,6 +137,7 @@ CML     &        /(1.-2.*SEAICEpoissonRatio)
          DO j=1-OLy,sNy+OLy
           DO i=1-OLx,sNx+OLx
            denom  = 1./(1.+SEAICE_deltaTdyn*recip_rlx(I,J))
+CMB mu = E*SEAICEmebMu
            mu     = press0(i,j,bi,bj) * SEAICEmebMu * SEAICE_deltaTdyn
      &          * denom * HEFFM(I,J,bi,bj)
            zeta (i,j,bi,bj) = mu*(poissonFac + 1. _d 0)
