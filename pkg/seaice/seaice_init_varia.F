@@ -507,6 +507,7 @@ C     no damage means damage = 1
           dCrit    (I,J,bi,bj) = 1. _d 0
           cohesion (I,J,bi,bj) = SEAICEcohesion
 C    &          *( 1.+cohesion(I,J,bi,bj) ) * maskC(I,J,kSrf,bi,bj)
+          seaice_sigma12C   (I,J,bi,bj) = 0. _d 0
          ENDDO
         ENDDO
 #endif /* SEAICE_ALLOW_DAMAGE */

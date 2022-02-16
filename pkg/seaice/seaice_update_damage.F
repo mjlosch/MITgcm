@@ -103,6 +103,7 @@ C     betaFacU/V     :: analog betaFacP1U/V
       _RL sig11         (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig22         (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig12         (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+CMB now global because of Plante (2020)
       _RL sig12C        (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 
       _RL MC_FAILURE, TENSILE_FAILURE, fldAtZ, fldAtC
@@ -150,8 +151,9 @@ C     re-compute stress from most recent strain rates
 #  ifdef SEAICE_ALLOW_MEB
         IF ( SEAICEuseMEB ) THEN
          CALL SEAICE_MEB_CALC_STRESS(
-     I        e11, e22, e12, press0, etaZ, damage,
+     I        e11, e22, e12, press0, etaZ, damage, 
      I        seaice_sigma1, seaice_sigma2, seaice_sigma12,
+     I        seaice_sigma12C,
      O        sig11, sig22, sig12, sig12C,
      I        bi, bj, myTime, myIter, myThid )
         ELSE
@@ -163,28 +165,28 @@ C     re-compute stress from most recent strain rates
      O        sig11, sig22, sig12,
      I        bi, bj, myTime, myIter, myThid )
         ENDIF
-#  ifdef SEAICE_ALLOW_MEB
-C     smooth sig12C a little
-        wght=0.0
-        IF ( SEAICEuseMEB ) THEN
-         DO j=1-OLy,sNy+OLy
-          DO i=1-OLx,sNx+OLx
-           dtmp(i,j) = sig12C(i,j,bi,bj)*maskInC(i,j,bi,bj)
-          ENDDO
-         ENDDO
-         DO j=1-OLy+1,sNy+OLy-1
-          DO i=1-OLx+1,sNx+OLx-1
-           sumNorm  = maskInC(i-1,j,bi,bj)+maskInC(i+1,j,bi,bj)
-     &          +     maskInC(i,j-1,bi,bj)+maskInC(i,j+1,bi,bj)
-           IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
-           sig12C(i,j,bi,bj) = ( dtmp(i,j) * (1. - wght)
-     &          + wght*( dtmp(i-1,j) + dtmp(i+1,j)
-     &                 + dtmp(i,j-1) + dtmp(i,j+1) )*sumNorm
-     &          ) * maskInC(I,J,bi,bj)
-          ENDDO
-         ENDDO
-        ENDIF
-#endif
+CMB#  ifdef SEAICE_ALLOW_MEB
+CMBC     smooth sig12C a little
+CMB        wght=0.0
+CMB        IF ( SEAICEuseMEB ) THEN
+CMB         DO j=1-OLy,sNy+OLy
+CMB          DO i=1-OLx,sNx+OLx
+CMB           dtmp(i,j) = sig12C(i,j,bi,bj)*maskInC(i,j,bi,bj)
+CMB          ENDDO
+CMB         ENDDO
+CMB         DO j=1-OLy+1,sNy+OLy-1
+CMB          DO i=1-OLx+1,sNx+OLx-1
+CMB           sumNorm  = maskInC(i-1,j,bi,bj)+maskInC(i+1,j,bi,bj)
+CMB     &          +     maskInC(i,j-1,bi,bj)+maskInC(i,j+1,bi,bj)
+CMB           IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
+CMB           sig12C(i,j,bi,bj) = ( dtmp(i,j) * (1. - wght)
+CMB     &          + wght*( dtmp(i-1,j) + dtmp(i+1,j)
+CMB     &                 + dtmp(i,j-1) + dtmp(i,j+1) )*sumNorm
+CMB     &          ) * maskInC(I,J,bi,bj)
+CMB          ENDDO
+CMB         ENDDO
+CMB        ENDIF
+CMB#endif
 
 CML        DO j=1-OLy,sNy+OLy
 CML         DO i=1-OLx,sNx+OLx
@@ -250,15 +252,15 @@ C     make sure that 0 < damage <=1
      &         damage(I,J,bi,bj) = 0. _d 0
           IF ( updateSigma ) THEN
 C     compute updated/reduced stress that lies on or within yield curve
-CMB ???ist sig12C jetzt doch global, dann kann calc_meb_stress verändert 
-CMB werden, sonst macht update hier keinen Sinn
-          sig12C(I,J,bi,bj)  = sig12C(I,J,bi,bj) * dCrit(I,J,bi,bj)
+CMB ???
+CMB          sig12C(I,J,bi,bj)  = sig12C(I,J,bi,bj) * dCrit(I,J,bi,bj)
           seaice_sigma1(I,J,bi,bj) = sigp        * dCrit(I,J,bi,bj)
           seaice_sigma2(I,J,bi,bj) = sigm        * dCrit(I,J,bi,bj)
+CMB Plante(2020)
+          seaice_sigma12C(I,J,bi,bj)=sig12C(I,J,bi,bj)*dCrit(I,J,bi,bj)
           ENDIF
 C     just diagnostics
 C     hack to save principle stress before updating sigma
-CMB ??? warum passiert das nicht früher
           sigTmp = 0.
           IF ( HEFF(I,J,bi,bj).GT.1. _d -4)
      &         sigTmp=1./SEAICE_strength/HEFF(I,J,bi,bj)
@@ -270,6 +272,7 @@ CMB ??? warum passiert das nicht früher
         CALL DIAGNOSTICS_FILL(sig22,'SIsig2pr',0,1,2,bi,bj,myThid)
        ENDDO
       ENDDO
+CMB ???
       _EXCH_XY_RL(sig12C, myThid )
       _EXCH_XY_RL(dCrit, myThid )
       _EXCH_XY_RL(damage, myThid )
@@ -394,14 +397,19 @@ C
       sumNorm  = maskInC(I,J,  bi,bj)+maskInC(I-1,J,  bi,bj)
      &     +     maskInC(I,J-1,bi,bj)+maskInC(I-1,J-1,bi,bj)
       IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
+CMB  simple mean
       fldAtZ = sumNorm *
      &     ( fldIn(I,  J  )*maskInC(I,  J,  bi,bj)
      &     + fldIn(I-1,J  )*maskInC(I-1,J,  bi,bj)
      &     + fldIn(I,  J-1)*maskInC(I  ,J-1,bi,bj)
      &     + fldIn(I-1,J-1)*maskInC(I-1,J-1,bi,bj) )
-CML      fldAtZ = SQRT ( sumNorm *
-CML     &     ( fldIn(I,J  )**2 + fldIn(I-1,J  )**2
-CML     &     + fldIn(I,J-1)**2 + fldIn(I-1,J-1)**2 ) )
+CMB  quadratic mean
+CMB      fldAtZ = SQRT (sumNorm *
+CMB     &     ( (fldIn(I,  J  )*maskInC(I,  J,  bi,bj))**2
+CMB     &     + (fldIn(I-1,J  )*maskInC(I-1,J,  bi,bj))**2
+CMB     &     + (fldIn(I,  J-1)*maskInC(I  ,J-1,bi,bj))**2
+CMB     &     + (fldIn(I-1,J-1)*maskInC(I-1,J-1,bi,bj))**2 ))
+C
       RETURN
       END
 
@@ -413,22 +421,22 @@ CML     &     + fldIn(I,J-1)**2 + fldIn(I-1,J-1)**2 ) )
       _RL fldIn (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sumNorm
 C
-CML      sumNorm  = maskInC(I,J,  bi,bj)+maskInC(I+1,J,  bi,bj)
-CML     &     +     maskInC(I,J+1,bi,bj)+maskInC(I+1,J+1,bi,bj)
-CML      IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
       sumNorm  = 0.25 _d 0
+CMB  simple mean
+CMB      fldAtC = (sumNorm * recip_rA(I,J,bi,bj) *
+CMB     &     ( rAz(I,  J,  bi,bj)*fldIn(I,  J  )
+CMB     &     + rAz(I+1,J,  bi,bj)*fldIn(I+1,J  )
+CMB     &     + rAz(I,  J+1,bi,bj)*fldIn(I,  J+1)
+CMB     &     + rAz(I+1,J+1,bi,bj)*fldIn(I+1,J+1)
+CMB     &     ) ) * maskInC(I,J,bi,bj)
+CMB quadratic mean
       fldAtC = SQRT( sumNorm * recip_rA(I,J,bi,bj) *
      &     ( rAz(I,  J,  bi,bj)*fldIn(I,  J  )**2
      &     + rAz(I+1,J,  bi,bj)*fldIn(I+1,J  )**2
      &     + rAz(I,  J+1,bi,bj)*fldIn(I,  J+1)**2
      &     + rAz(I+1,J+1,bi,bj)*fldIn(I+1,J+1)**2
      &     ) ) * maskInC(I,J,bi,bj)
-CML      fldAtC = sumNorm * recip_rA(I,J,bi,bj) *
-CML     &     ( rAz(I,  J,  bi,bj)*fldIn(I,  J  )
-CML     &     + rAz(I+1,J,  bi,bj)*fldIn(I+1,J  )
-CML     &     + rAz(I,  J+1,bi,bj)*fldIn(I,  J+1)
-CML     &     + rAz(I+1,J+1,bi,bj)*fldIn(I+1,J+1) )
-CML     &     * maskInC(I,J,bi,bj)
+C
       RETURN
       END
 
@@ -628,7 +636,7 @@ C     !ROUTINE: SEAICE_MEB_UPDATE_SIGMA
 C     !INTERFACE:
       SUBROUTINE SEAICE_MEB_UPDATE_SIGMA(
      I     e11, e22, e12, press0, etaZ, damage, dCrit,
-     U     sigPlus, sigMinus, sigma12,
+     U     sigPlus, sigMinus, sigma12, sigma12C,
      I     bi, bj, myTime, myIter, myThid )
 
 C     !DESCRIPTION: \bv
@@ -659,6 +667,8 @@ C     myThid :: my Thread Id. number
       _RL sigPlus (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigMinus(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigma12 (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+CMB Plante (2020)
+      _RL sigma12C(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL press0  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL e11     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL e22     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -677,7 +687,7 @@ C     i,j :: loop indices
       _RL sig11   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig22   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig12   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RL sig12C  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL sig12C  (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 CEOP
 
 C     update press0 to include new damage
@@ -686,7 +696,7 @@ C     update press0 to include new damage
 C
       CALL SEAICE_MEB_CALC_STRESS(
      I     e11, e22, e12, press0, etaZ, damage,
-     I     sigPlus, sigMinus, sigma12,
+     I     sigPlus, sigMinus, sigma12, sigma12C,
      O     sig11, sig22, sig12, sig12C,
      I     bi, bj, myTime, myIter, myThid )
 
@@ -694,6 +704,7 @@ C
        DO I=0,sNx
         sigPlus (I,J,bi,bj) = sig11(I,J) + sig22(I,J)
         sigMinus(I,J,bi,bj) = sig11(I,J) - sig22(I,J)
+        sigma12C(I,J,bi,bj) = sig12C(I,J)
        ENDDO
       ENDDO
       DO J=1,sNy+1
@@ -701,7 +712,6 @@ C
         sigma12(I,J,bi,bj) = sig12(I,J)
        ENDDO
       ENDDO
-
       RETURN
       END
 
@@ -710,7 +720,7 @@ C     !ROUTINE: SEAICE_MEB_CALC_STRESS
 C     !INTERFACE:
       SUBROUTINE SEAICE_MEB_CALC_STRESS(
      I     e11, e22, e12, press0, etaZ, damage,
-     I     sigPlus, sigMinus, sigma12,
+     I     sigPlus, sigMinus, sigma12, sigma12C,
      O     sig11, sig22, sig12, sig12C,
      I     bi, bj, myTime, myIter, myThid )
 
@@ -742,6 +752,8 @@ C     myThid :: my Thread Id. number
       _RL sigPlus (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigMinus(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigma12 (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+CMB Plante (2020)
+      _RL sigma12C (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL press0  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL e11     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL e22     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -807,12 +819,11 @@ CML       DO I=1,sNx
      &       * (sigMinus(I,J,bi,bj)+deltaTloc*2.* etaLoc*em)*denom
 CMB   averaging
         rhs12 = 2.*etaLoc * fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
-CMB   fldAtC should be multiplied with denom(n-1) if we use eq. 38 from Plante
+CMB   Plante (2020)
+      sig12C(I,J,bi,bj) = denom*(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
 CMB averaging
-        sig12C(I,J,bi,bj) = denom * ( deltaTLoc*rhs12 +
-     &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
-CMB        sig12C(I,J,bi,bj) = denom * deltaTLoc*rhs12 +
-CMB     &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) * denomm
+CMB        sig12C(I,J,bi,bj) = denom * ( deltaTLoc*rhs12 +
+CMB     &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
 C
 CML        sumNorm  = maskInC(I,  J,bi,bj)+maskInC(I  ,J+1,bi,bj)
 CML     &       +     maskInC(I+1,J,bi,bj)+maskInC(I+1,J+1,bi,bj)
