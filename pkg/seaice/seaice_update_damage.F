@@ -13,8 +13,9 @@ C--   Contents
 C--   o SEAICE_UPDATE_DAMAGE
 C--   o SEAICE_RECIP_RELAXTIME
 C--   o SEAICE_MEB_UPDATE_RHS
-C--   o SEAICE_MEB_UPDATE_SIGMA
+C--   o SEAICE_MEB_CALC_SIGMA
 C--   o SEAICE_MEB_CALC_STRESS
+C--   o SEAICE_MEB_UPDATE_SIGMA
 
 CBOP
 C     !ROUTINE: SEAICE_UPDATE_DAMAGE
@@ -103,7 +104,6 @@ C     betaFacU/V     :: analog betaFacP1U/V
       _RL sig11         (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig22         (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig12         (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-CMB now global because of Plante (2020)
       _RL sig12C        (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 
       _RL MC_FAILURE, TENSILE_FAILURE, fldAtZ, fldAtC
@@ -632,16 +632,16 @@ CML     &       + sigma12(I,J-1,bi,bj) + sigma12(I-1,J-1,bi,bj) )
       RETURN
       END
 CBOP
-C     !ROUTINE: SEAICE_MEB_UPDATE_SIGMA
+C     !ROUTINE: SEAICE_MEB_CALC_SIGMAP
 C     !INTERFACE:
-      SUBROUTINE SEAICE_MEB_UPDATE_SIGMA(
+      SUBROUTINE SEAICE_MEB_CALC_SIGMAP(
      I     e11, e22, e12, press0, etaZ, damage, dCrit,
      U     sigPlus, sigMinus, sigma12, sigma12C,
      I     bi, bj, myTime, myIter, myThid )
 
 C     !DESCRIPTION: \bv
 C     *==========================================================*
-C     | SUBROUTINE SEAICE_MEB_UPDATE_SIGMA
+C     | SUBROUTINE SEAICE_MEB_CALC_SIGMAP
 C     | o update global variables sigPlus, sigMinus, sigma12
 C     *==========================================================*
 C     | written by Martin Losch, Jun 2017
@@ -895,5 +895,77 @@ CML        DO I=1,sNx+1
 
 # endif /* SEAICE_ALLOW_MEB */
 #endif /* SEAICE_ALLOW_DYNAMICS and SEAICE_CGRID */
+      RETURN
+      END
+CBOP
+C     !ROUTINE: SEAICE_MEB_UPDATE_SIGMA
+C     !INTERFACE:
+      SUBROUTINE SEAICE_MEB_UPDATE_SIGMA(
+     U     sigPlus, sigMinus, sigma12, 
+     U     sigma12C,
+     I     bi, bj, myTime, myIter, myThid )
+ 
+C     !DESCRIPTION: \bv
+C     *==========================================================*
+C     | SUBROUTINE SEAICE_MEB_UPDATE_SIGMA
+C     | o update global variables sigPlus, sigMinus, sigma12 with 
+C     |   damage
+C     *==========================================================*
+C     | written by Mirjam Bouregtt, Feb 2022
+C     *==========================================================*
+C     \ev
+ 
+C     !USES:
+      IMPLICIT NONE
+ 
+C     === Global variables ===
+#include "SIZE.h"
+#include "EEPARAMS.h"
+#include "PARAMS.h"
+#include "DYNVARS.h"
+#include "GRID.h"
+#include "SEAICE_SIZE.h"
+#include "SEAICE_PARAMS.h"
+#include "SEAICE.h"
+
+C     !INPUT/OUTPUT PARAMETERS:
+C     === Routine arguments ===
+C     myTime :: Simulation time
+C     myIter :: Simulation timestep number
+C     myThid :: my Thread Id. number
+C
+      _RL sigPlus  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL sigMinus (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL sigma12  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL sigma12C (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+C
+      INTEGER bi, bj
+      _RL     myTime
+      INTEGER myIter
+      INTEGER myThid
+ 
+C     !LOCAL VARIABLES:
+C     === Local variables ===
+C     i,j :: loop indices
+      INTEGER I,J
+      _RL fldAtZ
+      EXTERNAL fldAtZ
+CEOP
+       DO J=0,sNy
+        DO I=0,sNx
+         seaice_sigma1(I,J,bi,bj)   = sigPlus(I,J,bi,bj) 
+     &         * dCrit(I,J,bi,bj)
+         seaice_sigma2(I,J,bi,bj)   = sigMinus(I,J,bi,bj)
+     &         * dCrit(I,J,bi,bj)
+         seaice_sigma12C(I,J,bi,bj) = sigma12C(I,J,bi,bj)
+     &         * dCrit(I,J,bi,bj)
+        ENDDO
+       ENDDO
+       DO J=1,sNy+1
+        DO I=1,sNx+1
+         seaice_sigma12(I,J,bi,bj) = sigma12(I,J,bi,bj)
+     &         * fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
+        ENDDO
+       ENDDO
       RETURN
       END
