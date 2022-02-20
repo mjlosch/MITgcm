@@ -561,15 +561,26 @@ C     apply masks for interior (important when we have open boundaries)
          ENDDO
          CALL SEAICE_MOM_ADVECTION(
      I        bi,bj,1,sNx,1,sNy,
-     I        uIceLoc, vIceLoc,
+     I        utp, vtp,
      O        gUmom, gVmom,
      I        myTime, myIter, myThid )
 C     Beware of sign! gU/Vmom is computed for the rhs of the equation;
 C     therefore, we need to substract gU/Vmom from the left hand side
          DO j=1,sNy
           DO i=1,sNx
-           uIceLHS(i,j,bi,bj) = uIceLHS(i,j,bi,bj) - gUmom(i,j)
-           vIceLHS(i,j,bi,bj) = vIceLHS(i,j,bi,bj) - gVmom(i,j)
+           uIceLHS(i,j,bi,bj) = uIceLHS(i,j,bi,bj) - gUmom(i,j)*reps
+           vIceLHS(i,j,bi,bj) = vIceLHS(i,j,bi,bj) - gVmom(i,j)*reps
+          ENDDO
+         ENDDO
+         CALL SEAICE_MOM_ADVECTION(
+     I        bi,bj,1,sNx,1,sNy,
+     I        uIceLoc, vIceLoc,
+     O        gUmom, gVmom,
+     I        myTime, myIter, myThid )
+         DO j=1,sNy
+          DO i=1,sNx
+           uIceLHS(i,j,bi,bj) = uIceLHS(i,j,bi,bj) + gUmom(i,j)*reps
+           vIceLHS(i,j,bi,bj) = vIceLHS(i,j,bi,bj) + gVmom(i,j)*reps
           ENDDO
          ENDDO
         ENDIF
