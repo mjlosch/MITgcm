@@ -33,9 +33,12 @@ C     SEAICEuseKrylov   :: If true, use matrix-free Krylov solver with Picard
 C                          solver instead of LSR (default: false)
 C     SEAICEuseJFNK     :: If true, use Jacobi-free Newton-Krylov solver
 C                          instead of LSR (default: false)
+C     SEAICEuseVelStress:: Use velocity-stress linearisation method for JFNK
+C                          solver (Shih et al. 2022)
 C     SEAICEuseIMEX     :: use IMplicit/EXplicit scheme with JFNK
-C     SEAICEuseTEM      :: to use the truncated ellipse method (see Geiger et al.
-C                          1998) set this parameter to true, default is false
+C     SEAICEuseTEM      :: to use the truncated ellipse method (see Geiger
+C                          et al. 1998) set this parameter to true,
+C                          default is false
 C     SEAICEuseMCS      :: to use the Mohr-Coulomb yield curve with a shear
 C                          only flow rule (Ip et al 1991), set this parameter to
 C                          true, default is false
@@ -134,7 +137,7 @@ C     SEAICE_mon_mnc    :: write monitor to netcdf file
      &     SEAICEuseMultiTileSolver,
      &     SEAICEuseLSR, SEAICEuseKrylov,
      &     SEAICEuseJFNK, SEAICEuseIMEX, SEAICEuseBDF2,
-     &     SEAICEusePicardAsPrecon,
+     &     SEAICEuseVelStress, SEAICEusePicardAsPrecon,
      &     useHibler79IceStrength, SEAICEsimpleRidging,
      &     SEAICEuseLinRemapITD, SEAICEuseTD, SEAICEusePL,
      &     SEAICEuseTEM, SEAICEuseTilt, SEAICEuseMetricTerms,
@@ -164,7 +167,7 @@ C     SEAICE_mon_mnc    :: write monitor to netcdf file
      &     SEAICEuseMultiTileSolver,
      &     SEAICEuseLSR, SEAICEuseKrylov,
      &     SEAICEuseJFNK, SEAICEuseIMEX, SEAICEuseBDF2,
-     &     SEAICEusePicardAsPrecon,
+     &     SEAICEuseVelStress, SEAICEusePicardAsPrecon,
      &     useHibler79IceStrength, SEAICEsimpleRidging,
      &     SEAICEuseLinRemapITD, SEAICEuseTD, SEAICEusePL,
      &     SEAICEuseTEM, SEAICEuseTilt, SEAICEuseMetricTerms,

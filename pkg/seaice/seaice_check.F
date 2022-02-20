@@ -1146,6 +1146,12 @@ C--   SEAICE_ALLOW_FREEDRIFT and SEAICEuseFREEDRIFT
         CALL PRINT_ERROR( msgBuf, myThid )
         errCount = errCount + 1
        ENDIF
+       IF ( SEAICEuseVelStress ) THEN
+        WRITE(msgBuf,'(A)') 'SEAICE_CHECK: SEAICEuseVelStress = ' //
+     &       '.TRUE. only allowed with SEAICEuseJFNK = .TRUE.'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        errCount = errCount + 1
+       ENDIF
       ENDIF
       IF ( SEAICEuseIMEX ) THEN
        WRITE(msgBuf,'(A)') '** WARNING ** SEAICE_CHECK: '//
