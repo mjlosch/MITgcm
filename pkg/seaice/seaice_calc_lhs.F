@@ -63,7 +63,6 @@ C     u/vIceLHS :: LHS of momentum equations
 #ifdef SEAICE_ALLOW_JFNK
 C     i,j,bi,bj,k :: loop indices
       INTEGER i,j,bi,bj
-      INTEGER k
       _RS     SINWAT
       _RL     COSWAT, recip_deltaT
 C     backward difference extrapolation factor
@@ -80,7 +79,6 @@ C     tendency due to advection of momentum
 #endif /*  SEAICE_ALLOW_MOM_ADVECTION */
 CEOP
 
-      k=1
       recip_deltaT = 1. _d 0 / SEAICE_deltaTdyn
 C--   introduce turning angles
       SINWAT=SIN(SEAICE_waterTurnAngle*deg2rad)
