@@ -4,7 +4,7 @@ CBOP
 C     !ROUTINE: SEAICE_JACVEC
 C     !INTERFACE:
       SUBROUTINE SEAICE_JACVEC(
-     I     uIceLoc, vIceLoc, uIceRes, vIceRes,
+     I     uIce, vIce, uIceRes, vIceRes,
      U     duIce, dvIce,
      I     newtonIter, krylovIter, myTime, myIter, myThid )
 
@@ -29,7 +29,6 @@ C     === Global variables ===
 #include "GRID.h"
 #include "SEAICE_SIZE.h"
 #include "SEAICE_PARAMS.h"
-#include "SEAICE.h"
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     === Routine arguments ===
@@ -43,9 +42,9 @@ C     krylovIter :: current iterate of Krylov iteration
       INTEGER myThid
       INTEGER newtonIter
       INTEGER krylovIter
-C     u/vIceLoc :: local copies of the current ice velocity
-      _RL uIceLoc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL vIceLoc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+C     u/vIce    :: local copies of the current ice velocity
+      _RL uIce(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL vIce(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C     u/vIceRes :: initial residual of this Newton iterate
       _RL uIceRes(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL vIceRes(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -82,7 +81,7 @@ C        seaice_bottomdrag_coeffs.f seaice_calc_stressdiv.f \
 C        seaice_calc_strainrates.f seaice_calc_viscosities.f \
 C        seaice_calc_rhs.f seaice_calc_lhs.f > taf_input.f
 C     3. staf -v1 -forward -toplevel seaice_calc_residual \
-C             -input uIceLoc,viceLoc -output uIceRes,vIceRes taf_input.f
+C             -input uIce,vice -output uIceRes,vIceRes taf_input.f
 C     4. insert content of taf_input_ftl.f at the end of this file
 C     5. add the following code and comment out the finite difference code
 C
@@ -95,7 +94,7 @@ C               seaice_bottomdrag_coeffs.f seaice_calc_stressdiv.f \
 C               seaice_calc_strainrates.f seaice_calc_viscosities.f \
 C               seaice_calc_rhs.f seaice_calc_lhs.f"
 C     3. staf -forward -toplevel seaice_calc_residual \
-C             -input uIceLoc,viceLoc -output uIceRes,vIceRes $files
+C             -input uIce, vIce -output uIceRes,vIceRes $files
 C     4. copy files seaice_*_tl.f to the corresponding seaice_*.f files,
 C        e.g. with this bash script:
 C     for file in $files; do
