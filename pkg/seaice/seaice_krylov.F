@@ -424,9 +424,12 @@ C     with the damage, this time return result in global fields
       IF ( SEAICEuseMEB .AND. SEAICEuseIMEX ) THEN
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
-         CALL SEAICE_MEB_UPDATE_SIGMA(
+         CALL SEAICE_MEB_CALC_SIGMAP(
+     I        e11, e22, e12, press0, etaZ, damage, dCrit,
      U        seaice_sigma1, seaice_sigma2, seaice_sigma12,
      U        seaice_sigma12C,
+     I        bi, bj, myTime, myIter, myThid )
+         CALL SEAICE_MEB_UPDATE_SIGMA(
      I        bi, bj, myTime, myIter, myThid )
         ENDDO
        ENDDO

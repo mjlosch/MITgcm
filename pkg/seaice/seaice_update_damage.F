@@ -237,14 +237,6 @@ CMB     &         /( 2. _d 0 - dCrit(i,j,bi,bj) )
 C     exlicit (equation 58 in mebdoc.tex)
           damage(I,J,bi,bj) = deltaTloc*recip_healingTime
      &         + damageNm1(I,J,bi,bj) * dCrit(I,J,bi,bj)
-CML          ( 1. _d 0
-CML     &         + deltaTloc*recip_damageTime*(damageCrit - 1. _d 0) )
-CML          if ( i==122.and.j==37 ) print *, 'ml-damage:', myIter,
-CML     &         damage(i,j,bi,bj), damageCrit,
-CML     &         sig1+sig2, sig1-sig2, sigmaT(I,J),sigmaC(I,J)
-CML          if (i==150 .and. j==51) print *, 'ml-damage', myIter,
-CML     &         damage(i,j,bi,bj), damageCrit,
-CML     &         sig1+sig2, sig1-sig2, sigmaT(I,J),sigmaC(I,J)
 C     make sure that 0 < damage <=1
           damage(I,J,bi,bj) = MIN(1. _d 0, damage(I,J,bi,bj))
           damage(I,J,bi,bj) = MAX(0. _d 0, damage(I,J,bi,bj))
@@ -252,7 +244,6 @@ C     make sure that 0 < damage <=1
      &         damage(I,J,bi,bj) = 0. _d 0
           IF ( updateSigma ) THEN
 C     compute updated/reduced stress that lies on or within yield curve
-CMB ???
 CMB          sig12C(I,J,bi,bj)  = sig12C(I,J,bi,bj) * dCrit(I,J,bi,bj)
           seaice_sigma1(I,J,bi,bj) = sigp        * dCrit(I,J,bi,bj)
           seaice_sigma2(I,J,bi,bj) = sigm        * dCrit(I,J,bi,bj)
@@ -278,45 +269,11 @@ CMB ???
       _EXCH_XY_RL(damage, myThid )
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
-CMLC     smooth dCrit a little, but this has little to no effect
-CML        wght = 0.0
-CML        DO j=1-OLy,sNy+OLy
-CML         DO i=1-OLx,sNx+OLx
-CML          dtmp(i,j) = dCrit(i,j,bi,bj)*maskInC(i,j,bi,bj)
-CML         ENDDO
-CML        ENDDO
-CML        DO j=1-OLy+1,sNy+OLy-1
-CML         DO i=1-OLx+1,sNx+OLx-1
-CML          sumNorm  = maskInC(i-1,j,bi,bj)+maskInC(i+1,j,bi,bj)
-CML     &         +     maskInC(i,j-1,bi,bj)+maskInC(i,j+1,bi,bj)
-CML          IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
-CML          dCrit(i,j,bi,bj) = ( dtmp(i,j) * (1. - wght)
-CML     &         + wght*( dtmp(i-1,j) + dtmp(i+1,j)
-CML     &                + dtmp(i,j-1) + dtmp(i,j+1) )*sumNorm
-CML     &         ) * maskInC(I,J,bi,bj)
-CML         ENDDO
-CML        ENDDO
         IF ( updateSigma ) THEN
         DO j=1,sNy+1
          DO i=1,sNx+1
-CML          seaice_sigma12(I,J,bi,bj)=fldAtZ(sig12C(:,:,bi,bj),i,j,bi,bj)
           seaice_sigma12(I,J,bi,bj) = sig12(I,J)
      &         * fldAtZ(dCrit(:,:,bi,bj),i,j,bi,bj)
-CML          seaice_sigma12(I,J,bi,bj) = .5*( seaice_sigma12(I,J,bj,bi)
-CML     &         + sig12(I,J) * fldAtZ(dCrit(:,:,bi,bj),i,j,bi,bj) )
-CML          sumNorm  = maskInC(I,J,  bi,bj)+maskInC(I-1,J,  bi,bj)
-CML     &         +     maskInC(I,J-1,bi,bj)+maskInC(I-1,J-1,bi,bj)
-CML          IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
-CML          sumNorm = 0.25
-CML          seaice_sigma12(I,J,bi,bj)= sumNorm *
-CML     &         ( sig12C(I,J  ,bi,bj) + sig12C(I-1,J  ,bi,bj)
-CML     &         + sig12C(I,J-1,bi,bj) + sig12C(I-1,J-1,bi,bj) )
-CML          seaice_sigma1(I,J,bi,bj) = seaice_sigma1(I,J,bi,bj)*dCrit(I,J)
-CML          seaice_sigma2(I,J,bi,bj) = seaice_sigma2(I,J,bi,bj)*dCrit(I,J)
-CML          seaice_sigma12(I,J,bi,bj)= seaice_sigma12(I,J,bi,bj)*sumNorm
-CML          seaice_sigma12(I,J,bi,bj)= sig12(I,J)*sumNorm
-CML     &         *(dCrit(I,J,  bi,bj) + dCrit(I-1,J,  bi,bj)
-CML     &         + dCrit(I,J-1,bi,bj) + dCrit(I-1,J-1,bi,bj))
          ENDDO
         ENDDO
         ENDIF
@@ -338,18 +295,6 @@ CML     &                + dtmp(i,j-1) + dtmp(i,j+1) )*sumNorm
 CML     &         ) * maskInC(I,J,bi,bj)
 CML         ENDDO
 CML        ENDDO
-
-CML#  ifdef SEAICE_ALLOW_MEB
-CMLC     after damage is up to date, we need to update sigma to be consistent
-CMLC     with the damage, this time return result in global fields
-CML        IF ( SEAICEuseMEB .AND. .NOT.SEAICEuseIMEX ) THEN
-CML         CALL SEAICE_MEB_UPDATE_SIGMA(
-CML     I        e11, e22, e12, press0, etaZ, damage, dCrit,
-CML     U        seaice_sigma1, seaice_sigma2, seaice_sigma12,
-CML     I        bi, bj, myTime, myIter, myThid )
-CML        ENDIF
-CML#  endif
-
        ENDDO
       ENDDO
 C
@@ -594,13 +539,9 @@ CML        IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
 CML        denom = 1. _d 0/(1. _d 0+deltaTloc*sumNorm *
 CML     &       ( recip_rlx(I,J  ) + recip_rlx(I-1,J  )
 CML     &       + recip_rlx(I,J-1) + recip_rlx(I-1,J-1) ) )
-        denom = 1. _d 0/(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj) )
+        denom = 1. _d 0/(1. _d 0+deltaTloc)*fldAtZ(recip_rlx,i,j,bi,bj)
 C     sigma12 in Z-points
         sig12(I,J) = sigma12(I,J,bi,bj) * denom
-CMLC     sigma12 in C-points
-CML        sig12(I,J) = sumNorm * denom *
-CML     &       ( sigma12(I,J,  bi,bj) + sigma12(I-1,J,  bi,bj)
-CML     &       + sigma12(I,J-1,bi,bj) + sigma12(I-1,J-1,bi,bj) )
        ENDDO
       ENDDO
       IF (.NOT.SEAICE_no_slip) THEN
@@ -818,72 +759,29 @@ CML       DO I=1,sNx
         sigm    = maskInC(I,J,bi,bj)
      &       * (sigMinus(I,J,bi,bj)+deltaTloc*2.* etaLoc*em)*denom
 CMB   averaging
-        rhs12 = 2.*etaLoc * fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
+        rhs12 = 2.*etaLoc*fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
 CMB   Plante (2020)
       sig12C(I,J,bi,bj) = denom*(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
 CMB averaging
 CMB        sig12C(I,J,bi,bj) = denom * ( deltaTLoc*rhs12 +
 CMB     &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
-C
-CML        sumNorm  = maskInC(I,  J,bi,bj)+maskInC(I  ,J+1,bi,bj)
-CML     &       +     maskInC(I+1,J,bi,bj)+maskInC(I+1,J+1,bi,bj)
-CML        IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
-CML        rhs12 = 2.*etaLoc * SQRT (
-CML     &         0.25 _d 0 * recip_rA(I,J,bi,bj) *
-CML     &         ( rAz(I  ,J  ,bi,bj)*e12(I  ,J  ,bi,bj)**2
-CML     &         + rAz(I+1,J  ,bi,bj)*e12(I+1,J  ,bi,bj)**2
-CML     &         + rAz(I  ,J+1,bi,bj)*e12(I  ,J+1,bi,bj)**2
-CML     &         + rAz(I+1,J+1,bi,bj)*e12(I+1,J+1,bi,bj)**2 ) )
-CML        sig12C(I,J,bi,bj) = denom * ( deltaTLoc*rhs12 + 0.25 _d 0 *
-CML     &       ( sigma12(I,  J,bi,bj) + sigma12(I,  J+1,bi,bj)
-CML     &       + sigma12(I+1,J,bi,bj) + sigma12(I+1,J+1,bi,bj) ) )
-CML        sig12C(I,J,bi,bj) = denom * ( deltaTLoc*rhs12 + sigma12(I,J,bi,bj) )
-C
 C     recover sigma11 and sigma22
         sig11(I,J) = 0.5 _d 0 * ( sigp+sigm )
         sig22(I,J) = 0.5 _d 0 * ( sigp-sigm )
        ENDDO
       ENDDO
-CML      DO J=1,sNy+1
-CML       DO I=1,sNx+1
       DO J=1-OLy+1,sNy+OLy
        DO I=1-OLx+1,sNx+OLx
 C     average to Z-points
-        sumNorm  = maskInC(I,J,  bi,bj)+maskInC(I-1,J,  bi,bj)
-     &       +     maskInC(I,J-1,bi,bj)+maskInC(I-1,J-1,bi,bj)
-        IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
-CML        rhs12 = 2.*etaZ(I,J,bi,bj)*e12(I,J,bi,bj) ! contains old damage
-CML        etaLoc = SEAICEmebMu * sumNorm *
-CML     &          ( press0(I,J  ,bi,bj) + press0(I-1,J  ,bi,bj)
-CML     &          + press0(I,J-1,bi,bj) + press0(I-1,J-1,bi,bj) )
 CMB   averaging
-        etaLoc = SEAICEmebMu * fldAtZ(press0(:,:,bi,bj),i,j,bi,bj)
+        etaLoc = SEAICEmebMu *fldAtZ(press0(:,:,bi,bj),i,j,bi,bj)
         rhs12 = 2. _d 0 * etaLoc * e12(I,J,bi,bj)
 CMB   averaging
-        denom = 1. _d 0/(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj) )
-C
-CML        denom = 1. _d 0/(1. _d 0+deltaTloc*sumNorm *
-CML     &          ( recip_rlx(I,J  ) + recip_rlx(I-1,J  )
-CML     &          + recip_rlx(I,J-1) + recip_rlx(I-1,J-1) ) )
-CML        denom = ( 1. _d 0/(1. _d 0+deltaTloc*recip_rlx(I  ,J  ) )
-CML     &       +    1. _d 0/(1. _d 0+deltaTloc*recip_rlx(I-1,J  ) )
-CML     &       +    1. _d 0/(1. _d 0+deltaTloc*recip_rlx(I  ,J-1) )
-CML     &       +    1. _d 0/(1. _d 0+deltaTloc*recip_rlx(I-1,J-1) )
-CML     &       )*sumNorm
+        denom = 1. _d 0/(1. _d 0+deltaTloc)*fldAtZ(recip_rlx,i,j,bi,bj)
         sig12(I,J) = (sigma12(I,J,bi,bj)+deltaTLoc*rhs12)*denom
-CML        etaLoc = SEAICEmebMu * sumNorm *
-CML     &       ( press0(I  ,J  ,bi,bj)/(1.+deltaTloc*recip_rlx(I  ,J  ) )
-CML     &       + press0(I-1,J  ,bi,bj)/(1.+deltaTloc*recip_rlx(I-1,J  ) )
-CML     &       + press0(I  ,J-1,bi,bj)/(1.+deltaTloc*recip_rlx(I  ,J-1) )
-CML     &       + press0(I-1,J-1,bi,bj)/(1.+deltaTloc*recip_rlx(I-1,J-1) )
-CML     &       )
-CML        rhs12 = 2. _d 0 * etaLoc * e12(I,J,bi,bj) * deltaTLoc
-CML        sig12(I,J) = sigma12(I,J,bi,bj)*denom + rhs12
        ENDDO
       ENDDO
       IF (.NOT.SEAICE_no_slip) THEN
-CML       DO J=1,sNy+1
-CML        DO I=1,sNx+1
        DO J=1-OLy+1,sNy+OLy
         DO I=1-OLx+1,sNx+OLx
          sig12(I,J) =  sig12(I,J)
@@ -901,8 +799,6 @@ CBOP
 C     !ROUTINE: SEAICE_MEB_UPDATE_SIGMA
 C     !INTERFACE:
       SUBROUTINE SEAICE_MEB_UPDATE_SIGMA(
-     U     sigPlus, sigMinus, sigma12, 
-     U     sigma12C,
      I     bi, bj, myTime, myIter, myThid )
  
 C     !DESCRIPTION: \bv
@@ -934,6 +830,7 @@ C     myTime :: Simulation time
 C     myIter :: Simulation timestep number
 C     myThid :: my Thread Id. number
 C
+CMB      _RL dCrit    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigPlus  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigMinus (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigma12  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -953,17 +850,17 @@ C     i,j :: loop indices
 CEOP
        DO J=0,sNy
         DO I=0,sNx
-         seaice_sigma1(I,J,bi,bj)   = sigPlus(I,J,bi,bj) 
+         seaice_sigma1(I,J,bi,bj)  =seaice_sigma1(I,J,bi,bj) 
      &         * dCrit(I,J,bi,bj)
-         seaice_sigma2(I,J,bi,bj)   = sigMinus(I,J,bi,bj)
+         seaice_sigma2(I,J,bi,bj)  =seaice_sigma2(I,J,bi,bj)
      &         * dCrit(I,J,bi,bj)
-         seaice_sigma12C(I,J,bi,bj) = sigma12C(I,J,bi,bj)
+         seaice_sigma12C(I,J,bi,bj)=seaice_sigma12C(I,J,bi,bj)
      &         * dCrit(I,J,bi,bj)
         ENDDO
        ENDDO
        DO J=1,sNy+1
         DO I=1,sNx+1
-         seaice_sigma12(I,J,bi,bj) = sigma12(I,J,bi,bj)
+         seaice_sigma12(I,J,bi,bj) =seaice_sigma12(I,J,bi,bj)
      &         * fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
         ENDDO
        ENDDO
