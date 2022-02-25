@@ -229,7 +229,7 @@ C     compute rhs for initial residual
        CALL SEAICE_CALC_LHS(
      I         uIce, vIce,
      O         uIceLHS, vIceLHS,
-     I         picardIter, myTime, myIter, myThid )
+     I         picardIter, 0, myTime, myIter, myThid )
 C     Calculate the residual
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
@@ -353,7 +353,7 @@ C     Compute lhs of equations (A*x)
           CALL SEAICE_CALC_LHS(
      I         uWork, vWork,
      O         uIceLHS, vIceLHS,
-     I         picardIter, myTime, myIter, myThid )
+     I         picardIter, 0, myTime, myIter, myThid )
           DO bj=myByLo(myThid),myByHi(myThid)
            DO bi=myBxLo(myThid),myBxHi(myThid)
             DO j=1-OLy,sNy+OLy

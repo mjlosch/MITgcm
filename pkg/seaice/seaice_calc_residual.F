@@ -25,9 +25,7 @@ C     === Global variables ===
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "SEAICE_SIZE.h"
-#ifdef SEAICE_ALLOW_BOTTOMDRAG
 #include "SEAICE_PARAMS.h"
-#endif /* SEAICE_ALLOW_BOTTOMDRAG */
 #include "SEAICE.h"
 
 C     !INPUT/OUTPUT PARAMETERS:
@@ -91,10 +89,38 @@ C     viscosities are required
      O     CbotC,
      I     krylovIter, myTime, myIter, myThid )
 #endif /* SEAICE_ALLOW_BOTTOMDRAG */
-      CALL SEAICE_CALC_STRAINRATES(
-     I     uIceLoc, vIceLoc,
-     O     e11, e22, e12,
-     I     krylovIter, myTime, myIter, myThid )
+      DO bj=myByLo(myThid),myByHi(myThid)
+       DO bi=myBxLo(myThid),myBxHi(myThid)
+        DO J=1-Oly,sNy+Oly
+         DO I=1-Olx,sNx+Olx
+          e11p(I,J,bi,bj) = 0. _d 0
+          e22p(I,J,bi,bj) = 0. _d 0
+          e12p(I,J,bi,bj) = 0. _d 0
+         ENDDO
+        ENDDO
+       ENDDO
+      ENDDO
+      i=20
+      j=20
+      print *, 'ml-du ', uIceRes(i,j,1,1), vIceRes(i,j,1,1)
+      IF ( SEAICEuseVelStress .AND. krylovIter .GE. 0 ) THEN
+C     compute strain rates for unperturbed velocities
+       CALL SEAICE_CALC_STRAINRATES(
+     I      uIce, vIce,
+     O      e11, e22, e12,
+     I      krylovIter, myTime, myIter, myThid )
+C     and for the perturbations velocities (stored in u/vIceRes)
+       CALL SEAICE_CALC_STRAINRATES(
+     I      uIceRes, vIceRes,
+     O      e11p, e22p, e12p,
+     I      krylovIter, myTime, myIter, myThid )
+      ELSE
+       CALL SEAICE_CALC_STRAINRATES(
+     I      uIceLoc, vIceLoc,
+     O      e11, e22, e12,
+     I      krylovIter, myTime, myIter, myThid )
+      ENDIF
+      print *, 'ml-de0', e11p(i,j,1,1), e22p(i,j,1,1)
       CALL SEAICE_CALC_VISCOSITIES(
      I     e11, e22, e12, zMin, zMax, HEFFM, press0, tensileStrFac,
      O     eta, etaZ, zeta, zetaZ, press, deltaC,
@@ -119,10 +145,36 @@ C     + CdragBot*uIce/vIce
 C     - mass*f*vIce/+mass*f*uIce
 C     - dsigma/dx / -dsigma/dy, eta and zeta are only computed once per
 C     Newton iterate
-       CALL SEAICE_CALC_LHS(
-     I      uIceLoc, vIceLoc,
-     O      uIceLHS, vIceLHS,
-     I      newtonIter, myTime, myIter, myThid )
+      IF ( SEAICEuseVelStress .AND. krylovIter .GE. 0 ) THEN
+C     this is a hack for now to avoid passing more arguments to
+C     seaice_calc_residual, because u/vIceRes = du/vIce in this case
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+         DO J=1-Oly,sNy+Oly
+          DO I=1-Olx,sNx+Olx
+           uIceLHS(I,J,bi,bj) = uIceRes(I,J,bi,bj)
+           vIceLHS(I,J,bi,bj) = vIceRes(I,J,bi,bj)
+          ENDDO
+         ENDDO
+        ENDDO
+       ENDDO
+CML      ELSE
+CML       DO bj=myByLo(myThid),myByHi(myThid)
+CML        DO bi=myBxLo(myThid),myBxHi(myThid)
+CML         DO J=1-Oly,sNy+Oly
+CML          DO I=1-Olx,sNx+Olx
+CML           uIceLHS(I,J,bi,bj) = 0. _d 0
+CML           vIceLHS(I,J,bi,bj) = 0. _d 0
+CML          ENDDO
+CML         ENDDO
+CML        ENDDO
+CML       ENDDO
+      ENDIF
+      CALL SEAICE_CALC_LHS(
+     I     uIceLoc, vIceLoc,
+     O     uIceLHS, vIceLHS,
+     I     newtonIter, krylovIter, myTime, myIter, myThid )
+
 
 C     Right-hand side contributions only need to be computed once per
 C     time step, therefore we will put them into a separate routine

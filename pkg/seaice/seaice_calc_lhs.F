@@ -6,7 +6,7 @@ C     !INTERFACE:
       SUBROUTINE SEAICE_CALC_LHS(
      I     uIceLoc, vIceLoc,
      O     uIceLHS, vIceLHS,
-     I     newtonIter, myTime, myIter, myThid )
+     I     newtonIter, krylovIter, myTime, myIter, myThid )
 
 C     !DESCRIPTION: \bv
 C     *==========================================================*
@@ -52,7 +52,7 @@ C     newtonIter :: current iterate of Newton iteration
       _RL     myTime
       INTEGER myIter
       INTEGER myThid
-      INTEGER newtonIter
+      INTEGER newtonIter, krylovIter
 C     u/vIceLoc :: local copies of the current ice velocity
       _RL uIceLoc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL vIceLoc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -116,10 +116,19 @@ C
 C     compute components of stress tensor from current velocity field
 C     and compute divergence of stress tensor
 C
-        CALL SEAICE_CALC_STRESSDIV(
-     I       e11, e22, e12, press, zeta, eta, etaZ,
-     O       stressDivergenceX, stressDivergenceY,
-     I       bi, bj, myTime, myIter, myThid )
+        IF ( SEAICEuseVelStress .AND. krylovIter .GE. 0 ) THEN
+C     special treatment of stress in this case
+c     u/vIceLHS = du/vIce
+         CALL SEAICE_CALC_STRESSDIV(
+     I        uIce, vIce, uIceLHS, vIceLHS, press, press0, deltaC,
+     O        stressDivergenceX, stressDivergenceY,
+     I        bi, bj, myTime, krylovIter, myThid )
+        ELSE
+         CALL SEAICE_CALC_STRESSDIV(
+     I        e11, e22, e12, press, zeta, eta, etaZ,
+     O        stressDivergenceX, stressDivergenceY,
+     I        bi, bj, myTime, krylovIter, myThid )
+        ENDIF
 C     compute lhs side of momentum equations
         IF ( SEAICEscaleSurfStress ) THEN
          DO J=1,sNy

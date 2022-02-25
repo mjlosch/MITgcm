@@ -235,6 +235,19 @@ C                the bottom of ocean surface level
      &       SWFracB
 
 #if (defined SEAICE_ALLOW_JFNK) || (defined SEAICE_ALLOW_KRYLOV)
+C     pi of velocity-stress method
+      _RL pi11(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL pi22(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL pi12(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL dpi11(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL dpi22(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL dpi12(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL e11p(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL e22p(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL e12p(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      COMMON /SEAICE_VELSTRESS_R/
+     &     pi11, pi22, pi12, dpi11, dpi22, dpi12, e11p, e22p, e12p
+C     &     pi11, pi22, pi12, e11p, e22p, e12p
 C     diagnostics for the JFNK and Krylov solver
       INTEGER totalNewtonIters
       INTEGER totalNewtonFails

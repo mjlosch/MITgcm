@@ -143,6 +143,16 @@ C     backward difference extrapolation factors
           dvIce  (I,J,bi,bj) = 0. _d 0
          ENDDO
         ENDDO
+        IF ( SEAICEuseVelStress ) THEN
+C     initialise tensort PI
+         DO J=1-OLy,sNy+OLy
+          DO I=1-OLx,sNx+OLx
+           pi11(I,J,bi,bj) = 0. _d 0
+           pi22(I,J,bi,bj) = 0. _d 0
+           pi12(I,J,bi,bj) = 0. _d 0
+          ENDDO
+         ENDDO
+        ENDIF
 C     cycle ice velocities
         DO J=1-OLy,sNy+OLy
          DO I=1-OLx,sNx+OLx
@@ -465,7 +475,7 @@ C     !INTERFACE:
 
       SUBROUTINE SEAICE_JFNK_UPDATE(
      I     duIce, dvIce,
-     U     uIce, vIce, JFNKresidual,
+     U     uIceLoc, vIceLoc, JFNKresidual,
      O     uIceRes, vIceRes,
      I     newtonIter, myTime, myIter, myThid )
 
@@ -491,6 +501,7 @@ C     === Global variables ===
 #include "PARAMS.h"
 #include "SEAICE_SIZE.h"
 #include "SEAICE_PARAMS.h"
+#include "SEAICE.h"
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     === Routine arguments ===
@@ -505,12 +516,12 @@ C     newtonIter :: current iterate of Newton iteration
 C     JFNKresidual :: Residual at the beginning of the FGMRES iteration,
 C                     changes with newtonIter (updated)
       _RL     JFNKresidual
-C     du/vIce   :: ice velocity increment to be added to u/vIce (input)
+C     du/vIce   :: ice velocity increment to be added to u/vIceLoc (input)
       _RL duIce  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL dvIce  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-C     u/vIce    :: ice velocity increment to be added to u/vIce (updated)
-      _RL uIce   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL vIce   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+C     u/vIceLoc :: ice velocity increment to be added to u/vIce (updated)
+      _RL uIceLoc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL vIceLoc(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C     u/vIceRes :: residual of sea-ice momentum equations (output)
       _RL uIceRes(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL vIceRes(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -524,8 +535,8 @@ C     i,j,bi,bj :: loop indices
       LOGICAL doLineSearch
 C     nVec    :: size of the input vector(s)
 C     resTmp  :: vector version of the residuals
-      INTEGER nVec
-      PARAMETER ( nVec  = 2*sNx*sNy )
+CML      INTEGER nVec
+CML      PARAMETER ( nVec  = 2*sNx*sNy )
       _RL resTmp (nVec,1,nSx,nSy)
 
       CHARACTER*(MAX_LEN_MBUF) msgBuf
@@ -541,7 +552,7 @@ C     The computation of the line search factor is complicated because
 C     we overwrite the solution, so that we have to reconstruct what
 C     should be just u_l = u_0 + (1-gamma)**l *du. Instead, after adding
 C     du/vIce in the first iteration (l=0), we substract a decreasing
-C     part of du/vIce from u/vIce in the next iterations until the
+C     part of du/vIce from u/vIceLoc in the next iterations until the
 C     residual is smaller than the initial residual.
        IF ( l .GT. 0 ) facLS = - SEAICE_JFNK_lsGamma
      &       *(1. _d 0 - SEAICE_JFNK_lsGamma)**(l-1)
@@ -550,8 +561,11 @@ C     Create update
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO J=1-OLy,sNy+OLy
           DO I=1-OLx,sNx+OLx
-           uIce(I,J,bi,bj) = uIce(I,J,bi,bj)+facLS*duIce(I,J,bi,bj)
-           vIce(I,J,bi,bj) = vIce(I,J,bi,bj)+facLS*dvIce(I,J,bi,bj)
+           uIceLoc(I,J,bi,bj)=uIceLoc(I,J,bi,bj)+facLS*duIce(I,J,bi,bj)
+           vIceLoc(I,J,bi,bj)=vIceLoc(I,J,bi,bj)+facLS*dvIce(I,J,bi,bj)
+C     for the velocity-stress method pass du/vIce to calc_residual
+           uIceRes(I,J,bi,bj)=0. !*duIce(I,J,bi,bj)
+           vIceRes(I,J,bi,bj)=0. !*dvIce(I,J,bi,bj)
           ENDDO
          ENDDO
         ENDDO
@@ -559,9 +573,9 @@ C     Create update
 C     Compute current residual F(u), (includes re-computation of global
 C     variables DWATN, zeta, and eta, i.e. they are different after this)
        CALL SEAICE_CALC_RESIDUAL(
-     I      uIce, vIce,
+     I      uIceLoc, vIceLoc,
      O      uIceRes, vIceRes,
-     I      newtonIter, 0, myTime, myIter, myThid )
+     I      newtonIter, -1, myTime, myIter, myThid )
 C     Important: Compute the norm of the residual using the same scalar
 C     product that SEAICE_FGMRES does
        CALL SEAICE_MAP2VEC(nVec,uIceRes,vIceRes,resTmp,.TRUE.,myThid)
@@ -592,6 +606,24 @@ C     some output diagnostics
 C     Increment counter
        l = l + 1
       ENDDO
+      IF ( SEAICEuseVelStress ) THEN
+C     update PI with the same stepsize as u/vIceLoc (l-1 because l has been
+C     incremented already.
+       facLS = (1. _d 0 - SEAICE_JFNK_lsGamma)**(l-1)
+       print *, 'ml-facLS = ', l, facLS
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+         DO J=1-OLy,sNy+OLy
+          DO I=1-OLx,sNx+OLx
+           pi11(I,J,bi,bj) = pi11(I,J,bi,bj)+facLS*dpi11(i,j,bi,bj)
+           pi22(I,J,bi,bj) = pi22(I,J,bi,bj)+facLS*dpi22(i,j,bi,bj)
+           pi12(I,J,bi,bj) = pi12(I,J,bi,bj)+facLS*dpi12(i,j,bi,bj)
+          ENDDO
+         ENDDO
+        ENDDO
+       ENDDO
+      ENDIF
+
 C     This is the new residual
       JFNKresidual = resLoc
 
