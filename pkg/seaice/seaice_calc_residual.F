@@ -100,9 +100,6 @@ C     viscosities are required
         ENDDO
        ENDDO
       ENDDO
-      i=20
-      j=20
-      print *, 'ml-du ', uIceRes(i,j,1,1), vIceRes(i,j,1,1)
       IF ( SEAICEuseVelStress .AND. krylovIter .GE. 0 ) THEN
 C     compute strain rates for unperturbed velocities
        CALL SEAICE_CALC_STRAINRATES(
@@ -120,7 +117,6 @@ C     and for the perturbations velocities (stored in u/vIceRes)
      O      e11, e22, e12,
      I      krylovIter, myTime, myIter, myThid )
       ENDIF
-      print *, 'ml-de0', e11p(i,j,1,1), e22p(i,j,1,1)
       CALL SEAICE_CALC_VISCOSITIES(
      I     e11, e22, e12, zMin, zMax, HEFFM, press0, tensileStrFac,
      O     eta, etaZ, zeta, zetaZ, press, deltaC,
@@ -147,7 +143,7 @@ C     - dsigma/dx / -dsigma/dy, eta and zeta are only computed once per
 C     Newton iterate
       IF ( SEAICEuseVelStress .AND. krylovIter .GE. 0 ) THEN
 C     this is a hack for now to avoid passing more arguments to
-C     seaice_calc_residual, because u/vIceRes = du/vIce in this case
+C     seaice_calc_residual, because in this case u/vIceRes = du/vIce
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO J=1-Oly,sNy+Oly
@@ -175,10 +171,6 @@ CML       ENDDO
      O     uIceLHS, vIceLHS,
      I     newtonIter, krylovIter, myTime, myIter, myThid )
 
-
-C     Right-hand side contributions only need to be computed once per
-C     time step, therefore we will put them into a separate routine
-C     and call them elsewhere to save floating point operations
 
 C     Calculate the residual
        DO bj=myByLo(myThid),myByHi(myThid)
