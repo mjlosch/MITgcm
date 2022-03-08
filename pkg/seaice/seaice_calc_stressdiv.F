@@ -249,11 +249,11 @@ C     === Local variables ===
 C     i,j           :: inner loop counters
 C     eplus, eminus :: convenient abbreviations for e11+e22, e11-e22
       INTEGER i, j
-      _RL recip_ecc
+      _RL recip_e
       _RL pp, pm, dpp, dpm
       _RL pressZ, sumNorm
 
-      recip_ecc = 1./SEAICE_eccen
+      recip_e = 1./SEAICE_eccen
 
       DO j=1-OLy,sNy+OLy
        DO i=1-OLx,sNx+OLx
@@ -277,11 +277,11 @@ C
         pm  = ( pi11(i,j,bi,bj)- pi22(i,j,bi,bj))
         dpp = (dpi11(i,j,bi,bj)+dpi22(i,j,bi,bj))
         dpm = (dpi11(i,j,bi,bj)-dpi22(i,j,bi,bj))
-        sig11(i,j) = (              0.5 _d 0 *(  pp + recip_ecc * pm )
-     &       + SEAICE_JFNKepsilon * 0.5 _d 0 *( dpp + recip_ecc *dpm )
+        sig11(i,j) = (              0.5 _d 0 *(  pp + recip_e * pm )
+     &       + SEAICE_JFNKepsilon * 0.5 _d 0 *( dpp + recip_e *dpm )
      &       ) * pr0(i,j,bi,bj)*(ONE+tensileStrFac(i,j,bi,bj))
-        sig22(i,j) = (              0.5 _d 0 *(  pp - recip_ecc * pm )
-     &       + SEAICE_JFNKepsilon * 0.5 _d 0 *( dpp - recip_ecc *dpm )
+        sig22(i,j) = (              0.5 _d 0 *(  pp - recip_e * pm )
+     &       + SEAICE_JFNKepsilon * 0.5 _d 0 *( dpp - recip_e *dpm )
      &       ) * pr0(i,j,bi,bj)*(ONE+tensileStrFac(i,j,bi,bj))
         sig11(i,j) = sig11(i,j) - 0.5 _d 0 * pr(i,j,bi,bj)
         sig22(i,j) = sig22(i,j) - 0.5 _d 0 * pr(i,j,bi,bj)
@@ -298,7 +298,7 @@ C
      &       + pr0(i-1,j,  bi,bj)*(ONE+tensileStrFac(i-1,j,  bi,bj))
      &       + pr0(i,  j-1,bi,bj)*(ONE+tensileStrFac(i,  j-1,bi,bj))
      &       )
-        sig12(i,j) = recip_ecc * ( pi12(i,j,bi,bj)
+        sig12(i,j) = recip_e * ( pi12(i,j,bi,bj)
      &       + SEAICE_JFNKepsilon * dpi12(i,j,bi,bj)
      &       ) * pressZ
        ENDDO
@@ -358,7 +358,7 @@ C     === Local variables ===
 C     i,j           :: inner loop counters
 C     eplus, eminus :: convenient abbreviations for e11+e22, e11-e22
       INTEGER i, j
-      _RL recip_ecc, recip_esq, deltaReg, deltaRegSq, dsq
+      _RL recip_e, recip_esq, deltaReg, deltaRegSq, dsq
       _RL recip_delta, denom
       _RL ep, em, epp, emp
       _RL tau11, tau22, tau12
@@ -367,7 +367,7 @@ C     eplus, eminus :: convenient abbreviations for e11+e22, e11-e22
       _RL c1(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL c2(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 
-      recip_ecc = 1./SEAICE_eccen
+      recip_e   = 1./SEAICE_eccen
       recip_esq = 1./SEAICE_eccen**2
       dsq = SEAICE_deltaMin**2
 
@@ -396,21 +396,21 @@ C        deltaRegSq = deltaReg**2
         em     = e11 (i,j,bi,bj) - e22 (i,j,bi,bj)
         epp    = e11p(i,j,bi,bj) + e22p(i,j,bi,bj)
         emp    = e11p(i,j,bi,bj) - e22p(i,j,bi,bj)
-        tau11  = 0.5*(ep  + recip_ecc*em)
-        tau22  = 0.5*(ep  - recip_ecc*em)
-        dtau11 = 0.5*(epp + recip_ecc*emp)
-        dtau22 = 0.5*(epp - recip_ecc*emp)
+        tau11  = 0.5*(ep  + recip_e*em)
+        tau22  = 0.5*(ep  - recip_e*em)
+        dtau11 = 0.5*(epp + recip_e*emp)
+        dtau22 = 0.5*(epp - recip_e*emp)
         pi12C = SQRT( 0.25 _d 0 * recip_rA(i,j,bi,bj) *
      &       ( rAz(i  ,j  ,bi,bj)*pi12(i  ,j  ,bi,bj)**2
      &       + rAz(i+1,j  ,bi,bj)*pi12(i+1,j  ,bi,bj)**2
      &       + rAz(i  ,j+1,bi,bj)*pi12(i  ,j+1,bi,bj)**2
      &       + rAz(i+1,j+1,bi,bj)*pi12(i+1,j+1,bi,bj)**2 ) )
-        tau12C = recip_ecc * SQRT( 0.25 _d 0 * recip_rA(i,j,bi,bj) *
+        tau12C = recip_e   * SQRT( 0.25 _d 0 * recip_rA(i,j,bi,bj) *
      &       ( rAz(i  ,j  ,bi,bj)*e12(i  ,j  ,bi,bj)**2
      &       + rAz(i+1,j  ,bi,bj)*e12(i+1,j  ,bi,bj)**2
      &       + rAz(i  ,j+1,bi,bj)*e12(i  ,j+1,bi,bj)**2
      &       + rAz(i+1,j+1,bi,bj)*e12(i+1,j+1,bi,bj)**2 ) )
-        dtau12C = recip_ecc * SQRT( 0.25 _d 0 * recip_rA(i,j,bi,bj) *
+        dtau12C = recip_e  * SQRT( 0.25 _d 0 * recip_rA(i,j,bi,bj) *
      &       ( rAz(i  ,j  ,bi,bj)*e12p(i  ,j  ,bi,bj)**2
      &       + rAz(i+1,j  ,bi,bj)*e12p(i+1,j  ,bi,bj)**2
      &       + rAz(i  ,j+1,bi,bj)*e12p(i  ,j+1,bi,bj)**2
@@ -420,7 +420,7 @@ C        deltaRegSq = deltaReg**2
      &   + rAz(i+1,j  ,bi,bj)*e12p(i+1,j  ,bi,bj)*e12(i+1,j  ,bi,bj)
      &   + rAz(i  ,j+1,bi,bj)*e12p(i  ,j+1,bi,bj)*e12(i  ,j+1,bi,bj)
      &   + rAz(i+1,j+1,bi,bj)*e12p(i+1,j+1,bi,bj)*e12(i+1,j+1,bi,bj) )
-        dtp12C = recip_ecc * 0.25 _d 0 * recip_rA(i,j,bi,bj) *
+        dtp12C = recip_e   * 0.25 _d 0 * recip_rA(i,j,bi,bj) *
      &   ( rAz(i  ,j  ,bi,bj)*e12p(i  ,j  ,bi,bj)*pi12(i  ,j  ,bi,bj)
      &   + rAz(i+1,j  ,bi,bj)*e12p(i+1,j  ,bi,bj)*pi12(i+1,j  ,bi,bj)
      &   + rAz(i  ,j+1,bi,bj)*e12p(i  ,j+1,bi,bj)*pi12(i  ,j+1,bi,bj)
@@ -449,7 +449,7 @@ CML     &        , c1(i,j)*pi11(i,j,bi,bj), c2(i,j)*tau11
          print *, 'ml-pi ', pi11(i,j,bi,bj), pi22(i,j,bi,bj), pi12C
      &        , pi12(i,j,bi,bj)
          print *, 'ml-tau', tau11*recip_delta, tau22*recip_delta,
-     &        tau12C*recip_delta, recip_ecc*e12(i,j,bi,bj)*recip_delta
+     &        tau12C*recip_delta, recip_e*e12(i,j,bi,bj)*recip_delta
          print *, 'ml-ttt', c1(i,j)*pi11(i,j,bi,bj), c2(i,j)*tau11,
      &        dtau11*recip_delta
          print *, 'ml-tt2', dtau11, dtau22, dtau12C, recip_delta
@@ -484,8 +484,8 @@ C        deltaRegSq = deltaReg**2
         recip_delta = 1./deltaReg
         c1Z = sumNorm * (c1(i,j) + c1(i-1,j) + c1(i,j-1) + c1(i-1,j-1))
         c2Z = sumNorm * (c2(i,j) + c2(i-1,j) + c2(i,j-1) + c2(i-1,j-1))
-        tau12  = recip_ecc*e12(i,j,bi,bj)
-        dtau12 = recip_ecc*e12p(i,j,bi,bj)
+        tau12  = recip_e*e12(i,j,bi,bj)
+        dtau12 = recip_e*e12p(i,j,bi,bj)
         dpi12(i,j,bi,bj)= -pi12(i,j,bi,bj) + (tau12+dtau12)*recip_delta
      &       - ( c1Z * pi12(i,j,bi,bj) + c2Z * tau12 )
         IF ( i.eq.20.and.j.eq.20 .and. myIter .le. 0) THEN
