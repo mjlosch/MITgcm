@@ -220,23 +220,20 @@ C     or above sigmaC+q*sig2
           damageCrit = MC_FAILURE(sig2,sig1,q,sigmaC(I,J),damageCrit)
 C     critical damage cannot be below zero (eq 39 in mebdoc.tex)
           damageCrit = MAX(damageCrit, 0. _d 0)
-CML          dCrit(I,J,bi,bj) = damageCrit*maskInC(I,J,bi,bj)
+          dCrit(I,J,bi,bj) = damageCrit*maskInC(I,J,bi,bj)
 C     when damageTime == deltaTloc, this is the same:
-          dCrit(I,J,bi,bj) = (deltaTloc*recip_damageTime*(damageCrit-1.)
-     &         + 1.) * maskInC(I,J,bi,bj)
+CMB   but it is not!!!
+CMB          dCrit(I,J,bi,bj) = (deltaTloc*recip_damageTime*(damageCrit-1.)
+CMB     &         + 1.) * maskInC(I,J,bi,bj)    
 C     dCrit is \Psi in eq 58 in mebdoc.tex
-CMLC     implicit
-CML          damage(I,J,bi,bj) =
-CML     &         ( damageNm1(I,J,bi,bj) + deltaTloc*recip_healingTime )
-CML     &         /( 1. _d 0
-CML     &         - deltaTloc*recip_damageTime*(damageCrit - 1. _d 0) )
-C     Alternatively one can use dCrit=\Psi directly
-CMB          damage(I,J,bi,bj) =
-CMB     &         ( damageNm1(I,J,bi,bj) + deltaTloc*recip_healingTime )
-CMB     &         /( 2. _d 0 - dCrit(i,j,bi,bj) )
-C     exlicit (equation 58 in mebdoc.tex)
-          damage(I,J,bi,bj) = deltaTloc*recip_healingTime
-     &         + damageNm1(I,J,bi,bj) * dCrit(I,J,bi,bj)
+CMB   only if dt=t_d, but Plante says dt> t_d!!!
+C     explicit (equation 58 in mebdoc.tex)
+CMB          damage(I,J,bi,bj) = deltaTloc*recip_healingTime
+CMB     &         + damageNm1(I,J,bi,bj) * dCrit(I,J,bi,bj)
+C     explicit and for dt< damagetime:
+          damage(I,J,bi,bj) = damageNm1(I,J,bi,bj) *
+     &         (deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
+     &          + deltaTloc*recip_healingTime * maskInC(I,J,bi,bj)
 C     make sure that 0 < damage <=1
           damage(I,J,bi,bj) = MIN(1. _d 0, damage(I,J,bi,bj))
           damage(I,J,bi,bj) = MAX(0. _d 0, damage(I,J,bi,bj))
