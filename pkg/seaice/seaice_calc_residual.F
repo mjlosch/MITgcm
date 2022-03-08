@@ -89,24 +89,26 @@ C     viscosities are required
      O     CbotC,
      I     krylovIter, myTime, myIter, myThid )
 #endif /* SEAICE_ALLOW_BOTTOMDRAG */
-      DO bj=myByLo(myThid),myByHi(myThid)
-       DO bi=myBxLo(myThid),myBxHi(myThid)
-        DO J=1-Oly,sNy+Oly
-         DO I=1-Olx,sNx+Olx
-          e11p(I,J,bi,bj) = 0. _d 0
-          e22p(I,J,bi,bj) = 0. _d 0
-          e12p(I,J,bi,bj) = 0. _d 0
-         ENDDO
-        ENDDO
-       ENDDO
-      ENDDO
       IF ( SEAICEuseVelStress .AND. krylovIter .GE. 0 ) THEN
-C     compute strain rates for unperturbed velocities
-       CALL SEAICE_CALC_STRAINRATES(
-     I      uIce, vIce,
-     O      e11, e22, e12,
-     I      krylovIter, myTime, myIter, myThid )
-C     and for the perturbations velocities (stored in u/vIceRes)
+CML       DO bj=myByLo(myThid),myByHi(myThid)
+CML        DO bi=myBxLo(myThid),myBxHi(myThid)
+CML         DO J=1-Oly,sNy+Oly
+CML          DO I=1-Olx,sNx+Olx
+CML           e11p(I,J,bi,bj) = 0. _d 0
+CML           e22p(I,J,bi,bj) = 0. _d 0
+CML           e12p(I,J,bi,bj) = 0. _d 0
+CML          ENDDO
+CML         ENDDO
+CML        ENDDO
+CML       ENDDO
+C     Computing strain rates for unperturbed velocities is not
+C     necessary, neither recomputing the deltaC etc, because they remain
+C     unchanged during the Krylov iteration.
+CML       CALL SEAICE_CALC_STRAINRATES(
+CML     I      uIce, vIce,
+CML     O      e11, e22, e12,
+CML     I      krylovIter, myTime, myIter, myThid )
+C     compute strain rates for the perturbations velocities (stored in u/vIceRes)
        CALL SEAICE_CALC_STRAINRATES(
      I      uIceRes, vIceRes,
      O      e11p, e22p, e12p,
@@ -116,11 +118,11 @@ C     and for the perturbations velocities (stored in u/vIceRes)
      I      uIceLoc, vIceLoc,
      O      e11, e22, e12,
      I      krylovIter, myTime, myIter, myThid )
+       CALL SEAICE_CALC_VISCOSITIES(
+     I      e11, e22, e12, zMin, zMax, HEFFM, press0, tensileStrFac,
+     O      eta, etaZ, zeta, zetaZ, press, deltaC,
+     I      krylovIter, myTime, myIter, myThid )
       ENDIF
-      CALL SEAICE_CALC_VISCOSITIES(
-     I     e11, e22, e12, zMin, zMax, HEFFM, press0, tensileStrFac,
-     O     eta, etaZ, zeta, zetaZ, press, deltaC,
-     I     krylovIter, myTime, myIter, myThid )
 
 C     The scheme is backward Euler in time, i.e. the rhs-vector contains
 C     only terms that are independent of u/vIce, except for the time

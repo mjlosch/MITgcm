@@ -99,6 +99,7 @@ C     zeta, eta, and DWATN, press
       _RL etaPre  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL etaZPre (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL dwatPre (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL deltaPre(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C     work arrays
       _RL rhs(nVec,nSx,nSy), sol(nVec,nSx,nSy)
       _RL vv(nVec,im+1,nSx,nSy), w(nVec,im,nSx,nSy)
@@ -144,12 +145,15 @@ C     backward difference extrapolation factors
          ENDDO
         ENDDO
         IF ( SEAICEuseVelStress ) THEN
-C     initialise tensort PI
+C     initialise tensor pi and dpi
          DO J=1-OLy,sNy+OLy
           DO I=1-OLx,sNx+OLx
-           pi11(I,J,bi,bj) = 0. _d 0
-           pi22(I,J,bi,bj) = 0. _d 0
-           pi12(I,J,bi,bj) = 0. _d 0
+           pi11 (I,J,bi,bj) = 0. _d 0
+           pi22 (I,J,bi,bj) = 0. _d 0
+           pi12 (I,J,bi,bj) = 0. _d 0
+           dpi11(I,J,bi,bj) = 0. _d 0
+           dpi22(I,J,bi,bj) = 0. _d 0
+           dpi12(I,J,bi,bj) = 0. _d 0
           ENDDO
          ENDDO
         ENDIF
@@ -183,6 +187,7 @@ CML        ENDIF
 C     Start nonlinear Newton iteration: outer loop iteration
       DO WHILE ( newtonIter.LT.SEAICEnonLinIterMax .AND.
      &     .NOT.JFNKconverged )
+C     increment counter
        newtonIter = newtonIter + 1
 C     Compute initial residual F(u), (includes computation of global
 C     variables DWATN, zeta, and eta)
@@ -197,11 +202,12 @@ C     constant for the preconditioner
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO j=1-OLy,sNy+OLy
           DO i=1-OLx,sNx+OLx
-           zetaPre(I,J,bi,bj) =  zeta(I,J,bi,bj)
-           zetaZPre(I,J,bi,bj)= zetaZ(I,J,bi,bj)
-            etaPre(I,J,bi,bj) =   eta(I,J,bi,bj)
-           etaZPre(I,J,bi,bj) =  etaZ(I,J,bi,bj)
-           dwatPre(I,J,bi,bj) = DWATN(I,J,bi,bj)
+           zetaPre(I,J,bi,bj)  =  zeta(I,J,bi,bj)
+           zetaZPre(I,J,bi,bj) = zetaZ(I,J,bi,bj)
+            etaPre(I,J,bi,bj)  =   eta(I,J,bi,bj)
+           etaZPre(I,J,bi,bj)  =  etaZ(I,J,bi,bj)
+           dwatPre(I,J,bi,bj)  = DWATN(I,J,bi,bj)
+           deltaPre(I,J,bi,bj) = deltaC(I,J,bi,bj)
           ENDDO
          ENDDO
         ENDDO
@@ -240,7 +246,7 @@ C     start Krylov iteration (FGMRES)
         FGMRESeps = JFNKgamma_lin * JFNKresidual
 C     map first guess sol; it is zero because the solution is a correction
        CALL SEAICE_MAP2VEC(nVec,duIce,dvIce,sol,.TRUE.,myThid)
-C     map rhs and change its sign because we are solving J*u = -F
+C     map rhs and change its sign because we are solving J*du = -F
         CALL SEAICE_MAP2VEC(nVec,uIceRes,vIceRes,rhs,.TRUE.,myThid)
         DO bj=myByLo(myThid),myByHi(myThid)
          DO bi=myBxLo(myThid),myBxHi(myThid)
@@ -326,8 +332,41 @@ C     criterion for the transition from accurate to approximate FGMRES
          IF ( JFNKres_tFac .NE. UNSET_RL )
      &        JFNKres_t = JFNKresidual * JFNKres_tFac
         ENDIF
+        IF ( SEAICEuseVelStress ) THEN !.AND. newtonIter .GT. 1 ) THEN
+C     After the linear iteration, use the new du/vIce to compute dpi
+C     tensor (function of pi-tensor, u/vIce, du/vIce)
+
+CMLC     compute strain rates for unperturbed velocities (again)
+CML         CALL SEAICE_CALC_STRAINRATES(
+CML     I        uIce, vIce,
+CML     O        e11, e22, e12,
+CML     I        -1, myTime, myIter, myThid )
+C     and for the perturbation velocities
+         CALL SEAICE_CALC_STRAINRATES(
+     I        duIce, dvIce,
+     O        e11p, e22p, e12p,
+     I        -1, myTime, myIter, myThid )
+CMLC     we need this for deltaC only, what a waste
+CML       CALL SEAICE_CALC_VISCOSITIES(
+CML     I      e11, e22, e12, zMin, zMax, HEFFM, press0, tensileStrFac,
+CML     O      dummy, dummy, dummy, dummy, dummy, deltaC0,
+CML     I      -1, myTime, myIter, myThid )
+CML         i = 20
+CML         j = 20
+CML         print *, 'ml-delta: ', deltaC(i,j,1,1), deltaPre(i,j,1,1)
+CML         deltaC = deltaPre
+C     compute perturbation to pi, also held fixed for the line search
+         DO bj=myByLo(myThid),myByHi(myThid)
+          DO bi=myBxLo(myThid),myBxHi(myThid)
+           CALL SEAICE_CALC_DPI(
+CML     I          e11, e22, e12, deltaPre,
+CML     O          dpi11, dpi22, dpi12,
+     I          bi, bj, myTime, -1, myThid )
+          ENDDO
+         ENDDO
+        ENDIF
 C     Update linear solution vector and return to Newton iteration
-C     Do a linesearch if necessary, and compute a new residual.
+C     Do a line-search if necessary, and compute a new residual.
 C     Note that it should be possible to do the following operations
 C     at the beginning of the Newton iteration, thereby saving us from
 C     the extra call of seaice_jfnk_update, but unfortunately that
@@ -531,51 +570,110 @@ C     === Local variables ===
 C     i,j,bi,bj :: loop indices
       INTEGER i,j,bi,bj
       INTEGER l
-      _RL     resLoc, facLS
+      _RL     resLoc, facLS, tmp
       LOGICAL doLineSearch
 C     nVec    :: size of the input vector(s)
 C     resTmp  :: vector version of the residuals
 CML      INTEGER nVec
 CML      PARAMETER ( nVec  = 2*sNx*sNy )
       _RL resTmp (nVec,1,nSx,nSy)
+C     local copies of unperturbed fields
+      _RL uIce0  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL vIce0  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 
       CHARACTER*(MAX_LEN_MBUF) msgBuf
 CEOP
 
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+         DO J=1-OLy,sNy+OLy
+          DO I=1-OLx,sNx+OLx
+           uIce0(I,J,bi,bj)=uIceLoc(I,J,bi,bj)
+           vIce0(I,J,bi,bj)=vIceLoc(I,J,bi,bj)
+          ENDDO
+         ENDDO
+        ENDDO
+       ENDDO
+CML      IF ( SEAICEuseVelStress .AND. newtonIter .GT. 1 ) THEN
+CMLC     compute strain rates for unperturbed velocities
+CML       CALL SEAICE_CALC_STRAINRATES(
+CML     I      uIce0, vIce0,
+CML     O      e110, e220, e120,
+CML     I      -1, myTime, myIter, myThid )
+CMLC     and for the perturbations velocities
+CML       CALL SEAICE_CALC_STRAINRATES(
+CML     I      duIce, dvIce,
+CML     O      e11p, e22p, e12p,
+CML     I      -1, myTime, myIter, myThid )
+CMLC     we need this for deltaC only, what a waste
+CML       CALL SEAICE_CALC_VISCOSITIES(
+CML     I      e11, e22, e12, zMin, zMax, HEFFM, press0, tensileStrFac,
+CML     O      dummy, dummy, dummy, dummy, dummy, deltaC0,
+CML     I      -1, myTime, myIter, myThid )
+CMLC     compute perturbation to pi, also fixed for the line search
+CML       DO bj=myByLo(myThid),myByHi(myThid)
+CML        DO bi=myBxLo(myThid),myBxHi(myThid)
+CML         CALL SEAICE_CALC_DPI(
+CML     I        e110, e220, e120, deltaC0,
+CML     O        dpi11, dpi22, dpi12,
+CML     I        bi, bj, myTime, -1, myThid )
+CML        ENDDO
+CML       ENDDO
+CML      ENDIF
 C     Initialise some local variables
       l = 0
       resLoc = JFNKresidual
       facLS = 1. _d 0
       doLineSearch = .TRUE.
       DO WHILE ( doLineSearch )
-C     The computation of the line search factor is complicated because
-C     we overwrite the solution, so that we have to reconstruct what
-C     should be just u_l = u_0 + (1-gamma)**l *du. Instead, after adding
-C     du/vIce in the first iteration (l=0), we substract a decreasing
-C     part of du/vIce from u/vIceLoc in the next iterations until the
-C     residual is smaller than the initial residual.
-       IF ( l .GT. 0 ) facLS = - SEAICE_JFNK_lsGamma
-     &       *(1. _d 0 - SEAICE_JFNK_lsGamma)**(l-1)
+CMLC     The computation of the line search factor is complicated because
+CMLC     we overwrite the solution, so that we have to reconstruct what
+CMLC     should be just u_l = u_0 + (1-gamma)**l *du. Instead, after adding
+CMLC     du/vIce in the first iteration (l=0), we substract a decreasing
+CMLC     part of du/vIce from u/vIceLoc in the next iterations until the
+CMLC     residual is smaller than the initial residual.
+CML       IF ( l .GT. 0 ) facLS = - SEAICE_JFNK_lsGamma
+CML     &       *(1. _d 0 - SEAICE_JFNK_lsGamma)**(l-1)
+       facLS = (1. _d 0 - SEAICE_JFNK_lsGamma)**l
 C     Create update
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO J=1-OLy,sNy+OLy
           DO I=1-OLx,sNx+OLx
-           uIceLoc(I,J,bi,bj)=uIceLoc(I,J,bi,bj)+facLS*duIce(I,J,bi,bj)
-           vIceLoc(I,J,bi,bj)=vIceLoc(I,J,bi,bj)+facLS*dvIce(I,J,bi,bj)
-C     for the velocity-stress method pass du/vIce to calc_residual
-           uIceRes(I,J,bi,bj)=0. !*duIce(I,J,bi,bj)
-           vIceRes(I,J,bi,bj)=0. !*dvIce(I,J,bi,bj)
+           uIceLoc(I,J,bi,bj)=uIce0(I,J,bi,bj)+facLS*duIce(I,J,bi,bj)
+           vIceLoc(I,J,bi,bj)=vIce0(I,J,bi,bj)+facLS*dvIce(I,J,bi,bj)
           ENDDO
          ENDDO
         ENDDO
        ENDDO
-C     Compute current residual F(u), (includes re-computation of global
-C     variables DWATN, zeta, and eta, i.e. they are different after this)
+CML      IF ( SEAICEuseVelStress ) THEN
+CMLC     Compute current residual F(u), (includes re-computation of global
+CMLC     variables DWATN, zeta, and eta, i.e. they are different after this)
+CML       IF ( SEAICEuseVelStress ) THEN
+CMLC     for the velocity-stress method pass du/vIce to calc_residual
+CML        DO bj=myByLo(myThid),myByHi(myThid)
+CML         DO bi=myBxLo(myThid),myBxHi(myThid)
+CML          DO J=1-OLy,sNy+OLy
+CML           DO I=1-OLx,sNx+OLx
+CML            uIceRes(I,J,bi,bj)=facLS*duIce(I,J,bi,bj)
+CML            vIceRes(I,J,bi,bj)=facLS*dvIce(I,J,bi,bj)
+CML           ENDDO
+CML          ENDDO
+CML         ENDDO
+CML        ENDDO
+CML        tmp = SEAICE_JFNKepsilon
+CML        SEAICE_JFNKepsilon=1.
+CML        CALL SEAICE_CALC_RESIDUAL(
+CML     I       uIce0, vIce0,
+CML     O       uIceRes, vIceRes,
+CML     I       newtonIter, 1000, myTime, myIter, myThid )
+CML        SEAICE_JFNKepsilon = tmp
+CML      ELSE
        CALL SEAICE_CALC_RESIDUAL(
-     I      uIceLoc, vIceLoc,
-     O      uIceRes, vIceRes,
-     I      newtonIter, -1, myTime, myIter, myThid )
+     I       uIceLoc, vIceLoc,
+     O       uIceRes, vIceRes,
+     I       newtonIter, -1, myTime, myIter, myThid )
+CML      ENDIF
 C     Important: Compute the norm of the residual using the same scalar
 C     product that SEAICE_FGMRES does
        CALL SEAICE_MAP2VEC(nVec,uIceRes,vIceRes,resTmp,.TRUE.,myThid)
@@ -583,6 +681,8 @@ C     product that SEAICE_FGMRES does
        resLoc = SQRT(resLoc)
 C     Determine, if we need more iterations
        doLineSearch = resLoc .GE. JFNKresidual
+CML       print *, 'ml-uloc:', myIter, newtonIter, l, uIceLoc(20,20,1,1),
+CML     &      uIce0(20,20,1,1), duIce(20,20,1,1), resLoc, JFNKresidual
 C     Limit the maximum number of iterations arbitrarily to
 C     SEAICE_JFNK_lsLmax (default is 4)
        doLineSearch = doLineSearch .AND. l .LE. SEAICE_JFNK_lsLmax
@@ -606,10 +706,10 @@ C     some output diagnostics
 C     Increment counter
        l = l + 1
       ENDDO
-      IF ( SEAICEuseVelStress ) THEN
-C     update PI with the same stepsize as u/vIceLoc (l-1 because l has been
-C     incremented already.
-       facLS = (1. _d 0 - SEAICE_JFNK_lsGamma)**(l-1)
+      IF ( SEAICEuseVelStress ) THEN !.AND. newtonIter .GT. 1 ) THEN
+CMLC     update PI with the same stepsize as u/vIceLoc (l-1 because l has been
+CMLC     incremented already).
+CML       facLS = (1. _d 0 - SEAICE_JFNK_lsGamma)**(l-1)
        print *, 'ml-facLS = ', l, facLS
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)

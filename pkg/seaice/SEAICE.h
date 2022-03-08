@@ -246,8 +246,8 @@ C     pi of velocity-stress method
       _RL e22p(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL e12p(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       COMMON /SEAICE_VELSTRESS_R/
-     &     pi11, pi22, pi12, dpi11, dpi22, dpi12, e11p, e22p, e12p
-C     &     pi11, pi22, pi12, e11p, e22p, e12p
+     &     pi11, pi22, pi12, e11p, e22p, e12p,
+     &     dpi11, dpi22, dpi12
 C     diagnostics for the JFNK and Krylov solver
       INTEGER totalNewtonIters
       INTEGER totalNewtonFails
