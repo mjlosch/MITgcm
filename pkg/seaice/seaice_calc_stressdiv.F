@@ -446,6 +446,8 @@ CML     &        , e11(i,j,bi,bj), e22(i,j,bi,bj), c1(i,j), c2(i,j)
      &        , e11p(i,j,bi,bj), e22p(i,j,bi,bj), e12p(i,j,bi,bj)
 CML     &        , denom, deltaReg
 CML     &        , c1(i,j)*pi11(i,j,bi,bj), c2(i,j)*tau11
+        ENDIF
+        IF ( i.eq.20.and.j.eq.20 .and. myIter .le. 0) THEN
          print *, 'ml-pi ', pi11(i,j,bi,bj), pi22(i,j,bi,bj), pi12C
      &        , pi12(i,j,bi,bj)
          print *, 'ml-tau', tau11*recip_delta, tau22*recip_delta,
@@ -488,6 +490,9 @@ C        deltaRegSq = deltaReg**2
         dtau12 = recip_e*e12p(i,j,bi,bj)
         dpi12(i,j,bi,bj)= -pi12(i,j,bi,bj) + (tau12+dtau12)*recip_delta
      &       - ( c1Z * pi12(i,j,bi,bj) + c2Z * tau12 )
+        IF ( i.eq.20.and.j.eq.20 ) THEN !.and. myIter .le. 0) THEN
+         print *, 'ml-dpi', dpi12(i,j,bi,bj)
+        ENDIF
         IF ( i.eq.20.and.j.eq.20 .and. myIter .le. 0) THEN
          print *, 'ml-pi ', pi12(i,j,bi,bj)
          print *, 'ml-tau', tau12*recip_delta

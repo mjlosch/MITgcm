@@ -191,6 +191,7 @@ C     increment counter
        newtonIter = newtonIter + 1
 C     Compute initial residual F(u), (includes computation of global
 C     variables DWATN, zeta, and eta)
+       print *, 'ml-newtow start', newtonIter
        IF ( newtonIter .EQ. 1 ) CALL SEAICE_JFNK_UPDATE(
      I      duIce, dvIce,
      U      uIce, vIce, JFNKresidual,
@@ -332,6 +333,7 @@ C     criterion for the transition from accurate to approximate FGMRES
          IF ( JFNKres_tFac .NE. UNSET_RL )
      &        JFNKres_t = JFNKresidual * JFNKres_tFac
         ENDIF
+        print *, 'ml-newtow end', newtonIter
         IF ( SEAICEuseVelStress ) THEN !.AND. newtonIter .GT. 1 ) THEN
 C     After the linear iteration, use the new du/vIce to compute dpi
 C     tensor (function of pi-tensor, u/vIce, du/vIce)
