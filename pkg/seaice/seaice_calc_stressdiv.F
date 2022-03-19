@@ -298,11 +298,12 @@ C
      &       + pr0(i-1,j,  bi,bj)*(ONE+tensileStrFac(i-1,j,  bi,bj))
      &       + pr0(i,  j-1,bi,bj)*(ONE+tensileStrFac(i,  j-1,bi,bj))
      &       )
-        sig12(i,j) = recip_e * ( pi12(i,j,bi,bj)
+        sig12(i,j) = recip_e * (     pi12(i,j,bi,bj)
      &       + SEAICE_JFNKepsilon * dpi12(i,j,bi,bj)
      &       ) * pressZ
        ENDDO
       ENDDO
+
       RETURN
       END
 
@@ -318,7 +319,7 @@ C     *===========================================================*
 C     | SUBROUTINE SEAICE_CALC_DPI
 C     | o compute tensor dpi
 C     |
-C     | Martin Losch, May 2017, Martin.Losch@awi.de
+C     | Martin Losch, March 2022, Martin.Losch@awi.de
 C     *===========================================================*
 C \ev
 
@@ -355,8 +356,8 @@ CEOP
 
 C !LOCAL VARIABLES: ====================================================
 C     === Local variables ===
-C     i,j           :: inner loop counters
-C     eplus, eminus :: convenient abbreviations for e11+e22, e11-e22
+C     i,j    :: inner loop counters
+C     ep, em :: convenient abbreviations for e11+e22, e11-e22
       INTEGER i, j
       _RL recip_e, recip_esq, deltaReg, deltaRegSq, dsq
       _RL recip_delta, denom
@@ -379,14 +380,14 @@ C     initialisze
         dpi12(i,j,bi,bj) = 0.
        ENDDO
       ENDDO
-C     first compute increment of tensor pi
+C     cell centers
       DO j=0,sNy+1
        DO i=0,sNx+1
 #ifdef SEAICE_DELTA_SMOOTHREG
         deltaRegSq = deltaC(i,j,bi,bj)**2 + dsq
         deltaReg   = SQRT(deltaRegSq)
-C        deltaReg = deltaC(i,j,bi,bj) + SEAICE_deltaMin
-C        deltaRegSq = deltaReg**2
+C       deltaReg   = deltaC(i,j,bi,bj) + SEAICE_deltaMin
+C       deltaRegSq = deltaReg**2
 #else
         deltaReg   = MAX(deltaC(i,j,bi,bj), SEAICE_deltaMin)
         deltaRegSq = deltaReg**2
@@ -400,7 +401,8 @@ C        deltaRegSq = deltaReg**2
         tau22  = 0.5*(ep  - recip_e*em)
         dtau11 = 0.5*(epp + recip_e*emp)
         dtau22 = 0.5*(epp - recip_e*emp)
-        pi12C = SQRT( 0.25 _d 0 * recip_rA(i,j,bi,bj) *
+C     area weighted average of squares to C-points
+        pi12C = ( 0.25 _d 0 * recip_rA(i,j,bi,bj) *
      &       ( rAz(i  ,j  ,bi,bj)*pi12(i  ,j  ,bi,bj)**2
      &       + rAz(i+1,j  ,bi,bj)*pi12(i+1,j  ,bi,bj)**2
      &       + rAz(i  ,j+1,bi,bj)*pi12(i  ,j+1,bi,bj)**2
@@ -426,7 +428,7 @@ C        deltaRegSq = deltaReg**2
      &   + rAz(i  ,j+1,bi,bj)*e12p(i  ,j+1,bi,bj)*pi12(i  ,j+1,bi,bj)
      &   + rAz(i+1,j+1,bi,bj)*e12p(i+1,j+1,bi,bj)*pi12(i+1,j+1,bi,bj) )
         denom = 1. / MAX(1.,SQRT(2.*(
-     &       pi11(i,j,bi,bj)**2 + pi22(i,j,bi,bj)**2  + 2.*pi12C**2
+     &       pi11(i,j,bi,bj)**2 + pi22(i,j,bi,bj)**2  + 2.*pi12C
      &       ))) / deltaRegSq
         c1(i,j) = ( dtau11*tau11 + dtau22*tau22
      &       + 2.*dtt12C ) * denom
@@ -435,9 +437,9 @@ CML     &       + 2.*dtau12C*tau12C ) * denom
      &       + 2.*dtp12C ) * denom
 CML     &       + 2.*dtau12C* pi12C ) * denom
         dpi11(i,j,bi,bj)= -pi11(i,j,bi,bj) + (tau11+dtau11)*recip_delta
-     &       -  ( c1(i,j) * pi11(i,j,bi,bj) + c2(i,j)*tau11 )
+     &       - ( c1(i,j) * pi11(i,j,bi,bj) + c2(i,j)*tau11 )
         dpi22(i,j,bi,bj)= -pi22(i,j,bi,bj) + (tau22+dtau22)*recip_delta
-     &       -  ( c1(i,j) * pi22(i,j,bi,bj) + c2(i,j)*tau22 )
+     &       - ( c1(i,j) * pi22(i,j,bi,bj) + c2(i,j)*tau22 )
         IF ( i.eq.20.and.j.eq.20 ) THEN !.and. myIter .le. 0) THEN
          print *, 'ml-myi', myIter
 CML         print *, 'ml-de ', e11p(i,j,bi,bj), e22p(i,j,bi,bj)
@@ -445,6 +447,11 @@ CML     &        , e11(i,j,bi,bj), e22(i,j,bi,bj), c1(i,j), c2(i,j)
          print *, 'ml-dpi', dpi11(i,j,bi,bj), dpi22(i,j,bi,bj)
      &        , e11p(i,j,bi,bj), e22p(i,j,bi,bj), e12p(i,j,bi,bj)
 CML     &        , denom, deltaReg
+CML     &        , c1(i,j)*pi11(i,j,bi,bj), c2(i,j)*tau11
+CML         print *, 'ml-tt2', dtau11, dtau22, dtau12C, recip_delta
+CML     & , dtau11*recip_delta, dtau22*recip_delta, dtau12C*recip_delta
+CML         print *, 'ml-dp0', dpi11(i,j,bi,bj), pi11(i,j,bi,bj),
+CML     &        tau11*recip_delta,dtau11*recip_delta
 CML     &        , c1(i,j)*pi11(i,j,bi,bj), c2(i,j)*tau11
         ENDIF
         IF ( i.eq.20.and.j.eq.20 .and. myIter .le. 0) THEN
@@ -454,14 +461,10 @@ CML     &        , c1(i,j)*pi11(i,j,bi,bj), c2(i,j)*tau11
      &        tau12C*recip_delta, recip_e*e12(i,j,bi,bj)*recip_delta
          print *, 'ml-ttt', c1(i,j)*pi11(i,j,bi,bj), c2(i,j)*tau11,
      &        dtau11*recip_delta
-         print *, 'ml-tt2', dtau11, dtau22, dtau12C, recip_delta
-CML     & , dtau11*recip_delta, dtau22*recip_delta, dtau12C*recip_delta
-CML         print *, 'ml-dp0', dpi11(i,j,bi,bj), pi11(i,j,bi,bj),
-CML     &        tau11*recip_delta,dtau11*recip_delta
-CML     &        , c1(i,j)*pi11(i,j,bi,bj), c2(i,j)*tau11
         ENDIF
        ENDDO
       ENDDO
+C     cell corners
       DO j=1,sNy+1
        DO i=1,sNx+1
 C     some averaging to Z-points

@@ -150,8 +150,27 @@ CML       CALL SEAICE_JACVEC_VELSTRESS(
 CML     I      uIce, vIce,
 CML     U      duIce, dvIce,
 CML     I      newtonIter, krylovIter, myTime, myIter, myThid )
-C     this is a hack for now to avoid passing more arguments to
 C     seaice_calc_residual
+       epsilon = SEAICE_JFNKepsilon
+       SEAICE_JFNKepsilon = 0. _d 0
+C     Re-compute residual F(u)
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+         DO J=1-Oly,sNy+Oly
+          DO I=1-Olx,sNx+Olx
+           uIceRes(I,J,bi,bj) = 0. _d 0
+           vIceRes(I,J,bi,bj) = 0. _d 0
+          ENDDO
+         ENDDO
+        ENDDO
+       ENDDO
+       CALL SEAICE_CALC_RESIDUAL(
+     I      uIce, vIce,
+     O      uIceRes, vIceRes,
+     I      newtonIter, krylovIter, myTime, myIter, myThid )
+       SEAICE_JFNKepsilon = epsilon
+
+C     this is a hack for now to avoid passing more arguments to
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO J=1-Oly,sNy+Oly
@@ -179,7 +198,7 @@ C     Initialise
        ENDDO
       ENDDO
 
-C     Compute new residual F(u)
+C     Compute new residual F(u + eps*du)
       CALL SEAICE_CALC_RESIDUAL(
      I     utp, vtp,
      O     uIceResP, vIceResP,

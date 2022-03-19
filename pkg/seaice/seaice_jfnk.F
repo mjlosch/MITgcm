@@ -245,8 +245,9 @@ C     start Krylov iteration (FGMRES)
 
         krylovConverged = .FALSE.
         FGMRESeps = JFNKgamma_lin * JFNKresidual
+        print *, 'ml-eps: ', FGMRESeps, JFNKresidual
 C     map first guess sol; it is zero because the solution is a correction
-       CALL SEAICE_MAP2VEC(nVec,duIce,dvIce,sol,.TRUE.,myThid)
+        CALL SEAICE_MAP2VEC(nVec,duIce,dvIce,sol,.TRUE.,myThid)
 C     map rhs and change its sign because we are solving J*du = -F
         CALL SEAICE_MAP2VEC(nVec,uIceRes,vIceRes,rhs,.TRUE.,myThid)
         DO bj=myByLo(myThid),myByHi(myThid)
@@ -333,7 +334,7 @@ C     criterion for the transition from accurate to approximate FGMRES
          IF ( JFNKres_tFac .NE. UNSET_RL )
      &        JFNKres_t = JFNKresidual * JFNKres_tFac
         ENDIF
-        print *, 'ml-newtow end', newtonIter
+        print *, 'ml-newtow end', newtonIter, JFNKresidual
         IF ( SEAICEuseVelStress ) THEN !.AND. newtonIter .GT. 1 ) THEN
 C     After the linear iteration, use the new du/vIce to compute dpi
 C     tensor (function of pi-tensor, u/vIce, du/vIce)
@@ -357,6 +358,9 @@ CML         i = 20
 CML         j = 20
 CML         print *, 'ml-delta: ', deltaC(i,j,1,1), deltaPre(i,j,1,1)
 CML         deltaC = deltaPre
+         i = 20
+         j = 20
+         print *, 'ml-dpi0: ', newtonIter,dpi11(i,j,1,1),dpi22(i,j,1,1)
 C     compute perturbation to pi, also held fixed for the line search
          DO bj=myByLo(myThid),myByHi(myThid)
           DO bi=myBxLo(myThid),myBxHi(myThid)
@@ -366,6 +370,7 @@ CML     O          dpi11, dpi22, dpi12,
      I          bi, bj, myTime, -1, myThid )
           ENDDO
          ENDDO
+         print *, 'ml-dpi1: ', newtonIter,dpi11(i,j,1,1),dpi22(i,j,1,1)
         ENDIF
 C     Update linear solution vector and return to Newton iteration
 C     Do a line-search if necessary, and compute a new residual.
@@ -622,6 +627,52 @@ CML     I        bi, bj, myTime, -1, myThid )
 CML        ENDDO
 CML       ENDDO
 CML      ENDIF
+
+       tmp = SEAICE_JFNKepsilon
+       SEAICE_JFNKepsilon=0.
+       print *, 'ml-test0'
+       CALL SEAICE_CALC_RESIDUAL(
+     I       uIce0, vIce0,
+     O       uIceRes, vIceRes,
+     I       newtonIter, -1, myTime, myIter, myThid )
+C     Important: Compute the norm of the residual using the same scalar
+C     product that SEAICE_FGMRES does
+       CALL SEAICE_MAP2VEC(nVec,uIceRes,vIceRes,resTmp,.TRUE.,myThid)
+       CALL SEAICE_SCALPROD(nVec,1,1,1,resTmp,resTmp,resLoc,myThid)
+       resLoc = SQRT(resLoc)
+       print *, 'ml-test1', resloc
+       uIceRes = 0.
+       vIceRes = 0.
+       CALL SEAICE_CALC_RESIDUAL(
+     I       uIce0, vIce0,
+     O       uIceRes, vIceRes,
+     I       newtonIter, 0, myTime, myIter, myThid )
+       CALL SEAICE_MAP2VEC(nVec,uIceRes,vIceRes,resTmp,.TRUE.,myThid)
+       CALL SEAICE_SCALPROD(nVec,1,1,1,resTmp,resTmp,resLoc,myThid)
+       resLoc = SQRT(resLoc)
+       print *, 'ml-test2', resloc
+       uIceRes = duIce
+       vIceRes = dvIce
+       CALL SEAICE_CALC_RESIDUAL(
+     I       uIce0+tmp*duIce, vIce0+tmp*duIce,
+     O       uIceRes, vIceRes,
+     I       newtonIter, -1, myTime, myIter, myThid )
+       CALL SEAICE_MAP2VEC(nVec,uIceRes,vIceRes,resTmp,.TRUE.,myThid)
+       CALL SEAICE_SCALPROD(nVec,1,1,1,resTmp,resTmp,resLoc,myThid)
+       resLoc = SQRT(resLoc)
+       print *, 'ml-test3', resloc
+       uIceRes = duIce
+       vIceRes = dvIce
+       SEAICE_JFNKepsilon=tmp
+       CALL SEAICE_CALC_RESIDUAL(
+     I       uIce0+tmp*duIce, vIce0+tmp*duIce,
+     O       uIceRes, vIceRes,
+     I       newtonIter, 0, myTime, myIter, myThid )
+       CALL SEAICE_MAP2VEC(nVec,uIceRes,vIceRes,resTmp,.TRUE.,myThid)
+       CALL SEAICE_SCALPROD(nVec,1,1,1,resTmp,resTmp,resLoc,myThid)
+       resLoc = SQRT(resLoc)
+       print *, 'ml-test4', resloc
+       SEAICE_JFNKepsilon=tmp
 C     Initialise some local variables
       l = 0
       resLoc = JFNKresidual
@@ -644,38 +695,16 @@ C     Create update
           DO I=1-OLx,sNx+OLx
            uIceLoc(I,J,bi,bj)=uIce0(I,J,bi,bj)+facLS*duIce(I,J,bi,bj)
            vIceLoc(I,J,bi,bj)=vIce0(I,J,bi,bj)+facLS*dvIce(I,J,bi,bj)
+           uIceRes(I,J,bi,bj)=0. _d 0
+           vIceRes(I,J,bi,bj)=0. _d 0
           ENDDO
          ENDDO
         ENDDO
        ENDDO
-CML      IF ( SEAICEuseVelStress ) THEN
-CMLC     Compute current residual F(u), (includes re-computation of global
-CMLC     variables DWATN, zeta, and eta, i.e. they are different after this)
-CML       IF ( SEAICEuseVelStress ) THEN
-CMLC     for the velocity-stress method pass du/vIce to calc_residual
-CML        DO bj=myByLo(myThid),myByHi(myThid)
-CML         DO bi=myBxLo(myThid),myBxHi(myThid)
-CML          DO J=1-OLy,sNy+OLy
-CML           DO I=1-OLx,sNx+OLx
-CML            uIceRes(I,J,bi,bj)=facLS*duIce(I,J,bi,bj)
-CML            vIceRes(I,J,bi,bj)=facLS*dvIce(I,J,bi,bj)
-CML           ENDDO
-CML          ENDDO
-CML         ENDDO
-CML        ENDDO
-CML        tmp = SEAICE_JFNKepsilon
-CML        SEAICE_JFNKepsilon=1.
-CML        CALL SEAICE_CALC_RESIDUAL(
-CML     I       uIce0, vIce0,
-CML     O       uIceRes, vIceRes,
-CML     I       newtonIter, 1000, myTime, myIter, myThid )
-CML        SEAICE_JFNKepsilon = tmp
-CML      ELSE
        CALL SEAICE_CALC_RESIDUAL(
      I       uIceLoc, vIceLoc,
      O       uIceRes, vIceRes,
      I       newtonIter, -1, myTime, myIter, myThid )
-CML      ENDIF
 C     Important: Compute the norm of the residual using the same scalar
 C     product that SEAICE_FGMRES does
        CALL SEAICE_MAP2VEC(nVec,uIceRes,vIceRes,resTmp,.TRUE.,myThid)
@@ -713,6 +742,7 @@ CMLC     update PI with the same stepsize as u/vIceLoc (l-1 because l has been
 CMLC     incremented already).
 CML       facLS = (1. _d 0 - SEAICE_JFNK_lsGamma)**(l-1)
        print *, 'ml-facLS = ', l, facLS
+CML       facLS = 0.
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO J=1-OLy,sNy+OLy
@@ -720,6 +750,9 @@ CML       facLS = (1. _d 0 - SEAICE_JFNK_lsGamma)**(l-1)
            pi11(I,J,bi,bj) = pi11(I,J,bi,bj)+facLS*dpi11(i,j,bi,bj)
            pi22(I,J,bi,bj) = pi22(I,J,bi,bj)+facLS*dpi22(i,j,bi,bj)
            pi12(I,J,bi,bj) = pi12(I,J,bi,bj)+facLS*dpi12(i,j,bi,bj)
+           dpi11(I,J,bi,bj) = 0. _d 0
+           dpi22(I,J,bi,bj) = 0. _d 0
+           dpi12(I,J,bi,bj) = 0. _d 0
           ENDDO
          ENDDO
         ENDDO

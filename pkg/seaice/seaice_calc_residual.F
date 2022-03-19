@@ -143,31 +143,31 @@ C     + CdragBot*uIce/vIce
 C     - mass*f*vIce/+mass*f*uIce
 C     - dsigma/dx / -dsigma/dy, eta and zeta are only computed once per
 C     Newton iterate
-      IF ( SEAICEuseVelStress .AND. krylovIter .GE. 0 ) THEN
-C     this is a hack for now to avoid passing more arguments to
-C     seaice_calc_residual, because in this case u/vIceRes = du/vIce
-       DO bj=myByLo(myThid),myByHi(myThid)
-        DO bi=myBxLo(myThid),myBxHi(myThid)
-         DO J=1-Oly,sNy+Oly
-          DO I=1-Olx,sNx+Olx
-           uIceLHS(I,J,bi,bj) = uIceRes(I,J,bi,bj)
-           vIceLHS(I,J,bi,bj) = vIceRes(I,J,bi,bj)
-          ENDDO
-         ENDDO
-        ENDDO
-       ENDDO
-CML      ELSE
+CML      IF ( SEAICEuseVelStress .AND. krylovIter .GE. 0 ) THEN
+CMLC     this is a hack for now to avoid passing more arguments to
+CMLC     seaice_calc_residual, because in this case u/vIceRes = du/vIce
 CML       DO bj=myByLo(myThid),myByHi(myThid)
 CML        DO bi=myBxLo(myThid),myBxHi(myThid)
 CML         DO J=1-Oly,sNy+Oly
 CML          DO I=1-Olx,sNx+Olx
-CML           uIceLHS(I,J,bi,bj) = 0. _d 0
-CML           vIceLHS(I,J,bi,bj) = 0. _d 0
+CML           uIceLHS(I,J,bi,bj) = uIceRes(I,J,bi,bj)
+CML           vIceLHS(I,J,bi,bj) = vIceRes(I,J,bi,bj)
 CML          ENDDO
 CML         ENDDO
 CML        ENDDO
 CML       ENDDO
-      ENDIF
+CMLCML      ELSE
+CMLCML       DO bj=myByLo(myThid),myByHi(myThid)
+CMLCML        DO bi=myBxLo(myThid),myBxHi(myThid)
+CMLCML         DO J=1-Oly,sNy+Oly
+CMLCML          DO I=1-Olx,sNx+Olx
+CMLCML           uIceLHS(I,J,bi,bj) = 0. _d 0
+CMLCML           vIceLHS(I,J,bi,bj) = 0. _d 0
+CMLCML          ENDDO
+CMLCML         ENDDO
+CMLCML        ENDDO
+CMLCML       ENDDO
+CML      ENDIF
       CALL SEAICE_CALC_LHS(
      I     uIceLoc, vIceLoc,
      O     uIceLHS, vIceLHS,
