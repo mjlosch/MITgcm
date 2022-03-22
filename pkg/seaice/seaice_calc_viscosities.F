@@ -2,6 +2,9 @@
 #ifdef ALLOW_AUTODIFF
 # include "AUTODIFF_OPTIONS.h"
 #endif
+C #ifdef SEAICE_ALLOW_MEB
+C # include "seaice_update_damage.F"
+C #endif
 
 CBOP
 CStartOfInterface
@@ -96,6 +99,8 @@ C     em            - e11-e22 (abbreviation)
       _RL SEAICEmebMu
       _RL poissonFac, denom, mu
       _RL recip_rlx(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL fldAtZ
+      EXTERNAL fldAtZ
 #endif /* SEAICE_ALLOW_MEB */
 CEOP
 
@@ -509,6 +514,17 @@ C     compute eta at Z-points by simple averaging
      &         + zeta(i,j-1,bi,bj)  + zeta(i-1,j-1,bi,bj) )
          ENDDO
         ENDDO
+C     To control averaging process for MEB
+#ifdef SEAICE_ALLOW_MEB
+        IF ( SEAICEuseMEB ) THEN
+         DO j=1-OLy+1,sNy+OLy-1
+          DO i=1-OLx+1,sNx+OLx-1
+           etaZ (i,j,bi,bj) = fldAtZ(etaZ,i,j,bi,bj)
+           zetaZ(i,j,bi,bj) = fldAtZ(zetaZ,i,j,bi,bj)
+          ENDDO
+         ENDDO
+        ENDIF
+#endif /* SEAICE_ALLOW_MEB */
 C     free-slip means no lateral stress, which is best achieved by masking
 C     eta on vorticity(=Z)-points; from now on we only need to worry
 C     about the no-slip boundary conditions
