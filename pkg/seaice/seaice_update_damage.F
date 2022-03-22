@@ -241,11 +241,11 @@ C     make sure that 0 < damage <=1
      &         damage(I,J,bi,bj) = 0. _d 0
           IF ( updateSigma ) THEN
 C     compute updated/reduced stress that lies on or within yield curve
-CMB          sig12C(I,J,bi,bj)  = sig12C(I,J,bi,bj) * dCrit(I,J,bi,bj)
+          sig12C(I,J,bi,bj)  = sig12C(I,J,bi,bj) * dCrit(I,J,bi,bj)
           seaice_sigma1(I,J,bi,bj) = sigp        * dCrit(I,J,bi,bj)
           seaice_sigma2(I,J,bi,bj) = sigm        * dCrit(I,J,bi,bj)
 CMB Plante(2020)
-          seaice_sigma12C(I,J,bi,bj)=sig12C(I,J,bi,bj)*dCrit(I,J,bi,bj)
+          seaice_sigma12C(I,J,bi,bj)=sig12C(I,J,bi,bj)
           ENDIF
 C     just diagnostics
 C     hack to save principle stress before updating sigma
@@ -340,17 +340,17 @@ C
      &     +     maskInC(I,J-1,bi,bj)+maskInC(I-1,J-1,bi,bj)
       IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
 CMB  simple mean
-      fldAtZ = sumNorm *
-     &     ( fldIn(I,  J  )*maskInC(I,  J,  bi,bj)
-     &     + fldIn(I-1,J  )*maskInC(I-1,J,  bi,bj)
-     &     + fldIn(I,  J-1)*maskInC(I  ,J-1,bi,bj)
-     &     + fldIn(I-1,J-1)*maskInC(I-1,J-1,bi,bj) )
+CMB      fldAtZ = sumNorm *
+CMB     &     ( fldIn(I,  J  )*maskInC(I,  J,  bi,bj)
+CMB     &     + fldIn(I-1,J  )*maskInC(I-1,J,  bi,bj)
+CMB     &     + fldIn(I,  J-1)*maskInC(I  ,J-1,bi,bj)
+CMB     &     + fldIn(I-1,J-1)*maskInC(I-1,J-1,bi,bj) )
 CMB  quadratic mean
-CMB      fldAtZ = SQRT (sumNorm *
-CMB     &     ( (fldIn(I,  J  )*maskInC(I,  J,  bi,bj))**2
-CMB     &     + (fldIn(I-1,J  )*maskInC(I-1,J,  bi,bj))**2
-CMB     &     + (fldIn(I,  J-1)*maskInC(I  ,J-1,bi,bj))**2
-CMB     &     + (fldIn(I-1,J-1)*maskInC(I-1,J-1,bi,bj))**2 ))
+      fldAtZ = SQRT (sumNorm *
+     &     ( (fldIn(I,  J  )*maskInC(I,  J,  bi,bj))**2
+     &     + (fldIn(I-1,J  )*maskInC(I-1,J,  bi,bj))**2
+     &     + (fldIn(I,  J-1)*maskInC(I  ,J-1,bi,bj))**2
+     &     + (fldIn(I-1,J-1)*maskInC(I-1,J-1,bi,bj))**2 ))
 C
       RETURN
       END
@@ -529,13 +529,7 @@ C     (1 + dt*Elasiticy/viscosity)
       ENDDO
       DO J=1,sNy+1
        DO I=1,sNx+1
-C     average to Z-points
-CML        sumNorm  = maskInC(I,J,  bi,bj)+maskInC(I-1,J,  bi,bj)
-CML     &       +     maskInC(I,J-1,bi,bj)+maskInC(I-1,J-1,bi,bj)
-CML        IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
-CML        denom = 1. _d 0/(1. _d 0+deltaTloc*sumNorm *
-CML     &       ( recip_rlx(I,J  ) + recip_rlx(I-1,J  )
-CML     &       + recip_rlx(I,J-1) + recip_rlx(I-1,J-1) ) )
+C     averaging to Z-points
         denom = 1. _d 0/(1. _d 0+deltaTloc)*fldAtZ(recip_rlx,i,j,bi,bj)
 C     sigma12 in Z-points
         sig12(I,J) = sigma12(I,J,bi,bj) * denom
@@ -758,7 +752,7 @@ CML       DO I=1,sNx
 CMB   averaging
         rhs12 = 2.*etaLoc*fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
 CMB   Plante (2020)
-      sig12C(I,J,bi,bj) = denom*(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
+        sig12C(I,J,bi,bj) = denom*(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
 CMB averaging
 CMB        sig12C(I,J,bi,bj) = denom * ( deltaTLoc*rhs12 +
 CMB     &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
