@@ -836,8 +836,8 @@ C     !LOCAL VARIABLES:
 C     === Local variables ===
 C     i,j :: loop indices
       INTEGER I,J
-      _RL fldAtZ
-      EXTERNAL fldAtZ
+      _RL fldAtZ, fldAtC
+      EXTERNAL fldAtZ, fldAtC
 CEOP
        DO J=0,sNy
         DO I=0,sNx
@@ -845,8 +845,8 @@ CEOP
      &         * dCrit(I,J,bi,bj)
          seaice_sigma2(I,J,bi,bj)  =seaice_sigma2(I,J,bi,bj)
      &         * dCrit(I,J,bi,bj)
-         seaice_sigma12C(I,J,bi,bj)=seaice_sigma12C(I,J,bi,bj)
-     &         * dCrit(I,J,bi,bj)
+c         seaice_sigma12C(I,J,bi,bj)=seaice_sigma12C(I,J,bi,bj)
+c     &         * dCrit(I,J,bi,bj)
         ENDDO
        ENDDO
        DO J=1,sNy+1
@@ -855,5 +855,12 @@ CEOP
      &         * fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
         ENDDO
        ENDDO
+       DO J=0,sNy
+            DO I=0,sNx
+         seaice_sigma12C(I,J,bi,bj)=1. _d 0
+     &         *fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj)
+     &         * dCrit(I,J,bi,bj)
+            ENDDO
+           ENDDO
       RETURN
       END
