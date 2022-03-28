@@ -859,7 +859,7 @@ c     &         * dCrit(I,J,bi,bj)
             DO I=0,sNx
          seaice_sigma12C(I,J,bi,bj)=1. _d 0
      &         *fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj)
-     &         * dCrit(I,J,bi,bj)
+c     &         * dCrit(I,J,bi,bj)
             ENDDO
            ENDDO
       RETURN
