@@ -768,7 +768,7 @@ CMB   averaging
         etaLoc = SEAICEmebMu *fldAtZ(press0(:,:,bi,bj),i,j,bi,bj)
         rhs12 = 2. _d 0 * etaLoc * e12(I,J,bi,bj)
 CMB   averaging
-        denom = 1. _d 0/(1. _d 0+deltaTloc)*fldAtZ(recip_rlx,i,j,bi,bj)
+        denom = 1. _d 0/(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
         sig12(I,J) = (sigma12(I,J,bi,bj)+deltaTLoc*rhs12)*denom
        ENDDO
       ENDDO
