@@ -165,43 +165,15 @@ C     re-compute stress from most recent strain rates
      O        sig11, sig22, sig12,
      I        bi, bj, myTime, myIter, myThid )
         ENDIF
-CMB#  ifdef SEAICE_ALLOW_MEB
-CMBC     smooth sig12C a little
-CMB        wght=0.0
-CMB        IF ( SEAICEuseMEB ) THEN
-CMB         DO j=1-OLy,sNy+OLy
-CMB          DO i=1-OLx,sNx+OLx
-CMB           dtmp(i,j) = sig12C(i,j,bi,bj)*maskInC(i,j,bi,bj)
-CMB          ENDDO
-CMB         ENDDO
-CMB         DO j=1-OLy+1,sNy+OLy-1
-CMB          DO i=1-OLx+1,sNx+OLx-1
-CMB           sumNorm  = maskInC(i-1,j,bi,bj)+maskInC(i+1,j,bi,bj)
-CMB     &          +     maskInC(i,j-1,bi,bj)+maskInC(i,j+1,bi,bj)
-CMB           IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
-CMB           sig12C(i,j,bi,bj) = ( dtmp(i,j) * (1. - wght)
-CMB     &          + wght*( dtmp(i-1,j) + dtmp(i+1,j)
-CMB     &                 + dtmp(i,j-1) + dtmp(i,j+1) )*sumNorm
-CMB     &          ) * maskInC(I,J,bi,bj)
-CMB          ENDDO
-CMB         ENDDO
-CMB        ENDIF
-CMB#endif
-
-CML        DO j=1-OLy,sNy+OLy
-CML         DO i=1-OLx,sNx+OLx
         DO j=1,sNy
          DO i=1,sNx
 C     abbreviations
-CMB calculated sigp and sigm already but didn't save it in calc_stress for meb
           sigp   = sig11(I,J) + sig22(I,J)
           sigm   = sig11(I,J) - sig22(I,J)
-CMB ???sig12C wird nicht upgedated wenn nicht Allow Meb an ist
           sigTmp = SQRT( sigm*sigm + 4.*sig12C(I,J,bi,bj)**2 )
 C     principle components
           sig1   = 0.5 _d 0 * ( sigp + sigTmp )
           sig2   = 0.5 _d 0 * ( sigp - sigTmp )
-CML            print *, 'ml-sig1/2', sig1, sig2
 C     damageCrit = 1 means not additional damage
           damageCrit = 1. _d 0
 C     here we can clearly do something about regularisation
@@ -260,7 +232,6 @@ C     hack to save principle stress before updating sigma
         CALL DIAGNOSTICS_FILL(sig22,'SIsig2pr',0,1,2,bi,bj,myThid)
        ENDDO
       ENDDO
-CMB ???
       _EXCH_XY_RL(sig12C, myThid )
       _EXCH_XY_RL(dCrit, myThid )
       _EXCH_XY_RL(damage, myThid )
@@ -274,32 +245,10 @@ CMB ???
          ENDDO
         ENDDO
         ENDIF
-CMLC     smooth damage a little, makes noise go away, but also damage
-CML        wght=0.1
-CML        DO j=1-OLy,sNy+OLy
-CML         DO i=1-OLx,sNx+OLx
-CML          dtmp(i,j) = damage(i,j,bi,bj)*maskInC(i,j,bi,bj)
-CML         ENDDO
-CML        ENDDO
-CML        DO j=1-OLy+1,sNy+OLy-1
-CML         DO i=1-OLx+1,sNx+OLx-1
-CML          sumNorm  = maskInC(i-1,j,bi,bj)+maskInC(i+1,j,bi,bj)
-CML     &         +     maskInC(i,j-1,bi,bj)+maskInC(i,j+1,bi,bj)
-CML          IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
-CML          damage(i,j,bi,bj) = ( dtmp(i,j) * (1. - wght)
-CML     &         + wght*( dtmp(i-1,j) + dtmp(i+1,j)
-CML     &                + dtmp(i,j-1) + dtmp(i,j+1) )*sumNorm
-CML     &         ) * maskInC(I,J,bi,bj)
-CML         ENDDO
-CML        ENDDO
        ENDDO
       ENDDO
 C
       _EXCH_XY_RL(damage, myThid )
-CML      _EXCH_XY_RL(seaice_sigma1 , myThid )
-CML      _EXCH_XY_RL(seaice_sigma2 , myThid )
-CML      _EXCH_XY_RL(seaice_sigma12, myThid )
-
 # endif /* SEAICE_ALLOW_DAMAGE */
 
       RETURN
@@ -505,7 +454,10 @@ C     i,j :: loop indices
       _RL sig22(0:sNx,0:sNy)
       _RL sig12(1:sNx+1,1:sNy+1)
       _RL recip_rlx(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RL denom, sumNorm, deltaTloc
+CMB      _RL denom(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+CMB      _RL denom_z(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL sumNorm, deltaTloc
+      _RL denom
       _RL fldAtZ
       EXTERNAL fldAtZ
 CEOP
@@ -518,9 +470,18 @@ C     add stress divergence of previous timestep
      I     bi, bj, myTime, myIter, myThid )
 C     recover sigma11 and sigma22 and scale by denominator
 C     (1 + dt*Elasiticy/viscosity)
+CMB      DO J=1-OLy,sNy+OLy
+CMB       DO I=1-OLx,sNx+OLx 
+CMB        denom(I,J) = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
+CMB       ENDDO
+CMB      ENDDO  
       DO j=0,sNy
        DO i=0,sNx
         denom = 1. _d 0 / (1. _d 0 + deltaTloc*recip_rlx(I,J))
+CMB        sig11(I,J) = 0.5 _d 0 * denom(I,J) *
+CMB     &       ( sigPlus(I,J,bi,bj)+sigMinus(I,J,bi,bj) )
+CMB        sig22(I,J) = 0.5 _d 0 * denom(I,J) *
+CMB     &       ( sigPlus(I,J,bi,bj)-sigMinus(I,J,bi,bj) )
         sig11(I,J) = 0.5 _d 0 * denom *
      &       ( sigPlus(I,J,bi,bj)+sigMinus(I,J,bi,bj) )
         sig22(I,J) = 0.5 _d 0 * denom *
@@ -531,6 +492,8 @@ C     (1 + dt*Elasiticy/viscosity)
        DO I=1,sNx+1
 C     averaging to Z-points
         denom = 1. _d 0/(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
+CMB        denom_z = fldAtZ(denom(I,J),i,j,bi,bj)
+CMB        sig12(I,J) = sigma12(I,J,bi,bj)*denom_z(I,J) 
 C     sigma12 in Z-points
         sig12(I,J) = sigma12(I,J,bi,bj) * denom
        ENDDO
@@ -873,7 +836,6 @@ c     &         * dCrit(I,J,bi,bj)
             DO I=0,sNx
          seaice_sigma12C(I,J,bi,bj)=1. _d 0
      &         *fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj)
-c     &         * dCrit(I,J,bi,bj)
             ENDDO
            ENDDO
       RETURN
