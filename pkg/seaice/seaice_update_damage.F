@@ -530,7 +530,7 @@ C     (1 + dt*Elasiticy/viscosity)
       DO J=1,sNy+1
        DO I=1,sNx+1
 C     averaging to Z-points
-        denom = 1. _d 0/(1. _d 0+deltaTloc)*fldAtZ(recip_rlx,i,j,bi,bj)
+        denom = 1. _d 0/(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
 C     sigma12 in Z-points
         sig12(I,J) = sigma12(I,J,bi,bj) * denom
        ENDDO
@@ -706,9 +706,12 @@ C     === Local variables ===
 C     i,j :: loop indices
       INTEGER i,j
       _RL recip_rlx(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RL denom, sumNorm, deltaTloc
+CMB      _RL denom(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+CMB      _RL denom_z(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL sumNorm, deltaTloc
       _RL SEAICEmebMu, SEAICEmebLambda
       _RL zetaLoc, etaLoc
+      _RL denom
       _RL sigp, sigm, ep, em, rhs12
       _RL fldAtZ, fldAtC
       EXTERNAL fldAtZ, fldAtC
@@ -736,40 +739,51 @@ C
 C
 C     step stress equations
 C
-CML      DO J=1,sNy
-CML       DO I=1,sNx
+CMB      DO J=1-OLy,sNy+OLy
+CMB       DO I=1-OLx,sNx+OLx 
+CMB        denom(I,J) = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
+CMB       ENDDO
+CMB      ENDDO    
       DO J=1-OLy,sNy+OLy-1
        DO I=1-OLx,sNx+OLx-1
         ep   = e11(i,j,bi,bj) + e22(i,j,bi,bj)
         em   = e11(i,j,bi,bj) - e22(i,j,bi,bj)
         zetaLoc = (SEAICEmebLambda + SEAICEmebMu) * press0(I,J,bi,bj)
         etaLoc  = SEAICEmebMu * press0(I,J,bi,bj)
-        denom   = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
+        denom = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
         sigp    = maskInC(I,J,bi,bj)
      &       * (sigPlus (I,J,bi,bj)+deltaTloc*2.*zetaLoc*ep)*denom
         sigm    = maskInC(I,J,bi,bj)
      &       * (sigMinus(I,J,bi,bj)+deltaTloc*2.* etaLoc*em)*denom
-CMB   averaging
-        rhs12 = 2.*etaLoc*fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
-CMB   Plante (2020)
-        sig12C(I,J,bi,bj) = denom*(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
-CMB averaging
-CMB        sig12C(I,J,bi,bj) = denom * ( deltaTLoc*rhs12 +
-CMB     &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
+CMB        sigp    = maskInC(I,J,bi,bj)
+CMB     &       * (sigPlus (I,J,bi,bj)+deltaTloc*2.*zetaLoc*ep)*denom(I,J)
+CMB        sigm    = maskInC(I,J,bi,bj)
+CMB     &       * (sigMinus(I,J,bi,bj)+deltaTloc*2.* etaLoc*em)*denom(I,J)
 C     recover sigma11 and sigma22
         sig11(I,J) = 0.5 _d 0 * ( sigp+sigm )
         sig22(I,J) = 0.5 _d 0 * ( sigp-sigm )
+CMB   averaging
+        rhs12 = 2.*etaLoc*fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
+CMB   Plante (2020)
+        sig12C(I,J,bi,bj) = denom
+     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
+CMB        sig12C(I,J,bi,bj) = denom(I,J)
+CMB     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
+CMB averaging
+CMB        sig12C(I,J,bi,bj) = denom(I,J) * ( deltaTLoc*rhs12 +
+CMB     &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
        ENDDO
       ENDDO
       DO J=1-OLy+1,sNy+OLy
-       DO I=1-OLx+1,sNx+OLx
-C     average to Z-points
-CMB   averaging
+            DO I=1-OLx+1,sNx+OLx
+C     averaging to Z-points
         etaLoc = SEAICEmebMu *fldAtZ(press0(:,:,bi,bj),i,j,bi,bj)
         rhs12 = 2. _d 0 * etaLoc * e12(I,J,bi,bj)
 CMB   averaging
         denom = 1. _d 0/(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
         sig12(I,J) = (sigma12(I,J,bi,bj)+deltaTLoc*rhs12)*denom
+CMB        denom_z = fldAtZ(denom(I,J),i,j,bi,bj)
+CMB        sig12(I,J) = (sigma12(I,J,bi,bj)+deltaTLoc*rhs12)*denom_z(I,J)
        ENDDO
       ENDDO
       IF (.NOT.SEAICE_no_slip) THEN
