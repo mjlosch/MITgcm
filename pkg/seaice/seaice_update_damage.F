@@ -477,11 +477,11 @@ CMB       ENDDO
 CMB      ENDDO  
       DO j=0,sNy
        DO i=0,sNx
-        denom = 1. _d 0 / (1. _d 0 + deltaTloc*recip_rlx(I,J))
 CMB        sig11(I,J) = 0.5 _d 0 * denom(I,J) *
 CMB     &       ( sigPlus(I,J,bi,bj)+sigMinus(I,J,bi,bj) )
 CMB        sig22(I,J) = 0.5 _d 0 * denom(I,J) *
 CMB     &       ( sigPlus(I,J,bi,bj)-sigMinus(I,J,bi,bj) )
+        denom = 1. _d 0 / (1. _d 0 + deltaTloc*recip_rlx(I,J))
         sig11(I,J) = 0.5 _d 0 * denom *
      &       ( sigPlus(I,J,bi,bj)+sigMinus(I,J,bi,bj) )
         sig22(I,J) = 0.5 _d 0 * denom *
@@ -491,10 +491,10 @@ CMB     &       ( sigPlus(I,J,bi,bj)-sigMinus(I,J,bi,bj) )
       DO J=1,sNy+1
        DO I=1,sNx+1
 C     averaging to Z-points
-        denom = 1. _d 0/(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
-CMB        denom_z = fldAtZ(denom(I,J),i,j,bi,bj)
+CMB        denom_z(I,J) = fldAtZ(denom(I,J),I,J,bi,bj)
 CMB        sig12(I,J) = sigma12(I,J,bi,bj)*denom_z(I,J) 
 C     sigma12 in Z-points
+        denom = 1. _d 0/(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
         sig12(I,J) = sigma12(I,J,bi,bj) * denom
        ENDDO
       ENDDO
@@ -733,7 +733,7 @@ CMB   Plante (2020)
 CMB        sig12C(I,J,bi,bj) = denom(I,J)
 CMB     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
 CMB averaging
-CMB        sig12C(I,J,bi,bj) = denom(I,J) * ( deltaTLoc*rhs12 +
+CMB        sig12C(I,J,bi,bj) = denom * ( deltaTLoc*rhs12 +
 CMB     &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
        ENDDO
       ENDDO
@@ -745,7 +745,7 @@ C     averaging to Z-points
 CMB   averaging
         denom = 1. _d 0/(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
         sig12(I,J) = (sigma12(I,J,bi,bj)+deltaTLoc*rhs12)*denom
-CMB        denom_z = fldAtZ(denom(I,J),i,j,bi,bj)
+CMB        denom_z(I,J) = fldAtZ(denom(i,j),i,j,bi,bj)
 CMB        sig12(I,J) = (sigma12(I,J,bi,bj)+deltaTLoc*rhs12)*denom_z(I,J)
        ENDDO
       ENDDO
@@ -822,8 +822,9 @@ CEOP
      &         * dCrit(I,J,bi,bj)
          seaice_sigma2(I,J,bi,bj)  =seaice_sigma2(I,J,bi,bj)
      &         * dCrit(I,J,bi,bj)
-c         seaice_sigma12C(I,J,bi,bj)=seaice_sigma12C(I,J,bi,bj)
-c     &         * dCrit(I,J,bi,bj)
+C Plante (2020)
+cmb         seaice_sigma12C(I,J,bi,bj)=seaice_sigma12C(I,J,bi,bj)
+cmb     &         * dCrit(I,J,bi,bj)
         ENDDO
        ENDDO
        DO J=1,sNy+1
@@ -834,8 +835,11 @@ c     &         * dCrit(I,J,bi,bj)
        ENDDO
        DO J=0,sNy
             DO I=0,sNx
-         seaice_sigma12C(I,J,bi,bj)=1. _d 0
-     &         *fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj)
+         seaice_sigma12C(I,J,bi,bj)=1.0 _d 0
+     &         *fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj)   
+C Option to Mix Plante and old version        
+CMB         seaice_sigma12C(I,J,bi,bj)=0.5 _d 0*(seaice_sigma12C(I,J,bi,bj)+
+CMB     &         fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj))
             ENDDO
            ENDDO
       RETURN
