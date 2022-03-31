@@ -143,7 +143,8 @@ C     according to our convention (this is different from Dansereau et al 2016)
 C     tensile strength cutoff
           sigmaT(I,J) = - sigmaC(I,J)*recip_q
 C
-          dCrit(I,J,bi,bj) = 1. _d 0*maskInC(I,J,bi,bj)
+          dCrit(I,J,bi,bj)  = 1. _d 0*maskInC(I,J,bi,bj)
+          dCritZ(I,J,bi,bj) = 1. _d 0
          ENDDO
         ENDDO
 
@@ -206,6 +207,9 @@ C     explicit and for dt< damagetime:
           damage(I,J,bi,bj) = damageNm1(I,J,bi,bj) *
      &         (deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
      &          + deltaTloc*recip_healingTime * maskInC(I,J,bi,bj)
+C     do not update damage ever
+CML          damage(i,j,bi,bj) = 1.
+CML          dCrit(I,J,bi,bj) = maskInC(I,J,bi,bj)
 C     make sure that 0 < damage <=1
           damage(I,J,bi,bj) = MIN(1. _d 0, damage(I,J,bi,bj))
           damage(I,J,bi,bj) = MAX(0. _d 0, damage(I,J,bi,bj))
@@ -235,8 +239,15 @@ C     hack to save principle stress before updating sigma
       _EXCH_XY_RL(sig12C, myThid )
       _EXCH_XY_RL(dCrit, myThid )
       _EXCH_XY_RL(damage, myThid )
+      wght=0.2
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
+        DO j=1,sNy+1
+         DO i=1,sNx+1
+C          dCritZ(i,j,bi,bj) = 1.
+          dCritZ(i,j,bi,bj) = fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
+         ENDDO
+        ENDDO
         IF ( updateSigma ) THEN
         DO j=1,sNy+1
          DO i=1,sNx+1
@@ -713,9 +724,9 @@ C     recover sigma11 and sigma22
         sig22(I,J) = 0.5 _d 0 * ( sigp-sigm )
 CMB   averaging
         rhs12 = 2.*etaLoc*fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
-CMB   Plante (2020)
-        sig12C(I,J,bi,bj) = denom(I,J)
-     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
+CMLCMB   Plante (2020)
+CML        sig12C(I,J,bi,bj) = denom(I,J)
+CML     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
 CMB   averaging
         sig12C(I,J,bi,bj) = denom(I,J) * ( deltaTLoc*rhs12 +
      &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
@@ -798,6 +809,7 @@ C     === Local variables ===
 C     i,j :: loop indices
       INTEGER I,J
       _RL fldAtZ, fldAtC
+      _RL wght
       EXTERNAL fldAtZ, fldAtC
 CEOP
       DO J=0,sNy
@@ -813,13 +825,15 @@ CEOP
       DO J=1,sNy+1
        DO I=1,sNx+1
         seaice_sigma12(I,J,bi,bj) =seaice_sigma12(I,J,bi,bj)
-     &         * fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
+     &       * dCritZ(i,j,bi,bj)
        ENDDO
       ENDDO
+      wght=1. _d 0
       DO J=1,sNy
        DO I=1,sNx
-        seaice_sigma12C(I,J,bi,bj)=1. _d 0
-     &         *fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj)
+        seaice_sigma12C(I,J,bi,bj) =
+     &       (1. _d 0 - wght)*seaice_sigma12C(I,J,bi,bj)
+     &       + wght * fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj)
        ENDDO
       ENDDO
 
