@@ -234,6 +234,40 @@ C     hack to save principle stress before updating sigma
         ENDDO
         CALL DIAGNOSTICS_FILL(sig11,'SIsig1pr',0,1,2,bi,bj,myThid)
         CALL DIAGNOSTICS_FILL(sig22,'SIsig2pr',0,1,2,bi,bj,myThid)
+        DO j=1,sNy+1
+         DO i=1,sNx+1
+C     abbreviations
+          sigp   = fldAtZ(sig11 + sig22,i,j,bi,bj)
+          sigm   = fldAtZ(sig11 - sig22,i,j,bi,bj)
+          sigTmp = SQRT( sigm*sigm + 4.*sig12(i,j)**2 )
+C     principle components
+          sig1   = 0.5 _d 0 * ( sigp + sigTmp )
+          sig2   = 0.5 _d 0 * ( sigp - sigTmp )
+C     damageCrit = 1 means not additional damage
+          damageCrit = 1. _d 0
+          sigmaC(I,J) = - 2.*cohesion(I,J,bi,bj)*sqrtq
+     &         *fldAtZ(HEFF(:,:,bi,bj),i,j,bi,bj)
+C     tensile strength cutoff
+          sigmaT(I,J) = - sigmaC(I,J)*recip_q
+C     here we can clearly do something about regularisation
+C     According to our convention, tensile stress is positive and our
+C     Mohr-Coulomb criterion reads sig2-sig1*q = sigmaC with negative sigmaC.
+C     The tensile failure criterion switch sig1 and sig2 with respect to
+C     Dansereau et al (2016) so that for sig1>0, sig2>sigmaT
+CML          IF ( SEAICEuseTensileCutoff .AND.
+CML     &         sig1 .GT. 0. _d 0 .AND. sig2 .GT. sigmaT(I,J) )
+          damageCrit = TENSILE_FAILURE(sig1,sig2,sigmaT(I,J),damageCrit)
+          damageCrit = TENSILE_FAILURE(sig2,sig1,sigmaT(I,J),damageCrit)
+C     keep in mind that sigmaC < 0 so that the following criterion catches
+C     the case when sig2 is below sigmaC+q*sig1
+          damageCrit = MC_FAILURE(sig1,sig2,q,sigmaC(I,J),damageCrit)
+C     or above sigmaC+q*sig2
+          damageCrit = MC_FAILURE(sig2,sig1,q,sigmaC(I,J),damageCrit)
+C     critical damage cannot be below zero (eq 39 in mebdoc.tex)
+          damageCrit = MAX(damageCrit, 0. _d 0)
+          dCritZ(I,J,bi,bj) = damageCrit !*maskInC(I,J,bi,bj)
+         ENDDO
+        ENDDO
        ENDDO
       ENDDO
       _EXCH_XY_RL(sig12C, myThid )
@@ -242,12 +276,12 @@ C     hack to save principle stress before updating sigma
       wght=0.2
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
-        DO j=1,sNy+1
-         DO i=1,sNx+1
-C          dCritZ(i,j,bi,bj) = 1.
-          dCritZ(i,j,bi,bj) = fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
-         ENDDO
-        ENDDO
+CML        DO j=1,sNy+1
+CML         DO i=1,sNx+1
+CMLC          dCritZ(i,j,bi,bj) = 1.
+CML          dCritZ(i,j,bi,bj) = fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
+CML         ENDDO
+CML        ENDDO
         IF ( updateSigma ) THEN
         DO j=1,sNy+1
          DO i=1,sNx+1
