@@ -206,9 +206,14 @@ C     explicit and for dt< damagetime:
           damage(I,J,bi,bj) = damageNm1(I,J,bi,bj) *
      &         (deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
      &          + deltaTloc*recip_healingTime * maskInC(I,J,bi,bj)
+C new old version of damage without dependeny of time step
+c          damage(I,J,bi,bj) = damageNm1(I,J,bi,bj)*dCrit(I,J,bi,bj) 
+C          damage(I,J,bi,bj) = damage(I,J,bi,bj) +
+C     &     (1-damage(I,J,bi,bj)*deltaTLoc*recip_healingTime)
 C     make sure that 0 < damage <=1
           damage(I,J,bi,bj) = MIN(1. _d 0, damage(I,J,bi,bj))
           damage(I,J,bi,bj) = MAX(0. _d 0, damage(I,J,bi,bj))
+C         damageNm1(I,J,bi,bj) = damage(I,J,bi,bj)
           IF ( AREA(I,J,bi,bj) .EQ. 0. _d 0 )
      &         damage(I,J,bi,bj) = 0. _d 0
           IF ( updateSigma ) THEN
@@ -228,6 +233,9 @@ C     hack to save principle stress before updating sigma
           sig22(I,J)  = sig2*sigTmp
          ENDDO
         ENDDO
+C        PRINT *, 'damage n-1', damageNm1(I,J,bi,bj)
+C        PRINT *, 'dcrit', dCrit(I,J,bi,bj)
+C        PRINT *, 'damage after update', damage(I,J,bi,bj)
         CALL DIAGNOSTICS_FILL(sig11,'SIsig1pr',0,1,2,bi,bj,myThid)
         CALL DIAGNOSTICS_FILL(sig22,'SIsig2pr',0,1,2,bi,bj,myThid)
        ENDDO
