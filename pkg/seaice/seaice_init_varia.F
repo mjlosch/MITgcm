@@ -505,6 +505,7 @@ C     no damage means damage = 1
           damage   (I,J,bi,bj) = 1. _d 0 * maskC(I,J,kSrf,bi,bj)
           damageNm1(I,J,bi,bj) = damage(I,J,bi,bj)
           dCrit    (I,J,bi,bj) = 1. _d 0
+          dCritZ   (I,J,bi,bj) = 1. _d 0
           cohesion (I,J,bi,bj) = SEAICEcohesion
 C    &          *( 1.+cohesion(I,J,bi,bj) ) * maskC(I,J,kSrf,bi,bj)
           seaice_sigma12C   (I,J,bi,bj) = 0. _d 0

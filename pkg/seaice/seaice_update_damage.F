@@ -143,7 +143,8 @@ C     according to our convention (this is different from Dansereau et al 2016)
 C     tensile strength cutoff
           sigmaT(I,J) = - sigmaC(I,J)*recip_q
 C
-          dCrit(I,J,bi,bj) = 1. _d 0*maskInC(I,J,bi,bj)
+          dCrit(I,J,bi,bj)  = 1. _d 0*maskInC(I,J,bi,bj)
+          dCritZ(I,J,bi,bj) = 1. _d 0
          ENDDO
         ENDDO
 
@@ -151,7 +152,7 @@ C     re-compute stress from most recent strain rates
 #  ifdef SEAICE_ALLOW_MEB
         IF ( SEAICEuseMEB ) THEN
          CALL SEAICE_MEB_CALC_STRESS(
-     I        e11, e22, e12, press0, etaZ, damage, 
+     I        e11, e22, e12, press0, etaZ, damage,
      I        seaice_sigma1, seaice_sigma2, seaice_sigma12,
      I        seaice_sigma12C,
      O        sig11, sig22, sig12, sig12C,
@@ -196,7 +197,7 @@ C     critical damage cannot be below zero (eq 39 in mebdoc.tex)
 C     when damageTime == deltaTloc, this is the same:
 CMB   but it is not!!!
 CMB          dCrit(I,J,bi,bj) = (deltaTloc*recip_damageTime*(damageCrit-1.)
-CMB     &         + 1.) * maskInC(I,J,bi,bj)    
+CMB     &         + 1.) * maskInC(I,J,bi,bj)
 C     dCrit is \Psi in eq 58 in mebdoc.tex
 CMB   only if dt=t_d, but Plante says dt> t_d!!!
 C     explicit (equation 58 in mebdoc.tex)
@@ -210,6 +211,9 @@ C new old version of damage without dependeny of time step
 c          damage(I,J,bi,bj) = damageNm1(I,J,bi,bj)*dCrit(I,J,bi,bj) 
 C          damage(I,J,bi,bj) = damage(I,J,bi,bj) +
 C     &     (1-damage(I,J,bi,bj)*deltaTLoc*recip_healingTime)
+C     do not update damage ever
+CML          damage(i,j,bi,bj) = 1.
+CML          dCrit(I,J,bi,bj) = maskInC(I,J,bi,bj)
 C     make sure that 0 < damage <=1
           damage(I,J,bi,bj) = MIN(1. _d 0, damage(I,J,bi,bj))
           damage(I,J,bi,bj) = MAX(0. _d 0, damage(I,J,bi,bj))
@@ -238,13 +242,54 @@ C        PRINT *, 'dcrit', dCrit(I,J,bi,bj)
 C        PRINT *, 'damage after update', damage(I,J,bi,bj)
         CALL DIAGNOSTICS_FILL(sig11,'SIsig1pr',0,1,2,bi,bj,myThid)
         CALL DIAGNOSTICS_FILL(sig22,'SIsig2pr',0,1,2,bi,bj,myThid)
+        DO j=1,sNy+1
+         DO i=1,sNx+1
+C     abbreviations
+          sigp   = fldAtZ(sig11 + sig22,i,j,bi,bj)
+          sigm   = fldAtZ(sig11 - sig22,i,j,bi,bj)
+          sigTmp = SQRT( sigm*sigm + 4.*sig12(i,j)**2 )
+C     principle components
+          sig1   = 0.5 _d 0 * ( sigp + sigTmp )
+          sig2   = 0.5 _d 0 * ( sigp - sigTmp )
+C     damageCrit = 1 means not additional damage
+          damageCrit = 1. _d 0
+          sigmaC(I,J) = - 2.*cohesion(I,J,bi,bj)*sqrtq
+     &         *fldAtZ(HEFF(:,:,bi,bj),i,j,bi,bj)
+C     tensile strength cutoff
+          sigmaT(I,J) = - sigmaC(I,J)*recip_q
+C     here we can clearly do something about regularisation
+C     According to our convention, tensile stress is positive and our
+C     Mohr-Coulomb criterion reads sig2-sig1*q = sigmaC with negative sigmaC.
+C     The tensile failure criterion switch sig1 and sig2 with respect to
+C     Dansereau et al (2016) so that for sig1>0, sig2>sigmaT
+CML          IF ( SEAICEuseTensileCutoff .AND.
+CML     &         sig1 .GT. 0. _d 0 .AND. sig2 .GT. sigmaT(I,J) )
+          damageCrit = TENSILE_FAILURE(sig1,sig2,sigmaT(I,J),damageCrit)
+          damageCrit = TENSILE_FAILURE(sig2,sig1,sigmaT(I,J),damageCrit)
+C     keep in mind that sigmaC < 0 so that the following criterion catches
+C     the case when sig2 is below sigmaC+q*sig1
+          damageCrit = MC_FAILURE(sig1,sig2,q,sigmaC(I,J),damageCrit)
+C     or above sigmaC+q*sig2
+          damageCrit = MC_FAILURE(sig2,sig1,q,sigmaC(I,J),damageCrit)
+C     critical damage cannot be below zero (eq 39 in mebdoc.tex)
+          damageCrit = MAX(damageCrit, 0. _d 0)
+          dCritZ(I,J,bi,bj) = damageCrit !*maskInC(I,J,bi,bj)
+         ENDDO
+        ENDDO
        ENDDO
       ENDDO
       _EXCH_XY_RL(sig12C, myThid )
       _EXCH_XY_RL(dCrit, myThid )
       _EXCH_XY_RL(damage, myThid )
+      wght=0.2
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
+CML        DO j=1,sNy+1
+CML         DO i=1,sNx+1
+CMLC          dCritZ(i,j,bi,bj) = 1.
+CML          dCritZ(i,j,bi,bj) = fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
+CML         ENDDO
+CML        ENDDO
         IF ( updateSigma ) THEN
         DO j=1,sNy+1
          DO i=1,sNx+1
@@ -462,10 +507,8 @@ C     i,j :: loop indices
       _RL sig22(0:sNx,0:sNy)
       _RL sig12(1:sNx+1,1:sNy+1)
       _RL recip_rlx(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-CMB      _RL denom(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-CMB      _RL denom_z(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL denom(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sumNorm, deltaTloc
-      _RL denom
       _RL fldAtZ
       EXTERNAL fldAtZ
 CEOP
@@ -478,11 +521,11 @@ C     add stress divergence of previous timestep
      I     bi, bj, myTime, myIter, myThid )
 C     recover sigma11 and sigma22 and scale by denominator
 C     (1 + dt*Elasiticy/viscosity)
-CMB      DO J=1-OLy,sNy+OLy
-CMB       DO I=1-OLx,sNx+OLx 
-CMB        denom(I,J) = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
-CMB       ENDDO
-CMB      ENDDO  
+      DO J=1-OLy,sNy+OLy
+       DO I=1-OLx,sNx+OLx
+        denom(I,J) = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
+       ENDDO
+      ENDDO
       DO j=0,sNy
        DO i=0,sNx
 CMB        sig11(I,J) = 0.5 _d 0 * denom(I,J) *
@@ -492,18 +535,17 @@ CMB     &       ( sigPlus(I,J,bi,bj)-sigMinus(I,J,bi,bj) )
         denom = 1. _d 0 / (1. _d 0 + deltaTloc*recip_rlx(I,J))
         sig11(I,J) = 0.5 _d 0 * denom *
      &       ( sigPlus(I,J,bi,bj)+sigMinus(I,J,bi,bj) )
-        sig22(I,J) = 0.5 _d 0 * denom *
+        sig22(I,J) = 0.5 _d 0 * denom(I,J) *
      &       ( sigPlus(I,J,bi,bj)-sigMinus(I,J,bi,bj) )
        ENDDO
       ENDDO
       DO J=1,sNy+1
        DO I=1,sNx+1
 C     averaging to Z-points
-CMB        denom_z(I,J) = fldAtZ(denom(I,J),I,J,bi,bj)
-CMB        sig12(I,J) = sigma12(I,J,bi,bj)*denom_z(I,J) 
-C     sigma12 in Z-points
-        denom = 1. _d 0/(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
-        sig12(I,J) = sigma12(I,J,bi,bj) * denom
+        sig12(I,J) = sigma12(I,J,bi,bj)*fldAtZ(denom,i,j,bi,bj)
+CMLC     sigma12 in Z-points
+CML        sig12(I,J) = sigma12(I,J,bi,bj)
+CML     &       /(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
        ENDDO
       ENDDO
       IF (.NOT.SEAICE_no_slip) THEN
@@ -677,12 +719,11 @@ C     === Local variables ===
 C     i,j :: loop indices
       INTEGER i,j
       _RL recip_rlx(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-CMB      _RL denom(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-CMB      _RL denom_z(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL denom(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL denom_z
       _RL sumNorm, deltaTloc
       _RL SEAICEmebMu, SEAICEmebLambda
       _RL zetaLoc, etaLoc
-      _RL denom
       _RL sigp, sigm, ep, em, rhs12
       _RL fldAtZ, fldAtC
       EXTERNAL fldAtZ, fldAtC
@@ -710,39 +751,32 @@ C
 C
 C     step stress equations
 C
-CMB      DO J=1-OLy,sNy+OLy
-CMB       DO I=1-OLx,sNx+OLx 
-CMB        denom(I,J) = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
-CMB       ENDDO
-CMB      ENDDO    
+      DO J=1-OLy,sNy+OLy
+       DO I=1-OLx,sNx+OLx
+        denom(I,J) = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
+       ENDDO
+      ENDDO
       DO J=1-OLy,sNy+OLy-1
        DO I=1-OLx,sNx+OLx-1
         ep   = e11(i,j,bi,bj) + e22(i,j,bi,bj)
         em   = e11(i,j,bi,bj) - e22(i,j,bi,bj)
         zetaLoc = (SEAICEmebLambda + SEAICEmebMu) * press0(I,J,bi,bj)
         etaLoc  = SEAICEmebMu * press0(I,J,bi,bj)
-        denom = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
         sigp    = maskInC(I,J,bi,bj)
-     &       * (sigPlus (I,J,bi,bj)+deltaTloc*2.*zetaLoc*ep)*denom
+     &       * (sigPlus (I,J,bi,bj)+deltaTloc*2.*zetaLoc*ep)*denom(I,J)
         sigm    = maskInC(I,J,bi,bj)
-     &       * (sigMinus(I,J,bi,bj)+deltaTloc*2.* etaLoc*em)*denom
-CMB        sigp    = maskInC(I,J,bi,bj)
-CMB     &       * (sigPlus (I,J,bi,bj)+deltaTloc*2.*zetaLoc*ep)*denom(I,J)
-CMB        sigm    = maskInC(I,J,bi,bj)
-CMB     &       * (sigMinus(I,J,bi,bj)+deltaTloc*2.* etaLoc*em)*denom(I,J)
+     &       * (sigMinus(I,J,bi,bj)+deltaTloc*2.* etaLoc*em)*denom(I,J)
 C     recover sigma11 and sigma22
         sig11(I,J) = 0.5 _d 0 * ( sigp+sigm )
         sig22(I,J) = 0.5 _d 0 * ( sigp-sigm )
 CMB   averaging
         rhs12 = 2.*etaLoc*fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
-CMB   Plante (2020)
-        sig12C(I,J,bi,bj) = denom
-     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
-CMB        sig12C(I,J,bi,bj) = denom(I,J)
-CMB     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
-CMB averaging
-CMB        sig12C(I,J,bi,bj) = denom * ( deltaTLoc*rhs12 +
-CMB     &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
+CMLCMB   Plante (2020)
+CML        sig12C(I,J,bi,bj) = denom(I,J)
+CML     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
+CMB   averaging
+        sig12C(I,J,bi,bj) = denom(I,J) * ( deltaTLoc*rhs12 +
+     &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
        ENDDO
       ENDDO
       DO J=1-OLy+1,sNy+OLy
@@ -751,10 +785,10 @@ C     averaging to Z-points
         etaLoc = SEAICEmebMu *fldAtZ(press0(:,:,bi,bj),i,j,bi,bj)
         rhs12 = 2. _d 0 * etaLoc * e12(I,J,bi,bj)
 CMB   averaging
-        denom = 1. _d 0/(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
-        sig12(I,J) = (sigma12(I,J,bi,bj)+deltaTLoc*rhs12)*denom
-CMB        denom_z(I,J) = fldAtZ(denom(i,j),i,j,bi,bj)
-CMB        sig12(I,J) = (sigma12(I,J,bi,bj)+deltaTLoc*rhs12)*denom_z(I,J)
+CML        denom_z = 1. _d 0
+CML     &       /(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
+        denom_z = fldAtZ(denom,i,j,bi,bj)
+        sig12(I,J) = (sigma12(I,J,bi,bj)+deltaTLoc*rhs12)*denom_z
        ENDDO
       ENDDO
       IF (.NOT.SEAICE_no_slip) THEN
@@ -776,20 +810,20 @@ C     !ROUTINE: SEAICE_MEB_UPDATE_SIGMA
 C     !INTERFACE:
       SUBROUTINE SEAICE_MEB_UPDATE_SIGMA(
      I     bi, bj, myTime, myIter, myThid )
- 
+
 C     !DESCRIPTION: \bv
 C     *==========================================================*
 C     | SUBROUTINE SEAICE_MEB_UPDATE_SIGMA
-C     | o update global variables sigPlus, sigMinus, sigma12 with 
+C     | o update global variables sigPlus, sigMinus, sigma12 with
 C     |   damage
 C     *==========================================================*
 C     | written by Mirjam Bouregtt, Feb 2022
 C     *==========================================================*
 C     \ev
- 
+
 C     !USES:
       IMPLICIT NONE
- 
+
 C     === Global variables ===
 #include "SIZE.h"
 #include "EEPARAMS.h"
@@ -816,30 +850,29 @@ C
       _RL     myTime
       INTEGER myIter
       INTEGER myThid
- 
+
 C     !LOCAL VARIABLES:
 C     === Local variables ===
 C     i,j :: loop indices
       INTEGER I,J
       _RL fldAtZ, fldAtC
+      _RL wght
       EXTERNAL fldAtZ, fldAtC
 CEOP
-       DO J=0,sNy
-        DO I=0,sNx
-         seaice_sigma1(I,J,bi,bj)  =seaice_sigma1(I,J,bi,bj) 
+      DO J=0,sNy
+       DO I=0,sNx
+        seaice_sigma1(I,J,bi,bj)  =seaice_sigma1(I,J,bi,bj)
      &         * dCrit(I,J,bi,bj)
-         seaice_sigma2(I,J,bi,bj)  =seaice_sigma2(I,J,bi,bj)
+        seaice_sigma2(I,J,bi,bj)  =seaice_sigma2(I,J,bi,bj)
      &         * dCrit(I,J,bi,bj)
-C Plante (2020)
-cmb         seaice_sigma12C(I,J,bi,bj)=seaice_sigma12C(I,J,bi,bj)
-cmb     &         * dCrit(I,J,bi,bj)
-        ENDDO
+        seaice_sigma12C(I,J,bi,bj)=seaice_sigma12C(I,J,bi,bj)
+     &         * dCrit(I,J,bi,bj)
        ENDDO
-       DO J=1,sNy+1
-        DO I=1,sNx+1
-         seaice_sigma12(I,J,bi,bj) =seaice_sigma12(I,J,bi,bj)
-     &         * fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
-        ENDDO
+      ENDDO
+      DO J=1,sNy+1
+       DO I=1,sNx+1
+        seaice_sigma12(I,J,bi,bj) =seaice_sigma12(I,J,bi,bj)
+     &       * dCritZ(i,j,bi,bj)
        ENDDO
        DO J=0,sNy
             DO I=0,sNx
@@ -850,5 +883,15 @@ CMB         seaice_sigma12C(I,J,bi,bj)=0.5 _d 0*(seaice_sigma12C(I,J,bi,bj)+
 CMB     &         fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj))
             ENDDO
            ENDDO
+      ENDDO
+      wght=1. _d 0
+      DO J=1,sNy
+       DO I=1,sNx
+        seaice_sigma12C(I,J,bi,bj) =
+     &       (1. _d 0 - wght)*seaice_sigma12C(I,J,bi,bj)
+     &       + wght * fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj)
+       ENDDO
+      ENDDO
+
       RETURN
       END
