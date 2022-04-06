@@ -504,6 +504,8 @@ C---  Complete initialization
 C     no damage means damage = 1
           damage   (I,J,bi,bj) = 1. _d 0 * maskC(I,J,kSrf,bi,bj)
           damageNm1(I,J,bi,bj) = damage(I,J,bi,bj)
+          damageZ  (I,J,bi,bj) = 1. _d 0
+          damageNm1Z(I,J,bi,bj)= damageZ(I,J,bi,bj)
           dCrit    (I,J,bi,bj) = 1. _d 0
           dCritZ   (I,J,bi,bj) = 1. _d 0
           cohesion (I,J,bi,bj) = SEAICEcohesion

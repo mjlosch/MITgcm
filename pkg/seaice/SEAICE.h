@@ -145,13 +145,16 @@ C     in analogy to the maximal compressive stress PRESS0
 
 #if defined ( SEAICE_ALLOW_DAMAGE ) || defined ( SEAICE_ALLOW_MEB )
       COMMON/SEAICE_DAMAGE/
-     & damage, damageNm1, cohesion, dCrit, dCritZ, seaice_sigma12C
+     & damage, damageNm1, cohesion, dCrit, dCritZ, seaice_sigma12C,
+     & damageZ, damageNm1Z
       _RL damage     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL damageNm1  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL dCrit      (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL dCritZ     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL cohesion   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL seaice_sigma12C(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL damageZ    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL damageNm1Z  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 #endif /* SEAICE_ALLOW_DAMAGE */
       COMMON/SEAICE_REG_NEG/d_HEFFbyNEG,d_HSNWbyNEG
 C     The change of mean ice thickness due to out-of-bounds values following

@@ -193,31 +193,23 @@ C     or above sigmaC+q*sig2
           damageCrit = MC_FAILURE(sig2,sig1,q,sigmaC(I,J),damageCrit)
 C     critical damage cannot be below zero (eq 39 in mebdoc.tex)
           damageCrit = MAX(damageCrit, 0. _d 0)
-          dCrit(I,J,bi,bj) = damageCrit*maskInC(I,J,bi,bj)
-C     when damageTime == deltaTloc, this is the same:
-CMB   but it is not!!!
-CMB          dCrit(I,J,bi,bj) = (deltaTloc*recip_damageTime*(damageCrit-1.)
-CMB     &         + 1.) * maskInC(I,J,bi,bj)
-C     dCrit is \Psi in eq 58 in mebdoc.tex
-CMB   only if dt=t_d, but Plante says dt> t_d!!!
-C     explicit (equation 58 in mebdoc.tex)
-CMB          damage(I,J,bi,bj) = deltaTloc*recip_healingTime
-CMB     &         + damageNm1(I,J,bi,bj) * dCrit(I,J,bi,bj)
-C     explicit and for dt< damagetime:
+CMB          dCrit(I,J,bi,bj) = damageCrit*maskInC(I,J,bi,bj)
+C Damage    explicit and for dt< damagetime:
           damage(I,J,bi,bj) = damageNm1(I,J,bi,bj) *
      &         (deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
      &          + deltaTloc*recip_healingTime * maskInC(I,J,bi,bj)
 C new old version of damage without dependeny of time step
 c          damage(I,J,bi,bj) = damageNm1(I,J,bi,bj)*dCrit(I,J,bi,bj) 
-C          damage(I,J,bi,bj) = damage(I,J,bi,bj) +
-C     &     (1-damage(I,J,bi,bj)*deltaTLoc*recip_healingTime)
+c          damage(I,J,bi,bj) = damage(I,J,bi,bj) +
+c     &     (1-damage(I,J,bi,bj)*deltaTLoc*recip_healingTime)
 C     do not update damage ever
-CML          damage(i,j,bi,bj) = 1.
-CML          dCrit(I,J,bi,bj) = maskInC(I,J,bi,bj)
+c          damage(i,j,bi,bj) = 1.
+c          dCrit(I,J,bi,bj) = maskInC(I,J,bi,bj)
 C     make sure that 0 < damage <=1
           damage(I,J,bi,bj) = MIN(1. _d 0, damage(I,J,bi,bj))
           damage(I,J,bi,bj) = MAX(0. _d 0, damage(I,J,bi,bj))
-C         damageNm1(I,J,bi,bj) = damage(I,J,bi,bj)
+C     option to update stress as time dependent as dynamic parameters
+C     dCrit(I,J,bi,bj) = damage(I,J,bi,bj)
           IF ( AREA(I,J,bi,bj) .EQ. 0. _d 0 )
      &         damage(I,J,bi,bj) = 0. _d 0
           IF ( updateSigma ) THEN
@@ -273,7 +265,23 @@ C     or above sigmaC+q*sig2
           damageCrit = MC_FAILURE(sig2,sig1,q,sigmaC(I,J),damageCrit)
 C     critical damage cannot be below zero (eq 39 in mebdoc.tex)
           damageCrit = MAX(damageCrit, 0. _d 0)
-          dCritZ(I,J,bi,bj) = damageCrit !*maskInC(I,J,bi,bj)
+CMB          dCritZ(I,J,bi,bj) = damageCrit !*maskInC(I,J,bi,bj)
+C Damage update
+          damageZ(I,J,bi,bj) = damageNm1Z(I,J,bi,bj) *
+     &         (deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
+     &          + deltaTloc*recip_healingTime !* maskInC(I,J,bi,bj)
+C new old version of damage without dependeny of time step
+c          damage(I,J,bi,bj) = damageNm1(I,J,bi,bj)*dCrit(I,J,bi,bj) 
+c          damage(I,J,bi,bj) = damage(I,J,bi,bj) +
+c     &     (1-damage(I,J,bi,bj)*deltaTLoc*recip_healingTime)
+C     do not update damage ever
+c          damage(i,j,bi,bj) = 1.
+c          dCrit(I,J,bi,bj) = maskInC(I,J,bi,bj)
+C     make sure that 0 < damage <=1
+          damageZ(I,J,bi,bj) = MIN(1. _d 0, damage(I,J,bi,bj))
+          damageZ(I,J,bi,bj) = MAX(0. _d 0, damage(I,J,bi,bj))
+C     option to update stress the same as dynamic parameters
+C     dCritZ(I,J,bi,bj) = damageZ(I,J,bi,bj) !*maskInC(I,J,bi,bj)
          ENDDO
         ENDDO
        ENDDO
@@ -528,22 +536,22 @@ C     (1 + dt*Elasiticy/viscosity)
       ENDDO
       DO j=0,sNy
        DO i=0,sNx
-CMB        sig11(I,J) = 0.5 _d 0 * denom(I,J) *
-CMB     &       ( sigPlus(I,J,bi,bj)+sigMinus(I,J,bi,bj) )
-CMB        sig22(I,J) = 0.5 _d 0 * denom(I,J) *
-CMB     &       ( sigPlus(I,J,bi,bj)-sigMinus(I,J,bi,bj) )
-        denom = 1. _d 0 / (1. _d 0 + deltaTloc*recip_rlx(I,J))
-        sig11(I,J) = 0.5 _d 0 * denom *
+        sig11(I,J) = 0.5 _d 0 * denom(I,J) *
      &       ( sigPlus(I,J,bi,bj)+sigMinus(I,J,bi,bj) )
         sig22(I,J) = 0.5 _d 0 * denom(I,J) *
      &       ( sigPlus(I,J,bi,bj)-sigMinus(I,J,bi,bj) )
+CMB        denom = 1. _d 0 / (1. _d 0 + deltaTloc*recip_rlx(I,J))
+CMB        sig11(I,J) = 0.5 _d 0 * denom *
+CMB     &       ( sigPlus(I,J,bi,bj)+sigMinus(I,J,bi,bj) )
+CMB        sig22(I,J) = 0.5 _d 0 * denom *
+CMB     &       ( sigPlus(I,J,bi,bj)-sigMinus(I,J,bi,bj) )
        ENDDO
       ENDDO
       DO J=1,sNy+1
        DO I=1,sNx+1
 C     averaging to Z-points
         sig12(I,J) = sigma12(I,J,bi,bj)*fldAtZ(denom,i,j,bi,bj)
-CMLC     sigma12 in Z-points
+CML     sigma12 in Z-points
 CML        sig12(I,J) = sigma12(I,J,bi,bj)
 CML     &       /(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
        ENDDO
@@ -771,9 +779,9 @@ C     recover sigma11 and sigma22
         sig22(I,J) = 0.5 _d 0 * ( sigp-sigm )
 CMB   averaging
         rhs12 = 2.*etaLoc*fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
-CMLCMB   Plante (2020)
-CML        sig12C(I,J,bi,bj) = denom(I,J)
-CML     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
+CMB   Plante (2020)
+c        sig12C(I,J,bi,bj) = denom(I,J)
+c     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
 CMB   averaging
         sig12C(I,J,bi,bj) = denom(I,J) * ( deltaTLoc*rhs12 +
      &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
@@ -865,8 +873,8 @@ CEOP
      &         * dCrit(I,J,bi,bj)
         seaice_sigma2(I,J,bi,bj)  =seaice_sigma2(I,J,bi,bj)
      &         * dCrit(I,J,bi,bj)
-        seaice_sigma12C(I,J,bi,bj)=seaice_sigma12C(I,J,bi,bj)
-     &         * dCrit(I,J,bi,bj)
+c        seaice_sigma12C(I,J,bi,bj)=seaice_sigma12C(I,J,bi,bj)
+c     &         * dCrit(I,J,bi,bj)
        ENDDO
       ENDDO
       DO J=1,sNy+1
@@ -874,15 +882,6 @@ CEOP
         seaice_sigma12(I,J,bi,bj) =seaice_sigma12(I,J,bi,bj)
      &       * dCritZ(i,j,bi,bj)
        ENDDO
-       DO J=0,sNy
-            DO I=0,sNx
-         seaice_sigma12C(I,J,bi,bj)=1.0 _d 0
-     &         *fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj)   
-C Option to Mix Plante and old version        
-CMB         seaice_sigma12C(I,J,bi,bj)=0.5 _d 0*(seaice_sigma12C(I,J,bi,bj)+
-CMB     &         fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj))
-            ENDDO
-           ENDDO
       ENDDO
       wght=1. _d 0
       DO J=1,sNy
@@ -890,6 +889,9 @@ CMB     &         fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj))
         seaice_sigma12C(I,J,bi,bj) =
      &       (1. _d 0 - wght)*seaice_sigma12C(I,J,bi,bj)
      &       + wght * fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj)
+C Option to Mix Plante and old version        
+CMB         seaice_sigma12C(I,J,bi,bj)=0.5 _d 0*(seaice_sigma12C(I,J,bi,bj)+
+CMB     &         fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj))
        ENDDO
       ENDDO
 

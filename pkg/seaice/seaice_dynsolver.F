@@ -355,6 +355,7 @@ C--   now add in tilt
           DO j=1-OLy,sNy+OLy
            DO i=1-OLx,sNx+OLx
             damageNm1(I,J,bi,bj) = damage(I,J,bi,bj)
+            damageNm1Z(I,J,bi,bj)= damageZ(I,J,bi,bj)
            ENDDO
           ENDDO
          ENDDO
