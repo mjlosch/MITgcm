@@ -264,8 +264,8 @@ c     &     (1-damage(I,J,bi,bj)*deltaTLoc*recip_healingTime)
 C Option A3: do not update damage ever
 c          damage(i,j,bi,bj) = 1.
 C     make sure that 0 < damage <=1
-          damageZ(I,J,bi,bj) = MIN(1. _d 0, damage(I,J,bi,bj))
-          damageZ(I,J,bi,bj) = MAX(0. _d 0, damage(I,J,bi,bj))
+          damageZ(I,J,bi,bj) = MIN(1. _d 0, damageZ(I,J,bi,bj))
+          damageZ(I,J,bi,bj) = MAX(0. _d 0, damageNm1Z(I,J,bi,bj))
 C Sigma-Update-Options:
 C Option B1/C1: update stress time dependent/averaged 
 C          dCritZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
