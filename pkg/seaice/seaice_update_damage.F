@@ -199,13 +199,13 @@ C Option A1: Damage    explicit and for dt< damagetime:
      &         (deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
      &          + deltaTloc*recip_healingTime * maskInC(I,J,bi,bj)
 C Option A2: new old version of damage without dependeny of time step
-c          damage(I,J,bi,bj) = damageNm1(I,J,bi,bj)*damageCrit(I,J,bi,bj) 
+c          damage(I,J,bi,bj) = damageNm1(I,J,bi,bj)*damageCrit 
 c          damage(I,J,bi,bj) = damage(I,J,bi,bj) +
 c     &     (1-damage(I,J,bi,bj)*deltaTLoc*recip_healingTime)
 C Option A3: implicit time dependent damage
-C          damage(I,J,bi,bj) = 1. _d 0 * 
-C     &      (damageNm1(I,J,bi,bj) + deltaTloc*recip_healingTime)/
-C     &      (1. - deltaTloc*recip_damageTime*(damageCrit-1.))
+c          damage(I,J,bi,bj) = 1. _d 0 * 
+c     &      (damageNm1(I,J,bi,bj) + deltaTloc*recip_healingTime)/
+c     &      (1. - deltaTloc*recip_damageTime*(damageCrit-1.))
 C Option A4: do not update damage ever
 c          damage(i,j,bi,bj) = 1.
 C     make sure that 0 < damage <=1
@@ -262,7 +262,7 @@ C Option A1: Damage explicit and for dt< damagetime:
      &         (deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
      &          + deltaTloc*recip_healingTime
 C Option A2: damage without dependency of time step
-c          damageZ(I,J,bi,bj) = damageNm1Z(I,J,bi,bj)*damageCrit(I,J,bi,bj) 
+c          damageZ(I,J,bi,bj) = damageNm1Z(I,J,bi,bj)*damageCrit 
 c          damageZ(I,J,bi,bj) = damageZ(I,J,bi,bj) +
 c     &     (1-damage(I,J,bi,bj)*deltaTLoc*recip_healingTime)
 C Option A3: implicit time dependent damage
@@ -273,7 +273,7 @@ C Option A4: do not update damage ever
 c          damageZ(i,j,bi,bj) = 1.
 C     make sure that 0 < damage <=1
           damageZ(I,J,bi,bj) = MIN(1. _d 0, damageZ(I,J,bi,bj))
-          damageZ(I,J,bi,bj) = MAX(0. _d 0, damageNm1Z(I,J,bi,bj))
+          damageZ(I,J,bi,bj) = MAX(0. _d 0, damageZ(I,J,bi,bj))
 C Sigma-Update-Options:
 C Option B1/C1: update stress time dependent/averaged 
 C          dCritZ(I,J,bi,bj) = fldAtZ(damageZ(:,:,bi,bj),I,J,bi,bj)
@@ -342,17 +342,17 @@ C
      &     +     maskInC(I,J-1,bi,bj)+maskInC(I-1,J-1,bi,bj)
       IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
 C Option-G1: simple mean on C-Points
-C      fldAtZ = sumNorm *
-C     &     ( fldIn(I,  J  )*maskInC(I,  J,  bi,bj)
-C     &     + fldIn(I-1,J  )*maskInC(I-1,J,  bi,bj)
-C     &     + fldIn(I,  J-1)*maskInC(I  ,J-1,bi,bj)
-C     &     + fldIn(I-1,J-1)*maskInC(I-1,J-1,bi,bj) )
+      fldAtZ = sumNorm *
+     &     ( fldIn(I,  J  )*maskInC(I,  J,  bi,bj)
+     &     + fldIn(I-1,J  )*maskInC(I-1,J,  bi,bj)
+     &     + fldIn(I,  J-1)*maskInC(I  ,J-1,bi,bj)
+     &     + fldIn(I-1,J-1)*maskInC(I-1,J-1,bi,bj) )
 C Option-G2: quadratic mean on C-Points
-      fldAtZ = SQRT (sumNorm *
-     &     ( (fldIn(I,  J  )*maskInC(I,  J,  bi,bj))**2
-     &     + (fldIn(I-1,J  )*maskInC(I-1,J,  bi,bj))**2
-     &     + (fldIn(I,  J-1)*maskInC(I  ,J-1,bi,bj))**2
-     &     + (fldIn(I-1,J-1)*maskInC(I-1,J-1,bi,bj))**2 ))
+c      fldAtZ = SQRT (sumNorm *
+c     &     ( (fldIn(I,  J  )*maskInC(I,  J,  bi,bj))**2
+c     &     + (fldIn(I-1,J  )*maskInC(I-1,J,  bi,bj))**2
+c     &     + (fldIn(I,  J-1)*maskInC(I  ,J-1,bi,bj))**2
+c     &     + (fldIn(I-1,J-1)*maskInC(I-1,J-1,bi,bj))**2 ))
 C
       RETURN
       END
@@ -367,19 +367,19 @@ C
 C
       sumNorm  = 0.25 _d 0
 C Option-G3: simple mean on Z-Points
-      fldAtC = (sumNorm * recip_rA(I,J,bi,bj) *
-     &     ( rAz(I,  J,  bi,bj)*fldIn(I,  J  )
-     &     + rAz(I+1,J,  bi,bj)*fldIn(I+1,J  )
-     &     + rAz(I,  J+1,bi,bj)*fldIn(I,  J+1)
-     &     + rAz(I+1,J+1,bi,bj)*fldIn(I+1,J+1)
-     &     ) ) * maskInC(I,J,bi,bj)
+c      fldAtC = (sumNorm * recip_rA(I,J,bi,bj) *
+c     &     ( rAz(I,  J,  bi,bj)*fldIn(I,  J  )
+c     &     + rAz(I+1,J,  bi,bj)*fldIn(I+1,J  )
+c     &     + rAz(I,  J+1,bi,bj)*fldIn(I,  J+1)
+c     &     + rAz(I+1,J+1,bi,bj)*fldIn(I+1,J+1)
+c     &     ) ) * maskInC(I,J,bi,bj)
 C Option-G4: quadratic mean on C-Points
-C      fldAtC = SQRT( sumNorm * recip_rA(I,J,bi,bj) *
-C     &     ( rAz(I,  J,  bi,bj)*fldIn(I,  J  )**2
-C     &     + rAz(I+1,J,  bi,bj)*fldIn(I+1,J  )**2
-C     &     + rAz(I,  J+1,bi,bj)*fldIn(I,  J+1)**2
-C     &     + rAz(I+1,J+1,bi,bj)*fldIn(I+1,J+1)**2
-C     &     ) ) * maskInC(I,J,bi,bj)
+      fldAtC = SQRT( sumNorm * recip_rA(I,J,bi,bj) *
+     &     ( rAz(I,  J,  bi,bj)*fldIn(I,  J  )**2
+     &     + rAz(I+1,J,  bi,bj)*fldIn(I+1,J  )**2
+     &     + rAz(I,  J+1,bi,bj)*fldIn(I,  J+1)**2
+     &     + rAz(I+1,J+1,bi,bj)*fldIn(I+1,J+1)**2
+     &     ) ) * maskInC(I,J,bi,bj)
 C
       RETURN
       END
