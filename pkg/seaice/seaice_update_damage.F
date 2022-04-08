@@ -258,17 +258,17 @@ C Option A1: Damage    explicit and for dt< damagetime:
      &         (deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
      &          + deltaTloc*recip_healingTime
 C Option A2: damage without dependency of time step
-c          damage(I,J,bi,bj) = damageNm1Z(I,J,bi,bj)*damageCrit(I,J,bi,bj) 
-c          damage(I,J,bi,bj) = damage(I,J,bi,bj) +
+c          damageZ(I,J,bi,bj) = damageNm1Z(I,J,bi,bj)*damageCrit(I,J,bi,bj) 
+c          damageZ(I,J,bi,bj) = damageZ(I,J,bi,bj) +
 c     &     (1-damage(I,J,bi,bj)*deltaTLoc*recip_healingTime)
 C Option A3: do not update damage ever
-c          damage(i,j,bi,bj) = 1.
+c          damageZ(i,j,bi,bj) = 1.
 C     make sure that 0 < damage <=1
           damageZ(I,J,bi,bj) = MIN(1. _d 0, damageZ(I,J,bi,bj))
           damageZ(I,J,bi,bj) = MAX(0. _d 0, damageNm1Z(I,J,bi,bj))
 C Sigma-Update-Options:
 C Option B1/C1: update stress time dependent/averaged 
-C          dCritZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
+C          dCritZ(I,J,bi,bj) = fldAtZ(damageZ(:,:,bi,bj),I,J,bi,bj)
 C Option B1/C2: update stress time dependent/new 
 C          dCritZ(I,J,bi,bj) = damageZ(I,J,bi,bj) 
 C Option B2/C1: update with dcrit/averaged
@@ -277,12 +277,17 @@ C Option B2/C2: update with new dcrit
           dCritZ(I,J,bi,bj) = damageCrit
 C option B3: never update dcrit
 c      dCritZ(I,J,bi,bj) = 1. _d 0
-          IF ( updateSigma ) THEN
-            seaice_sigma12(I,J,bi,bj) = sig12(I,J)
-     &         * fldAtZ(dCrit(:,:,bi,bj),i,j,bi,bj)
-          ENDIF
          ENDDO
-        ENDDO
+        ENDDO  
+C If out of Loop for better performance
+        IF ( updateSigma ) THEN
+         DO J=1, sNy+1
+          DO I=1, sNx+1
+           seaice_sigma12(I,J,bi,bj) = sig12(I,J)
+     &         * dCritZ(I,J,bi,bj)
+          ENDDO
+         ENDDO
+        ENDIF
        ENDDO
       ENDDO
       _EXCH_XY_RL(sig12C, myThid )
