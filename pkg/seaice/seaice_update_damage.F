@@ -253,15 +253,19 @@ C Option C1/C2: averaged/new dcritz
           damageCrit = MC_FAILURE(sig2,sig1,q,sigmaC(I,J),damageCrit)
           damageCrit = MAX(damageCrit, 0. _d 0)
 C Damage-Options:
-C Option A1: Damage    explicit and for dt< damagetime:
-          damageZ(I,J,bi,bj) = damageNm1Z(I,J,bi,bj) *
-     &         (deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
-     &          + deltaTloc*recip_healingTime
+C Option A1: Damage explicit and for dt< damagetime:
+c          damageZ(I,J,bi,bj) = damageNm1Z(I,J,bi,bj) *
+c     &         (deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
+c     &          + deltaTloc*recip_healingTime
 C Option A2: damage without dependency of time step
 c          damageZ(I,J,bi,bj) = damageNm1Z(I,J,bi,bj)*damageCrit(I,J,bi,bj) 
 c          damageZ(I,J,bi,bj) = damageZ(I,J,bi,bj) +
 c     &     (1-damage(I,J,bi,bj)*deltaTLoc*recip_healingTime)
-C Option A3: do not update damage ever
+C Option A3: implicit time dependent damage
+          damageZ(I,J,bi,bj) = 1. _d 0 * 
+     &      (damageNm1Z(I,J,bi,bj) + deltaTloc*recip_healingTime)/
+     &      (1. - deltaTloc*recip_damageTime*(damageCrit-1.))
+C Option A4: do not update damage ever
 c          damageZ(i,j,bi,bj) = 1.
 C     make sure that 0 < damage <=1
           damageZ(I,J,bi,bj) = MIN(1. _d 0, damageZ(I,J,bi,bj))
