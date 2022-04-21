@@ -153,6 +153,7 @@ C     re-compute stress from most recent strain rates
         IF ( SEAICEuseMEB ) THEN
          CALL SEAICE_MEB_CALC_STRESS(
      I        e11, e22, e12, press0, etaZ, damage,
+     I        damageZ, press0Z,
      I        seaice_sigma1, seaice_sigma2, seaice_sigma12,
      I        seaice_sigma12C,
      O        sig11, sig22, sig12, sig12C,
@@ -213,9 +214,9 @@ C     make sure that 0 < damage <=1
           damage(I,J,bi,bj) = MAX(0. _d 0, damage(I,J,bi,bj))
 C Sigma-Update-Options:
 C Option B1: update stress as time dependent as dynamic parameters
-C          dCrit(I,J,bi,bj) = damage(I,J,bi,bj)
+          dCrit(I,J,bi,bj) = damage(I,J,bi,bj)
 C Option B2: update with dcrit
-          dCrit(I,J,bi,bj) = damageCrit*maskInC(I,J,bi,bj)
+C          dCrit(I,J,bi,bj) = damageCrit*maskInC(I,J,bi,bj)
 C Option B3: never update dcrit
 c          dCrit(I,J,bi,bj) = maskInC(I,J,bi,bj)
           IF ( AREA(I,J,bi,bj) .EQ. 0. _d 0 )
@@ -276,15 +277,18 @@ C     make sure that 0 < damage <=1
           damageZ(I,J,bi,bj) = MAX(0. _d 0, damageZ(I,J,bi,bj))
 C Sigma-Update-Options:
 C Option B1/C1: update stress time dependent/averaged 
-C          dCritZ(I,J,bi,bj) = fldAtZ(damageZ(:,:,bi,bj),I,J,bi,bj)
+c          dCritZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
 C Option B1/C2: update stress time dependent/new 
-C          dCritZ(I,J,bi,bj) = damageZ(I,J,bi,bj) 
+c          dCritZ(I,J,bi,bj) = damageZ(I,J,bi,bj) 
 C Option B2/C1: update with dcrit/averaged
 C          dCritZ(i,j,bi,bj) = fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
 C Option B2/C2: update with new dcrit
-          dCritZ(I,J,bi,bj) = damageCrit
+c          dCritZ(I,J,bi,bj) = damageCrit
 C option B3: never update dcrit
 c      dCritZ(I,J,bi,bj) = 1. _d 0
+C Option DoubleParameters
+          dCritZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
+          damageZ(I,J,bi,bj) = dCritZ(I,J,bi,bj)
          ENDDO
         ENDDO  
 C If out of Loop for better performance
@@ -460,6 +464,7 @@ C     !ROUTINE: SEAICE_MEB_UPDATE_RHS
 C     !INTERFACE:
       SUBROUTINE SEAICE_MEB_UPDATE_RHS(
      I     damage, sigPlus, sigMinus, sigma12,
+     I     damageZ,
      U     uIceRHS, vIceRHS,
      I     bi, bj, myTime, myIter, myThid )
 
@@ -488,6 +493,7 @@ C     myTime :: Simulation time
 C     myIter :: Simulation timestep number
 C     myThid :: my Thread Id. number
       _RL damage  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL damageZ  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigPlus (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigMinus(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigma12 (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -508,6 +514,7 @@ C     i,j :: loop indices
       _RL sig12(1:sNx+1,1:sNy+1)
       _RL recip_rlx(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL denom(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL denomZ(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sumNorm, deltaTloc
       _RL fldAtZ
       EXTERNAL fldAtZ
@@ -526,6 +533,15 @@ C     (1 + dt*Elasiticy/viscosity)
         denom(I,J) = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
        ENDDO
       ENDDO
+      CALL SEAICE_RECIP_RELAXTIME(
+     I     damageZ,
+     O     recip_rlx,
+     I     bi, bj, myTime, myIter, myThid )
+      DO J=1-OLy,sNy+OLy
+       DO I=1-OLx,sNx+OLx
+        denomZ(I,J) = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
+       ENDDO
+      ENDDO
       DO j=0,sNy
        DO i=0,sNx
         sig11(I,J) = 0.5 _d 0 * denom(I,J) *
@@ -538,10 +554,12 @@ C     (1 + dt*Elasiticy/viscosity)
        DO I=1,sNx+1
 C Update-RHS-Options E1/E2
 C Option E1: average whole denominator
-        sig12(I,J) = sigma12(I,J,bi,bj)*fldAtZ(denom,i,j,bi,bj)
+c        sig12(I,J) = sigma12(I,J,bi,bj)*fldAtZ(denom,i,j,bi,bj)
 C Option E2: average only recip_rlx
 C        sig12(I,J) = sigma12(I,J,bi,bj)
 C     &       /(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
+C Option DoupleParameters
+         sig12(I,J) = sigma12(I,J,bi,bj)*denomZ(I,J)            
        ENDDO
       ENDDO
       IF (.NOT.SEAICE_no_slip) THEN
@@ -577,6 +595,7 @@ C     !ROUTINE: SEAICE_MEB_CALC_SIGMAP
 C     !INTERFACE:
       SUBROUTINE SEAICE_MEB_CALC_SIGMAP(
      I     e11, e22, e12, press0, etaZ, damage, dCrit,
+     I     damageZ, dCritZ, press0Z,
      U     sigPlus, sigMinus, sigma12, sigma12C,
      I     bi, bj, myTime, myIter, myThid )
 
@@ -604,13 +623,16 @@ C     myTime :: Simulation time
 C     myIter :: Simulation timestep number
 C     myThid :: my Thread Id. number
       _RL damage  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL damageZ  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL dCrit   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL dCritZ   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigPlus (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigMinus(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigma12 (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 CMB Plante (2020)
       _RL sigma12C(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL press0  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL press0Z (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL e11     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL e22     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL e12     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -637,6 +659,7 @@ C     update press0 to include new damage
 C
       CALL SEAICE_MEB_CALC_STRESS(
      I     e11, e22, e12, press0, etaZ, damage,
+     I     damageZ, press0Z,
      I     sigPlus, sigMinus, sigma12, sigma12C,
      O     sig11, sig22, sig12, sig12C,
      I     bi, bj, myTime, myIter, myThid )
@@ -661,6 +684,7 @@ C     !ROUTINE: SEAICE_MEB_CALC_STRESS
 C     !INTERFACE:
       SUBROUTINE SEAICE_MEB_CALC_STRESS(
      I     e11, e22, e12, press0, etaZ, damage,
+     I     damageZ, press0Z,
      I     sigPlus, sigMinus, sigma12, sigma12C,
      O     sig11, sig22, sig12, sig12C,
      I     bi, bj, myTime, myIter, myThid )
@@ -690,11 +714,13 @@ C     myTime :: Simulation time
 C     myIter :: Simulation timestep number
 C     myThid :: my Thread Id. number
       _RL damage  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL damageZ  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigPlus (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigMinus(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigma12 (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL sigma12C (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL press0  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL press0Z  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL e11     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL e22     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL e12     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -715,6 +741,7 @@ C     i,j :: loop indices
       INTEGER i,j
       _RL recip_rlx(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL denom(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL denomZ(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL denom_z
       _RL sumNorm, deltaTloc
       _RL SEAICEmebMu, SEAICEmebLambda
@@ -751,6 +778,18 @@ C
         denom(I,J) = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
        ENDDO
       ENDDO
+      CALL SEAICE_RECIP_RELAXTIME(
+     I     damageZ,
+     O     recip_rlx,
+     I     bi, bj, myTime, myIter, myThid )
+C
+C     step stress equations
+C
+      DO J=1-OLy,sNy+OLy
+       DO I=1-OLx,sNx+OLx
+        denomZ(I,J) = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
+       ENDDO
+      ENDDO
       DO J=1-OLy,sNy+OLy-1
        DO I=1-OLx,sNx+OLx-1
         ep   = e11(i,j,bi,bj) + e22(i,j,bi,bj)
@@ -779,6 +818,8 @@ c     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
             DO I=1-OLx+1,sNx+OLx
 C     averaging to Z-points
         etaLoc = SEAICEmebMu *fldAtZ(press0(:,:,bi,bj),i,j,bi,bj)
+C DoubleParameters
+        etaLoc = SEAICEmebMu *press0Z(I,J,bi,bj)     
         rhs12 = 2. _d 0 * etaLoc * e12(I,J,bi,bj)
 C denom2-Options: F1/F2
 C Option F1: averaging whole denominator
@@ -786,7 +827,9 @@ C Option F1: averaging whole denominator
 C Option F2: averaging only recip_rlx
 CML        denom_z = 1. _d 0
 CML     &       /(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
-        sig12(I,J) = (sigma12(I,J,bi,bj)+deltaTLoc*rhs12)*denom_z
+C        sig12(I,J) = (sigma12(I,J,bi,bj)+deltaTLoc*rhs12)*denom_z
+C Option DoubleParameters
+        sig12(I,J) = (sigma12(I,J,bi,bj)+deltaTLoc*rhs12)*denomZ(I,J)
        ENDDO
       ENDDO
       IF (.NOT.SEAICE_no_slip) THEN

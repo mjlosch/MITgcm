@@ -53,6 +53,8 @@ C
       INTEGER i, j
       INTEGER iMin, iMax, jMin, jMax
       _RL tmpscal1, tmpscal2
+      _RL fldAtZ
+      EXTERNAL fldAtZ
 #ifdef SEAICE_ITD
 C     variables related to ridging schemes
 C     ridgingModeNorm :: norm to ensure convervation (N in Lipscomb et al 2007)
@@ -115,6 +117,10 @@ C--   now set up ice pressure and viscosities
          ENDIF
          PRESS0(I,J,bi,bj)=SEAICE_strength*tmpscal2
      &        *EXP(-SEAICE_cStar*(SEAICE_area_max-AREA(i,j,bi,bj)))
+         PRESS0Z(I,J,bi,bj)=SEAICE_strength
+     &        *fldAtZ(HEFF(:,:,bi,bj),i,j,bi,bj)
+     &        *EXP(-SEAICE_cStar
+     &        *(SEAICE_area_max-fldAtZ(AREA(:,:,bi,bj),i,j,bi,bj)))
          ZMAX(I,J,bi,bj)  = SEAICE_zetaMaxFac*PRESS0(I,J,bi,bj)
          ZMIN(I,J,bi,bj)  = SEAICE_zetaMin
          PRESS0(I,J,bi,bj)= PRESS0(I,J,bi,bj)*HEFFM(I,J,bi,bj)
@@ -183,6 +189,7 @@ C
        DO j=jMin,jMax
         DO i=iMin,iMax
          press0(i,j,bi,bj)=press0(i,j,bi,bj)*damage(i,j,bi,bj)
+         press0Z(i,j,bi,bj)=press0(i,j,bi,bj)*damageZ(i,j,bi,bj)
         ENDDO
        ENDDO
       ENDIF

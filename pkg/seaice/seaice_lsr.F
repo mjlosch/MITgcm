@@ -445,6 +445,7 @@ C-    add Coriolis term
         IF ( SEAICEuseMEB ) THEN
          CALL SEAICE_MEB_UPDATE_RHS(
      I        damage, seaice_sigma1, seaice_sigma2, seaice_sigma12,
+     I        damageZ,
      U        FORCEX, FORCEY,
      I        bi, bj, myTime, myIter, myThid )
         ENDIF

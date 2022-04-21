@@ -426,6 +426,7 @@ C     with the damage, this time return result in global fields
         DO bi=myBxLo(myThid),myBxHi(myThid)
          CALL SEAICE_MEB_CALC_SIGMAP(
      I        e11, e22, e12, press0, etaZ, damage, dCrit,
+     I        damageZ, dCritZ, press0Z,
      U        seaice_sigma1, seaice_sigma2, seaice_sigma12,
      U        seaice_sigma12C,
      I        bi, bj, myTime, myIter, myThid )

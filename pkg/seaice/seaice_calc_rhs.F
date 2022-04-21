@@ -114,6 +114,7 @@ C     ( remember to average to correct velocity points )
         IF ( SEAICEuseMEB ) THEN
          CALL SEAICE_MEB_UPDATE_RHS(
      I        damage, seaice_sigma1, seaice_sigma2, seaice_sigma12,
+     I        damageZ,                
      U        uIceRHS, vIceRHS,
      I        bi, bj, myTime, myIter, myThid )
         ENDIF

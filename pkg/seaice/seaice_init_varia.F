@@ -40,6 +40,8 @@ C     i,j,k,bi,bj :: Loop counters
       INTEGER kSrf
       _RS  mask_uice
       INTEGER k
+      _RL fldAtZ
+      EXTERNAL fldAtZ
 #ifdef ALLOW_SITRACER
       INTEGER iTr, jTh
 #endif
@@ -119,6 +121,7 @@ C
           CbotC(i,j,bi,bj)   = 0. _d 0
 #endif /* SEAICE_ALLOW_BOTTOMDRAG */
           PRESS0(i,j,bi,bj)  = 0. _d 0
+          PRESS0Z(i,j,bi,bj) = 0. _d 0
           PRESS (i,j,bi,bj)  = 0. _d 0
           FORCEX0(i,j,bi,bj) = 0. _d 0
           FORCEY0(i,j,bi,bj) = 0. _d 0
@@ -491,6 +494,10 @@ C---  Complete initialization
           ETA(i,j,bi,bj)    = ZETA(i,j,bi,bj)/SEAICE_eccen**2
           PRESS0(i,j,bi,bj) = SEAICE_strength*HEFF(i,j,bi,bj)
      &         *EXP(-SEAICE_cStar*(ONE-AREA(i,j,bi,bj)))
+          PRESS0Z(i,j,bi,bj) = SEAICE_strength
+     &         *fldAtZ(HEFF(:,:,bi,bj),i,j,bi,bj)
+     &         *EXP(-SEAICE_cStar
+     &         *(ONE-fldAtZ(AREA(:,:,bi,bj),i,j,bi,bj)))
           ZMAX(i,j,bi,bj)   = SEAICE_zetaMaxFac*PRESS0(i,j,bi,bj)
           ZMIN(i,j,bi,bj)   = SEAICE_zetaMin
           PRESS0(i,j,bi,bj) = PRESS0(i,j,bi,bj)*HEFFM(i,j,bi,bj)
