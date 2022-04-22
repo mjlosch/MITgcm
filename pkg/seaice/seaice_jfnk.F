@@ -375,7 +375,8 @@ CML       CALL SEAICE_UPDATE_DAMAGE( .TRUE., myTime, myIter, myThid )
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
          CALL SEAICE_MEB_CALC_SIGMAP(
-     I        e11, e22, e12, press0, etaZ, damage, dCrit,
+     I        e11, e22, e12, press0, damage, dCrit,
+     I        damageZ, dCritZ, press0Z, eta, etaZ, zeta, zetaZ,
      U        seaice_sigma1, seaice_sigma2, seaice_sigma12,
      U        seaice_sigma12C,
      I        bi, bj, myTime, myIter, myThid )          

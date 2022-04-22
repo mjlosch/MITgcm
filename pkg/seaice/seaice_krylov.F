@@ -220,7 +220,7 @@ C     the Krylov iteration)
        CALL SEAICE_CALC_VISCOSITIES(
      I      e11, e22, e12, zMin, zMax, HEFFM, press0, tensileStrFac,
 #ifdef SEAICE_ALLOW_DAMAGE
-     I      damage,
+     I      damage, damageZ, press0Z,
 #endif /* SEAICE_ALLOW_DAMAGE */
      O      eta, etaZ, zeta, zetaZ, press, deltaC,
      I      0, myTime, myIter, myThid )
@@ -425,8 +425,8 @@ C     with the damage, this time return result in global fields
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
          CALL SEAICE_MEB_CALC_SIGMAP(
-     I        e11, e22, e12, press0, etaZ, damage, dCrit,
-     I        damageZ, dCritZ, press0Z,
+     I        e11, e22, e12, press0, damage, dCrit,
+     I        damageZ, dCritZ, press0Z, eta, etaZ, zeta, zetaZ,
      U        seaice_sigma1, seaice_sigma2, seaice_sigma12,
      U        seaice_sigma12C,
      I        bi, bj, myTime, myIter, myThid )

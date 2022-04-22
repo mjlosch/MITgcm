@@ -152,8 +152,8 @@ C     re-compute stress from most recent strain rates
 #  ifdef SEAICE_ALLOW_MEB
         IF ( SEAICEuseMEB ) THEN
          CALL SEAICE_MEB_CALC_STRESS(
-     I        e11, e22, e12, press0, etaZ, damage,
-     I        damageZ, press0Z,
+     I        e11, e22, e12, press0, damage,
+     I        damageZ, press0Z, eta, etaZ, zeta, zetaZ,
      I        seaice_sigma1, seaice_sigma2, seaice_sigma12,
      I        seaice_sigma12C,
      O        sig11, sig22, sig12, sig12C,
@@ -594,8 +594,8 @@ CBOP
 C     !ROUTINE: SEAICE_MEB_CALC_SIGMAP
 C     !INTERFACE:
       SUBROUTINE SEAICE_MEB_CALC_SIGMAP(
-     I     e11, e22, e12, press0, etaZ, damage, dCrit,
-     I     damageZ, dCritZ, press0Z,
+     I     e11, e22, e12, press0, damage, dCrit,
+     I     damageZ, dCritZ, press0Z, eta, etaZ, zeta, zetaZ,
      U     sigPlus, sigMinus, sigma12, sigma12C,
      I     bi, bj, myTime, myIter, myThid )
 
@@ -636,7 +636,10 @@ CMB Plante (2020)
       _RL e11     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL e22     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL e12     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL eta     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL etaZ    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL zeta    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL zetaZ   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C
       INTEGER bi, bj
       _RL     myTime
@@ -658,8 +661,8 @@ C     update press0 to include new damage
      I     bi, bj, myTime, myIter, myThid )
 C
       CALL SEAICE_MEB_CALC_STRESS(
-     I     e11, e22, e12, press0, etaZ, damage,
-     I     damageZ, press0Z,
+     I     e11, e22, e12, press0, damage,
+     I     damageZ, press0Z, eta, etaZ, zeta, zetaZ,
      I     sigPlus, sigMinus, sigma12, sigma12C,
      O     sig11, sig22, sig12, sig12C,
      I     bi, bj, myTime, myIter, myThid )
@@ -683,8 +686,8 @@ CBOP
 C     !ROUTINE: SEAICE_MEB_CALC_STRESS
 C     !INTERFACE:
       SUBROUTINE SEAICE_MEB_CALC_STRESS(
-     I     e11, e22, e12, press0, etaZ, damage,
-     I     damageZ, press0Z,
+     I     e11, e22, e12, press0, damage,
+     I     damageZ, press0Z, eta, etaZ, zeta, zetaZ,
      I     sigPlus, sigMinus, sigma12, sigma12C,
      O     sig11, sig22, sig12, sig12C,
      I     bi, bj, myTime, myIter, myThid )
@@ -724,7 +727,10 @@ C     myThid :: my Thread Id. number
       _RL e11     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL e22     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL e12     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL eta    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL etaZ    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL zeta    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL zetaZ    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C     ouptut :: new stress tensor components
       _RL sig11   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig22   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -761,18 +767,18 @@ CEOP
       ENDDO
 C     some abbreviations
       deltaTloc = SEAICE_deltaTdyn
-C     derived parameters (should probably be global variables)
-      SEAICEmebMu = 0.5 _d 0/(1.+SEAICEpoissonRatio)
-      SEAICEmebLambda = SEAICEmebMu * 2. _d 0*SEAICEpoissonRatio
-     &     /(1. _d 0 - SEAICEpoissonRatio)
-C
+cC     derived parameters (should probably be global variables)
+c      SEAICEmebMu = 0.5 _d 0/(1.+SEAICEpoissonRatio)
+c      SEAICEmebLambda = SEAICEmebMu * 2. _d 0*SEAICEpoissonRatio
+c     &     /(1. _d 0 - SEAICEpoissonRatio)
+cC
       CALL SEAICE_RECIP_RELAXTIME(
      I     damage,
      O     recip_rlx,
      I     bi, bj, myTime, myIter, myThid )
-C
-C     step stress equations
-C
+cC
+cC     step stress equations
+cC
       DO J=1-OLy,sNy+OLy
        DO I=1-OLx,sNx+OLx
         denom(I,J) = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
@@ -782,9 +788,9 @@ C
      I     damageZ,
      O     recip_rlx,
      I     bi, bj, myTime, myIter, myThid )
-C
-C     step stress equations
-C
+cC
+cC     step stress equations
+cC
       DO J=1-OLy,sNy+OLy
        DO I=1-OLx,sNx+OLx
         denomZ(I,J) = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
@@ -794,24 +800,31 @@ C
        DO I=1-OLx,sNx+OLx-1
         ep   = e11(i,j,bi,bj) + e22(i,j,bi,bj)
         em   = e11(i,j,bi,bj) - e22(i,j,bi,bj)
-        zetaLoc = (SEAICEmebLambda + SEAICEmebMu) * press0(I,J,bi,bj)
-        etaLoc  = SEAICEmebMu * press0(I,J,bi,bj)
-        sigp    = maskInC(I,J,bi,bj)
-     &       * (sigPlus (I,J,bi,bj)+deltaTloc*2.*zetaLoc*ep)*denom(I,J)
-        sigm    = maskInC(I,J,bi,bj)
-     &       * (sigMinus(I,J,bi,bj)+deltaTloc*2.* etaLoc*em)*denom(I,J)
+c        zetaLoc = (SEAICEmebLambda + SEAICEmebMu) * press0(I,J,bi,bj)
+c        etaLoc  = SEAICEmebMu * press0(I,J,bi,bj)
+c        sigp    = maskInC(I,J,bi,bj)
+c     &       * (sigPlus (I,J,bi,bj)+deltaTloc*2.*zetaLoc*ep)*denom(I,J)
+c        sigm    = maskInC(I,J,bi,bj)
+c     &       * (sigMinus(I,J,bi,bj)+deltaTloc*2.* etaLoc*em)*denom(I,J)
+       PRINT *, zeta(I,J,bi,bj)
+        sigp    = maskInC(I,J,bi,bj)* (denom(I,J) * sigPlus(I,J,bi,bj)
+     &       + 2.*zeta(I,J,bi,bj) *ep)
+        sigm    = maskInC(I,J,bi,bj)* (denom(I,J) *sigMinus(I,J,bi,bj)
+     &       + 2.* eta(I,J,bi,bj)*em)
 C     recover sigma11 and sigma22
         sig11(I,J) = 0.5 _d 0 * ( sigp+sigm )
         sig22(I,J) = 0.5 _d 0 * ( sigp-sigm )
 CMB   averaging
-        rhs12 = 2.*etaLoc*fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
+c        rhs12 = 2. * eta(I,J,bi,bj) * fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
+        rhs12 = 2.*fldAtC(e12(:,:,bi,bj)*etaZ(:,:,bi,bj),i,j,bi,bj)
 C Calc-Stress-Options D1/D2
 C Option D1: averaging sigma12
 c        sig12C(I,J,bi,bj) = denom(I,J) * ( deltaTLoc*rhs12 +
 c     &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
 C Option D2: using uncoupled sigma12C
-        sig12C(I,J,bi,bj) = denom(I,J)
-     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
+c        sig12C(I,J,bi,bj) = denom(I,J)
+c     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
+        sig12C(I,J,bi,bj) = rhs12+sigma12C(I,J,bi,bj)*denomZ(I,J)
        ENDDO
       ENDDO
       DO J=1-OLy+1,sNy+OLy
@@ -819,8 +832,9 @@ C Option D2: using uncoupled sigma12C
 C     averaging to Z-points
 c        etaLoc = SEAICEmebMu *fldAtZ(press0(:,:,bi,bj),i,j,bi,bj)
 C DoubleParameters
-        etaLoc = SEAICEmebMu *press0Z(I,J,bi,bj)     
-        rhs12 = 2. _d 0 * etaLoc * e12(I,J,bi,bj)
+c        etaLoc = SEAICEmebMu *press0Z(I,J,bi,bj)     
+c        rhs12 = 2. _d 0 * etaLoc * e12(I,J,bi,bj)
+        rhs12 = 2. _d 0 * etaZ(I,J,bi,bj) * e12(I,J,bi,bj)
 C denom2-Options: F1/F2
 C Option F1: averaging whole denominator
 c        denom_z = fldAtZ(denom,i,j,bi,bj)
@@ -829,7 +843,7 @@ CML        denom_z = 1. _d 0
 CML     &       /(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
 C        sig12(I,J) = (sigma12(I,J,bi,bj)+deltaTLoc*rhs12)*denom_z
 C Option DoubleParameters
-        sig12(I,J) = (sigma12(I,J,bi,bj)+deltaTLoc*rhs12)*denomZ(I,J)
+        sig12(I,J) = denomZ(I,J) * sigma12(I,J,bi,bj)+ rhs12
        ENDDO
       ENDDO
       IF (.NOT.SEAICE_no_slip) THEN

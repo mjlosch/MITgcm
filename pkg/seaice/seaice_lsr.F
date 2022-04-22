@@ -350,7 +350,7 @@ CADJ STORE vicec = comlev1_dynsol, kind=isbyte, key = itmpkey
       CALL SEAICE_CALC_VISCOSITIES(
      I     e11, e22, e12, zMin, zMax, HEFFM, press0, tensileStrFac,
 #ifdef SEAICE_ALLOW_DAMAGE
-     I     damage,
+     I     damage, damageZ, press0Z,
 #endif /* SEAICE_ALLOW_DAMAGE */
      O     eta, etaZ, zeta, zetaZ, press, deltaC,
      I     ipass, myTime, myIter, myThid )

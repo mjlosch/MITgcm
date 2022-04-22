@@ -11,7 +11,7 @@ CStartOfInterface
       SUBROUTINE SEAICE_CALC_VISCOSITIES(
      I     e11, e22, e12, zMin, zMax, HEFFM, press0, tnsFac,
 #ifdef SEAICE_ALLOW_DAMAGE
-     I     damage,
+     I     damage, damageZ, press0Z,
 #endif /* SEAICE_ALLOW_DAMAGE */
      O     eta, etaZ, zeta, zetaZ, press, deltaC,
      I     iStep, myTime, myIter, myThid )
@@ -52,6 +52,7 @@ C
       _RL HEFFM (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C
       _RL press0(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL press0Z(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL press (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C
       _RL deltaC(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -66,6 +67,7 @@ C     shear viscosity
 C
 #ifdef SEAICE_ALLOW_DAMAGE
       _RL damage(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL damageZ(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 #else
       _RL damage(1)
 #endif /* SEAICE_ALLOW_DAMAGE */
@@ -517,14 +519,32 @@ C     compute eta at Z-points by simple averaging
 C     To control averaging process for MEB
 #ifdef SEAICE_ALLOW_MEB
         IF ( SEAICEuseMEB ) THEN
-         DO j=1-OLy+1,sNy+OLy-1
-          DO i=1-OLx+1,sNx+OLx-1
-           etaZ (i,j,bi,bj) = fldAtZ(eta(:,:,bi,bj),i,j,bi,bj)
-           zetaZ(i,j,bi,bj) = fldAtZ(zeta(:,:,bi,bj),i,j,bi,bj)
+C DoubleParameters
+         SEAICEmebMu = 0.5 _d 0 /(1. _d 0+SEAICEpoissonRatio)
+         poissonFac = 2. _d 0*SEAICEpoissonRatio
+     &        /(1. _d 0 - SEAICEpoissonRatio)
+         CALL SEAICE_RECIP_RELAXTIME(
+     I        damageZ,
+     O        recip_rlx,
+     I        bi, bj, myTime, myIter, myThid )
+         DO j=1-OLy,sNy+OLy
+          DO i=1-OLx,sNx+OLx
+           denom  = 1./(1.+SEAICE_deltaTdyn*recip_rlx(I,J))
+           mu     = press0Z(i,j,bi,bj) * SEAICEmebMu * SEAICE_deltaTdyn
+     &          * denom
+           zetaZ(i,j,bi,bj) = mu*(poissonFac + 1. _d 0)
+           etaZ (i,j,bi,bj) = mu
           ENDDO
-         ENDDO
+         ENDDO 
+c         DO j=1-OLy+1,sNy+OLy-1
+c          DO i=1-OLx+1,sNx+OLx-1
+c           etaZ (i,j,bi,bj) = fldAtZ(eta(:,:,bi,bj),i,j,bi,bj)
+c           zetaZ(i,j,bi,bj) = fldAtZ(zeta(:,:,bi,bj),i,j,bi,bj)
+c          ENDDO
+c         ENDDO
         ENDIF
 #endif /* SEAICE_ALLOW_MEB */
+c
 C     free-slip means no lateral stress, which is best achieved by masking
 C     eta on vorticity(=Z)-points; from now on we only need to worry
 C     about the no-slip boundary conditions
