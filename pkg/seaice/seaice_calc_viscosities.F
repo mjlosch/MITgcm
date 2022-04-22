@@ -519,8 +519,8 @@ C     To control averaging process for MEB
         IF ( SEAICEuseMEB ) THEN
          DO j=1-OLy+1,sNy+OLy-1
           DO i=1-OLx+1,sNx+OLx-1
-           etaZ (i,j,bi,bj) = fldAtZ(etaZ,i,j,bi,bj)
-           zetaZ(i,j,bi,bj) = fldAtZ(zetaZ,i,j,bi,bj)
+           etaZ (i,j,bi,bj) = fldAtZ(eta(:,:,bi,bj),i,j,bi,bj)
+           zetaZ(i,j,bi,bj) = fldAtZ(zeta(:,:,bi,bj),i,j,bi,bj)
           ENDDO
          ENDDO
         ENDIF

@@ -259,9 +259,9 @@ C Option C1/C2: averaged/new dcritz
           damageCrit = MAX(damageCrit, 0. _d 0)
 C Damage-Options:
 C Option A1: Damage explicit and for dt< damagetime:
-          damageZ(I,J,bi,bj) = damageNm1Z(I,J,bi,bj) *
-     &         (deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
-     &          + deltaTloc*recip_healingTime
+c          damageZ(I,J,bi,bj) = damageNm1Z(I,J,bi,bj) *
+c     &         (deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
+c     &          + deltaTloc*recip_healingTime
 C Option A2: damage without dependency of time step
 c          damageZ(I,J,bi,bj) = damageNm1Z(I,J,bi,bj)*damageCrit 
 c          damageZ(I,J,bi,bj) = damageZ(I,J,bi,bj) +
@@ -272,9 +272,6 @@ c     &      (damageNm1Z(I,J,bi,bj) + deltaTloc*recip_healingTime)/
 c     &      (1. - deltaTloc*recip_damageTime*(damageCrit-1.))
 C Option A4: do not update damage ever
 c          damageZ(i,j,bi,bj) = 1.
-C     make sure that 0 < damage <=1
-          damageZ(I,J,bi,bj) = MIN(1. _d 0, damageZ(I,J,bi,bj))
-          damageZ(I,J,bi,bj) = MAX(0. _d 0, damageZ(I,J,bi,bj))
 C Sigma-Update-Options:
 C Option B1/C1: update stress time dependent/averaged 
 c          dCritZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
@@ -289,6 +286,9 @@ c      dCritZ(I,J,bi,bj) = 1. _d 0
 C Option DoubleParameters
           dCritZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
           damageZ(I,J,bi,bj) = dCritZ(I,J,bi,bj)
+C     make sure that 0 < damage <=1
+          damageZ(I,J,bi,bj) = MIN(1. _d 0, damageZ(I,J,bi,bj))
+          damageZ(I,J,bi,bj) = MAX(0. _d 0, damageZ(I,J,bi,bj))
          ENDDO
         ENDDO  
 C If out of Loop for better performance
@@ -807,23 +807,23 @@ CMB   averaging
         rhs12 = 2.*etaLoc*fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
 C Calc-Stress-Options D1/D2
 C Option D1: averaging sigma12
-        sig12C(I,J,bi,bj) = denom(I,J) * ( deltaTLoc*rhs12 +
-     &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
+c        sig12C(I,J,bi,bj) = denom(I,J) * ( deltaTLoc*rhs12 +
+c     &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
 C Option D2: using uncoupled sigma12C
-c        sig12C(I,J,bi,bj) = denom(I,J)
-c     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
+        sig12C(I,J,bi,bj) = denom(I,J)
+     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
        ENDDO
       ENDDO
       DO J=1-OLy+1,sNy+OLy
             DO I=1-OLx+1,sNx+OLx
 C     averaging to Z-points
-        etaLoc = SEAICEmebMu *fldAtZ(press0(:,:,bi,bj),i,j,bi,bj)
+c        etaLoc = SEAICEmebMu *fldAtZ(press0(:,:,bi,bj),i,j,bi,bj)
 C DoubleParameters
         etaLoc = SEAICEmebMu *press0Z(I,J,bi,bj)     
         rhs12 = 2. _d 0 * etaLoc * e12(I,J,bi,bj)
 C denom2-Options: F1/F2
 C Option F1: averaging whole denominator
-        denom_z = fldAtZ(denom,i,j,bi,bj)
+c        denom_z = fldAtZ(denom,i,j,bi,bj)
 C Option F2: averaging only recip_rlx
 CML        denom_z = 1. _d 0
 CML     &       /(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
@@ -907,8 +907,8 @@ CEOP
         seaice_sigma2(I,J,bi,bj)  =seaice_sigma2(I,J,bi,bj)
      &         * dCrit(I,J,bi,bj)
 C option D2: uncoupled sig12C
-c        seaice_sigma12C(I,J,bi,bj)=seaice_sigma12C(I,J,bi,bj)
-c     &         * dCrit(I,J,bi,bj)
+        seaice_sigma12C(I,J,bi,bj)=seaice_sigma12C(I,J,bi,bj)
+     &         * dCrit(I,J,bi,bj)
        ENDDO
       ENDDO
       DO J=1,sNy+1
