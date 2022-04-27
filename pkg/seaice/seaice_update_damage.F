@@ -200,11 +200,11 @@ C Option A1: Damage    explicit and for dt< damagetime:
      &         (deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
      &          + deltaTloc*recip_healingTime * maskInC(I,J,bi,bj)
 C Option A2: new old version of damage without dependeny of time step
-c          damage(I,J,bi,bj) = damageNm1(I,J,bi,bj)*damageCrit 
+c          damage(I,J,bi,bj) = damageNm1(I,J,bi,bj)*damageCrit
 c          damage(I,J,bi,bj) = damage(I,J,bi,bj) +
 c     &     (1-damage(I,J,bi,bj)*deltaTLoc*recip_healingTime)
 C Option A3: implicit time dependent damage
-c          damage(I,J,bi,bj) = 1. _d 0 * 
+c          damage(I,J,bi,bj) = 1. _d 0 *
 c     &      (damageNm1(I,J,bi,bj) + deltaTloc*recip_healingTime)/
 c     &      (1. - deltaTloc*recip_damageTime*(damageCrit-1.))
 C Option A4: do not update damage ever
@@ -263,20 +263,20 @@ c          damageZ(I,J,bi,bj) = damageNm1Z(I,J,bi,bj) *
 c     &         (deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
 c     &          + deltaTloc*recip_healingTime
 C Option A2: damage without dependency of time step
-c          damageZ(I,J,bi,bj) = damageNm1Z(I,J,bi,bj)*damageCrit 
+c          damageZ(I,J,bi,bj) = damageNm1Z(I,J,bi,bj)*damageCrit
 c          damageZ(I,J,bi,bj) = damageZ(I,J,bi,bj) +
 c     &     (1-damage(I,J,bi,bj)*deltaTLoc*recip_healingTime)
 C Option A3: implicit time dependent damage
-c          damageZ(I,J,bi,bj) = 1. _d 0 * 
+c          damageZ(I,J,bi,bj) = 1. _d 0 *
 c     &      (damageNm1Z(I,J,bi,bj) + deltaTloc*recip_healingTime)/
 c     &      (1. - deltaTloc*recip_damageTime*(damageCrit-1.))
 C Option A4: do not update damage ever
 c          damageZ(i,j,bi,bj) = 1.
 C Sigma-Update-Options:
-C Option B1/C1: update stress time dependent/averaged 
+C Option B1/C1: update stress time dependent/averaged
 c          dCritZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
-C Option B1/C2: update stress time dependent/new 
-c          dCritZ(I,J,bi,bj) = damageZ(I,J,bi,bj) 
+C Option B1/C2: update stress time dependent/new
+c          dCritZ(I,J,bi,bj) = damageZ(I,J,bi,bj)
 C Option B2/C1: update with dcrit/averaged
 C          dCritZ(i,j,bi,bj) = fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
 C Option B2/C2: update with new dcrit
@@ -290,7 +290,7 @@ C     make sure that 0 < damage <=1
           damageZ(I,J,bi,bj) = MIN(1. _d 0, damageZ(I,J,bi,bj))
           damageZ(I,J,bi,bj) = MAX(0. _d 0, damageZ(I,J,bi,bj))
          ENDDO
-        ENDDO  
+        ENDDO
 C If out of Loop for better performance
         IF ( updateSigma ) THEN
          DO J=1, sNy+1
@@ -559,7 +559,7 @@ C Option E2: average only recip_rlx
 C        sig12(I,J) = sigma12(I,J,bi,bj)
 C     &       /(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
 C Option DoupleParameters
-         sig12(I,J) = sigma12(I,J,bi,bj)*denomZ(I,J)            
+         sig12(I,J) = sigma12(I,J,bi,bj)*denomZ(I,J)
        ENDDO
       ENDDO
       IF (.NOT.SEAICE_no_slip) THEN
@@ -806,7 +806,6 @@ c        sigp    = maskInC(I,J,bi,bj)
 c     &       * (sigPlus (I,J,bi,bj)+deltaTloc*2.*zetaLoc*ep)*denom(I,J)
 c        sigm    = maskInC(I,J,bi,bj)
 c     &       * (sigMinus(I,J,bi,bj)+deltaTloc*2.* etaLoc*em)*denom(I,J)
-       PRINT *, zeta(I,J,bi,bj)
         sigp    = maskInC(I,J,bi,bj)* (denom(I,J) * sigPlus(I,J,bi,bj)
      &       + 2.*zeta(I,J,bi,bj) *ep)
         sigm    = maskInC(I,J,bi,bj)* (denom(I,J) *sigMinus(I,J,bi,bj)
@@ -828,11 +827,11 @@ c     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
        ENDDO
       ENDDO
       DO J=1-OLy+1,sNy+OLy
-            DO I=1-OLx+1,sNx+OLx
+       DO I=1-OLx+1,sNx+OLx
 C     averaging to Z-points
 c        etaLoc = SEAICEmebMu *fldAtZ(press0(:,:,bi,bj),i,j,bi,bj)
 C DoubleParameters
-c        etaLoc = SEAICEmebMu *press0Z(I,J,bi,bj)     
+c        etaLoc = SEAICEmebMu *press0Z(I,J,bi,bj)
 c        rhs12 = 2. _d 0 * etaLoc * e12(I,J,bi,bj)
         rhs12 = 2. _d 0 * etaZ(I,J,bi,bj) * e12(I,J,bi,bj)
 C denom2-Options: F1/F2

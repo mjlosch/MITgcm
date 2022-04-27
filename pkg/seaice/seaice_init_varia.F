@@ -494,13 +494,18 @@ C---  Complete initialization
           ETA(i,j,bi,bj)    = ZETA(i,j,bi,bj)/SEAICE_eccen**2
           PRESS0(i,j,bi,bj) = SEAICE_strength*HEFF(i,j,bi,bj)
      &         *EXP(-SEAICE_cStar*(ONE-AREA(i,j,bi,bj)))
+          PRESS0Z(i,j,bi,bj) = PRESS0(i,j,bi,bj)
+          ZMAX(i,j,bi,bj)   = SEAICE_zetaMaxFac*PRESS0(i,j,bi,bj)
+          ZMIN(i,j,bi,bj)   = SEAICE_zetaMin
+          PRESS0(i,j,bi,bj) = PRESS0(i,j,bi,bj)*HEFFM(i,j,bi,bj)
+         ENDDO
+        ENDDO
+        DO j=1-OLy+1,sNy+OLy
+         DO i=1-OLx+1,sNx+OLx
           PRESS0Z(i,j,bi,bj) = SEAICE_strength
      &         *fldAtZ(HEFF(:,:,bi,bj),i,j,bi,bj)
      &         *EXP(-SEAICE_cStar
      &         *(ONE-fldAtZ(AREA(:,:,bi,bj),i,j,bi,bj)))
-          ZMAX(i,j,bi,bj)   = SEAICE_zetaMaxFac*PRESS0(i,j,bi,bj)
-          ZMIN(i,j,bi,bj)   = SEAICE_zetaMin
-          PRESS0(i,j,bi,bj) = PRESS0(i,j,bi,bj)*HEFFM(i,j,bi,bj)
          ENDDO
         ENDDO
 #ifdef SEAICE_ALLOW_DAMAGE
