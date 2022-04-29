@@ -527,8 +527,8 @@ C DoubleParameters
      I        damageZ,
      O        recip_rlx,
      I        bi, bj, myTime, myIter, myThid )
-         DO j=1-OLy,sNy+OLy
-          DO i=1-OLx,sNx+OLx
+         DO j=1-OLy+1,sNy+OLy-1
+          DO i=1-OLx+1,sNx+OLx-1
            denom  = 1./(1.+SEAICE_deltaTdyn*recip_rlx(I,J))
            mu     = press0Z(i,j,bi,bj) * SEAICEmebMu * SEAICE_deltaTdyn
      &          * denom

@@ -537,8 +537,8 @@ C     (1 + dt*Elasiticy/viscosity)
      I     damageZ,
      O     recip_rlx,
      I     bi, bj, myTime, myIter, myThid )
-      DO J=1-OLy,sNy+OLy
-       DO I=1-OLx,sNx+OLx
+      DO J=1-OLy+1,sNy+OLy-1
+       DO I=1-OLx+1,sNx+OLx-1
         denomZ(I,J) = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
        ENDDO
       ENDDO
@@ -791,8 +791,8 @@ cC
 cC
 cC     step stress equations
 cC
-      DO J=1-OLy,sNy+OLy
-       DO I=1-OLx,sNx+OLx
+      DO J=1-OLy+1,sNy+OLy-1
+       DO I=1-OLx+1,sNx+OLx-1
         denomZ(I,J) = 1. _d 0 /(1. _d 0+deltaTloc*recip_rlx(I,J))
        ENDDO
       ENDDO
@@ -823,11 +823,11 @@ c     &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
 C Option D2: using uncoupled sigma12C
 c        sig12C(I,J,bi,bj) = denom(I,J)
 c     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
-        sig12C(I,J,bi,bj) = rhs12+sigma12C(I,J,bi,bj)*denomZ(I,J)
+        sig12C(I,J,bi,bj) = rhs12+sigma12C(I,J,bi,bj)*denom(I,J)
        ENDDO
       ENDDO
-      DO J=1-OLy+1,sNy+OLy
-       DO I=1-OLx+1,sNx+OLx
+      DO J=1-OLy+1,sNy+OLy-1
+       DO I=1-OLx+1,sNx+OLx-1
 C     averaging to Z-points
 c        etaLoc = SEAICEmebMu *fldAtZ(press0(:,:,bi,bj),i,j,bi,bj)
 C DoubleParameters

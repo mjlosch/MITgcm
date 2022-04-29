@@ -500,8 +500,8 @@ C---  Complete initialization
           PRESS0(i,j,bi,bj) = PRESS0(i,j,bi,bj)*HEFFM(i,j,bi,bj)
          ENDDO
         ENDDO
-        DO j=1-OLy+1,sNy+OLy
-         DO i=1-OLx+1,sNx+OLx
+        DO j=1-OLy+1,sNy+OLy-1
+         DO i=1-OLx+1,sNx+OLx-1
           PRESS0Z(i,j,bi,bj) = SEAICE_strength
      &         *fldAtZ(HEFF(:,:,bi,bj),i,j,bi,bj)
      &         *EXP(-SEAICE_cStar

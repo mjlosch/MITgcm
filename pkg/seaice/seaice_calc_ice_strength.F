@@ -193,7 +193,11 @@ C
        DO j=jMin,jMax
         DO i=iMin,iMax
          press0(i,j,bi,bj)=press0(i,j,bi,bj)*damage(i,j,bi,bj)
-         press0Z(i,j,bi,bj)=press0(i,j,bi,bj)*damageZ(i,j,bi,bj)
+        ENDDO
+       ENDDO
+       DO j=1,sNy+1
+        DO i=1,sNx+1
+         press0Z(i,j,bi,bj)=press0Z(i,j,bi,bj)*damageZ(i,j,bi,bj)
         ENDDO
        ENDDO
       ENDIF
