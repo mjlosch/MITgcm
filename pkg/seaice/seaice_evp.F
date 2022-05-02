@@ -859,8 +859,11 @@ C     compute and adjust parameters that are constant otherwise
             betaFacU   = evpBetaU(I,J,bi,bj)*recip_deltaT
             betaFacV   = evpBetaV(I,J,bi,bj)*recip_deltaT
             tmp        = evpStarFac*recip_deltaT
-            betaFacP1V = betaFacV + tmp
-            betaFacP1U = betaFacU + tmp
+C     changes to make relaxation term explicit
+CML            betaFacP1V = betaFacV + tmp
+CML            betaFacP1U = betaFacU + tmp
+            betaFacP1V = betaFacV
+            betaFacP1U = betaFacU
             denomU = seaiceMassU(I,J,bi,bj)*betaFacP1U
      &           + 0.5 _d 0*( DWATN(I,J,bi,bj) + DWATN(I-1,J,bi,bj) )
      &           * COSWAT * areaW(I,J,bi,bj)
@@ -879,14 +882,14 @@ C     compute and adjust parameters that are constant otherwise
      &           ( seaiceMassU(I,J,bi,bj)*betaFacU
      &           * uIce(I,J,bi,bj)
      &           + seaiceMassU(I,J,bi,bj)*recip_deltaT*evpStarFac
-     &           * uIceNm1(I,J,bi,bj)
+     &           * (uIce(I,J,bi,bj) - uIceNm1(I,J,bi,bj))
      &           + FORCEX(I,J,bi,bj)
      &           + stressDivergenceX(I,J,bi,bj) ) / denomU
             vIce(I,J,bi,bj) = seaiceMaskV(I,J,bi,bj) *
      &           ( seaiceMassV(I,J,bi,bj)*betaFacV
      &           * vIce(I,J,bi,bj)
      &           + seaiceMassV(I,J,bi,bj)*recip_deltaT*evpStarFac
-     &           * vIceNm1(I,J,bi,bj)
+     &           * (vIce(I,J,bi,bj) - vIceNm1(I,J,bi,bj))
      &           + FORCEY(I,J,bi,bj)
      &           + stressDivergenceY(I,J,bi,bj) ) / denomV
 C--   to change results  of lab_sea.hb87 test exp. (only preserve 2 digits for cg2d)
