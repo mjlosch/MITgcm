@@ -243,8 +243,10 @@ C dcritZ-Option
 C Option C1/C2: averaged/new dcritz
         DO j=1,sNy+1
          DO i=1,sNx+1
-          sigp   = fldAtZ(sig11 + sig22,i,j,bi,bj)
-          sigm   = fldAtZ(sig11 - sig22,i,j,bi,bj)
+          sig1   = fldAtZ(sig11,i,j,bi,bj)
+          sig2   = fldAtZ(sig22,i,j,bi,bj)
+          sigp   = sig1+sig2
+          sigm   = sig1-sig2
           sigTmp = SQRT( sigm*sigm + 4.*sig12(i,j)**2 )
           sig1   = 0.5 _d 0 * ( sigp + sigTmp )
           sig2   = 0.5 _d 0 * ( sigp - sigTmp )
@@ -748,7 +750,8 @@ C     i,j :: loop indices
       _RL recip_rlx(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL denom(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL denomZ(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RL denom_z
+      _RL e12TimesEtaZ(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+c     _RL denom_z
       _RL sumNorm, deltaTloc
       _RL SEAICEmebMu, SEAICEmebLambda
       _RL zetaLoc, etaLoc
@@ -763,6 +766,7 @@ CEOP
         sig22(i,j) = 0. _d 0
         sig12(i,j) = 0. _d 0
         sig12C(i,j,bi,bj) = 0. _d 0
+        e12TimesEtaZ(i,j) = 0. _d 0
        ENDDO
       ENDDO
 C     some abbreviations
@@ -813,9 +817,14 @@ c     &       * (sigMinus(I,J,bi,bj)+deltaTloc*2.* etaLoc*em)*denom(I,J)
 C     recover sigma11 and sigma22
         sig11(I,J) = 0.5 _d 0 * ( sigp+sigm )
         sig22(I,J) = 0.5 _d 0 * ( sigp-sigm )
+        e12TimesEtaZ(i,j) = e12(i,j,bi,bj)*etaZ(i,j,bi,bj)
+       ENDDO
+      ENDDO
+      DO J=1-OLy,sNy+OLy-1
+       DO I=1-OLx,sNx+OLx-1
 CMB   averaging
 c        rhs12 = 2. * eta(I,J,bi,bj) * fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
-        rhs12 = 2.*fldAtC(e12(:,:,bi,bj)*etaZ(:,:,bi,bj),i,j,bi,bj)
+        rhs12 = 2.*fldAtC(e12TimesEtaZ,i,j,bi,bj)
 C Calc-Stress-Options D1/D2
 C Option D1: averaging sigma12
 c        sig12C(I,J,bi,bj) = denom(I,J) * ( deltaTLoc*rhs12 +
