@@ -187,6 +187,7 @@ CML          IF ( SEAICEuseTensileCutoff .AND.
 CML     &         sig1 .GT. 0. _d 0 .AND. sig2 .GT. sigmaT(I,J) )
           damageCrit = TENSILE_FAILURE(sig1,sig2,sigmaT(I,J),damageCrit)
           damageCrit = TENSILE_FAILURE(sig2,sig1,sigmaT(I,J),damageCrit)
+c          PRINT *, "MB-Sig", i,j,sig1, sig2, sigmaT(I,J), sigmaC(I,J)
 C     keep in mind that sigmaC < 0 so that the following criterion catches
 C     the case when sig2 is below sigmaC+q*sig1
           damageCrit = MC_FAILURE(sig1,sig2,q,sigmaC(I,J),damageCrit)
@@ -194,6 +195,7 @@ C     or above sigmaC+q*sig2
           damageCrit = MC_FAILURE(sig2,sig1,q,sigmaC(I,J),damageCrit)
 C     critical damage cannot be below zero (eq 39 in mebdoc.tex)
           damageCrit = MAX(damageCrit, 0. _d 0)
+c         PRINT *, damageCrit
 C Damage-Options:
 C Option A1: Damage    explicit and for dt< damagetime:
           damage(I,J,bi,bj) = damageNm1(I,J,bi,bj) *
@@ -214,9 +216,9 @@ C     make sure that 0 < damage <=1
           damage(I,J,bi,bj) = MAX(0. _d 0, damage(I,J,bi,bj))
 C Sigma-Update-Options:
 C Option B1: update stress as time dependent as dynamic parameters
-          dCrit(I,J,bi,bj) = damage(I,J,bi,bj)
+c          dCrit(I,J,bi,bj) = damage(I,J,bi,bj)
 C Option B2: update with dcrit
-C          dCrit(I,J,bi,bj) = damageCrit*maskInC(I,J,bi,bj)
+          dCrit(I,J,bi,bj) = damageCrit*maskInC(I,J,bi,bj)
 C Option B3: never update dcrit
 c          dCrit(I,J,bi,bj) = maskInC(I,J,bi,bj)
           IF ( AREA(I,J,bi,bj) .EQ. 0. _d 0 )
@@ -284,8 +286,9 @@ c          dCritZ(I,J,bi,bj) = damageCrit
 C option B3: never update dcrit
 c      dCritZ(I,J,bi,bj) = 1. _d 0
 C Option DoubleParameters
-          dCritZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
-          damageZ(I,J,bi,bj) = dCritZ(I,J,bi,bj)
+          dCritZ(I,J,bi,bj) = fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
+          damageZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
+c          dCrit(I,J,bi,bj) = damageZ(I,J,bi,bj)
 C     make sure that 0 < damage <=1
           damageZ(I,J,bi,bj) = MIN(1. _d 0, damageZ(I,J,bi,bj))
           damageZ(I,J,bi,bj) = MAX(0. _d 0, damageZ(I,J,bi,bj))
@@ -560,6 +563,7 @@ C        sig12(I,J) = sigma12(I,J,bi,bj)
 C     &       /(1. _d 0+deltaTloc*fldAtZ(recip_rlx,i,j,bi,bj))
 C Option DoupleParameters
          sig12(I,J) = sigma12(I,J,bi,bj)*denomZ(I,J)
+c         sig12(I,J) = sigma12(I,J,bi,bj)*fldAtZ(denomZ,I,J,bi,bj)
        ENDDO
       ENDDO
       IF (.NOT.SEAICE_no_slip) THEN
@@ -814,8 +818,10 @@ C     recover sigma11 and sigma22
         sig11(I,J) = 0.5 _d 0 * ( sigp+sigm )
         sig22(I,J) = 0.5 _d 0 * ( sigp-sigm )
 CMB   averaging
-c        rhs12 = 2. * eta(I,J,bi,bj) * fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
-        rhs12 = 2.*fldAtC(e12(:,:,bi,bj)*etaZ(:,:,bi,bj),i,j,bi,bj)
+        rhs12 = 2. * eta(I,J,bi,bj) * fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
+!!!-> lines
+c        rhs12 = 2.*fldAtC(e12(:,:,bi,bj)*etaZ(:,:,bi,bj),i,j,bi,bj)
+c        rhs12 = 2.*fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
 C Calc-Stress-Options D1/D2
 C Option D1: averaging sigma12
 c        sig12C(I,J,bi,bj) = denom(I,J) * ( deltaTLoc*rhs12 +
@@ -833,7 +839,10 @@ c        etaLoc = SEAICEmebMu *fldAtZ(press0(:,:,bi,bj),i,j,bi,bj)
 C DoubleParameters
 c        etaLoc = SEAICEmebMu *press0Z(I,J,bi,bj)
 c        rhs12 = 2. _d 0 * etaLoc * e12(I,J,bi,bj)
-        rhs12 = 2. _d 0 * etaZ(I,J,bi,bj) * e12(I,J,bi,bj)
+!!!-> lines
+C Both lines do the same. No effect on symmtery
+         rhs12 = 2. _d 0 * etaZ(I,J,bi,bj) * e12(I,J,bi,bj)
+c        rhs12 = 2. _d 0*fldAtZ(eta(:,:,bi,bj),i,j,bi,bj) * e12(I,J,bi,bj)
 C denom2-Options: F1/F2
 C Option F1: averaging whole denominator
 c        denom_z = fldAtZ(denom,i,j,bi,bj)
