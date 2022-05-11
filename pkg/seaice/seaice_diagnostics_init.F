@@ -761,6 +761,22 @@ C=============== dynamics ============
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I    diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
+#ifdef SEAICE_ALLOW_MEB
+      diagName  = 'SIelast '
+      diagTitle = 'SEAICE Elastic modulus'
+      diagUnits = 'N/m             '
+      diagCode  = 'SM      M1      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I    diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'SIelastZ'
+      diagTitle = 'SEAICE Elastic modulus at z-point'
+      diagUnits = 'N/m             '
+      diagCode  = 'SM      M1      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I    diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#endif /* SEAICE_ALLOW_MEB */
+
       diagName  = 'SIzeta  '
       diagTitle = 'SEAICE nonlinear bulk viscosity'
       diagUnits = 'kg/s            '
@@ -827,6 +843,15 @@ C=============== dynamics ============
 #ifdef SEAICE_ALLOW_DAMAGE
       diagName  = 'SIdamage'
       diagTitle = 'SEAICE damage'
+      diagUnits = 'no units        '
+      diagCode  = 'SM      M1      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I    diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#endif /* SEAICE_ALLOW_DAMAGE */
+
+#ifdef SEAICE_ALLOW_DAMAGE
+      diagName  = 'SIdamZ  '
+      diagTitle = 'SEAICE damage at Z-points'
       diagUnits = 'no units        '
       diagCode  = 'SM      M1      '
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
