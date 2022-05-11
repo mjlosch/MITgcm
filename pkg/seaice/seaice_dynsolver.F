@@ -500,7 +500,48 @@ C     use sig1 as a temporary field
          ENDDO
         ENDDO
        ENDIF
+       IF ( DIAGNOSTICS_IS_ON('SIdamZ  ',myThid) ) THEN
+        DO bj = myByLo(myThid), myByHi(myThid)
+         DO bi = myBxLo(myThid), myBxHi(myThid)
+C     use sig1 as a temporary field
+          DO J=1-OLy+1,sNy+OLy-1
+            DO I=1-OLx+1,sNx+OLx-1
+                  sig1(i,j) = (1. _d 0 - damageZ(i,j,bi,bj))
+            ENDDO
+          ENDDO
+          CALL DIAGNOSTICS_FILL(sig1,'SIdamZ  ',0,1,2,bi,bj,myThid)
+         ENDDO
+        ENDDO
+       ENDIF
 # endif /* SEAICE_ALLOW_DAMAGE */
+# ifdef SEAICE_ALLOW_MEB
+       IF ( DIAGNOSTICS_IS_ON('SIelastZ',myThid) ) THEN
+        DO bj = myByLo(myThid), myByHi(myThid)
+         DO bi = myBxLo(myThid), myBxHi(myThid)
+C     use sig1 as a temporary field
+          DO J=1-OLy+1,sNy+OLy-1
+            DO I=1-OLx+1,sNx+OLx-1
+                  sig1(i,j) = press0Z(i,j,bi,bj)
+            ENDDO
+          ENDDO
+          CALL DIAGNOSTICS_FILL(sig1,'SIelastZ',0,1,2,bi,bj,myThid)
+        ENDDO
+       ENDDO
+       ENDIF
+       IF ( DIAGNOSTICS_IS_ON('SIelast ',myThid) ) THEN
+        DO bj = myByLo(myThid), myByHi(myThid)
+         DO bi = myBxLo(myThid), myBxHi(myThid)
+C     use sig1 as a temporary field
+          DO j=1,sNy
+           DO i=1,sNx
+            sig1(i,j) = press0(i,j,bi,bj)*maskInC(i,j,bi,bj)
+           ENDDO
+          ENDDO
+          CALL DIAGNOSTICS_FILL(sig1,'SIelast ',0,1,2,bi,bj,myThid)
+         ENDDO
+        ENDDO
+       ENDIF
+# endif /* SEAICE_ALLOW_MEB */
 C     If any of the stress or energy diagnostics are required,
 C     first recompute strainrates from up-to-date velocities
        diag_SIsigma_isOn  = DIAGNOSTICS_IS_ON('SIsig1  ',myThid)
@@ -549,12 +590,12 @@ C     PRESS = PRESS(n-1), n = number of sub-cycling steps
      &            + seaice_sigma12(i  ,j+1,bi,bj) )
              sigTmp = SQRT( sigm*sigm + 4. _d 0*sig12(i,j)*sig12(i,j) )
              recip_prs = 0. _d 0
-             IF ( SEAICEuseMEB) THEN
+c             IF ( SEAICEuseMEB) THEN
 C     do not normalize
               recip_prs = 1. _d 0 * HEFFM(i,j,bi,bj)
-             ELSEIF ( press0(i,j,bi,bj) .GT. 1. _d -13 ) THEN
-              recip_prs = 1. _d 0 / press0(i,j,bi,bj)
-             ENDIF
+c             ELSEIF ( press0(i,j,bi,bj) .GT. 1. _d -13 ) THEN
+c              recip_prs = 1. _d 0 / press0(i,j,bi,bj)
+c             ENDIF
              sig1(i,j) = 0.5 _d 0*(sigp + sigTmp)*recip_prs
              sig2(i,j) = 0.5 _d 0*(sigp - sigTmp)*recip_prs
             ENDDO
@@ -584,8 +625,9 @@ C     in different way to get meaningfull sig12C (=sigTmp):
      &            +e12(i,j+1,bi,bj)+e12(i+1,j+1,bi,bj))
              sigTmp = SQRT( sigm*sigm + 4. _d 0*sigTmp*sigTmp )
              recip_prs = 0. _d 0
-             IF ( press0(i,j,bi,bj) .GT. 1. _d -13 )
-     &            recip_prs = 1. _d 0 / press0(i,j,bi,bj)
+             recip_prs = 1. _d 0 * HEFFM(i,j,bi,bj)
+c             IF ( press0(i,j,bi,bj) .GT. 1. _d -13 )
+c     &            recip_prs = 1. _d 0 / press0(i,j,bi,bj)
              sig1(i,j) = 0.5 _d 0*(sigp + sigTmp)*recip_prs
              sig2(i,j) = 0.5 _d 0*(sigp - sigTmp)*recip_prs
             ENDDO
