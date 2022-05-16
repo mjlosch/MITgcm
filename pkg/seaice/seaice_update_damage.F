@@ -221,6 +221,9 @@ C Option B2: update with dcrit
           dCrit(I,J,bi,bj) = damageCrit*maskInC(I,J,bi,bj)
 C Option B3: never update dcrit
 c          dCrit(I,J,bi,bj) = maskInC(I,J,bi,bj)
+C Option B4: update stress comparable to damage
+c          dCrit(I,J,bi,bj) =   maskInC(I,J,bi,bj)
+     &         *(deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
           IF ( AREA(I,J,bi,bj) .EQ. 0. _d 0 )
      &         damage(I,J,bi,bj) = 0. _d 0
           IF ( updateSigma ) THEN
@@ -245,20 +248,20 @@ C dcritZ-Option
 C Option C1/C2: averaged/new dcritz
         DO j=1,sNy+1
          DO i=1,sNx+1
-          sigp   = fldAtZ(sig11 + sig22,i,j,bi,bj)
-          sigm   = fldAtZ(sig11 - sig22,i,j,bi,bj)
-          sigTmp = SQRT( sigm*sigm + 4.*sig12(i,j)**2 )
-          sig1   = 0.5 _d 0 * ( sigp + sigTmp )
-          sig2   = 0.5 _d 0 * ( sigp - sigTmp )
-          damageCrit = 1. _d 0
-          sigmaC(I,J) = - 2.*cohesion(I,J,bi,bj)*sqrtq
-     &         *fldAtZ(HEFF(:,:,bi,bj),i,j,bi,bj)
-          sigmaT(I,J) = - sigmaC(I,J)*recip_q
-          damageCrit = TENSILE_FAILURE(sig1,sig2,sigmaT(I,J),damageCrit)
-          damageCrit = TENSILE_FAILURE(sig2,sig1,sigmaT(I,J),damageCrit)
-          damageCrit = MC_FAILURE(sig1,sig2,q,sigmaC(I,J),damageCrit)
-          damageCrit = MC_FAILURE(sig2,sig1,q,sigmaC(I,J),damageCrit)
-          damageCrit = MAX(damageCrit, 0. _d 0)
+c          sigp   = fldAtZ(sig11 + sig22,i,j,bi,bj)
+c          sigm   = fldAtZ(sig11 - sig22,i,j,bi,bj)
+c          sigTmp = SQRT( sigm*sigm + 4.*sig12(i,j)**2 )
+c          sig1   = 0.5 _d 0 * ( sigp + sigTmp )
+c          sig2   = 0.5 _d 0 * ( sigp - sigTmp )
+c          damageCrit = 1. _d 0
+c          sigmaC(I,J) = - 2.*cohesion(I,J,bi,bj)*sqrtq
+c     &         *fldAtZ(HEFF(:,:,bi,bj),i,j,bi,bj)
+c          sigmaT(I,J) = - sigmaC(I,J)*recip_q
+c          damageCrit = TENSILE_FAILURE(sig1,sig2,sigmaT(I,J),damageCrit)
+c          damageCrit = TENSILE_FAILURE(sig2,sig1,sigmaT(I,J),damageCrit)
+c          damageCrit = MC_FAILURE(sig1,sig2,q,sigmaC(I,J),damageCrit)
+c          damageCrit = MC_FAILURE(sig2,sig1,q,sigmaC(I,J),damageCrit)
+c          damageCrit = MAX(damageCrit, 0. _d 0)
 C Damage-Options:
 C Option A1: Damage explicit and for dt< damagetime:
 c          damageZ(I,J,bi,bj) = damageNm1Z(I,J,bi,bj) *
