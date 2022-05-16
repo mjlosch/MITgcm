@@ -223,7 +223,7 @@ C Option B3: never update dcrit
 c          dCrit(I,J,bi,bj) = maskInC(I,J,bi,bj)
 C Option B4: update stress comparable to damage
 c          dCrit(I,J,bi,bj) =   maskInC(I,J,bi,bj)
-     &         *(deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
+c     &         *(deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
           IF ( AREA(I,J,bi,bj) .EQ. 0. _d 0 )
      &         damage(I,J,bi,bj) = 0. _d 0
           IF ( updateSigma ) THEN
