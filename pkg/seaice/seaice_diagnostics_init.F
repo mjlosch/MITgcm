@@ -819,6 +819,27 @@ C=============== dynamics ============
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I     diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
+      diagName  = 'SIsig11 '
+      diagTitle = 'SEAICE stress component one'
+      diagUnits = 'no units        '
+      diagCode  = 'SM      M1      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I     diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+ 
+      diagName  = 'SIsig22 '
+      diagTitle = 'SEAICE stress component two'
+      diagUnits = 'no units        '
+      diagCode  = 'SM      M1      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I     diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'SIsig12 '
+      diagTitle = 'SEAICE stress component 1/2'
+      diagUnits = 'no units        '
+      diagCode  = 'SM      M1      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I     diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+      
       diagName  = 'SIshear '
       diagTitle = 'SEAICE shear deformation rate'
       diagUnits = '1/s             '

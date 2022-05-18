@@ -77,6 +77,8 @@ C     bi,bj  :: tile counters
 # endif /* ALLOW_AUTODIFF */
       _RL sig1   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig2   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL sig11   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL sig22   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig12  (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sigp, sigm, sigTmp, recip_prs
       _RL areaW, areaS, COSWAT
@@ -598,6 +600,8 @@ c              recip_prs = 1. _d 0 / press0(i,j,bi,bj)
 c             ENDIF
              sig1(i,j) = 0.5 _d 0*(sigp + sigTmp)*recip_prs
              sig2(i,j) = 0.5 _d 0*(sigp - sigTmp)*recip_prs
+             sig11(i,j) = 0.5 _d 0*(sigp+sigm)
+             sig22(i,j) = 0.5 _d 0*(sigp-sigm)
             ENDDO
            ENDDO
           ELSE
@@ -635,6 +639,9 @@ c     &            recip_prs = 1. _d 0 / press0(i,j,bi,bj)
           ENDIF
           CALL DIAGNOSTICS_FILL(sig1,'SIsig1  ',0,1,2,bi,bj,myThid)
           CALL DIAGNOSTICS_FILL(sig2,'SIsig2  ',0,1,2,bi,bj,myThid)
+          CALL DIAGNOSTICS_FILL(sig11,'SIsig11 ',0,1,2,bi,bj,myThid)
+          CALL DIAGNOSTICS_FILL(sig22,'SIsig22 ',0,1,2,bi,bj,myThid)
+          CALL DIAGNOSTICS_FILL(sig12,'SIsig12 ',0,1,2,bi,bj,myThid)
          ENDIF
 C
          IF ( diag_SIshear_isOn  ) THEN
