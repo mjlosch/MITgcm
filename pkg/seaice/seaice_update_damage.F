@@ -457,8 +457,8 @@ CML     &       * EXP((1.-SEAICEdamageParm)*LOG(damage(i,j,bi,bj)))
         IF ( damage(i,j,bi,bj) .GT. SEAICEdamageMin )
      &       recip_rlx(i,j) = recip_relaxTime
      &       *damage(i,j,bi,bj)**(1.-SEAICEdamageParm)
-        damage(i,j,bi,bj) = damage(i,j,bi,bj)*maskInC(i,j,bi,bj)
-        recip_rlx(i,j)    = recip_rlx(i,j)   *maskInC(i,j,bi,bj)
+        damage(i,j,bi,bj) = damage(i,j,bi,bj)
+        recip_rlx(i,j)    = recip_rlx(i,j)   
        ENDDO
       ENDDO
 
