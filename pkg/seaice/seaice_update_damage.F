@@ -244,6 +244,13 @@ C     hack to save principle stress before updating sigma
         ENDDO
         CALL DIAGNOSTICS_FILL(sig11,'SIsig1pr',0,1,2,bi,bj,myThid)
         CALL DIAGNOSTICS_FILL(sig22,'SIsig2pr',0,1,2,bi,bj,myThid)
+       ENDDO
+      ENDDO
+      _EXCH_XY_RL(sig12C, myThid )
+      _EXCH_XY_RL(dCrit, myThid )
+      _EXCH_XY_RL(damage, myThid )
+      DO bj=myByLo(myThid),myByHi(myThid)
+       DO bi=myBxLo(myThid),myBxHi(myThid)
 C dcritZ-Option
 C Option C1/C2: averaged/new dcritz
         DO j=1,sNy+1
@@ -290,6 +297,7 @@ C option B3: never update dcrit
 c      dCritZ(I,J,bi,bj) = 1. _d 0
 C Option DoubleParameters
           dCritZ(I,J,bi,bj) = fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
+c          dCritZ(I,J,bi,bj) = 1. _d 0
           damageZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
 c          dCrit(I,J,bi,bj) = damageZ(I,J,bi,bj)
 C     make sure that 0 < damage <=1
@@ -298,19 +306,18 @@ C     make sure that 0 < damage <=1
          ENDDO
         ENDDO
 C If out of Loop for better performance
-        IF ( updateSigma ) THEN
-         DO J=1, sNy+1
-          DO I=1, sNx+1
-           seaice_sigma12(I,J,bi,bj) = sig12(I,J)
-     &         * dCritZ(I,J,bi,bj)
-          ENDDO
-         ENDDO
-        ENDIF
+c       IF ( updateSigma ) THEN
+c        DO J=1, sNy+1
+c         DO I=1, sNx+1
+c          seaice_sigma12(I,J,bi,bj) = sig12(I,J)
+c    &         * dCritZ(I,J,bi,bj)
+c         ENDDO
+c        ENDDO
+c        ENDIF
        ENDDO
       ENDDO
-      _EXCH_XY_RL(sig12C, myThid )
-      _EXCH_XY_RL(dCrit, myThid )
-      _EXCH_XY_RL(damage, myThid )
+C      CALL EXCH_Z_3D_RL( damageZ, 1, myThid )
+C      CALL EXCH_Z_3D_RL( dCritZ, 1, myThid )
 C
 # endif /* SEAICE_ALLOW_DAMAGE */
 
