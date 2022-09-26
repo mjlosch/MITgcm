@@ -76,6 +76,7 @@ C     Set model variables to OB values on North/South Boundaries
 C     Northern boundary
          DO i=1-OLx,sNx+OLx
           Jobc = OB_Jn(i,bi,bj)
+          OBNuice(i,bi,bj) = uFld(i,Jboc-1,bi,bj)
           IF ( Jobc.NE.OB_indexNone ) THEN
            uFld(i,Jobc,bi,bj) = OBNuice(i,bi,bj)
      &                        *seaiceMaskU(i,Jobc,bi,bj)
@@ -132,6 +133,7 @@ C     Set model variables to OB values on North/South Boundaries
 C     Northern boundary
          DO i=1-OLx,sNx+OLx
           Jobc = OB_Jn(i,bi,bj)
+          OBNvice(i,bi,bj) = vFld(i,Jboc-1,bi,bj)
           IF ( Jobc.NE.OB_indexNone ) THEN
            vFld(i,Jobc,bi,bj)   = OBNvice(i,bi,bj)
      &                          *seaiceMaskV(i,Jobc,bi,bj)
