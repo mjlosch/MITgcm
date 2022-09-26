@@ -385,6 +385,21 @@ C--   Read initial snow thickness from file if available.
         ENDDO
        ENDIF
 
+CMBC--   Read initial seaice stregth from file if available.
+CMB       IF ( PFile .NE. ' ' ) THEN
+CMB        CALL READ_FLD_XY_RL( PFile, ' ', SEAICE_strength, 0, myThid)
+CMB        _EXCH_XY_RL(SEAICE_strength,myThid)
+CMB        DO bj=myByLo(myThid),myByHi(myThid)
+CMB         DO bi=myBxLo(myThid),myBxHi(myThid)
+CMB          DO j=1-OLy,sNy+OLy
+CMB           DO i=1-OLx,sNx+OLx
+CMB            SEAICE_strength(i,j,bi,bj)=MAX(SEAICE_strength(i,j,bi,bj),ZERO)
+CMB           ENDDO
+CMB          ENDDO
+CMB         ENDDO
+CMB        ENDDO
+CMB       ENDIF
+
 #ifdef SEAICE_ITD
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
@@ -520,7 +535,7 @@ C     no damage means damage = 1
           damageNm1Z(I,J,bi,bj)= damageZ(I,J,bi,bj)
           dCrit    (I,J,bi,bj) = 1. _d 0
           dCritZ   (I,J,bi,bj) = 1. _d 0
-          cohesion (I,J,bi,bj) = SEAICEcohesion
+C          cohesion (I,J,bi,bj) = SEAICEcohesion
 C    &          *( 1.+cohesion(I,J,bi,bj) ) * maskC(I,J,kSrf,bi,bj)
           seaice_sigma12C   (I,J,bi,bj) = 0. _d 0
          ENDDO
@@ -537,6 +552,32 @@ C    &          *( 1.+cohesion(I,J,bi,bj) ) * maskC(I,J,kSrf,bi,bj)
         ENDIF
        ENDDO
       ENDDO
+#ifdef SEAICE_ALLOW_DAMAGE
+C--   Read initial sea-ice cohesion from file if available.
+      IF ( CohesFile .NE. ' ' ) THEN
+       CALL READ_FLD_XY_RL( CohesFile, ' ', cohesion, 0, myThid)
+           _EXCH_XY_RL(cohesion,myThid)
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+         DO j=1-OLy,sNy+OLy
+          DO i=1-OLx,sNx+OLx
+            cohesion(i,j,bi,bj) = MAX(cohesion(i,j,bi,bj),ZERO)
+          ENDDO
+         ENDDO
+        ENDDO
+       ENDDO
+      ELSE
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+         DO j=1-OLy,sNy+OLy
+          DO i=1-OLx,sNx+OLx
+           cohesion (I,J,bi,bj) = SEAICEcohesion
+          ENDDO
+         ENDDO
+        ENDDO
+       ENDDO
+      ENDIF
+#endif /*SEAICE_ALLOW_DAMAGE */
 #ifdef SEAICE_CGRID
 C     compute tensile strength factor k: tensileStrength = k*PRESS
 C     can be done in initialisation phase as long as it depends only

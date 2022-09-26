@@ -689,6 +689,10 @@ C--  Initial Condition/Input related param.
      &  'AreaFile =', ' /* Initial ice concentration File */')
       CALL WRITE_0D_C( HeffFile, -1, INDEX_NONE,
      &  'HeffFile =', ' /* Initial effective ice thickness File */')
+CMB      CALL WRITE_0D_C( CohesFile, -1, INDEX_NONE,
+CMB     &  'PFile =', ' /* Initial sea ice strength File */')
+      CALL WRITE_0D_C( PFile, -1, INDEX_NONE,
+     &  'CohesFile =', ' /* Initial sea ice cohesion File */')
       CALL WRITE_0D_C( HsnowFile, -1, INDEX_NONE,
      &  'HsnowFile =', ' /* Initial snow thickness File */')
 #ifdef SEAICE_VARIABLE_SALINITY

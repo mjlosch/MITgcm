@@ -152,10 +152,10 @@ C--   SEAICE parameters
      & SEAICE_drySnowAlb_south, SEAICE_wetSnowAlb_south, HO_south,
      & SEAICE_cBasalStar, SEAICEbasalDragU0, SEAICEbasalDragK1,
      & SEAICEbasalDragK2, SEAICE_wetAlbTemp, SEAICE_waterAlbedo,
-     & SEAICE_strength, SEAICE_cStar, SEAICE_eccen,
+     & SEAICE_strength, SEAICE_cStar, SEAICE_eccen, PFile,
      & SEAICE_eccfr, SEAICEtdMU, SEAICEmcMu,
      & SEAICEpressReplFac, SEAICE_tensilFac, SEAICE_tensilDepth,
-     & SEAICEpoissonRatio, SEAICEviscosity, SEAICEcohesion,
+     & SEAICEpoissonRatio, SEAICEviscosity, SEAICEcohesion, CohesFile,
      & SEAICEdamageMin, SEAICEdamageParm,
      & SEAICEintFrictCoeff, SEAICEmohrCoulombSlope,
      & SEAICEelasticWaveSp, SEAICEhealingTime, SEAICEdamageTime,
@@ -494,12 +494,14 @@ c     SEAICE_tempFrz0    = -1.96 _d 0
 c     SEAICE_dTempFrz_dS = 0. _d 0
       SEAICEstressFactor = 1.     _d 0
       SEAICE_tauAreaObsRelax = -999. _d 0
-      AreaFile   = ' '
-      HsnowFile  = ' '
-      HsaltFile  = ' '
-      HeffFile   = ' '
-      uIceFile   = ' '
-      vIceFile   = ' '
+      AreaFile     = ' '
+      HsnowFile    = ' '
+      HsaltFile    = ' '
+      HeffFile     = ' '
+CMB      PFile   = ' '
+      CohesFile    = ' '
+      uIceFile     = ' '
+      vIceFile     = ' '
       IMAX_TICE  = 10
       postSolvTempIter = 2
 C     LSR parameters
@@ -705,7 +707,8 @@ C--   Set default values (if not specified in data.seaice namelist)
 C--   damage always needs to be updated for MEB
       IF ( SEAICEuseMEB ) SEAICEupdateDamage = .TRUE.
 C--   Default ice strength (Pstar)
-      IF (SEAICE_strength .EQ. UNSET_RL ) THEN
+CMB      IF (SEAICE_strength .EQ. UNSET_RL .and. PFile .EQ. ' ') THEN
+      IF (SEAICE_strength .EQ. UNSET_RL) THEN
        SEAICE_strength = 2.75 _d +04
        IF ( SEAICEuseMEB ) SEAICE_strength = 2.*SEAICEelasticWaveSp**2
      &      * (1+SEAICEpoissonRatio) * SEAICE_rhoIce
