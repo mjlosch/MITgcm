@@ -143,16 +143,7 @@ C     Initialise for TAF
          ENDDO
         ENDDO
 C
-        act1 = bi - myBxLo(myThid)
-        max1 = myBxHi(myThid) - myBxLo(myThid) + 1
-        act2 = bj - myByLo(myThid)
-        max2 = myByHi(myThid) - myByLo(myThid) + 1
-        act3 = myThid - 1
-        max3 = nTx*nTy
-        act4 = ikey_dynamics - 1
-        itmpkey = (act1 + 1) + act2*max1
-     &                       + act3*max1*max2
-     &                       + act4*max1*max2*max3
+        itmpkey = bi + (bj-1)*nSx + (ikey_dynamics-1)*nSx*nSy
 CADJ STORE area(:,:,bi,bj)  = comlev1_bibj, key=itmpkey, kind=isbyte
 CADJ STORE heff(:,:,bi,bj)  = comlev1_bibj, key=itmpkey, kind=isbyte
 CADJ STORE hsnow(:,:,bi,bj) = comlev1_bibj, key=itmpkey, kind=isbyte

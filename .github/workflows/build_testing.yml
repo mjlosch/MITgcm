@@ -12,9 +12,9 @@ jobs:
      matrix:
       include:
         - exp: "offline_exf_seaice"
-          precs: "16 16 16 16 16"
+          precs: "16 16 16 16 16 16 16 16 16"
         - exp: "global_ocean.cs32x15"
-          precs: "16 16 16 16 16"
+          precs: "16 16 16 16 16 16"
         - exp: "tutorial_deep_convection"
           precs: "16 16"
         - exp: "aim.5l_cs"
@@ -39,17 +39,22 @@ jobs:
    continue-on-error: true
 
    steps:
-   
+
      - name: Checkout
        uses: actions/checkout@v2.2.0
+
+     - name: Set up compilers
+       run: |
+         sudo apt-get update
+         sudo apt-get -qq install gfortran
 
      - name: Get a docker image and set it running
        run: |
          docker pull mitgcm/testreport-images:ubuntu_18_04_villon
          docker run  -v `pwd`:/MITgcm --name ubuntu_18_04-testreport -t -d mitgcm/testreport-images:ubuntu_18_04_villon /bin/bash
-         
+
      - name: Run a test
-       env: 
+       env:
         MITGCM_EXP: ${{ matrix.exp }}
         MITGCM_PRECS: ${{ matrix.precs }}
        run: |
@@ -62,6 +67,50 @@ jobs:
      matrix:
       include:
         - exp: "global_ocean.90x40x15"
+          precs: "14"
+
+   continue-on-error: true
+
+   steps:
+
+     - name: Checkout
+       uses: actions/checkout@v2.2.0
+
+     - name: Get a docker image and set it running
+       run: |
+         docker pull mitgcm/mitgcm-openad-test:centos-test
+         docker run -i -t -v `pwd`:/MITgcm -d --name openad-testing --ulimit stack=-1:-1 --rm mitgcm/mitgcm-openad-test:centos-test /bin/bash
+
+     - name: Run testreport
+       env:
+        MITGCM_EXP: ${{ matrix.exp }}
+        MITGCM_PRECS: ${{ matrix.precs }}
+        MITGCM_DECMD: "docker exec -i openad-testing bash -lc"
+        MITGCM_TROPT: "-oad -devel -of=../tools/build_options/linux_amd64_gfortran"
+        MITGCM_INPUT_DIR_PAT: '/input_oad.*'
+       run: |
+         . tools/ci/runtr.sh
+
+ openad-other:
+   runs-on: ubuntu-latest
+   if: ${{ contains(github.event.pull_request.labels.*.name, 'adjoint') }}
+
+   strategy:
+     matrix:
+      include:
+        - exp: "halfpipe_streamice"
+          precs: "16"
+        - exp: "hs94.1x64x5"
+          precs: "14"
+        - exp: "isomip"
+          precs: "16"
+        - exp: "OpenAD"
+          precs: "15 16 16"
+        - exp: "tutorial_global_oce_biogeo"
+          precs: "16"
+        - exp: "tutorial_global_oce_optim"
+          precs: "16"
+        - exp: "tutorial_tracer_adjsens"
           precs: "16"
 
    continue-on-error: true
@@ -98,7 +147,7 @@ jobs:
      - name: Set up Python
        uses: actions/setup-python@v2
        with:
-         python-version: 3.6
+         python-version: 3.11
 
      - name: install dependencies
        run: tools/ci/install_doc_dependencies.sh
@@ -120,7 +169,7 @@ jobs:
      - name: Set up Python
        uses: actions/setup-python@v2
        with:
-         python-version: 3.6
+         python-version: 3.11
 
      - name: install dependencies
        run: tools/ci/install_doc_dependencies.sh

@@ -271,7 +271,11 @@ CADJ &     key = itmpkey
 #endif /* ALLOW_AUTODIFF_TAMC */
 
 C     surface level
-      kSrf = 1
+      IF ( usingPCoords ) THEN
+       kSrf = Nr
+      ELSE
+       kSrf = 1
+      ENDIF
 C--   introduce turning angles
       SINWAT=SIN(SEAICE_waterTurnAngle*deg2rad)
       COSWAT=COS(SEAICE_waterTurnAngle*deg2rad)
@@ -758,16 +762,7 @@ C     end bi,bj-loops
          DO bi=myBxLo(myThid),myBxHi(myThid)
 
 #ifdef ALLOW_AUTODIFF_TAMC
-          act1 = bi - myBxLo(myThid)
-          max1 = myBxHi(myThid) - myBxLo(myThid) + 1
-          act2 = bj - myByLo(myThid)
-          max2 = myByHi(myThid) - myByLo(myThid) + 1
-          act3 = myThid - 1
-          max3 = nTx*nTy
-          act4 = itmpkey2 - 1
-          itmpkey3 = (act1 + 1) + act2*max1
-     &                          + act3*max1*max2
-     &                          + act4*max1*max2*max3
+          itmpkey3 = bi + (bj-1)*nSx + (itmpkey2-1)*nSx*nSy
 CADJ STORE uice(:,:,bi,bj) = comlev1_bibj_lsr,kind=isbyte,key=itmpkey3
 CADJ STORE vice(:,:,bi,bj) = comlev1_bibj_lsr,kind=isbyte,key=itmpkey3
 #endif /* ALLOW_AUTODIFF_TAMC */
@@ -873,7 +868,7 @@ C--   Calculate final residual of the linearised system
      O                  residUend, residVend, uTmp, vTmp,
      I                  printResidual, myIter, myThid )
         _BEGIN_MASTER( myThid )
-        WRITE(standardMessageUnit,'(A,1X,I4,1P3E16.8)')
+        WRITE(standardMessageUnit,'(A,1X,I9,1P3E16.8)')
      &    ' SEAICE_LSR: Residual Initial ipass,Uice,Vice=',
      &        ipass, residUini, residVini
 #ifdef SEAICE_ALLOW_FREEDRIFT
@@ -886,10 +881,10 @@ C--   Calculate final residual of the linearised system
      &    ' SEAICE_LSR: Residual Mix-ini Uice,Vice=',
      &        residUmix, residVmix
 #endif /* SEAICE_ALLOW_FREEDRIFT */
-        WRITE(standardMessageUnit,'(A,I4,A,I6,1P2E16.8)')
+        WRITE(standardMessageUnit,'(A,I9,A,I9,1P2E16.8)')
      &    ' SEAICE_LSR (ipass=',ipass,') iters,dU,Resid=',
      &      ICOUNT1, S1, residUend
-        WRITE(standardMessageUnit,'(A,I4,A,I6,1P2E16.8)')
+        WRITE(standardMessageUnit,'(A,I9,A,I9,1P2E16.8)')
      &    ' SEAICE_LSR (ipass=',ipass,') iters,dV,Resid=',
      &      ICOUNT2, S2, residVend
         _END_MASTER( myThid )
@@ -1499,13 +1494,11 @@ C     !LOCAL VARIABLES:
 C     === Local variables ===
 C     i,j  :: Loop counters
       INTEGER i,j
-      INTEGER kSrf
       _RL hFacM
       _RL sig11(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig12(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 CEOP
 
-      kSrf = 1
       DO j=1-OLy,sNy+OLy
        DO i=1-OLx,sNx+OLx
         sig11(i,j) = 0. _d 0
@@ -1630,13 +1623,11 @@ C     !LOCAL VARIABLES:
 C     === Local variables ===
 C     i,j  :: Loop counters
       INTEGER i,j
-      INTEGER kSrf
       _RL hFacM
       _RL sig22(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig12(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 CEOP
 
-      kSrf = 1
       DO j=1-OLy,sNy+OLy
        DO i=1-OLx,sNx+OLx
         sig22(i,j) = 0. _d 0

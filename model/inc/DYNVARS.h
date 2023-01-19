@@ -19,7 +19,10 @@ C     etaN  :: free-surface r-anomaly (r unit) at current time level
 C     uVel  :: zonal velocity (m/s, i=1 held at western face)
 C     vVel  :: meridional velocity (m/s, j=1 held at southern face)
 C     theta :: potential temperature (oC, held at pressure/tracer point)
-C     salt  :: salinity (ppt, held at pressure/tracer point)
+C     salt  :: salinity (g/kg, held at pressure/tracer point; note that
+C              salinity is either a conductivity ratio or, if using TEOS10,
+C              a mass ratio;here we assume it is a mass ratio even though
+C              it is only correct for TEOS10)
 C     gX, gxNm1 :: Time tendencies at current and previous time levels.
 C     etaH  :: surface r-anomaly, advanced in time consistently
 C              with 2.D flow divergence (Exact-Conservation):
@@ -101,23 +104,23 @@ C                     BryanLewis79 vertical diffusivity
 #endif
 
 C     Diagnostic Variables:
-C     phiHydLow    :: Phi-Hydrostatic at r-lower boundary
-C                     (bottom in z-coordinates, top in p-coordinates)
+C     rhoInSitu    :: In-Situ density anomaly [kg/m^3] at cell center level.
 C     totPhiHyd    :: total hydrostatic Potential (anomaly, for now),
 C                     at cell center level ; includes surface contribution.
 C                     (for diagnostic + used in Z-coord with EOS_funct_P)
-C     rhoInSitu    :: In-Situ density anomaly [kg/m^3] at cell center level.
+C     phiHydLow    :: Phi-Hydrostatic at r-lower boundary
+C                     (bottom in z-coordinates, top in p-coordinates)
 C     hMixLayer    :: Mixed layer depth [m]
 C                     (for diagnostic + used GMRedi "fm07")
 C     IVDConvCount :: Impl.Vert.Diffusion convection counter:
 C                     = 0 (not convecting) or 1 (convecting)
       COMMON /DYNVARS_DIAG/
-     &                phiHydLow, totPhiHyd,
      &                rhoInSitu,
+     &                totPhiHyd, phiHydLow,
      &                hMixLayer, IVDConvCount
-      _RL  phiHydLow(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL  totPhiHyd(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       _RL  rhoInSitu(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL  totPhiHyd(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL  phiHydLow(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL  hMixLayer(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL  IVDConvCount(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
 
@@ -143,3 +146,11 @@ C                     pressure gradient in Y (no Units)
       _RL  dU_psFacX(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       _RL  dV_psFacY(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
 #endif /* ALLOW_SOLVE4_PS_AND_DRAG */
+
+#ifdef INCLUDE_SOUNDSPEED_CALC_CODE
+C     cSound       :: Speed of sound in seawater (m/s)
+C                     following Del Grosso (1974)
+      COMMON /DYNVARS_cSound/ cSound
+      _RL  cSound(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+#endif /* INCLUDE_SOUNDSPEED_CALC_CODE */
+

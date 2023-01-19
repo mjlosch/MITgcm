@@ -62,7 +62,7 @@ C     iUnit      :: Work variable for IO unit number
 #ifdef ALLOW_COST
       INTEGER locDate(4)
 #endif /* ALLOW_COST */
-      INTEGER nRetired
+      INTEGER nRetired, nError
       _RL tmp
 
 C-    Old parameters (to be retired one day):
@@ -91,6 +91,7 @@ C     SEAICE_freeze     :: FREEZING TEMP. OF SEA WATER
 C--   SEAICE parameters
       NAMELIST /SEAICE_PARM01/
      & SEAICEuseDYNAMICS, SEAICEuseFREEDRIFT, SEAICEuseStrImpCpl,
+     & SEAICEuseMCS, SEAICEuseMCE, SEAICEuseTD, SEAICEusePL,
      & SEAICEuseTEM, SEAICEuseMetricTerms, SEAICEuseTilt,
      & useHB87stressCoupling, SEAICEupdateOceanStress,
      & usePW79thermodynamics, useMaykutSatVapPoly, SEAICEuseFlooding,
@@ -122,7 +123,8 @@ C--   SEAICE parameters
      & SEAICEnonLinIterMax, SEAICElinearIterMax, SEAICEnonLinTol,
      & SEAICEnewtonIterMax, SEAICEkrylovIterMax, JFNKgamma_nonlin,
      & SEAICEpreconNL_Iter, SEAICEpreconLinIter,
-     & SEAICE_JFNK_lsIter, SEAICE_JFNK_tolIter, JFNKres_t,JFNKres_tFac,
+     & SEAICE_JFNK_lsIter, SEAICE_JFNK_lsLmax, SEAICE_JFNK_lsGamma,
+     & SEAICE_JFNK_tolIter, JFNKres_t,JFNKres_tFac,
      & JFNKgamma_lin_min,JFNKgamma_lin_max,
      & SEAICE_JFNKepsilon, SEAICE_OLx, SEAICE_OLy,
      & SEAICE_JFNKphi, SEAICE_JFNKalpha, SEAICEuseIMEX, SEAICEuseBDF2,
@@ -146,6 +148,7 @@ C--   SEAICE parameters
      & SEAICE_cBasalStar, SEAICEbasalDragU0, SEAICEbasalDragK1,
      & SEAICEbasalDragK2, SEAICE_wetAlbTemp, SEAICE_waterAlbedo,
      & SEAICE_strength, SEAICE_cStar, SEAICE_eccen,
+     & SEAICE_eccfr, SEAICEtdMU, SEAICEmcMu,
      & SEAICEpressReplFac, SEAICE_tensilFac, SEAICE_tensilDepth,
      & SEAICE_lhFusion, SEAICE_lhEvap, SEAICE_dalton,
      & SEAICE_sensHeat, SEAICE_latentWater, SEAICE_latentIce,
@@ -225,10 +228,14 @@ C--   set default sea ice parameters
       SEAICEuseTilt      = .TRUE.
       SEAICEheatConsFix  = .FALSE.
       SEAICEuseTEM       = .FALSE.
+      SEAICEuseMCS       = .FALSE.
+      SEAICEuseMCE       = .FALSE.
+      SEAICEuseTD        = .FALSE.
+      SEAICEusePL        = .FALSE.
       SEAICEuseMetricTerms = .TRUE.
       SEAICEuseEVPpickup = .TRUE.
-      SEAICEuseEVPstar   = .FALSE.
-      SEAICEuseEVPrev    = .FALSE.
+      SEAICEuseEVPstar   = .TRUE.
+      SEAICEuseEVPrev    = .TRUE.
       SEAICErestoreUnderIce = .FALSE.
       SEAICE_growMeltByConv = .FALSE.
       SEAICE_salinityTracer = .FALSE.
@@ -313,6 +320,8 @@ C     JFNK stuff
       SEAICEuseJFNK       = .FALSE.
       SEAICEuseIMEX       = .FALSE.
       SEAICE_JFNK_lsIter  = UNSET_I
+      SEAICE_JFNK_lsLmax  = 4
+      SEAICE_JFNK_lsGamma = 0.5 _d 0
       SEAICE_JFNK_tolIter = 100
 C     This should be the default for both JFNK and for LSR but in order
 C     to not jeopardize any existing results, and because it does not yet
@@ -397,8 +406,11 @@ C
       SEAICE_cStar       = 20.    _d 0
       SEAICEpressReplFac = 1.     _d 0
       SEAICE_eccen       = 2.     _d 0
+      SEAICE_eccfr       = UNSET_RL
       SEAICE_tensilFac   = 0.     _d 0
       SEAICE_tensilDepth = 0.     _d 0
+      SEAICEtdMU         = 1.     _d 0
+      SEAICEmcMu         = 1.     _d 0
 C     coefficients for flux computations/bulk formulae
       SEAICE_dalton      = 1.75   _d -03
 #ifdef ALLOW_EXF
@@ -496,7 +508,7 @@ C     LSR parameters
 #else
       LSR_mixIniGuess = -1
 #endif
-      LSR_ERROR  = 0.0001    _d 0
+      LSR_ERROR  = 0.00001    _d 0
       SEAICEuseMultiTileSolver = .FALSE.
 
       SEAICE_area_floor = siEPS
@@ -619,6 +631,7 @@ c
       ENDDO
 #endif /* ALLOW_SITRACER */
       nRetired = 0
+      nError   = 0
 
 C     Open and read the data.seaice file
       WRITE(msgBuf,'(A)')
@@ -667,6 +680,8 @@ C--   Set default values (if not specified in data.seaice namelist)
 
 C--   Default for regularizing Delta to remain backward compatible
       IF ( SEAICE_deltaMin .EQ. UNSET_RL ) SEAICE_deltaMin = SEAICE_EPS
+C--   Default is to have a normal flow rule if SEAICE_eccfr is not set
+      IF (SEAICE_eccfr .EQ. UNSET_RL ) SEAICE_eccfr = SEAICE_eccen
 
 C--   If no PDF was prescribed use the default uniform pdf
       tmp = SEAICE_multDim
@@ -710,22 +725,19 @@ C     yet been tried nor thought through.
          WRITE(msgBuf,'(A)')
      &        ' SEAICE_deltaTdyn, and dTtracerLev(1)'
          CALL PRINT_ERROR( msgBuf , myThid)
-         STOP 'ABNORMAL END: S/R SEAICE_READPARMS'
+         nError = nError + 1
       ENDIF
       SEAICEuseEVP = .FALSE.
 #ifdef SEAICE_ALLOW_EVP
-C     There are four ways to turn on EVP
+C     There are three ways to turn on EVP
 C     1. original EVP (Hunke, 2001)
-      IF ( SEAICE_deltaTevp .NE. UNSET_RL )      SEAICEuseEVP = .TRUE.
+      IF ( SEAICE_deltaTevp .NE. UNSET_RL ) SEAICEuseEVP = .TRUE.
 C     2. modified EVP (Lemieux et al., 2012) or revised EVP (Bouillon
 C     et al., 2014) by setting alpha and beta
       IF ( SEAICE_evpAlpha  .NE. UNSET_RL
-     &  .OR. SEAICE_evpBeta .NE. UNSET_RL )  SEAICEuseEVPstar = .TRUE.
+     &  .OR. SEAICE_evpBeta .NE. UNSET_RL ) SEAICEuseEVP = .TRUE.
 C     3. adaptive EVP
-      IF ( SEAICEaEVPcoeff  .NE. UNSET_RL )  SEAICEuseEVPstar = .TRUE.
-C     4. modified EVP* (Lemieux et al., 2012) or revised EVP (Bouillon
-C     et al., 2014) by explicitly setting up specific flags
-      IF ( SEAICEuseEVPstar.OR.SEAICEuseEVPrev ) SEAICEuseEVP = .TRUE.
+      IF ( SEAICEaEVPcoeff  .NE. UNSET_RL ) SEAICEuseEVP = .TRUE.
 C     if EVP is turned on, a couple of parameters need to be computed
       IF ( SEAICEuseEVP ) THEN
        IF (    (SEAICE_deltaTdyn/SEAICE_deltaTevp) .NE.
@@ -734,16 +746,27 @@ C     if EVP is turned on, a couple of parameters need to be computed
         WRITE(msgBuf,'(A)')
      &       'SEAICE_deltaTevp must be a factor of SEAICE_deltaTdyn.'
         CALL PRINT_ERROR( msgBuf , myThid)
-        STOP 'ABNORMAL END: S/R SEAICE_READPARMS'
+        nError = nError + 1
        ENDIF
        IF ( SEAICE_elasticParm .LE. 0. _d 0 ) THEN
         WRITE(msgBuf,'(A)')
      &       'SEAICE_elasticParm must greater than 0.'
         CALL PRINT_ERROR( msgBuf , myThid)
-        STOP 'ABNORMAL END: S/R SEAICE_READPARMS'
+        nError = nError + 1
        ENDIF
        IF ( SEAICE_evpTauRelax .LE. 0. _d 0 )
      &      SEAICE_evpTauRelax = SEAICE_deltaTdyn*SEAICE_elasticParm
+C     determine number of internal steps
+       IF ( SEAICEnEVPstarSteps.EQ.UNSET_I ) THEN
+        IF ( SEAICE_deltaTevp.EQ.UNSET_RL ) THEN
+         WRITE(msgBuf,'(A,A)') 'S/R SEAICE_readparms: Either ',
+     &        'SEAICEnEVPstarSteps or SEAICE_deltaTevp need to be set.'
+         CALL PRINT_ERROR( msgBuf , myThid)
+         nError = nError + 1
+        ELSE
+         SEAICEnEVPstarSteps = INT(SEAICE_deltaTdyn/SEAICE_deltaTevp)
+        ENDIF
+       ENDIF
 C     default: evpAlpha = evpBeta
        IF ( SEAICE_evpAlpha .NE. UNSET_RL .AND.
      &  SEAICE_evpBeta .EQ. UNSET_RL ) SEAICE_evpBeta = SEAICE_evpAlpha
@@ -765,9 +788,14 @@ C     this turns on adaptive EVP
         IF ( SEAICEaEVPcStar  .EQ.UNSET_RL) SEAICEaEVPcStar   =4. _d 0
         IF (SEAICEaEVPalphaMin.EQ.UNSET_RL) SEAICEaEVPalphaMin=5. _d 0
 C     requires EVP* to work well, so make sure we set it here (commented out
-C     for now
+C     for now, but these values are the default values now)
 CML        SEAICEuseEVPstar   = .TRUE.
 CML        SEAICEuseEVPrev    = .TRUE.
+C     For adaptive EVP we do not need constant parameters alpha and
+C     beta, because they are computed dynamically. Reset them to
+C     undefined here, so that we know if something funny is going on.
+        SEAICE_evpAlpha     = UNSET_RL
+        SEAICE_evpBeta      = UNSET_RL
        ENDIF
 C     Check if all parameters are set.
       ENDIF
@@ -865,7 +893,7 @@ C     b) if specified, then try to recover old way of setting & default.
          WRITE(msgBuf,'(2A)') 'S/R SEAICE_READPARMS: Cannot specify ',
      &    'both SEAICE_mcPheeTaper & SEAICE_availHeatTaper'
          CALL PRINT_ERROR( msgBuf , myThid)
-         STOP 'ABNORMAL END: S/R SEAICE_READPARMS'
+         nError = nError + 1
       ENDIF
 
 C-    set SEAICE_frazilFrac if not yet done
@@ -876,7 +904,7 @@ C-    set SEAICE_frazilFrac if not yet done
          WRITE(msgBuf,'(2A)') 'S/R SEAICE_READPARMS: Cannot specify ',
      &    'both SEAICE_frazilFrac & SEAICE_gamma_t_frz'
          CALL PRINT_ERROR( msgBuf , myThid)
-         STOP 'ABNORMAL END: S/R SEAICE_READPARMS'
+         nError = nError + 1
        ENDIF
       ENDIF
       IF ( SEAICE_availHeatFracFrz.NE.UNSET_RL ) THEN
@@ -890,8 +918,8 @@ C-    set SEAICE_frazilFrac if not yet done
          WRITE(msgBuf,'(2A)') 'S/R SEAICE_READPARMS: Cannot specify ',
      &    'both SEAICE_gamma_t_frz & SEAICE_availHeatFracFrz'
         ENDIF
-         CALL PRINT_ERROR( msgBuf , myThid)
-         STOP 'ABNORMAL END: S/R SEAICE_READPARMS'
+        CALL PRINT_ERROR( msgBuf , myThid)
+        nError = nError + 1
        ENDIF
       ENDIF
 C     the default for SEAICE_gamma_t_frz use to be SEAICE_gamma_t:
@@ -917,7 +945,7 @@ C     to set SEAICE_mcPheePiston once drF is known)
          WRITE(msgBuf,'(2A)') 'S/R SEAICE_READPARMS: Cannot specify ',
      &    'both SEAICE_gamma_t & SEAICE_availHeatFrac'
          CALL PRINT_ERROR( msgBuf , myThid)
-         STOP 'ABNORMAL END: S/R SEAICE_READPARMS'
+         nError = nError + 1
        ENDIF
       ENDIF
       IF ( SEAICE_mcPheePiston .NE. UNSET_RL .AND.
@@ -930,7 +958,7 @@ C     to set SEAICE_mcPheePiston once drF is known)
      &    'both SEAICE_mcPheePiston & SEAICE_gamma_t'
         ENDIF
         CALL PRINT_ERROR( msgBuf , myThid)
-        STOP 'ABNORMAL END: S/R SEAICE_READPARMS'
+        nError = nError + 1
       ENDIF
 
       IF ( useThSice ) THEN
@@ -1263,9 +1291,22 @@ C-    Retired parameters
        WRITE(msgBuf,'(2A)') 'S/R SEAICE_READPARMS: ',
      &  'Error reading parameter file "data.seaice"'
        CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(A)')
-     &  'some out of date parameters were found in the namelist'
+       WRITE(msgBuf,'(A,I3,A)') 'S/R SEAICE_READPARMS: ', nRetired,
+     &      ' out of date parameters were found in the namelist'
        CALL PRINT_ERROR( msgBuf, myThid )
+      ENDIF
+
+      IF ( nError .GT. 0 ) THEN
+       WRITE(msgBuf,'(2A)') 'S/R SEAICE_READPARMS: ',
+     &  'Error reading parameter file "data.seaice"'
+       CALL PRINT_ERROR( msgBuf, myThid )
+       WRITE(msgBuf,'(A,I3,A)') 'S/R SEAICE_READPARMS: ', nError,
+     &  ' parameters values are inconsistent or incomplete'
+       CALL PRINT_ERROR( msgBuf, myThid )
+      ENDIF
+
+      IF ( nRetired .GT. 0 .OR. nError .GT. 0 ) THEN
+       CALL ALL_PROC_DIE( 0 )
        STOP 'ABNORMAL END: S/R SEAICE_READPARMS'
       ENDIF
 

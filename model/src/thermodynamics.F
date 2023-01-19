@@ -15,6 +15,9 @@
 #  include "KPP_OPTIONS.h"
 # endif
 #endif /* ALLOW_AUTODIFF */
+#ifdef ALLOW_CTRL
+# include "CTRL_OPTIONS.h"
+#endif
 
 CBOP
 C     !ROUTINE: THERMODYNAMICS
@@ -49,8 +52,9 @@ C     == Global variables ===
 #endif
 
 #ifdef ALLOW_AUTODIFF
-# include "tamc.h"
-# include "tamc_keys.h"
+# ifdef ALLOW_AUTODIFF_TAMC
+#  include "tamc.h"
+# endif
 # include "EOS.h"
 # ifdef ALLOW_KPP
 #  include "KPP.h"
@@ -101,6 +105,9 @@ C     i, j, k        :: loop indices
       _RL wrTime
       _RL trAdvCFL(3,nSx,nSy)
 # endif /* ALLOW_MONITOR */
+#ifdef ALLOW_AUTODIFF_TAMC
+      INTEGER ikey, itdkey
+#endif
 CEOP
 
 #ifdef ALLOW_DEBUG
@@ -165,16 +172,7 @@ CADJ STORE ptracer = comlev1, key = ikey_dynamics, byte=isbyte
        DO bi=myBxLo(myThid),myBxHi(myThid)
 
 #ifdef ALLOW_AUTODIFF_TAMC
-          act1 = bi - myBxLo(myThid)
-          max1 = myBxHi(myThid) - myBxLo(myThid) + 1
-          act2 = bj - myByLo(myThid)
-          max2 = myByHi(myThid) - myByLo(myThid) + 1
-          act3 = myThid - 1
-          max3 = nTx*nTy
-          act4 = ikey_dynamics - 1
-          itdkey = (act1 + 1) + act2*max1
-     &                      + act3*max1*max2
-     &                      + act4*max1*max2*max3
+        itdkey = bi + (bj-1)*nSx + (ikey_dynamics-1)*nSx*nSy
 #endif /* ALLOW_AUTODIFF_TAMC */
 
 C--   Set up work arrays with valid (i.e. not NaN) values
@@ -293,11 +291,10 @@ CADJ &     comlev1_bibj, key=itdkey,kind = isbyte
 CADJ STORE saltPlumeDepth(:,:,bi,bj)   =
 CADJ &     comlev1_bibj, key=itdkey,kind = isbyte
 # endif
-# if ((defined NONLIN_FRSURF) || (defined ALLOW_DEPTH_CONTROL)) && (defined ALLOW_GMREDI)
-#  ifdef GM_NON_UNITY_DIAGONAL
+# if (defined NONLIN_FRSURF || defined ALLOW_DEPTH_CONTROL) \
+        && defined ALLOW_GMREDI
 CADJ STORE kux(:,:,:,bi,bj) = comlev1_bibj, key=itdkey, byte=isbyte
 CADJ STORE kvy(:,:,:,bi,bj) = comlev1_bibj, key=itdkey, byte=isbyte
-#  endif
 #  ifdef GM_EXTRA_DIAGONAL
 CADJ STORE kuz(:,:,:,bi,bj) = comlev1_bibj, key=itdkey, byte=isbyte
 CADJ STORE kvz(:,:,:,bi,bj) = comlev1_bibj, key=itdkey, byte=isbyte

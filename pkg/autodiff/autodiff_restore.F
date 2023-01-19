@@ -38,11 +38,10 @@ c These includes are needed for
 c AD-checkpointing.
 c They provide the fields to be stored.
 
-# include "GRID.h"
-# include "DYNVARS.h"
-# include "FFIELDS.h"
-# include "SURFACE.h"
-# include "AUTODIFF.h"
+#include "GRID.h"
+#include "DYNVARS.h"
+#include "FFIELDS.h"
+#include "SURFACE.h"
 
 #ifdef ALLOW_OBCS
 # include "OBCS_FIELDS.h"
@@ -62,6 +61,8 @@ c They provide the fields to be stored.
 # include "ctrl.h"
 # include "CTRL_OBCS.h"
 #endif
+c     it is important that this file is included after SEAICE_SIZE.h
+#include "AUTODIFF_STORE.h"
 
 c     == routine arguments ==
 c     note: under the multi-threaded model myIter and
@@ -84,11 +85,10 @@ c--   == end of interface ==
       IF ( debugMode ) CALL DEBUG_ENTER('AUTODIFF_RESTORE',myThid)
 #endif
 
+#ifdef AUTODIFF_USE_STORE_RESTORE
 C--   Over all tiles
       DO bj = myByLo(myThid), myByHi(myThid)
        DO bi = myBxLo(myThid), myBxHi(myThid)
-
-#ifndef AUTODIFF_USE_OLDSTORE_2D
 C-      2D arrays
         DO J=1-OLy,sNy+OLy
          DO I=1-OLx,sNx+OLx
@@ -122,9 +122,12 @@ C-      2D arrays
 #endif
          ENDDO
         ENDDO
-#endif /* AUTODIFF_USE_OLDSTORE_2D */
+       ENDDO
+      ENDDO
 
-#ifndef AUTODIFF_USE_OLDSTORE_3D
+C--   Over all tiles
+      DO bj = myByLo(myThid), myByHi(myThid)
+       DO bi = myBxLo(myThid), myBxHi(myThid)
 C-      3D arrays
         DO K=1,Nr
          DO J=1-OLy,sNy+OLy
@@ -155,8 +158,6 @@ C-      3D arrays
           ENDDO
          ENDDO
         ENDDO
-#endif /* AUTODIFF_USE_OLDSTORE_3D */
-
        ENDDO
       ENDDO
 
@@ -251,60 +252,57 @@ C-      2D arrays
         ENDDO
        ENDDO
       ENDDO
+#endif /* ALLOW_EXF */
 
+#ifdef ALLOW_SEAICE
 C--   Over all tiles
       DO bj = myByLo(myThid), myByHi(myThid)
        DO bi = myBxLo(myThid), myBxHi(myThid)
 C-      2D arrays
         DO J=1-OLy,sNy+OLy
          DO I=1-OLx,sNx+OLx
-# ifdef ALLOW_UWIND_CONTROL
-          xx_uwind0(I,J,bi,bj)     = StoreCTRLS1(I,J,bi,bj,1)
-          xx_uwind1(I,J,bi,bj)     = StoreCTRLS1(I,J,bi,bj,2)
-# endif
-# ifdef ALLOW_VWIND_CONTROL
-          xx_vwind0(I,J,bi,bj)     = StoreCTRLS1(I,J,bi,bj,3)
-          xx_vwind1(I,J,bi,bj)     = StoreCTRLS1(I,J,bi,bj,4)
-# endif
-# ifdef ALLOW_ATEMP_CONTROL
-          xx_atemp0(I,J,bi,bj)     = StoreCTRLS1(I,J,bi,bj,5)
-          xx_atemp1(I,J,bi,bj)     = StoreCTRLS1(I,J,bi,bj,6)
-# endif
-# ifdef ALLOW_AQH_CONTROL
-          xx_aqh0(I,J,bi,bj)       = StoreCTRLS1(I,J,bi,bj,7)
-          xx_aqh1(I,J,bi,bj)       = StoreCTRLS1(I,J,bi,bj,8)
-# endif
-# ifdef ALLOW_PRECIP_CONTROL
-          xx_precip0(I,J,bi,bj)    = StoreCTRLS1(I,J,bi,bj,9)
-          xx_precip1(I,J,bi,bj)    = StoreCTRLS1(I,J,bi,bj,10)
-# endif
-# ifdef ALLOW_SNOWPRECIP_CONTROL
-          xx_snowprecip0(I,J,bi,bj)= StoreCTRLS1(I,J,bi,bj,11)
-          xx_snowprecip1(I,J,bi,bj)= StoreCTRLS1(I,J,bi,bj,12)
-# endif
-# ifdef ALLOW_SWFLUX_CONTROL
-          xx_swflux0(I,J,bi,bj)    = StoreCTRLS1(I,J,bi,bj,13)
-          xx_swflux1(I,J,bi,bj)    = StoreCTRLS1(I,J,bi,bj,14)
-# endif
-# ifdef ALLOW_SWDOWN_CONTROL
-          xx_swdown0(I,J,bi,bj)    = StoreCTRLS1(I,J,bi,bj,15)
-          xx_swdown1(I,J,bi,bj)    = StoreCTRLS1(I,J,bi,bj,16)
-# endif
-# ifdef ALLOW_LWDOWN_CONTROL
-          xx_lwdown0(I,J,bi,bj)    = StoreCTRLS1(I,J,bi,bj,17)
-          xx_lwdown1(I,J,bi,bj)    = StoreCTRLS1(I,J,bi,bj,18)
-# endif
-# ifdef ALLOW_APRESSURE_CONTROL
-          xx_apressure0(I,J,bi,bj) = StoreCTRLS1(I,J,bi,bj,19)
-          xx_apressure1(I,J,bi,bj) = StoreCTRLS1(I,J,bi,bj,20)
+          AREA  (I,J,bi,bj)            = StoreSEAICE(I,J,bi,bj, 1)
+          HEFF  (I,J,bi,bj)            = StoreSEAICE(I,J,bi,bj, 2)
+          HSNOW (I,J,bi,bj)            = StoreSEAICE(I,J,bi,bj, 3)
+          RUNOFF(I,J,bi,bj)            = StoreSEAICE(I,J,bi,bj, 4)
+          UICE  (I,J,bi,bj)            = StoreSEAICE(I,J,bi,bj, 5)
+          VICE  (I,J,bi,bj)            = StoreSEAICE(I,J,bi,bj, 6)
+          ZETA  (I,J,bi,bj)            = StoreSEAICE(I,J,bi,bj, 7)
+          ETA   (I,J,bi,bj)            = StoreSEAICE(I,J,bi,bj, 8)
+# ifdef SEAICE_CGRID
+          dwatn(I,J,bi,bj)             = StoreSEAICE(I,J,bi,bj, 9)
+#  ifdef SEAICE_ALLOW_BOTTOMDRAG
+          cbotc(I,J,bi,bj)             = StoreSEAICE(I,J,bi,bj,10)
+#  endif /* SEAICE_ALLOW_BOTTOMDRAG */
+          stressDivergenceX(I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,11)
+          stressDivergenceY(I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,12)
+# endif /* SEAICE_CGRID */
+# ifdef SEAICE_ALLOW_EVP
+          seaice_sigma1    (I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,13)
+          seaice_sigma2    (I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,14)
+          seaice_sigma12   (I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,15)
+# endif /* SEAICE_ALLOW_EVP */
+# ifdef SEAICE_VARIABLE_SALINITY
+          HSALT            (I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,16)
 # endif
          ENDDO
         ENDDO
+C--   this 3D array comes last because it has a variable size nITD
+        DO k=1,nITD
+         DO J=1-OLy,sNy+OLy
+          DO I=1-OLx,sNx+OLx
+           TICES(I,J,k,bi,bj) = StoreSEAICE(I,J,bi,bj,16+k)
+          ENDDO
+         ENDDO
+        ENDDO
+C
        ENDDO
       ENDDO
-#endif /* ALLOW_EXF */
+#endif /* ALLOW_SEAICE */
 
-#ifdef ALLOW_OBCS
+#endif /* AUTODIFF_USE_STORE_RESTORE */
+
+#if ( defined ALLOW_OBCS && defined AUTODIFF_USE_STORE_RESTORE_OBCS )
 # ifdef ALLOW_OBCS_NORTH
 C--   Over all tiles
       DO bj = myByLo(myThid), myByHi(myThid)
@@ -453,52 +451,6 @@ C-      2D arrays
       ENDDO
 # endif /* ALLOW_OBCS_WEST */
 #endif /* ALLOW_OBCS */
-
-#ifdef ALLOW_SEAICE
-C--   Over all tiles
-      DO bj = myByLo(myThid), myByHi(myThid)
-       DO bi = myBxLo(myThid), myBxHi(myThid)
-C-      2D arrays
-        DO J=1-OLy,sNy+OLy
-         DO I=1-OLx,sNx+OLx
-          AREA(I,J,bi,bj)   = StoreSEAICE(I,J,bi,bj,1)
-          HEFF(I,J,bi,bj)   = StoreSEAICE(I,J,bi,bj,2)
-          HSNOW(I,J,bi,bj)    = StoreSEAICE(I,J,bi,bj,3)
-CML          TICE(I,J,bi,bj)     = StoreSEAICE(I,J,bi,bj,4)
-          RUNOFF(I,J,bi,bj)   = StoreSEAICE(I,J,bi,bj,5)
-# ifdef SEAICE_CGRID
-          stressDivergenceX(I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,14)
-          stressDivergenceY(I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,15)
-# endif
-# ifdef SEAICE_MULTICATEGORY
-cph moved to seaice_ad_check_lev because of extra dim. MULTDIM
-cph          TICES(I,J,bi,bj)     = StoreSEAICE(I,J,bi,bj,6)
-# endif
-          UICE(I,J,bi,bj)    = StoreSEAICE(I,J,bi,bj,7)
-          VICE(I,J,bi,bj)    = StoreSEAICE(I,J,bi,bj,8)
-          ZETA(I,J,bi,bj)      = StoreSEAICE(I,J,bi,bj,9)
-          ETA(I,J,bi,bj)       = StoreSEAICE(I,J,bi,bj,10)
-# ifdef SEAICE_CGRID
-          dwatn(I,J,bi,bj)          = StoreSEAICE(I,J,bi,bj,11)
-#  ifdef SEAICE_ALLOW_BOTTOMDRAG
-          cbotc(I,J,bi,bj)          = StoreSEAICE(I,J,bi,bj,12)
-#  endif /* SEAICE_ALLOW_BOTTOMDRAG */
-CML          seaicemasku(I,J,bi,bj)    = StoreSEAICE(I,J,bi,bj,12)
-CML          seaicemaskv(I,J,bi,bj)    = StoreSEAICE(I,J,bi,bj,13)
-# endif /* SEAICE_CGRID */
-# ifdef SEAICE_ALLOW_EVP
-          seaice_sigma1(I,J,bi,bj)  = StoreSEAICE(I,J,bi,bj,16)
-          seaice_sigma2(I,J,bi,bj)  = StoreSEAICE(I,J,bi,bj,17)
-          seaice_sigma12(I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,18)
-# endif /* SEAICE_ALLOW_EVP */
-# ifdef SEAICE_VARIABLE_SALINITY
-          HSALT(I,J,bi,bj)          = StoreSEAICE(I,J,bi,bj,19)
-# endif
-         ENDDO
-        ENDDO
-       ENDDO
-      ENDDO
-#endif /* ALLOW_SEAICE */
 
 #ifdef ALLOW_DEBUG
       IF ( debugMode ) CALL DEBUG_LEAVE('AUTODIFF_RESTORE',myThid)

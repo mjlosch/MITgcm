@@ -73,6 +73,9 @@ C     reciprocal number of ice classes nITD
 C     Helper variables for diagnostics
       _RL DIAGarrayA    (1:sNx,1:sNy)
 #endif /* ALLOW_DIAGNOSTICS */
+#ifdef ALLOW_AUTODIFF_TAMC
+      INTEGER iicekey
+#endif
 CEOP
 
 C
@@ -84,16 +87,7 @@ C
        DO bi=myBxLo(myThid),myBxHi(myThid)
 
 #ifdef ALLOW_AUTODIFF_TAMC
-        act1 = bi - myBxLo(myThid)
-        max1 = myBxHi(myThid) - myBxLo(myThid) + 1
-        act2 = bj - myByLo(myThid)
-        max2 = myByHi(myThid) - myByLo(myThid) + 1
-        act3 = myThid - 1
-        max3 = nTx*nTy
-        act4 = ikey_dynamics - 1
-        iicekey = (act1 + 1) + act2*max1
-     &                       + act3*max1*max2
-     &                       + act4*max1*max2*max3
+        iicekey = bi + (bj-1)*nSx + (ikey_dynamics-1)*nSx*nSy
 #endif /* ALLOW_AUTODIFF_TAMC */
 
         DO J=1-OLy,sNy+OLy
@@ -209,7 +203,13 @@ C     Let us keep our fingers crossed, that the model will be benign!
         ENDDO
 #endif /* SEAICE_ITD */
 #ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE heff(:,:,bi,bj)  = comlev1_bibj, key = iicekey,byte=isbyte
+CADJ STORE heff(:,:,bi,bj) = comlev1_bibj, key = iicekey,byte=isbyte
+C     The following statement helps TAF to understand that TICES is not
+C     modified/reset everywhere so that it is correctly stored in the
+C     outer checkpoint levels. This is a TAF bug and this statement can
+C     probably be removed again, once this bug is fixed (but it does not
+C     hurt, either).
+CADJ INCOMPLETE TICES
 #endif /* ALLOW_AUTODIFF_TAMC */
         DO J=1,sNy
          DO I=1,sNx

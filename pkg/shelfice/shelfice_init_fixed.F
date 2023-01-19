@@ -44,9 +44,6 @@ C     i, j, bi, bj :: Loop counters
 #endif /* ALLOW_DIAGNOSTICS */
 #ifdef ALLOW_CTRL
       INTEGER k
-# ifdef ALLOW_SHIFWFLX_COST_CONTRIBUTION
-      _RL dummy
-# endif
 #endif
 
 #ifdef ALLOW_MNC
@@ -110,38 +107,6 @@ C     like ctrl_get_gen and ctrl_set_unpack_xy require 3D masks.
        ENDDO
       ENDDO
 #endif /* ALLOW_CTRL */
-
-#ifdef ALLOW_COST
-#if  (defined (ALLOW_SHIFWFLX_COST_CONTRIBUTION) && \
-      defined (ALLOW_SHIFWFLX_CONTROL))
-      IF ( shifwflx_errfile .NE. ' ' ) THEN
-       CALL READ_REC_XY_RL( shifwflx_errfile, wshifwflx, 1, 0, myThid )
-      ENDIF
-
-      DO bj = myByLo(myThid), myByHi(myThid)
-       DO bi = myBxLo(myThid), myBxHi(myThid)
-        DO j = 1-OLy, sNy+OLy
-         DO i = 1-OLx, sNx+OLx
-c--   Test for missing values.
-          IF (wshifwflx(i,j,bi,bj) .LT. -9900.) THEN
-           wshifwflx(i,j,bi,bj) = 0. _d 0
-          ENDIF
-c--   use weight as mask
-          wshifwflx(i,j,bi,bj) =
-     &         max(wshifwflx(i,j,bi,bj),wshifwflx0)
-     &         *maskSHI(i,j,1,bi,bj)
-          IF (wshifwflx(i,j,bi,bj) .NE. 0.) THEN
-           wshifwflx(i,j,bi,bj) =
-     &          1./wshifwflx(i,j,bi,bj)/wshifwflx(i,j,bi,bj)
-          ENDIF
-         ENDDO
-        ENDDO
-       ENDDO
-      ENDDO
-      CALL ACTIVE_WRITE_XY_LOC( 'wshifwflx', wshifwflx,
-     &                          1, 0, myThid, dummy )
-#endif /* ALLOW_SHIFWFLX_COST_CONTRIBUTION and ALLOW_SHIFWFLX_CONTROL */
-#endif /* ALLOW_COST */
 
       IF ( SHELFICEloadAnomalyFile .NE. ' ' ) THEN
        CALL READ_FLD_XY_RL( SHELFICEloadAnomalyFile, ' ',
@@ -256,6 +221,14 @@ c     ENDIF
        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I      diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
+       diagName  = 'SHI_mass'
+       diagTitle = 'dynamic ice shelf mass for surface load anomaly'
+       diagUnits = 'kg/m^2          '
+       diagCode  = 'SM      L1      '
+       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I      diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+#ifdef SHI_ALLOW_GAMMAFRICT
        diagName  = 'SHIuStar'
        diagTitle = 'Friction velocity at bottom of ice shelf'
        diagUnits = 'm/s             '
@@ -263,12 +236,13 @@ c     ENDIF
        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I      diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
-       diagName  = 'SHI_mass'
-       diagTitle = 'dynamic ice shelf mass for surface load anomaly'
-       diagUnits = 'kg/m^2          '
+       diagName  = 'SHICDrag'
+       diagTitle = 'Shelfice drag coefficient for u* parameterization'
+       diagUnits = '1               '
        diagCode  = 'SM      L1      '
        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
-     I      diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#endif
 
 #ifdef ALLOW_SHELFICE_REMESHING
        diagName  = 'SHIRshel'
@@ -279,6 +253,31 @@ c     ENDIF
      I      diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 #endif
 
+# ifdef ALLOW_AUTODIFF
+#  ifndef SHI_ALLOW_GAMMAFRICT
+       diagName  = 'ADJshict'
+       diagTitle = 'dJ/dgammaT: Sens. to shelfice heat transfer coeff'
+       diagUnits = 'dJ/(m/s)        '
+       diagCode  = 'SM A    M1      '
+       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+       diagName  = 'ADJshics'
+       diagTitle = 'dJ/dgammaS: Sens. to shelfice salt transfer coeff'
+       diagUnits = 'dJ/(m/s)        '
+       diagCode  = 'SM A    M1      '
+       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+#  else
+       diagName  = 'ADJshicd'
+       diagTitle = 'dJ/dcDrag: Sensitivity to shelfice u* drag coeff'
+       diagUnits = 'dJ/1            '
+       diagCode  = 'SM A    M1      '
+       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#  endif
+# endif
       ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 #endif /* ALLOW_SHELFICE */

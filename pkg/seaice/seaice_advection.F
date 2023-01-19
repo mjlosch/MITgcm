@@ -57,7 +57,6 @@ C !USES: ===============================================================
 #endif /* ALLOW_AUTODIFF */
 #ifdef ALLOW_AUTODIFF_TAMC
 # include "tamc.h"
-# include "tamc_keys.h"
 # ifdef ALLOW_PTRACERS
 #  include "PTRACERS_SIZE.h"
 # endif
@@ -152,32 +151,23 @@ C     msgBuf     :: Informational/error message buffer
       LOGICAL dBug
       INTEGER ioUnit
       _RL tmpFac
+#ifdef ALLOW_AUTODIFF_TAMC
+      INTEGER passkey, igadkey
+#endif
 CEOP
 
 C     make local copy to be tampered with if necessary
       advectionScheme = advectionSchArg
 #ifdef ALLOW_AUTODIFF_TAMC
-          act0 = tracerIdentity - 1
-          max0 = maxpass
-          act1 = bi - myBxLo(myThid)
-          max1 = myBxHi(myThid) - myBxLo(myThid) + 1
-          act2 = bj - myByLo(myThid)
-          max2 = myByHi(myThid) - myByLo(myThid) + 1
-          act3 = myThid - 1
-          max3 = nTx*nTy
-          act4 = ikey_dynamics - 1
-          igadkey = (act0 + 1)
-     &                      + act1*max0
-     &                      + act2*max0*max1
-     &                      + act3*max0*max1*max2
-     &                      + act4*max0*max1*max2*max3
-          if (tracerIdentity.GT.maxpass) then
-           WRITE(msgBuf,'(A,2I3)')
-     &      'SEAICE_ADVECTION: maxpass < tracerIdentity ',
-     &      maxpass, tracerIdentity
-           CALL PRINT_ERROR( msgBuf, myThid )
-           STOP 'ABNORMAL END: S/R SEAICE_ADVECTION'
-          endif
+      igadkey = bi + (bj-1)*nSx + (ikey_dynamics-1)*nSx*nSy
+      igadkey = tracerIdentity + (igadkey-1)*maxpass
+      IF (tracerIdentity.GT.maxpass) THEN
+       WRITE(msgBuf,'(A,2I5)')
+     &      'SEAICE_ADVECTION: tracerIdentity > maxpass ',
+     &      tracerIdentity, maxpass
+       CALL PRINT_ERROR( msgBuf, myThid )
+       STOP 'ABNORMAL END: S/R SEAICE_ADVECTION'
+      ENDIF
 C
       IF ( inAdMode .AND. useApproxAdvectionInAdMode ) THEN
 C     In AD-mode, we change non-linear, potentially unstable AD advection
@@ -220,14 +210,6 @@ C     uninitialised but inert locations.
 C--   Set tile-specific parameters for horizontal fluxes
       IF (useCubedSphereExchange) THEN
        nipass=3
-#ifdef ALLOW_AUTODIFF_TAMC
-       IF ( nipass.GT.maxcube ) THEN
-           WRITE(msgBuf,'(A)')
-     &      'SEAICE_ADVECTION: maxcube needs to be =3; check tamc.h '
-           CALL PRINT_ERROR( msgBuf, myThid )
-           STOP 'ABNORMAL END: S/R SEAICE_ADVECTION'
-       ENDIF
-#endif
 #ifdef ALLOW_EXCH2
        myTile = W2_myTileList(bi,bj)
        nCFace = exch2_myFace(myTile)
@@ -255,6 +237,14 @@ C--   Set tile-specific parameters for horizontal fluxes
       iMax = sNx+OLx
       jMin = 1-OLy
       jMax = sNy+OLy
+#ifdef ALLOW_AUTODIFF_TAMC
+      IF ( nipass.GT.maxcube ) THEN
+         WRITE(msgBuf,'(A,2(I3,A))') 'S/R SEAICE_ADVECTION: nipass =',
+     &     nipass, ' >', maxcube, ' = maxcube, ==> check "tamc.h"'
+         CALL PRINT_ERROR( msgBuf, myThid )
+         STOP 'ABNORMAL END: S/R SEAICE_ADVECTION'
+      ENDIF
+#endif /* ALLOW_AUTODIFF_TAMC */
 
       k = 1
 C--   Start of k loop for horizontal fluxes
@@ -302,14 +292,7 @@ C--   Multiple passes for different directions on different tiles
 C--   For cube need one pass for each of red, green and blue axes.
       DO ipass=1,nipass
 #ifdef ALLOW_AUTODIFF_TAMC
-       passkey = ipass + (igadkey-1)*maxpass
-       IF (nipass .GT. maxpass) THEN
-           WRITE(msgBuf,'(A,2I3)')
-     &      'SEAICE_ADVECTION: nipass > max[ass. check tamc.h ',
-     &      nipass, maxpass
-           CALL PRINT_ERROR( msgBuf, myThid )
-           STOP 'ABNORMAL END: S/R SEAICE_ADVECTION'
-       ENDIF
+       passkey = ipass + (igadkey-1)*maxcube
 #endif /* ALLOW_AUTODIFF_TAMC */
 
        interiorOnly = .FALSE.
