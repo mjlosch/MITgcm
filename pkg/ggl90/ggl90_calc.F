@@ -648,9 +648,9 @@ C     viscosity and diffusivity
      &        * maskC(i,j,k,bi,bj)*maskC(i,j,k-1,bi,bj)
 C        note: storing GGL90visctmp like this, and using it later to compute
 C              GGL9rdiffKr etc. is robust in case of smoothing (e.g. see OPA)
-         KappaM(i,j) = MAX( KappaM(i,j),viscArNr(k)
-     &                    * recip_coordFac*recip_coordFac )
-     &                    * maskC(i,j,k,bi,bj)*maskC(i,j,k-1,bi,bj)
+CML         KappaM(i,j) = MAX( KappaM(i,j),viscArNr(k)
+CML     &                    * recip_coordFac*recip_coordFac )
+CML     &                    * maskC(i,j,k,bi,bj)*maskC(i,j,k-1,bi,bj)
         ENDDO
        ENDDO
 
@@ -707,9 +707,11 @@ C     compute Prandtl number (always greater than 1)
          DO i=iMin,iMax
           RiNumber = MAX(Nsquare(i,j,k),0. _d 0)
      &         /(verticalShear(i,j)+GGL90eps)
-          prTemp = 1. _d 0
-          IF ( RiNumber .GE. 0.2 _d 0 ) prTemp = 5. _d 0 * RiNumber
-          TKEPrandtlNumber(i,j,k) = MIN(10. _d 0,prTemp)
+CML          prTemp = 1. _d 0
+CML          IF ( RiNumber .GE. 0.2 _d 0 ) prTemp = 5. _d 0 * RiNumber
+CML          TKEPrandtlNumber(i,j,k) = MIN(10. _d 0,prTemp)
+          TKEPrandtlNumber(i,j,k) = MAX(1. _d 0,
+     &         MIN(10. _d 0, 6.6*RiNumber))
          ENDDO
         ENDDO
 #ifdef ALLOW_GGL90_IDEMIX
@@ -1008,6 +1010,83 @@ C     end of time step
 C     ===============================
 
       DO k=2,Nr
+#ifdef GGL90_ALT_AVERAGING
+
+C-     Viscosity (in m^2/s) at the right location:
+       DO j=1,sNy
+        DO i=1,sNx+1
+         tmpVisc = ( GGL90visctmp(i-1,j,k) + GGL90visctmp(i,j,k) )
+     &           * halfRL
+     &           * _maskW(i,j,k-1,bi,bj) * _maskW(i,j,k,bi,bj)
+         GGL90viscArU(i,j,k,bi,bj) = MIN( tmpVisc , GGL90viscMax )
+        ENDDO
+       ENDDO
+       DO j=1,sNy+1
+        DO i=1,sNx
+         tmpVisc =( GGL90visctmp(i,j-1,k) + GGL90visctmp(i,j,k) )
+     &           * halfRL
+     &           * _maskS(i,j,k-1,bi,bj) * _maskS(i,j,k,bi,bj)
+         GGL90viscArV(i,j,k,bi,bj) = MIN( tmpVisc , GGL90viscMax )
+        ENDDO
+       ENDDO
+
+       DO j=1,sNy
+        DO i=1,sNx
+         IF ( Nsquare(i,j,k).GT.zeroRL ) THEN
+C-    stratified case:
+c        KappaH = visc/PrNum ; PrNum = Max(1,Min(10,5*Ri)) ; Ri = N2 / M2
+c     can be sritten: kappaH = Min( visc , Max( visc/10 , visc*M2/N2/5 ) )
+          tempU  = ( uVel( i, j,k-1,bi,bj) - uVel( i, j,k,bi,bj) )
+c    &           * _maskW( i, j,k-1,bi,bj)*_maskW( i, j,k,bi,bj)
+          tempUp = ( uVel(i+1,j,k-1,bi,bj) - uVel(i+1,j,k,bi,bj) )
+c    &           * _maskW(i+1,j,k-1,bi,bj)*_maskW(i+1,j,k,bi,bj)
+          tempV  = ( vVel(i, j ,k-1,bi,bj) - vVel(i, j ,k,bi,bj) )
+c    &           * _maskS(i, j, k-1,bi,bj)*_maskS(i, j, k,bi,bj)
+          tempVp = ( vVel(i,j+1,k-1,bi,bj) - vVel(i,j+1,k,bi,bj) )
+c    &           * _maskS(i,j+1,k-1,bi,bj)*_maskS(i,j+1,k,bi,bj)
+          verticalShear(i,j) =
+     &          ( ( tempU*tempU + tempUp*tempUp )
+     &          + ( tempV*tempV + tempVp*tempVp )
+     &          )
+c    &           *halfRL*recip_drC(k)*recip_drC(k)*coordFac*coordFac
+          tmpVisc =
+     &          ( ( GGL90viscArU( i, j,k,bi,bj)*tempU*tempU
+     &            + GGL90viscArU(i+1,j,k,bi,bj)*tempUp*tempUp )
+     &          + ( GGL90viscArV(i, j, k,bi,bj)*tempV*tempV
+     &            + GGL90viscArV(i,j+1,k,bi,bj)*tempVp*tempVp )
+     &          )
+c    &           *halfRL*recip_drC(k)*recip_drC(k)*coordFac*coordFac
+     &           /( verticalShear(i,j) + GGL90eps )
+          tmpVisc = MIN(tmpVisc/TKEPrandtlNumber(i,j,k),GGL90diffMax)
+     &        * coordFac*coordFac
+          GGL90diffKr(i,j,k,bi,bj)= MAX( tmpVisc , diffKrNrS(k) )
+         ELSE
+C-    not stratified:
+          tmpVisc = MIN( GGL90visctmp(i,j,k), GGL90diffMax )
+     &            * coordFac*coordFac
+          GGL90diffKr(i,j,k,bi,bj)= MAX( tmpVisc , diffKrNrS(k) )
+         ENDIF
+        ENDDO
+       ENDDO
+
+C-     Finish viscosity setting:
+       DO j=1,sNy
+        DO i=1,sNx+1
+         tmpVisc = GGL90viscArU(i,j,k,bi,bj) * coordFac*coordFac
+c    &           * _maskW(i,j,k-1,bi,bj) * _maskW(i,j,k,bi,bj)
+         GGL90viscArU(i,j,k,bi,bj) = MAX( tmpVisc, viscArNr(k) )
+        ENDDO
+       ENDDO
+       DO j=1,sNy+1
+        DO i=1,sNx
+         tmpVisc = GGL90viscArV(i,j,k,bi,bj) * coordFac*coordFac
+c    &           * _maskS(i,j,k-1,bi,bj) * _maskS(i,j,k,bi,bj)
+         GGL90viscArV(i,j,k,bi,bj) = MAX( tmpVisc, viscArNr(k) )
+        ENDDO
+       ENDDO
+
+#else /* GGL90_ALT_AVERAGING */
+
        kl = k-delK
        DO j=1,sNy
         DO i=1,sNx
@@ -1105,6 +1184,9 @@ C     ===============================
          GGL90viscArV(i,j,k,bi,bj) = MAX( tmpVisc, viscArNr(k) )
         ENDDO
        ENDDO
+
+#endif /* GGL90_ALT_AVERAGING */
+C-    end k loop:
       ENDDO
 
 #ifdef ALLOW_DIAGNOSTICS

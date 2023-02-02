@@ -28,12 +28,12 @@ C     exf_max_nLat :: maximum size of original grid (latitudinal direction)
 C     exf_interp_bufferSize :: buffer maximum size
       INTEGER    exf_max_nLon, exf_max_nLat
       INTEGER    exf_interp_bufferSize
-      PARAMETER( exf_max_nLon = 520 )
-      PARAMETER( exf_max_nLat = 260 )
+      PARAMETER( exf_max_nLon = 640 )
+      PARAMETER( exf_max_nLat = 320 )
 
 C   Buffer size was set to 65000 (allowing to read-in a 1x1 global data set);
 C   increased to 140000 to accommodate for ECMWF-INTERIM (512 x 256)
-      PARAMETER( exf_interp_bufferSize = 140000 )
+      PARAMETER( exf_interp_bufferSize = 210000 )
 #endif /* ndef EXF_INTERP_USE_DYNALLOC */
 
 #else /* USE_EXF_INTERPOLATION */
