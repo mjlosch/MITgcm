@@ -64,7 +64,7 @@ C                    for metric terms in U/V ice equations.
 #endif /* SEAICE_CGRID */
 
 C--   Dynamical variables
-      COMMON/SEAICE_DYNVARS_1/AREA,HEFF,HSNOW,UICE,VICE
+      COMMON/SEAICE_DYNVARS_1/AREA,HEFF,HSNOW,UICE,VICE,RANDOM
 #ifdef SEAICE_ITD
      &                       ,AREAITD,HEFFITD,HSNOWITD,
      &                        opnWtrFrac, fw2ObyRidge
@@ -80,6 +80,7 @@ C     fraction of open water (= 1-AREA) needed for ridging parameterization
       _RL HSNOW      (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL UICE       (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL VICE       (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL RANDOM     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 
 C     uIceC :: average of UICE between last two time steps
 C     vIceC :: average of VICE between last two time steps
@@ -137,6 +138,7 @@ C--   Dynamical variables
       _RL FORCEY0    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL ZMAX       (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL ZMIN       (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+c      _RL RANDOM     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C     factor k to compute the maximal tensile stress from k*PRESS0,
 C     in analogy to the maximal compressive stress PRESS0
       _RL tensileStrFac(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)

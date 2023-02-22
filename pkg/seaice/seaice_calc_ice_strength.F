@@ -120,6 +120,7 @@ C--   now set up ice pressure and viscosities
          ZMAX(I,J,bi,bj)  = SEAICE_zetaMaxFac*PRESS0(I,J,bi,bj)
          ZMIN(I,J,bi,bj)  = SEAICE_zetaMin
          PRESS0(I,J,bi,bj)= PRESS0(I,J,bi,bj)*HEFFM(I,J,bi,bj)
+         PRESS0(I,J,bi,bj)= PRESS0(I,J,bi,bj)*RANDOM(I,J,bi,bj)
         ENDDO
        ENDDO
        DO j=1,sNy+1

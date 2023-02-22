@@ -385,20 +385,20 @@ C--   Read initial snow thickness from file if available.
         ENDDO
        ENDIF
 
-CMBC--   Read initial seaice stregth from file if available.
-CMB       IF ( PFile .NE. ' ' ) THEN
-CMB        CALL READ_FLD_XY_RL( PFile, ' ', SEAICE_strength, 0, myThid)
-CMB        _EXCH_XY_RL(SEAICE_strength,myThid)
-CMB        DO bj=myByLo(myThid),myByHi(myThid)
-CMB         DO bi=myBxLo(myThid),myBxHi(myThid)
-CMB          DO j=1-OLy,sNy+OLy
-CMB           DO i=1-OLx,sNx+OLx
-CMB            SEAICE_strength(i,j,bi,bj)=MAX(SEAICE_strength(i,j,bi,bj),ZERO)
-CMB           ENDDO
-CMB          ENDDO
-CMB         ENDDO
-CMB        ENDDO
-CMB       ENDIF
+C--   Read random field
+       IF ( RandFile .NE. ' ' ) THEN
+        CALL READ_FLD_XY_RL( RandFile, ' ', RANDOM, 0, myThid)
+        _EXCH_XY_RL(RANDOM,myThid)
+        DO bj=myByLo(myThid),myByHi(myThid)
+         DO bi=myBxLo(myThid),myBxHi(myThid)
+          DO j=1-OLy,sNy+OLy
+           DO i=1-OLx,sNx+OLx
+            RANDOM(i,j,bi,bj)=MAX(RANDOM(i,j,bi,bj),ZERO)
+           ENDDO
+          ENDDO
+         ENDDO
+        ENDDO
+       ENDIF
 
 #ifdef SEAICE_ITD
        DO bj=myByLo(myThid),myByHi(myThid)

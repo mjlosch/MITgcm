@@ -152,7 +152,7 @@ C--   SEAICE parameters
      & SEAICE_drySnowAlb_south, SEAICE_wetSnowAlb_south, HO_south,
      & SEAICE_cBasalStar, SEAICEbasalDragU0, SEAICEbasalDragK1,
      & SEAICEbasalDragK2, SEAICE_wetAlbTemp, SEAICE_waterAlbedo,
-     & SEAICE_strength, SEAICE_cStar, SEAICE_eccen, PFile,
+     & SEAICE_strength, SEAICE_cStar, SEAICE_eccen, RandFile,
      & SEAICE_eccfr, SEAICEtdMU, SEAICEmcMu,
      & SEAICEpressReplFac, SEAICE_tensilFac, SEAICE_tensilDepth,
      & SEAICEpoissonRatio, SEAICEviscosity, SEAICEcohesion, CohesFile,
@@ -498,7 +498,7 @@ c     SEAICE_dTempFrz_dS = 0. _d 0
       HsnowFile    = ' '
       HsaltFile    = ' '
       HeffFile     = ' '
-CMB      PFile   = ' '
+      RandFile   = ' '
       CohesFile    = ' '
       uIceFile     = ' '
       vIceFile     = ' '
@@ -707,7 +707,6 @@ C--   Set default values (if not specified in data.seaice namelist)
 C--   damage always needs to be updated for MEB
       IF ( SEAICEuseMEB ) SEAICEupdateDamage = .TRUE.
 C--   Default ice strength (Pstar)
-CMB      IF (SEAICE_strength .EQ. UNSET_RL .and. PFile .EQ. ' ') THEN
       IF (SEAICE_strength .EQ. UNSET_RL) THEN
        SEAICE_strength = 2.75 _d +04
        IF ( SEAICEuseMEB ) SEAICE_strength = 2.*SEAICEelasticWaveSp**2

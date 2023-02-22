@@ -385,7 +385,7 @@ C     some output diagnostics
      &        krylovLinTol,picardResidual
          CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &        SQUEEZE_RIGHT, myThid )
-         WRITE(msgBuf,'(3(A,I6))')
+         WRITE(msgBuf,'(3(A,I10))')
      &        ' S/R SEAICE_KRYLOV: Picard iterate / total = ',
      &        picardIter, ' / ', totalPicardItersLoc,
      &        ', Nb. of FGMRES iterations = ', krylovIter
@@ -400,6 +400,7 @@ C     Set the stopping criterion for the Picard iteration and the
 C     criterion for the transition from accurate to approximate FGMRES
         IF ( picardIter .EQ. 1 ) THEN
          picardTol=SEAICEnonLinTol*picardResidual
+CMB         picardTol=SEAICEnonLinTol
          IF ( JFNKres_tFac .NE. UNSET_RL )
      &        JFNKres_t = picardResidual * JFNKres_tFac
         ENDIF
@@ -443,7 +444,7 @@ C--   Output diagnostics
        _BEGIN_MASTER( myThid )
        totalPicardItersLoc =
      &      picardIterMax*(myIter-nIter0)+picardIter
-       WRITE(msgBuf,'(2A,2(1XI6),2E12.5)')
+       WRITE(msgBuf,'(2A,2(1XI10),2E12.5)')
      &      ' S/R SEAICE_KRYLOV: Picard iterate / total, ',
      &      'KRYLOVgamma_lin, final   norm = ',
      &      picardIter, totalPicardItersLoc,
@@ -558,7 +559,7 @@ C     Print more debugging information
         _END_MASTER( myThid )
        ENDIF
        _BEGIN_MASTER( myThid )
-       WRITE(msgBuf,'(A,I6,A,I10)')
+       WRITE(msgBuf,'(A,I10,A,I10)')
      &      ' S/R SEAICE_KRYLOV: Total number FGMRES iterations = ',
      &      totalKrylovItersLoc, ' in timestep ', myIter+1
        CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,

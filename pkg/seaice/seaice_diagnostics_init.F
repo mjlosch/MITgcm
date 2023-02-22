@@ -879,6 +879,15 @@ C=============== dynamics ============
      I    diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 #endif /* SEAICE_ALLOW_DAMAGE */
 
+#ifdef SEAICE_ALLOW_DAMAGE
+      diagName  = 'SIcohes ' 
+      diagTitle = 'SEAICE cohesion at C-points'
+      diagUnits = '1/m^2           '
+      diagCode  = 'SM      M1      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I    diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#endif /* SEAICE_ALLOW_DAMAGE */
+
 #ifdef SEAICE_ITD
 C=============== ice thickness categories ============
 

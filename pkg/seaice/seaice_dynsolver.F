@@ -515,6 +515,19 @@ C     use sig1 as a temporary field
          ENDDO
         ENDDO
        ENDIF
+       IF ( DIAGNOSTICS_IS_ON('SIcohes ',myThid) ) THEN
+        DO bj = myByLo(myThid), myByHi(myThid)
+         DO bi = myBxLo(myThid), myBxHi(myThid)
+C     use sig1 as a temporary field
+          DO j=1,sNy
+           DO i=1,sNx
+            sig1(i,j) = (cohesion(i,j,bi,bj))*maskInC(i,j,bi,bj)
+           ENDDO
+          ENDDO
+          CALL DIAGNOSTICS_FILL(sig1,'SIcohes ',0,1,2,bi,bj,myThid)
+         ENDDO
+        ENDDO
+       ENDIF
 # endif /* SEAICE_ALLOW_DAMAGE */
 # ifdef SEAICE_ALLOW_MEB
        IF ( DIAGNOSTICS_IS_ON('SIelastZ',myThid) ) THEN
@@ -602,6 +615,8 @@ c             ENDIF
              sig2(i,j) = 0.5 _d 0*(sigp - sigTmp)*recip_prs
              sig11(i,j) = 0.5 _d 0*(sigp+sigm)
              sig22(i,j) = 0.5 _d 0*(sigp-sigm)
+CMB             sig11(i,j) = sigp
+CMB             sig22(i,j) = sigm
             ENDDO
            ENDDO
           ELSE
@@ -634,6 +649,10 @@ c             IF ( press0(i,j,bi,bj) .GT. 1. _d -13 )
 c     &            recip_prs = 1. _d 0 / press0(i,j,bi,bj)
              sig1(i,j) = 0.5 _d 0*(sigp + sigTmp)*recip_prs
              sig2(i,j) = 0.5 _d 0*(sigp - sigTmp)*recip_prs
+             sig11(i,j) = 0.5 _d 0*(sigp+sigm)
+             sig22(i,j) = 0.5 _d 0*(sigp-sigm)    
+CMB             sig11(i,j) = sigp
+CMB             sig22(i,j) = sigm        
             ENDDO
            ENDDO
           ENDIF
