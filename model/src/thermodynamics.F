@@ -283,6 +283,12 @@ CADJ STORE vFld (:,:,:)         = comlev1_bibj, key=tkey, byte=isbyte
 CADJ STORE wFld (:,:,:)         = comlev1_bibj, key=tkey, byte=isbyte
 CADJ STORE theta(:,:,:,bi,bj)   = comlev1_bibj, key=tkey, byte=isbyte
 CADJ STORE salt (:,:,:,bi,bj)   = comlev1_bibj, key=tkey, byte=isbyte
+# ifdef ALLOW_ADAMSBASHFORTH_3
+CADJ STORE gtnm(:,:,:,bi,bj,1)  = comlev1_bibj, key=tkey, byte=isbyte
+CADJ STORE gtnm(:,:,:,bi,bj,2)  = comlev1_bibj, key=tkey, byte=isbyte
+CADJ STORE gsnm(:,:,:,bi,bj,1)  = comlev1_bibj, key=tkey, byte=isbyte
+CADJ STORE gsnm(:,:,:,bi,bj,2)  = comlev1_bibj, key=tkey, byte=isbyte
+# endif
 # ifdef ALLOW_SALT_PLUME
 CADJ STORE saltPlumeFlux(:,:,bi,bj)  = comlev1_bibj,key=tkey,kind=isbyte
 CADJ STORE saltPlumeDepth(:,:,bi,bj) = comlev1_bibj,key=tkey,kind=isbyte

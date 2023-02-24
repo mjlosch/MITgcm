@@ -412,6 +412,9 @@ C--   External thermal forcing term(s) outside Adams-Bashforth:
         ENDIF
 
 #ifdef NONLIN_FRSURF
+# ifdef ALLOW_AUTODIFF_TAMC
+CADJ STORE gt_loc(:,:,k) = comlev1_bibj_k, key = kkey, kind = isbyte
+# endif
         IF (nonlinFreeSurf.GT.0) THEN
           CALL FREESURF_RESCALE_G(
      I                            bi, bj, k,
@@ -420,10 +423,8 @@ C--   External thermal forcing term(s) outside Adams-Bashforth:
          IF ( AdamsBashforthGt ) THEN
 #ifdef ALLOW_ADAMSBASHFORTH_3
 # ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE gtNm(:,:,k,bi,bj,1) = comlev1_bibj_k, key=kkey,
-CADJ &     byte=isbyte,  kind = isbyte
-CADJ STORE gtNm(:,:,k,bi,bj,2) = comlev1_bibj_k, key=kkey,
-CADJ &     byte=isbyte,  kind = isbyte
+CADJ STORE gtNm(:,:,k,bi,bj,1) = comlev1_bibj_k, key=kkey, kind=isbyte
+CADJ STORE gtNm(:,:,k,bi,bj,2) = comlev1_bibj_k, key=kkey, kind=isbyte
 # endif
           CALL FREESURF_RESCALE_G(
      I                            bi, bj, k,
@@ -448,6 +449,9 @@ C-    end of vertical index (k) loop (Nr:1)
 
 #ifdef ALLOW_DOWN_SLOPE
       IF ( useDOWN_SLOPE ) THEN
+# ifdef ALLOW_AUTODIFF_TAMC
+CADJ STORE recip_hfac = comlev1_bibj, key = tkey, kind = isbyte
+# endif
         IF ( usingPCoords ) THEN
           CALL DWNSLP_APPLY(
      I                  GAD_TEMPERATURE, bi, bj, kSurfC,
