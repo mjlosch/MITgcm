@@ -71,7 +71,7 @@ C o Include/exclude call to S/R CALC_DIFFUSIVITY
 #define INCLUDE_CALC_DIFFUSIVITY_CALL
 
 C o Allow full 3D specification of vertical diffusivity
-#define ALLOW_3D_DIFFKR
+c#define ALLOW_3D_DIFFKR
 
 C o Allow latitudinally varying BryanLewis79 vertical diffusivity
 #undef ALLOW_BL79_LAT_VARY
@@ -108,7 +108,7 @@ C   that ensures that d/dt(eta) is exactly equal to - Div.Transport
 
 C o Allow the use of Non-Linear Free-Surface formulation
 C   this implies that grid-cell thickness (hFactors) varies with time
-#undef NONLIN_FRSURF
+#define NONLIN_FRSURF
 C o Disable code for rStar coordinate and/or code for Sigma coordinate
 c#define DISABLE_RSTAR_CODE
 #define DISABLE_SIGMA_CODE
