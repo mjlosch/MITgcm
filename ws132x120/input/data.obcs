@@ -1,0 +1,85 @@
+# ***************
+# Open boundaries
+# ***************
+ &OBCS_PARM01
+ useOBCSsponge=.TRUE.,
+# useOBCSbalance=.TRUE.,
+#OBCSprintDiags     =.FALSE.,
+# useOBCSYearlyFields=.TRUE.,
+ useOBCSprescribe=.TRUE.,
+ OB_Jsouth = 135*0,
+ OB_Iwest  = 59*0,38*1, 23*0,
+ OB_Ieast  = 66*0, 54*135,
+ OB_Jnorth = 135*120,
+#
+ OBEtFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEtheta',
+ OBWtFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWtheta',
+ OBNtFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNtheta',
+#
+ OBEsFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEsalt',
+ OBWsFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWsalt',
+ OBNsFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNsalt',
+#
+#suggestion ML: use uvelmass/hfac
+#I think, it is more consistent to use uvel and OBNeta for nonlin. free surface
+ OBEuFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEuvel',
+ OBWuFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWuvel',
+ OBNuFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNuvel',
+#
+ OBEvFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEvvel',
+ OBWvFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWvvel',
+ OBNvFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNvvel',
+#
+ OBEetaFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEeta',
+ OBWetaFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWeta',
+ OBNetaFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNeta',
+#
+# ice
+ OBWhFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWhice',
+ OBWaFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWaice',
+ OBWsnFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWhsno',
+ OBWslFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWhsal',
+#
+ OBEhFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEhice',
+ OBEaFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEaice',
+ OBEsnFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEhsno',
+ OBEslFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEhsal',
+#
+ OBNhFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNhice',
+ OBNaFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNaice',
+ OBNsnFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNhsno',
+ OBNslFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNhsal',
+#
+ OBWuiceFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWuice',
+ OBWviceFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWvice',
+ OBEuiceFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEuice',
+ OBEviceFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEvice',
+ OBNuiceFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNuice',
+ OBNviceFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNvice',
+
+# this is very counterintuitive: we need to specify
+# an input field for the code to do anything, even
+# though the current CPP Flag settings
+# (OBCS_SEAICE_COMPUTE_UVICE defined), these values
+# have no effect whatsoever
+# OBWuiceFile='/scratch/users/mkimmrit/MITgcm/ECCO1/obcs/ecco_zero.obcw'
+# OBWviceFile='/scratch/users/mkimmrit/MITgcm/ECCO1/obcs/ecco_zero.obcw'
+# OBEuiceFile='/scratch/users/mkimmrit/MITgcm/ECCO1/obcs/ecco_zero.obce'
+# OBEviceFile='/scratch/users/mkimmrit/MITgcm/ECCO1/obcs/ecco_zero.obce'
+ &
+
+
+# *****************************************
+# Sponge Layer Parameters.
+# *****************************************
+&OBCS_PARM03
+ Urelaxobcsinner=777600.E0,
+ Urelaxobcsbound=259200.E0,
+ Vrelaxobcsinner=777600.E0,
+ Vrelaxobcsbound=259200.E0,
+# Urelaxobcsinner=25920.E0,
+# Urelaxobcsbound=8640.E0,
+# Vrelaxobcsinner=25920.E0,
+# Vrelaxobcsbound=8640.E0,
+ spongeThickness=8,
+&

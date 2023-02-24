@@ -1,0 +1,11 @@
+#
+# *******************
+# Calendar Parameters
+# *******************
+ &CAL_NML
+ TheCalendar='gregorian',
+ calendarDumps=.TRUE.,
+# TheCalendar='noLeapYear',
+ startDate_1=19810101,
+ startDate_2=000000,
+ &

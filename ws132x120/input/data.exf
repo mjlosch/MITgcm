@@ -1,0 +1,159 @@
+# *********************
+# External Forcing Data
+# *********************
+#
+ &EXF_NML_01
+#
+ useAtmWind        = .TRUE.,
+ exf_albedo        = 0.1,
+ useExfZenIncoming = .FALSE.,
+ select_ZenAlbedo  = 0,
+#
+ ocean_emissivity = 0.97,
+ ice_emissivity = 0.95,
+ snow_emissivity = 0.95,
+#
+ exf_iprec         = 32,
+ useExfYearlyFields= .TRUE.,
+ useExfCheckRange  = .FALSE.,
+# repeatPeriod = 31536000.,
+ &
+#
+ &EXF_NML_02
+ swdownfile      = '../forcing_era5/era5_dsw.singleprec.bin',
+ swdownstartdate1  = 19810101,
+ swdownstartdate2  = 020000,
+ swdownperiod      = 21600.0,
+#
+ lwdownfile      = '../forcing_era5/era5_dlw.singleprec.bin',
+ lwdownstartdate1  = 19810101,
+ lwdownstartdate2  = 020000,
+ lwdownperiod      = 21600.0,
+#
+ precipfile      = '../forcing_era5/era5_rain.singleprec.bin',
+ precipstartdate1  = 19810101,
+ precipstartdate2  = 020000,
+ precipperiod      = 21600.0,
+#
+ runofffile      = '../forcing_era5/era5_runoff.singleprec.bin',
+ runoffstartdate1  = 19810101,
+ runoffstartdate2  = 020000,
+ runoffperiod      = 21600.0,
+#
+ aqhfile         = '../forcing_era5/era5_spfh2m.singleprec.bin',
+ aqhstartdate1     = 19810101,
+ aqhstartdate2     = 030000,
+ aqhperiod         = 21600.0,
+#
+ atempfile       = '../forcing_era5/era5_tmp2m_degC.singleprec.bin',
+ atempstartdate1   = 19810101,
+ atempstartdate2   = 030000,
+ atempperiod       = 21600.0,
+#
+ uwindfile       = '../forcing_era5/era5_uwind.singleprec.bin',
+ uwindstartdate1   = 19810101,
+ uwindstartdate2   = 030000,
+ uwindperiod       = 21600.0,
+#
+ vwindfile       = '../forcing_era5/era5_vwind.singleprec.bin',
+ vwindstartdate1   = 19810101,
+ vwindstartdate2   = 030000,
+ vwindperiod       = 21600.0,
+ &
+#
+ &EXF_NML_03
+ exf_offset_atemp  = 273.15,
+# exf_inscal_swdown = 0.885952,
+ exf_inscal_swdown = 0.88,
+ exf_inscal_lwdown = 1.0,
+# exf_offset_swdown = 10.0,
+# exf_offset_lwdown = -2.0,
+# exf_inscal_uwind = -1.0,
+# exf_inscal_vwind = -1.0,
+ &
+#
+ &EXF_NML_04
+ swdown_lon0      = 0.00D0,
+ swdown_lon_inc   = 1.00D0,
+ swdown_lat0      = -89.50D0,
+ swdown_lat_inc   = 179*1.00D0,
+ swdown_nlon        = 360,
+ swdown_nlat        = 180,
+##
+ lwdown_lon0      = 0.00D0,
+ lwdown_lon_inc   = 1.00D0,
+ lwdown_lat0      = -89.50D0,
+ lwdown_lat_inc   = 179*1.00D0,
+ lwdown_nlon      = 360,
+ lwdown_nlat      = 180,
+##
+ precip_lon0      = 0.00D0,
+ precip_lon_inc   = 1.00D0,
+ precip_lat0      = -89.50D0,
+ precip_lat_inc   = 179*1.00D0,
+ precip_nlon        = 360,
+ precip_nlat        = 180,
+##
+ atemp_lon0       = 0.00D0,
+ atemp_lon_inc    = 1.00D0,
+ atemp_lat0       = -89.50D0,
+ atemp_lat_inc    = 179*1.00D0,
+ atemp_nlon       = 360,
+ atemp_nlat       = 180,
+#
+ aqh_lon0         = 0.00D0,
+ aqh_lon_inc      = 1.00D0,
+ aqh_lat0         = -89.50D0,
+ aqh_lat_inc      = 179*1.00D0,
+ aqh_nlon        = 360,
+ aqh_nlat        = 180,
+##
+ uwind_lon0       = 0.00D0,
+ uwind_lon_inc    = 1.00D0,
+ uwind_lat0       = -89.50D0,
+ uwind_lat_inc    = 179*1.00D0,
+ uwind_nlon       = 360,
+ uwind_nlat       = 180,
+##
+ vwind_lon0       = 0.00D0,
+ vwind_lon_inc    = 1.00D0,
+ vwind_lat0       = -89.50D0,
+ vwind_lat_inc    = 179*1.00D0,
+ vwind_nlon        = 360,
+ vwind_nlat        = 180,
+##
+ runoff_lon0       = 0.00D0,
+ runoff_lon_inc    = 1.00D0,
+ runoff_lat0       = -89.50D0,
+ runoff_lat_inc    = 179*1.00D0,
+ runoff_nlon        = 360,
+ runoff_nlat        = 180,
+ runoff_interpMethod = 1,
+ &
+#
+ &EXF_NML_OBCS
+  useOBCSYearlyFields=.TRUE.,
+  obcsNstartdate1   = 19810101,
+  obcsNstartdate2   = 000000,
+  obcsNperiod       = 2635200.0,
+#
+  obcsWstartdate1   = 19810101,
+  obcsWstartdate2   = 000000,
+  obcsWperiod       = 2635200.0,
+#
+  obcsEstartdate1   = 19810101,
+  obcsEstartdate2   = 000000,
+  obcsEperiod       = 2635200.0,
+#
+  siobEstartdate1   = 19810101,
+  siobEstartdate2   = 000000,
+  siobEperiod       = 2635200.0,
+#
+  siobWstartdate1   = 19810101,
+  siobWstartdate2   = 000000,
+  siobWperiod       = 2635200.0,
+#
+  siobNstartdate1   = 19810101,
+  siobNstartdate2   = 000000,
+  siobNperiod       = 2635200.0,
+ &
