@@ -48,7 +48,7 @@ C-- Options to discard parts of the main code:
 C o Exclude/allow external forcing-fields load
 C   this allows to read & do simple linear time interpolation of oceanic
 C   forcing fields, if no specific pkg (e.g., EXF) is used to compute them.
-#undef EXCLUDE_FFIELDS_LOAD
+#define EXCLUDE_FFIELDS_LOAD
 
 C o Include/exclude phi_hyd calculation code
 #define INCLUDE_PHIHYD_CALCULATION_CODE
@@ -80,7 +80,7 @@ C o Exclude/allow partial-cell effect (physical or enhanced) in vertical mixing
 C   this allows to account for partial-cell in vertical viscosity and diffusion,
 C   either from grid-spacing reduction effect or as artificially enhanced mixing
 C   near surface & bottom for too thin grid-cell
-#undef EXCLUDE_PCELL_MIX_CODE
+#define EXCLUDE_PCELL_MIX_CODE
 
 C o Exclude/allow to use isotropic 3-D Smagorinsky viscosity as diffusivity
 C   for tracers (after scaling by constant Prandtl number)

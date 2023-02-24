@@ -100,7 +100,7 @@ C     enable Krylov code by defining the following flag
 C     enable LSR to use global (multi-tile) tri-diagonal solver
 # undef SEAICE_GLOBAL_3DIAG_SOLVER
 C     enable EVP code by defining the following flag
-# define SEAICE_ALLOW_EVP
+# undef SEAICE_ALLOW_EVP
 # ifdef SEAICE_ALLOW_EVP
 C--   When set use SEAICE_zetaMin and SEAICE_evpDampC to limit viscosities
 C     from below and above in seaice_evp: not necessary, and not recommended
@@ -108,7 +108,7 @@ C     from below and above in seaice_evp: not necessary, and not recommended
 # endif /* SEAICE_ALLOW_EVP */
 C     smooth regularization (without max-function) of delta for
 C     better differentiability
-# undef SEAICE_DELTA_SMOOTHREG
+# define SEAICE_DELTA_SMOOTHREG
 C     regularize zeta to zmax with a smooth tanh-function instead
 C     of a min(zeta,zmax). This improves convergence of iterative
 C     solvers (Lemieux and Tremblay 2009, JGR). No effect on EVP
@@ -136,7 +136,7 @@ C     Use zebra-method (alternate lines) for line-successive-relaxation
 C     This modification improves the convergence of the vector code
 C     dramatically, so that is may actually be useful in general, but
 C     that needs to be tested. Can be used without vectorization options.
-# undef SEAICE_LSR_ZEBRA
+# define SEAICE_LSR_ZEBRA
 C     Use parameterisation of grounding ice for a better representation
 C     of fastice in shallow seas
 # undef SEAICE_ALLOW_BOTTOMDRAG

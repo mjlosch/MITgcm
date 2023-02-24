@@ -21,12 +21,13 @@ C #define GM_EXCLUDE_TAPERING
 
 C Allows to read-in background 3-D Redi and GM diffusivity coefficients
 C Note: need these to be defined for use as control (pkg/ctrl) parameters
+C ML: ECCO4v5 has them defined
 #undef GM_READ_K3D_REDI
 #undef GM_READ_K3D_GM
 
 C This allows to use Visbeck et al formulation to compute K_GM+Redi
 C MK original was: undef
-#define GM_VISBECK_VARIABLE_K
+#undef GM_VISBECK_VARIABLE_K
 C Use old calculation (before 2007/05/24) of Visbeck etal K_GM+Redi
 C (which depends on tapering scheme)
 #undef OLD_VISBECK_CALC

@@ -27,20 +27,20 @@ C   ==================================================================
 C-- Package-specific Options & Macros go here
 
 #undef EXCLUDE_CTRL_PACK
-#define ALLOW_NONDIMENSIONAL_CONTROL_IO
 #define CTRL_SET_PREC_32
-#define ALLOW_PACKUNPACK_METHOD2
+#undef ALLOW_NONDIMENSIONAL_CONTROL_IO
+#undef ALLOW_PACKUNPACK_METHOD2
 
 C       >>> Other Control.
-#define ALLOW_DIFFKR_CONTROL
-#define ALLOW_KAPGM_CONTROL
-#define ALLOW_KAPREDI_CONTROL
-#define ALLOW_BOTTOMDRAG_CONTROL
+CML#define ALLOW_DIFFKR_CONTROL
+CML#define ALLOW_KAPGM_CONTROL
+CML#define ALLOW_KAPREDI_CONTROL
+CML#define ALLOW_BOTTOMDRAG_CONTROL
 
 C       >>> Generic Control.
 #define ALLOW_GENARR2D_CONTROL
 #define ALLOW_GENARR3D_CONTROL
-#define ALLOW_GENTIM2D_CONTROL
+CML#define ALLOW_GENTIM2D_CONTROL
 
 C  o Rotation of wind/stress controls adjustments
 C    from Eastward/Northward to model grid directions

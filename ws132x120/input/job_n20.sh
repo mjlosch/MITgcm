@@ -51,7 +51,7 @@ bdir="/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL"
 idir="../input"
 ln -s ${idir}/* . >/dev/null 2>&1
 ln -s ${bdir}/input/* . >/dev/null 2>&1
-ln -s ${bdir}/domain_data/* . >/dev/null 2>&1
+ln -s ${bdir}/domain_data/*.bin . >/dev/null 2>&1
 ln -s ${bdir}/bathymetry/* . >/dev/null 2>&1
 ln -s ${bdir}/initial_ECCO/pickup* . >/dev/null 2>&1
 
