@@ -91,11 +91,12 @@ C     Set model variables to OB values on Eastern Boundary
          DO j=1-OLy,sNy+OLy
           Iobc = OB_Ie(J,bi,bj)
           IF ( Iobc.NE.OB_indexNone ) THEN
-            HEFF (Iobc,j,bi,bj) = OBEh (j,bi,bj)
-            AREA (Iobc,j,bi,bj) = OBEa (j,bi,bj)
-            HSNOW(Iobc,j,bi,bj) = OBEsn(j,bi,bj)
+C     Neumann boundary conditions
+            HEFF (Iobc,j,bi,bj) = HEFF (Iobc-1,j,bi,bj)
+            AREA (Iobc,j,bi,bj) = AREA (Iobc-1,j,bi,bj)
+            HSNOW(Iobc,j,bi,bj) = HSNOW(Iobc-1,j,bi,bj)
 # ifdef SEAICE_VARIABLE_SALINITY
-            HSALT(Iobc,j,bi,bj) = OBEsl(j,bi,bj)
+            HSALT(Iobc,j,bi,bj) = HSALT(Iobc-1,j,bi,bj)
 # endif
           ENDIF
          ENDDO
@@ -108,11 +109,12 @@ C     Set model variables to OB values on Western Boundary
          DO j=1-OLy,sNy+OLy
           Iobc = OB_Iw(j,bi,bj)
           IF ( Iobc.NE.OB_indexNone ) THEN
-            HEFF (Iobc,j,bi,bj) = OBWh (j,bi,bj)
-            AREA (Iobc,j,bi,bj) = OBWa (j,bi,bj)
-            HSNOW(Iobc,j,bi,bj) = OBWsn(j,bi,bj)
+C     Neumann boundary conditions
+            HEFF (Iobc,j,bi,bj) = HEFF (Iobc+1,j,bi,bj)
+            AREA (Iobc,j,bi,bj) = AREA (Iobc+1,j,bi,bj)
+            HSNOW(Iobc,j,bi,bj) = HSNOW(Iobc+1,j,bi,bj)
 # ifdef SEAICE_VARIABLE_SALINITY
-            HSALT(Iobc,j,bi,bj) = OBWsl(j,bi,bj)
+            HSALT(Iobc,j,bi,bj) = HSALT(Iobc+1,j,bi,bj)
 # endif
           ENDIF
          ENDDO

@@ -104,7 +104,7 @@ C     Eastern boundary
          DO j=1-OLy,sNy+OLy
           Iobc = OB_Ie(j,bi,bj)
           IF ( Iobc.NE.OB_indexNone ) THEN
-           vFld(Iobc,j,bi,bj) = OBEvice(j,bi,bj)
+           vFld(Iobc,j,bi,bj) = vFld(Iobc-1,j,bi,bj)
      &                        *seaiceMaskV(Iobc,j,bi,bj)
           ENDIF
          ENDDO
@@ -117,7 +117,7 @@ C     Western boundary
          DO j=1-OLy,sNy+OLy
           Iobc = OB_Iw(j,bi,bj)
           IF ( Iobc.NE.OB_indexNone ) THEN
-           vFld(Iobc,j,bi,bj) = OBWvice(j,bi,bj)
+           vFld(Iobc,j,bi,bj) = vFld(Iobc+1,j,bi,bj)
      &                        *seaiceMaskV(Iobc,j,bi,bj)
           ENDIF
          ENDDO
@@ -168,10 +168,10 @@ C     Eastern boundary
          DO j=1-OLy,sNy+OLy
           Iobc = OB_Ie(j,bi,bj)
           IF ( Iobc.NE.OB_indexNone ) THEN
-           uFld(Iobc,j,bi,bj)   = OBEuice(j,bi,bj)
+           uFld(Iobc,j,bi,bj)   = uFld(Iobc-1,j,bi,bj)
      &                          *seaiceMaskU(Iobc,j,bi,bj)
            IF ( uvIceApplyFac.GE.0. )
-     &     uFld(Iobc+1,j,bi,bj) = OBEuice(j,bi,bj)
+     &     uFld(Iobc+1,j,bi,bj) = uFld(Iobc-1,j,bi,bj)
      &                          *seaiceMaskU(Iobc,j,bi,bj)
      &                          *uvIceApplyFac
           ENDIF
@@ -185,10 +185,10 @@ C     Western boundary
          DO j=1-OLy,sNy+OLy
           Iobc = OB_Iw(j,bi,bj)
           IF ( Iobc.NE.OB_indexNone ) THEN
-           uFld(Iobc+1,j,bi,bj) = OBWuice(j,bi,bj)
+           uFld(Iobc+1,j,bi,bj) = uFld(Iobc+2,j,bi,bj)
      &                          *seaiceMaskU(Iobc+1,j,bi,bj)
            IF ( uvIceApplyFac.GE.0. )
-     &     uFld(Iobc,j,bi,bj)   = OBWuice(j,bi,bj)
+     &     uFld(Iobc,j,bi,bj)   = uFld(Iobc+2,j,bi,bj)
      &                          *seaiceMaskU(Iobc+1,j,bi,bj)
      &                          *uvIceApplyFac
           ENDIF
