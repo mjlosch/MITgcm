@@ -23,8 +23,11 @@ CADJ STORE sIceLoad       = comlev1, key = ikey_dynamics, kind = isbyte
 #ifdef ALLOW_OBCS
 CADJ STORE salt, theta = comlev1, key = ikey_dynamics, kind = isbyte
 # ifdef ALLOW_OBCS_NORTH
+CADJ STORE OBNeta      = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBNt        = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBNs        = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE OBNu        = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE OBNv        = comlev1, key = ikey_dynamics, kind = isbyte
 #  ifdef ALLOW_OBCS_STEVENS
 CADJ STORE OBNtStevens = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBNsStevens = comlev1, key = ikey_dynamics, kind = isbyte
@@ -33,8 +36,11 @@ CADJ STORE OBNvStevens = comlev1, key = ikey_dynamics, kind = isbyte
 # endif /* ALLOW_OBCS_NORTH */
 
 # ifdef ALLOW_OBCS_SOUTH
+CADJ STORE OBSeta      = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBSt        = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBSs        = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE OBSv        = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE OBSu        = comlev1, key = ikey_dynamics, kind = isbyte
 #  ifdef ALLOW_OBCS_STEVENS
 CADJ STORE OBStStevens = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBSsStevens = comlev1, key = ikey_dynamics, kind = isbyte
@@ -43,8 +49,11 @@ CADJ STORE OBSvStevens = comlev1, key = ikey_dynamics, kind = isbyte
 # endif /* ALLOW_OBCS_SOUTH */
 
 # ifdef ALLOW_OBCS_EAST
+CADJ STORE OBEeta      = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBEt        = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBEs        = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE OBEu        = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE OBEv        = comlev1, key = ikey_dynamics, kind = isbyte
 #  ifdef ALLOW_OBCS_STEVENS
 CADJ STORE OBEtStevens = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBEsStevens = comlev1, key = ikey_dynamics, kind = isbyte
@@ -53,8 +62,11 @@ CADJ STORE OBEuStevens = comlev1, key = ikey_dynamics, kind = isbyte
 # endif /* ALLOW_OBCS_EAST */
 
 # ifdef ALLOW_OBCS_WEST
+CADJ STORE OBWeta      = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBWt        = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBWs        = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE OBWu        = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE OBWv        = comlev1, key = ikey_dynamics, kind = isbyte
 #  ifdef ALLOW_OBCS_STEVENS
 CADJ STORE OBWtStevens = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBWsStevens = comlev1, key = ikey_dynamics, kind = isbyte

@@ -115,6 +115,7 @@ C     === Global variables ===
 #include "EEPARAMS.h"
 #include "PARAMS.h"
 #ifdef ALLOW_AUTODIFF
+# include "FFIELDS.h"
 # include "DYNVARS.h"
 #endif /* ALLOW_AUTODIFF */
 
@@ -497,6 +498,10 @@ C--   Initialise the 2-Way Nesting packages variables
 #ifdef ALLOW_AUTODIFF_TAMC
 CADJ STORE theta  = tapelev_init, key = 1
 CADJ STORE salt   = tapelev_init, key = 1
+CADJ STORE etaN   = tapelev_init, key = 1
+# ifdef ALLOW_GEOTHERMAL_FLUX
+CADJ STORE geothermalFlux = tapelev_init, key = 1
+# endif
 # ifdef ALLOW_DIFFKR_CONTROL
 CADJ STORE diffkr = tapelev_init, key = 1
 # endif
