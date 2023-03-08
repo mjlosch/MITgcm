@@ -182,9 +182,6 @@ C--   Initialize variable data for packages
 # ifdef NONLIN_FRSURF
 CADJ STORE recip_hFacC = tapelev_init, key = 1
 # endif
-# ifdef ALLOW_GEOTHERMAL_FLUX
-CADJ STORE geothermalFlux = tapelev_init, key = 1
-# endif
 # ifdef ALLOW_GENTIM2D_CONTROL
 CADJ STORE xx_gentim2d_dummy = dummytape, key = 1
 # endif
