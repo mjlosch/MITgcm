@@ -148,15 +148,29 @@ CEOP
 
 #ifdef ALLOW_AUTODIFF_TAMC
         ikey = bi + (bj-1)*nSx + (ikey_dynamics-1)*nSx*nSy
-#endif /* ALLOW_AUTODIFF_TAMC */
-
-#ifdef ALLOW_OBCS_EAST
-
-# ifdef ALLOW_AUTODIFF_TAMC
+# ifdef ALLOW_OBCS_EAST
 CADJ STORE OBEt(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
 CADJ STORE OBEs(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
 CADJ STORE OBEu(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
 # endif
+# ifdef ALLOW_OBCS_WEST
+CADJ STORE OBWt(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
+CADJ STORE OBWs(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
+CADJ STORE OBWu(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
+# endif
+# ifdef ALLOW_OBCS_NORTH
+CADJ STORE OBNt(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
+CADJ STORE OBNs(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
+CADJ STORE OBNv(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
+# endif
+# ifdef ALLOW_OBCS_SOUTH
+CADJ STORE OBSt(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
+CADJ STORE OBSs(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
+CADJ STORE OBSv(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
+# endif
+#endif /* ALLOW_AUTODIFF_TAMC */
+
+#ifdef ALLOW_OBCS_EAST
         IF ( useStevensEast ) THEN
 C     Eastern OB
 #ifdef ALLOW_DEBUG
@@ -282,12 +296,6 @@ C     IF ( useStevensEast ) THEN
 C ------------------------------------------------------------------------------
 
 #ifdef ALLOW_OBCS_WEST
-
-# ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE OBWt(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
-CADJ STORE OBWs(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
-CADJ STORE OBWu(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
-# endif
         IF ( useStevensWest ) THEN
 C     Western OB
 #ifdef ALLOW_DEBUG
@@ -398,11 +406,6 @@ C     IF ( useStevensWest ) THEN
 C ------------------------------------------------------------------------------
 
 #ifdef ALLOW_OBCS_NORTH
-# ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE OBNt(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
-CADJ STORE OBNs(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
-CADJ STORE OBNv(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
-# endif
         IF ( useStevensNorth ) THEN
 C         Northern OB
 #ifdef ALLOW_DEBUG
@@ -513,12 +516,6 @@ C     IF ( useStevensNorth ) THEN
 C ------------------------------------------------------------------------------
 
 #ifdef ALLOW_OBCS_SOUTH
-
-# ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE OBSt(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
-CADJ STORE OBSs(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
-CADJ STORE OBSv(:,:,bi,bj)  = comlev1_bibj, key=ikey, kind=isbyte
-# endif
         IF ( useStevensSouth ) THEN
 C         Southern OB
 #ifdef ALLOW_DEBUG
