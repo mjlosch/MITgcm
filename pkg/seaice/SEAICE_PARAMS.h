@@ -323,7 +323,7 @@ C     AreaFile          :: File containing initial sea-ice concentration
 C     HsnowFile         :: File containing initial snow thickness
 C     HsaltFile         :: File containing initial sea ice salt content
 C     HeffFile          :: File containing initial sea-ice thickness
-C     RandFile          :: File containing random field
+CMB     RandFile          :: File containing random field
 C     CohesFile         :: File containing initial sea-ice cohesion
 C     uIceFile          :: File containing initial sea-ice U comp. velocity
 C     vIceFile          :: File containing initial sea-ice V comp. velocity
@@ -336,13 +336,14 @@ C
       CHARACTER*(MAX_LEN_FNAM) HsnowFile
       CHARACTER*(MAX_LEN_FNAM) HsaltFile
       CHARACTER*(MAX_LEN_FNAM) HeffFile
-      CHARACTER*(MAX_LEN_FNAM) RandFile
+CMB      CHARACTER*(MAX_LEN_FNAM) RandFile
       CHARACTER*(MAX_LEN_FNAM) CohesFile
       CHARACTER*(MAX_LEN_FNAM) uIceFile
       CHARACTER*(MAX_LEN_FNAM) vIceFile
       COMMON /SEAICE_PARM_C/
      &   AreaFile, HsnowFile, HsaltFile, HeffFile,
-     &   uIceFile, vIceFile, CohesFile, RandFile
+     &   uIceFile, vIceFile, CohesFile
+CMB  , RandFile
 
 C--   COMMON /SEAICE_PARM_RL/ Real valued parameters of sea ice model.
 C     SEAICE_deltaTtherm :: Seaice timestep for thermodynamic equations (s)

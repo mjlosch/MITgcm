@@ -152,7 +152,8 @@ C--   SEAICE parameters
      & SEAICE_drySnowAlb_south, SEAICE_wetSnowAlb_south, HO_south,
      & SEAICE_cBasalStar, SEAICEbasalDragU0, SEAICEbasalDragK1,
      & SEAICEbasalDragK2, SEAICE_wetAlbTemp, SEAICE_waterAlbedo,
-     & SEAICE_strength, SEAICE_cStar, SEAICE_eccen, RandFile,
+     & SEAICE_strength, SEAICE_cStar, SEAICE_eccen, 
+CMB RandFile,
      & SEAICE_eccfr, SEAICEtdMU, SEAICEmcMu,
      & SEAICEpressReplFac, SEAICE_tensilFac, SEAICE_tensilDepth,
      & SEAICEpoissonRatio, SEAICEviscosity, SEAICEcohesion, CohesFile,
@@ -498,7 +499,7 @@ c     SEAICE_dTempFrz_dS = 0. _d 0
       HsnowFile    = ' '
       HsaltFile    = ' '
       HeffFile     = ' '
-      RandFile   = ' '
+CMB      RandFile   = ' '
       CohesFile    = ' '
       uIceFile     = ' '
       vIceFile     = ' '

@@ -689,8 +689,8 @@ C--  Initial Condition/Input related param.
      &  'AreaFile =', ' /* Initial ice concentration File */')
       CALL WRITE_0D_C( HeffFile, -1, INDEX_NONE,
      &  'HeffFile =', ' /* Initial effective ice thickness File */')
-      CALL WRITE_0D_C( RandFile, -1, INDEX_NONE,
-     &  'RandFile =', ' /* Random field File */')
+CMB      CALL WRITE_0D_C( RandFile, -1, INDEX_NONE,
+CMB     &  'RandFile =', ' /* Random field File */')
       CALL WRITE_0D_C( CohesFile, -1, INDEX_NONE,
      &  'CohesFile =', ' /* Initial sea ice cohesion File */')
       CALL WRITE_0D_C( HsnowFile, -1, INDEX_NONE,
