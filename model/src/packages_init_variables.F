@@ -534,12 +534,19 @@ CADJ STORE vvel = tapelev_init, key = 1
 
 C--   Initialise pkg/ctl (and related pkgs components)
 #ifdef ALLOW_CTRL
+# ifdef ALLOW_AUTODIFF
+C- Note: use same trick as for pkg/gmredi (call to GMREDI_INIT_VARIA) when
+C     compiling pkg/autodiff (with "If useOBCS" inside ctrl_init_variables.F)
+# else
       IF (useCTRL) THEN
+# endif
 # ifdef ALLOW_DEBUG
         IF (debugMode) CALL DEBUG_CALL('CTRL_INIT_VARIABLES',myThid)
 # endif
         CALL CTRL_INIT_VARIABLES ( myThid )
+# ifndef ALLOW_AUTODIFF
       ENDIF
+# endif
 #endif /* ALLOW_CTRL */
 
 #ifdef ALLOW_OBCS

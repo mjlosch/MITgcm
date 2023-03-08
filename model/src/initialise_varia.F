@@ -6,9 +6,6 @@
 #ifdef ALLOW_CTRL
 # include "CTRL_OPTIONS.h"
 #endif
-#ifdef ALLOW_OBCS
-# include "OBCS_OPTIONS.h"
-#endif
 
 CBOP
 C     !ROUTINE: INITIALISE_VARIA
@@ -91,9 +88,6 @@ C     == Global variables ==
 # include "GRID.h"
 # include "FFIELDS.h"
 # ifdef ALLOW_CTRL
-#  ifdef ALLOW_OBCS
-#   include "CTRL_OBCS.h"
-#  endif
 #  ifdef ALLOW_GENTIM2D_CONTROL
 #   include "CTRL_SIZE.h"
 #   include "ctrl_dummy.h"
@@ -190,20 +184,6 @@ CADJ STORE recip_hFacC = tapelev_init, key = 1
 # endif
 # ifdef ALLOW_GEOTHERMAL_FLUX
 CADJ STORE geothermalFlux = tapelev_init, key = 1
-# endif
-# ifdef ALLOW_OBCS
-#  ifdef  ALLOW_OBCSN_CONTROL
-CADJ STORE xx_obcsn0, xx_obcsn1 = tapelev_init, key = 1
-#  endif
-#  ifdef  ALLOW_OBCSS_CONTROL
-CADJ STORE xx_obcss0, xx_obcss1 = tapelev_init, key = 1
-#  endif
-#  ifdef  ALLOW_OBCSW_CONTROL
-CADJ STORE xx_obcsw0, xx_obcsw1 = tapelev_init, key = 1
-#  endif
-#  ifdef  ALLOW_OBCSE_CONTROL
-CADJ STORE xx_obcse0, xx_obcse1 = tapelev_init, key = 1
-#  endif
 # endif
 # ifdef ALLOW_GENTIM2D_CONTROL
 CADJ STORE xx_gentim2d_dummy = dummytape, key = 1
