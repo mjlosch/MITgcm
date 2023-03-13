@@ -385,20 +385,20 @@ C--   Read initial snow thickness from file if available.
         ENDDO
        ENDIF
 
-CMB   Read random field
-CMB       IF ( RandFile .NE. ' ' ) THEN
-CMB        CALL READ_FLD_XY_RL( RandFile, ' ', RANDOM, 0, myThid)
-CMB        _EXCH_XY_RL(RANDOM,myThid)
-CMB        DO bj=myByLo(myThid),myByHi(myThid)
-CMB         DO bi=myBxLo(myThid),myBxHi(myThid)
-CMB          DO j=1-OLy,sNy+OLy
-CMB           DO i=1-OLx,sNx+OLx
-CMB            RANDOM(i,j,bi,bj)=MAX(RANDOM(i,j,bi,bj),ZERO)
-CMB           ENDDO
-CMB          ENDDO
-CMB         ENDDO
-CMB        ENDDO
-CMB       ENDIF
+C   Read noise field
+       IF ( NoisFile .NE. ' ' ) THEN
+        CALL READ_FLD_XY_RL( NoisFile, ' ', NOISE, 0, myThid)
+        _EXCH_XY_RL(NOISE,myThid)
+        DO bj=myByLo(myThid),myByHi(myThid)
+         DO bi=myBxLo(myThid),myBxHi(myThid)
+          DO j=1-OLy,sNy+OLy
+           DO i=1-OLx,sNx+OLx
+            NOISE(i,j,bi,bj)=MAX(NOISE(i,j,bi,bj),ZERO)
+           ENDDO
+          ENDDO
+         ENDDO
+        ENDDO
+       ENDIF
 
 #ifdef SEAICE_ITD
        DO bj=myByLo(myThid),myByHi(myThid)

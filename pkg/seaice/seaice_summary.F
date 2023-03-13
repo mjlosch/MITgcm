@@ -132,6 +132,8 @@ C--  Seaice-Dynamics parameters
      & 'SEAICEuseJFNK     =', ' /* use JFNK solver */')
       CALL WRITE_0D_L ( SEAICEuseMEB, INDEX_NONE,
      & 'SEAICEuseMEB      =', ' /* use MEB rheology */')
+      CALL WRITE_0D_L ( SEAICEuseNoisyIceStrength, INDEX_NONE,
+     & 'SEAICENoisyIceStrength=', ' /* Noise on Sea ice strength*/')
 #ifdef SEAICE_ALLOW_FREEDRIFT
       CALL WRITE_0D_L ( SEAICEuseFREEDRIFT, INDEX_NONE,
      & 'SEAICEuseFREEDRIFT =', ' /* use free drift solution */')
@@ -689,8 +691,8 @@ C--  Initial Condition/Input related param.
      &  'AreaFile =', ' /* Initial ice concentration File */')
       CALL WRITE_0D_C( HeffFile, -1, INDEX_NONE,
      &  'HeffFile =', ' /* Initial effective ice thickness File */')
-CMB      CALL WRITE_0D_C( RandFile, -1, INDEX_NONE,
-CMB     &  'RandFile =', ' /* Random field File */')
+      CALL WRITE_0D_C( NoisFile, -1, INDEX_NONE,
+     &  'NoisFile =', ' /* Noise field File */')
       CALL WRITE_0D_C( CohesFile, -1, INDEX_NONE,
      &  'CohesFile =', ' /* Initial sea ice cohesion File */')
       CALL WRITE_0D_C( HsnowFile, -1, INDEX_NONE,

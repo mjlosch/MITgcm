@@ -125,6 +125,7 @@ C--   SEAICE parameters
      & SEAICEaEVPcoeff, SEAICEaEVPcStar, SEAICEaEVPalphaMin,
      & SEAICE_zetaMin, SEAICE_zetaMaxFac, SEAICEusePicardAsPrecon,
      & SEAICEuseKrylov, SEAICEuseJFNK, SEAICEuseMEB, SEAICEupdateDamage,
+     & SEAICEuseNoisyIceStrength,
      & SEAICEnonLinIterMax, SEAICElinearIterMax, SEAICEnonLinTol,
      & SEAICEnewtonIterMax, SEAICEkrylovIterMax, JFNKgamma_nonlin,
      & SEAICEpreconNL_Iter, SEAICEpreconLinIter,
@@ -152,8 +153,7 @@ C--   SEAICE parameters
      & SEAICE_drySnowAlb_south, SEAICE_wetSnowAlb_south, HO_south,
      & SEAICE_cBasalStar, SEAICEbasalDragU0, SEAICEbasalDragK1,
      & SEAICEbasalDragK2, SEAICE_wetAlbTemp, SEAICE_waterAlbedo,
-     & SEAICE_strength, SEAICE_cStar, SEAICE_eccen, 
-CMB RandFile,
+     & SEAICE_strength, SEAICE_cStar, SEAICE_eccen, NoisFile,
      & SEAICE_eccfr, SEAICEtdMU, SEAICEmcMu,
      & SEAICEpressReplFac, SEAICE_tensilFac, SEAICE_tensilDepth,
      & SEAICEpoissonRatio, SEAICEviscosity, SEAICEcohesion, CohesFile,
@@ -499,7 +499,7 @@ c     SEAICE_dTempFrz_dS = 0. _d 0
       HsnowFile    = ' '
       HsaltFile    = ' '
       HeffFile     = ' '
-CMB      RandFile   = ' '
+      NoisFile   = ' '
       CohesFile    = ' '
       uIceFile     = ' '
       vIceFile     = ' '
@@ -607,6 +607,8 @@ C     MEB parameters
       SEAICEelasticWaveSp = 500. _d 0
       SEAICEhealingTime   = 0. _d 0
       SEAICEdamageTime    = SEAICE_deltaTdyn
+C     Option to use noise on Ice Strenght
+      SEAICEuseNoisyIceStrength = .FALSE.
 
 C-    end retired parameters
 

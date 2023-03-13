@@ -52,6 +52,8 @@ C     SEAICEuseMEB      :: use Maxwell-Elasto-Brittle rheology (within
 C                          implicity solver for momentum equations)
 C     SEAICEupdateDamage:: update damage parameter (true for MEB,
 C                          false otherwise)
+C     SEAICEuseNoisyIceStrength:: method to apply noise to VP ice strength
+C                          (a noise file needs to be given)
 C     SEAICEuseTilt     :: If true then include surface tilt term in dynamics
 C     SEAICEuseMetricTerms :: use metric terms for dynamics solver
 C                          (default = .true. )
@@ -138,7 +140,7 @@ C     SEAICE_mon_mnc    :: write monitor to netcdf file
      &     SEAICEuseMultiTileSolver,
      &     SEAICEuseLSR, SEAICEuseKrylov,
      &     SEAICEuseJFNK, SEAICEuseIMEX, SEAICEuseBDF2,SEAICEuseMEB,
-     &     SEAICEupdateDamage,
+     &     SEAICEupdateDamage, SEAICEuseNoisyIceStrength,
      &     SEAICEusePicardAsPrecon,
      &     useHibler79IceStrength, SEAICEsimpleRidging,
      &     SEAICEuseLinRemapITD, SEAICEuseTD, SEAICEusePL,
@@ -169,7 +171,7 @@ C     SEAICE_mon_mnc    :: write monitor to netcdf file
      &     SEAICEuseMultiTileSolver,
      &     SEAICEuseLSR, SEAICEuseKrylov,
      &     SEAICEuseJFNK, SEAICEuseIMEX, SEAICEuseBDF2, SEAICEuseMEB,
-     &     SEAICEupdateDamage,
+     &     SEAICEupdateDamage, SEAICEuseNoisyIceStrength,
      &     SEAICEusePicardAsPrecon,
      &     useHibler79IceStrength, SEAICEsimpleRidging,
      &     SEAICEuseLinRemapITD, SEAICEuseTD, SEAICEusePL,
@@ -323,7 +325,7 @@ C     AreaFile          :: File containing initial sea-ice concentration
 C     HsnowFile         :: File containing initial snow thickness
 C     HsaltFile         :: File containing initial sea ice salt content
 C     HeffFile          :: File containing initial sea-ice thickness
-CMB     RandFile          :: File containing random field
+C     NoisFile          :: File containing noise field 
 C     CohesFile         :: File containing initial sea-ice cohesion
 C     uIceFile          :: File containing initial sea-ice U comp. velocity
 C     vIceFile          :: File containing initial sea-ice V comp. velocity
@@ -336,14 +338,13 @@ C
       CHARACTER*(MAX_LEN_FNAM) HsnowFile
       CHARACTER*(MAX_LEN_FNAM) HsaltFile
       CHARACTER*(MAX_LEN_FNAM) HeffFile
-CMB      CHARACTER*(MAX_LEN_FNAM) RandFile
+      CHARACTER*(MAX_LEN_FNAM) NoisFile
       CHARACTER*(MAX_LEN_FNAM) CohesFile
       CHARACTER*(MAX_LEN_FNAM) uIceFile
       CHARACTER*(MAX_LEN_FNAM) vIceFile
       COMMON /SEAICE_PARM_C/
      &   AreaFile, HsnowFile, HsaltFile, HeffFile,
-     &   uIceFile, vIceFile, CohesFile
-CMB  , RandFile
+     &   uIceFile, vIceFile, CohesFile, NoisFile
 
 C--   COMMON /SEAICE_PARM_RL/ Real valued parameters of sea ice model.
 C     SEAICE_deltaTtherm :: Seaice timestep for thermodynamic equations (s)
