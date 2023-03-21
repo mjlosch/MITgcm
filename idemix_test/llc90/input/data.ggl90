@@ -1,0 +1,46 @@
+ for Gaspar et al. (1990)'s TKE vertical mixing scheme  |
+# =====================================================================
+ &GGL90_PARM01
+# we seem to be better off without horizontal smoothing
+ GGL90diffTKEh=0.e3,
+# these are default values
+#GGL90ck=0.1,
+#GGL90ceps = 0.7,
+# Blanke + Delecluse 1993 (GGL90 default is 1)
+# in NEMO, this parater does not appear to exist,
+# instead, the vertical diffusion of TKE is done
+# by viscAr(k)
+#GGL90alpha=30.,
+# Blanke + Delecluse 1993 set this to 3.75 (default)
+ GGL90m2 = 3.0,
+# for IDEMIX TKEmin should be zero?
+#GGL90TKEmin = 0.e-6,
+# Blanke + Delecluse 1993 (also default)
+#GGL90TKEmin = 1.e-11,
+# default in NEMO
+ GGL90TKEmin = 1.e-06,
+ GGL90TKEbottom=4.e-6,
+# default value
+#GGL90TKEsurfMin=1.e-4,
+#GGL90mixingLengthMin=,
+ calcMeanVertShear = .TRUE.,
+ mxlMaxFlag=2,
+#mxlMaxFlag=0,
+ mxlSurfFlag = .TRUE.,
+ GGL90viscMax=1.e2,
+ GGL90diffMax=1.e2,
+#GGL90TKEFile=,
+ GGL90_dirichlet=.FALSE.,
+#useIDEMIX  = .TRUE.,
+#-- IO related params:
+ GGL90mixingMaps=.FALSE.,
+ GGL90writeState=.FALSE.,
+ &
+
+ &GGL90_PARM02
+ IDEMIX_include_GM_bottom = .FALSE.,
+ IDEMIX_include_GM        = .FALSE.,
+ IDEMIX_tau_h = 1296000.0,
+ IDEMIX_tidal_file  = '/albedo/home/mlosch/idemix_forcing/idemix_tidal_forcing_jayne.llc90.bin',
+ IDEMIX_wind_file   = '/albedo/home/mlosch/idemix_forcing/idemix_wind_forcing.llc90.bin',
+ &

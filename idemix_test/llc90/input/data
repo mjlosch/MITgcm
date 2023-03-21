@@ -1,0 +1,165 @@
+# ====================
+# | Model parameters |
+# ====================
+#
+# Continuous equation parameters
+ &PARM01
+ tRef               = 3*23.,3*22.,21.,2*20.,19.,2*18.,17.,2*16.,15.,14.,13.,
+                      12.,11.,2*9.,8.,7.,2*6.,2*5.,3*4.,3*3.,4*2.,12*1.,
+ sRef               = 50*34.5,
+ no_slip_sides  = .TRUE.,
+ no_slip_bottom = .FALSE.,
+#
+ viscAr=1.E-4,
+#
+# viscAh=1.E0,
+# viscAhGrid=2.E-2,
+# this has worked so far
+# viscC2Leith=3.0,
+# viscC2LeithD=3.0,
+# now let's reduce the viscosity again
+ viscC2Leith=2.0,
+ viscC2LeithD=2.0,
+# viscAh=2.0e4,
+# this does not make much of a difference, so lets not use this
+ viscA4grid = 0.05,
+# this appears to be the most important parameter for viscosity
+# as the strong winds lead to large velocity gradients and
+# then to large viscosities that make the model unstable
+ viscA4gridMax = 0.5,
+#
+ diffKhT=0.,
+ diffKrT=0.E-5,
+ diffKhS=0.,
+ diffKrS=0.E-5,
+#
+### diffKrBL79surf=0.1E-4,
+### diffKrBL79deep=1.0E-4,
+ bottomDragQuadratic = 0.001,
+#when using ggl90
+ ivdc_kappa=1.,
+ implicitDiffusion=.TRUE.,
+ implicitViscosity=.TRUE.,
+ useRealFreshWaterFlux=.TRUE.,
+# balanceThetaClimRelax=.TRUE.,
+ balanceSaltClimRelax=.TRUE.,
+ balanceEmPmR=.TRUE.,
+# balanceQnet=.TRUE.,
+# allowFreezing=.FALSE.,
+### hFacInf=0.2,
+### hFacSup=2.0,
+ hFacMin=.2,
+ hFacMinDr=5.,
+ select_rStar=2,
+ nonlinFreeSurf=4,
+ hFacSup = 5.0,
+ hFacInf = 0.1,
+ gravity=9.81,
+ rhonil=1035.,
+# rhoConst=1029.,
+ rhoConstFresh=1000.,
+# convertFW2Salt=-1.,
+ eosType='MDJWF',
+ implicitFreeSurface=.TRUE.,
+ exactConserv=.TRUE.,
+ useSingleCpuIO=.TRUE.,
+#globalFiles = .TRUE.,
+ tempAdvScheme=33,
+ saltAdvScheme=33,
+#tempVertAdvScheme=3,
+#saltVertAdvScheme=3,
+#tempImplVertAdv=.TRUE.,
+#saltImplVertAdv=.TRUE.,
+ staggerTimeStep=.TRUE.,
+ vectorInvariantMomentum=.TRUE.,
+#when using the cd scheme:
+# useCDscheme=.TRUE.,
+ useJamartWetPoints=.TRUE.,
+ readBinaryPrec=32,
+ writeBinaryPrec=32,
+ debugLevel=-1,
+ /
+
+# Elliptic solver parameters
+ &PARM02
+ cg2dMaxIters=500,
+ cg2dTargetResidual=1.E-13,
+ /
+
+# Time stepping parameters
+ &PARM03
+ nIter0=0,
+# lev2 for testing:
+# 100 years, no leap year
+#nTimeSteps = 109501,
+# 1 year1, dt=1h
+#nTimeSteps=744,
+# 8 years (6*365+2*366 days) + 1 timestep.
+#nTimeSteps = 140257,
+# 10 years (7*365+3*366 days) + 1 timestep.
+ nTimeSteps = 175345,
+# from 1958/1/1 to 2020/1/1 = 22645 days
+#endTime = 1956528000.,
+#endTime = 63158400.,
+# 543480 plus one timestep (a 3600sec)
+#deltaT    = 3600.,
+#nTimesteps = 543481,
+#endTime = 31536000.0,
+ deltaT    = 3600.,
+# 744 hours = 31 days
+#nTimeSteps=744,
+#nTimeSteps=10,
+# 10 years, dt=1h
+# nTimeSteps=96432,
+#
+ forcing_In_AB=.FALSE.,
+ momDissip_In_AB=.FALSE.,
+#when using the cd scheme:
+# epsAB_CD = 0.25,
+# tauCD=172800.0,
+#when using ab2:
+# abEps = 0.1,
+#when using ab3:
+ doAB_onGtGs=.FALSE.,
+ alph_AB=0.5,
+ beta_AB=0.281105,
+# permanent pickup after 62 years (one forcing cycle)
+ pChkptFreq  =1956528000.0,
+# rolling pickups every year
+  ChkptFreq  =31536000.0,
+#1 month: 30.4166666 days,
+#chkptFreq   = 2628000.0,
+#chkptFreq   = 86400.0,
+ monitorFreq = 86400.0,
+#monitorFreq = 1.0,
+#monitorFreq = 7200.0,
+ dumpInitAndLast = .FALSE.,
+ writePickupAtEnd = .FALSE.,
+ /
+
+# Gridding parameters
+ &PARM04
+ usingCurvilinearGrid=.TRUE.,
+ delR =
+     10.00, 10.00, 10.00, 10.00, 10.00, 10.00, 10.00, 10.01,
+     10.03, 10.11, 10.32, 10.80, 11.76, 13.42, 16.04, 19.82, 24.85,
+     31.10, 38.42, 46.50, 55.00, 63.50, 71.58, 78.90, 85.15, 90.18,
+     93.96, 96.58, 98.25, 99.25,100.01,101.33,104.56,111.33,122.83,
+     139.09,158.94,180.83,203.55,226.50,249.50,272.50,295.50,318.50,
+     341.50,364.50,387.50,410.50,433.50,456.50,
+ /
+
+# Input datasets
+ &PARM05
+#bathyFile      ='bathy_eccollc_90x50.bin',
+#bathyFile      ='bathy_eccollc_90x50_min2pts.bin',
+ bathyFile      ='bathy_eccollc_90x50_min2pts_mod3.bin',
+ hydrogThetaFile='/albedo/home/mlosch/idemix_forcing/theta_winter_phc3.0.llc90.bin',
+ hydrogSaltFile ='/albedo/home/mlosch/idemix_forcing/salt_winter_phc3.0.llc90.bin',
+# bathyFile      ='bathymetry_llc_v2.bin',
+# hydrogThetaFile='t_init_llc90_12months_v2.bin',
+# hydrogSaltFile ='s_init_llc90_12months_v2.bin',
+ viscA4Dfile    ='viscA4Dfld.bin',
+ viscA4Zfile    ='viscA4Zfld.bin',
+#
+ /

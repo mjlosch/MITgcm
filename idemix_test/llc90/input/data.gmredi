@@ -1,0 +1,27 @@
+# GM+Redi package parameters:
+
+#-from MOM :
+# GM_background_K: 	G & Mc.W  diffusion coefficient
+# GM_maxSlope    :	max slope of isopycnals
+# GM_Scrit       :	transition for scaling diffusion coefficient
+# GM_Sd          :	half width scaling for diffusion coefficient
+# GM_taper_scheme:	slope clipping or one of the tapering schemes
+# GM_Kmin_horiz  :	horizontal diffusion minimum value
+
+#-Option parameters (needs to "define" options in GMREDI_OPTIONS.h")
+# GM_isopycK     :	isopycnal diffusion coefficient (default=GM_background_K)
+# GM_AdvForm     :	turn on GM Advective form       (default=Skew flux form)
+
+ &GM_PARM01
+  GM_background_K    = 10.,
+  GM_taper_scheme    = 'ldd97',
+  GM_maxSlope        = 1.e-2,
+  GM_Kmin_horiz      = 50.,
+  GM_Scrit           = 4.e-3,
+  GM_Sd              = 1.e-3,
+# parameters taken from Gnanadesikan et al 2006, JCL
+  GM_Visbeck_alpha   = 0.07,
+  GM_Visbeck_length  = 50.e+3,
+  GM_Visbeck_depth   = 2000.,
+  GM_Visbeck_maxval_K= 600.,
+ &end

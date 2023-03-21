@@ -1,0 +1,14 @@
+# Packages
+ &PACKAGES
+ useGMRedi=.TRUE.,
+ useSEAICE=.true.,
+ useCAL = .TRUE.,
+ useEXF = .true.,
+#useMNC   =.true.,
+ useDiagnostics = .true.,
+ useLayers = .TRUE.,
+#useDOWN_SLOPE = .TRUE.,
+#useKPP  =.TRUE.,
+ useGGL90=.TRUE.,
+ useSALT_PlUME=.TRUE.,
+ &
