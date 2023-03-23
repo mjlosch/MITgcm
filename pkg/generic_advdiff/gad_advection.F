@@ -1174,7 +1174,7 @@ C     r-direction
      &         -tracer(i,j,k,bi,bj)**2*(rTransKp(i,j)-rTrans(i,j))
      &        )*rkSign*maskInC(i,j,bi,bj)
 #endif /* GAD_MULTIDIM_COMPRESSIBLE */
-           chiX(i,j) = (localTij(i,j)**2 - chiX(i,j))/deltaTlev(k)
+           chiX(i,j) = (chiX(i,j) - localTij(i,j)**2)/deltaTlev(k)
 C     mask weighting
            chiX(i,j) = chiX(i,j)*hFacC(i,j,k,bi,bj)
           ENDDO
