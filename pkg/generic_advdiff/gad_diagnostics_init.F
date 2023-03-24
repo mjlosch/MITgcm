@@ -175,8 +175,10 @@ C-     Diffusive flux:
 #endif /* GAD_ALLOW_TS_SOM_ADV */
 
        diagUnits = DIAGS_MK_UNITS( 'm^3/s ('//trUnits//')^2', myThid )
-       diagName  = 'VarD'//diagSufx
-       diagTitle = 'Mass-weighted Variance Decay of pot. temperature'
+
+       diagName  = 'VDAD'//diagSufx
+       diagTitle = 'Mass-weighted advective Variance Decay '//
+     &      'of pot. temperature'
        diagCode  = 'SMR     MR      '
        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I      diagName, diagCode, diagUnits, diagTitle, 0, myThid )
@@ -316,8 +318,9 @@ C-     Diffusive flux:
 #endif /* GAD_ALLOW_TS_SOM_ADV */
 
        diagUnits = DIAGS_MK_UNITS( 'm^3/s ('//trUnits//')^2', myThid )
-       diagName  = 'VarD'//diagSufx
-       diagTitle = 'Mass-weighted Variance Decay of salinity'
+       diagName  = 'VDAD'//diagSufx
+       diagTitle = 'Mass-weighted advective Variance Decay '//
+     &      'of salinity'
        diagCode  = 'SMR     MR      '
        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I      diagName, diagCode, diagUnits, diagTitle, 0, myThid )

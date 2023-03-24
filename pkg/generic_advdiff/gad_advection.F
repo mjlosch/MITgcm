@@ -185,7 +185,7 @@ C     ijkey      :: tape key (depends on indices i,j, and direction)
       _RL r_vTrans  (1:sNx+1,1:sNy+1)
       _RL r_rTrans  (1:sNx,1:sNy)
       _RL r_rTransKp(1:sNx,1:sNy)
-      _RL chiX      (1:sNx,1:sNy)
+      _RL chiX      (1:sNx,1:sNy,Nr)
 #endif /* ALLOW_DIAGNOSTICS */
 CEOP
 
@@ -544,7 +544,7 @@ CADJ &     , kind = isbyte
            ENDDO
           ENDIF
 
-         ELSE
+        ELSE
 #if defined ALLOW_AUTODIFF_TAMC && defined GAD_MULTIDIM_COMPRESSIBLE
 CADJ STORE localTij = loctape_gad_adv_k_pass, key = dkey, kind = isbyte
 #endif
@@ -856,6 +856,66 @@ C-    horizontal advection done; store intermediate result in 3D array:
         CALL LAYERS_FILL(afy,trIdentity,'AFY',k,1,2,bi,bj,myThid)
        ENDIF
 #endif /* ALLOW_LAYERS */
+       diagName = 'VDAD'//diagSufx
+       IF ( DIAGNOSTICS_IS_ON( diagName, myThid ) ) THEN
+C     horizontal contributions only
+        DO j=1,sNy+1
+         DO i=1,sNx+1
+          r_uTrans(i,j) = 0. _d 0
+          r_vTrans(i,j) = 0. _d 0
+          IF ( uTrans(i,j) .NE. 0. _d 0 )
+     &         r_uTrans(i,j) = 1. _d 0 / uTrans(i,j)
+          IF ( vTrans(i,j) .NE. 0. _d 0 )
+     &         r_vTrans(i,j) = 1. _d 0 / vTrans(i,j)
+         ENDDO
+        ENDDO
+        DO j=1,sNy
+         DO i=1,sNx
+          chiX(i,j,k) = 0. _d 0
+#ifdef GAD_MULTIDIM_COMPRESSIBLE
+C     reset local volume
+          localVol(i,j) = rA(i,j,bi,bj)*deepFac2C(k)
+     &         *rhoFacC(k)*drF(k)*hFacC(i,j,k,bi,bj)
+     &         + ( oneRS - maskC(i,j,k,bi,bj) )
+C     x-direction
+          tmpTrac = chiX(i,j,k)*localVol(i,j)
+     &      -deltaTLev(k)*( afx(i+1,j)**2*r_uTrans(i+1,j)
+     &                     -afx(i  ,j)**2*r_uTrans(i  ,j) )
+     &                   *maskInC(i,j,bi,bj)
+          localVol(i,j) = localVol(i,j)
+     &      -deltaTLev(k)*( uTrans(i+1,j) - uTrans(i,j) )
+     &                   *maskInC(i,j,bi,bj)
+          chiX(i,j,k) = tmpTrac/localVol(i,j)
+C     y-direction
+          tmpTrac = chiX(i,j,k)*localVol(i,j)
+     &      -deltaTLev(k)*( afy(i,j+1)**2*r_vTrans(i,j+1)
+     &                    - afy(i,j  )**2*r_vTrans(i,j  ) )
+     &                   *maskInC(i,j,bi,bj)
+          localVol(i,j) = localVol(i,j)
+     &      -deltaTLev(k)*( vTrans(i,j+1) - vTrans(i,j) )
+     &                   *maskInC(i,j,bi,bj)
+          chiX(i,j,k) = tmpTrac/localVol(i,j)
+#else /* GAD_MULTIDIM_COMPRESSIBLE */
+C     x-direction
+          chiX(i,j,k) = chiX(i,j,k)
+     &      - deltaTLev(k)*recip_rhoFacC(k)
+     &       *_recip_hFacC(i,j,k,bi,bj)*recip_drF(k)
+     &       *recip_rA(i,j,bi,bj)*recip_deepFac2C(k)
+     &       *( afx(i+1,j)**2*r_uTrans(i+1,j)-afx(i,j)**2*r_uTrans(i,j)
+     &          -tracer(i,j,k,bi,bj)**2 * (uTrans(i+1,j)-uTrans(i,j))
+     &        )*maskInC(i,j,bi,bj)
+C     y-direction
+          chiX(i,j,k) = chiX(i,j,k)
+     &      - deltaTLev(k)*recip_rhoFacC(k)
+     &       *_recip_hFacC(i,j,k,bi,bj)*recip_drF(k)
+     &       *recip_rA(i,j,bi,bj)*recip_deepFac2C(k)
+     &       *( afy(i,j+1)**2*r_vTrans(i,j+1)-afy(i,j)**2*r_vTrans(i,j)
+     &          -tracer(i,j,k,bi,bj)**2 * (vTrans(i,j+1)-vTrans(i,j))
+     &        )*maskInC(i,j,bi,bj)
+#endif /* GAD_MULTIDIM_COMPRESSIBLE */
+         ENDDO
+        ENDDO
+       ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 
 #ifdef ALLOW_DEBUG
@@ -1088,18 +1148,9 @@ C     and consistent with linFSConserveTr and "surfExpan_" monitor.
      &                     'AFR', k, 1, 2,bi,bj, myThid)
         ENDIF
 #endif /* ALLOW_LAYERS */
-        diagName = 'VarD'//diagSufx
+        diagName = 'VDAD'//diagSufx
         IF ( DIAGNOSTICS_IS_ON( diagName, myThid ) ) THEN
-         DO j=1,sNy+1
-          DO i=1,sNx+1
-           r_uTrans(i,j) = 0. _d 0
-           r_vTrans(i,j) = 0. _d 0
-           IF ( uTrans(i,j) .NE. 0. _d 0 )
-     &          r_uTrans(i,j) = 1. _d 0 / uTrans(i,j)
-           IF ( vTrans(i,j) .NE. 0. _d 0 )
-     &          r_uTrans(i,j) = 1. _d 0 / uTrans(i,j)
-          ENDDO
-         ENDDO
+C     vertical contributions of explicit advection only
          DO j=1,sNy
           DO i=1,sNx
            r_rTrans  (i,j) = 0. _d 0
@@ -1112,80 +1163,52 @@ C     and consistent with linFSConserveTr and "surfExpan_" monitor.
          ENDDO
          DO j=1,sNy
           DO i=1,sNx
-           chiX(i,j) = tracer(i,j,k,bi,bj)**2
 #ifdef GAD_MULTIDIM_COMPRESSIBLE
-C     reset local volume
-           localVol(i,j) = rA(i,j,bi,bj)*deepFac2C(k)
-     &          *rhoFacC(k)*drF(k)*hFacC(i,j,k,bi,bj)
-     &          + ( oneRS - maskC(i,j,k,bi,bj) )
-C     x-direction
-           tmpTrac = chiX(i,j)*localVol(i,j)
-     &      -deltaTLev(k)*( afx(i+1,j)**2*r_uTrans(i+1,j)
-     &                     -afx(i  ,j)**2*r_uTrans(i  ,j) )
-     &                   *maskInC(i,j,bi,bj)
-           localVol(i,j) = localVol(i,j)
-     &      -deltaTLev(k)*( uTrans(i+1,j) - uTrans(i,j) )
-     &                   *maskInC(i,j,bi,bj)
-           chiX(i,j) = tmpTrac/localVol(i,j)
-C     y-direction
-           tmpTrac = chiX(i,j)*localVol(i,j)
-     &      -deltaTLev(k)*( afy(i,j+1)**2*r_vTrans(i,j+1)
-     &                    - afy(i,j  )**2*r_vTrans(i,j  ) )
-     &                   *maskInC(i,j,bi,bj)
-           localVol(i,j) = localVol(i,j)
-     &      -deltaTLev(k)*( vTrans(i,j+1) - vTrans(i,j) )
-     &                   *maskInC(i,j,bi,bj)
-           chiX(i,j) = tmpTrac/localVol(i,j)
 C     r-direction
-           tmpTrac = chiX(i,j)*locVol3d(i,j,k)
+           tmpTrac = chiX(i,j,k)*locVol3d(i,j,k)
      &      -deltaTLev(k)*( fVerT(i,j,kDown)**2 * r_rTransKp(i,j)
      &                     -fVerT(i,j,kUp)**2   * r_rTrans(i,j) )
      &                   *rkSign*maskInC(i,j,bi,bj)
            localVol(i,j) = locVol3d(i,j,k)
      &      -deltaTLev(k)*( rTransKp(i,j) - rTrans(i,j) )
      &                   *rkSign*maskInC(i,j,bi,bj)
-           chiX(i,j) = tmpTrac/localVol(i,j)
+           chiX(i,j,k) = tmpTrac/localVol(i,j)
 #else /* GAD_MULTIDIM_COMPRESSIBLE */
-C     x-direction
-           chiX(i,j) = chiX(i,j)
-     &      -deltaTLev(k)*recip_rhoFacC(k)
-     &       *_recip_hFacC(i,j,k,bi,bj)*recip_drF(k)
-     &       *recip_rA(i,j,bi,bj)*recip_deepFac2C(k)
-     &       *( afx(i+1,j)**2*r_uTrans(i+1,j)-afx(i,j)**2*r_uTrans(i,j)
-     &          -tracer(i,j,k,bi,bj)**2
-     &          *(uTrans(i+1,j)-uTrans(i,j))
-     &        )*maskInC(i,j,bi,bj)
-C     y-direction
-           chiX(i,j) = chiX(i,j)
-     &      -deltaTLev(k)*recip_rhoFacC(k)
-     &       *_recip_hFacC(i,j,k,bi,bj)*recip_drF(k)
-     &       *recip_rA(i,j,bi,bj)*recip_deepFac2C(k)
-     &       *( afy(i,j+1)**2*r_vTrans(i,j+1)-afy(i,j)**2*r_vTrans(i,j)
-     &          -tracer(i,j,k,bi,bj)**2
-     &          *(vTrans(i,j+1)-vTrans(i,j))
-     &        )*maskInC(i,j,bi,bj)
 C     r-direction
-           chiX(i,j) = chiX(i,j)
-     &      -deltaTLev(k)*recip_rhoFacC(k)
+           chiX(i,j,k) = chiX(i,j,k)
+     &      - deltaTLev(k)*recip_rhoFacC(k)
      &       *_recip_hFacC(i,j,k,bi,bj)*recip_drF(k)
      &       *recip_rA(i,j,bi,bj)*recip_deepFac2C(k)
      &          *( fVerT(i,j,kDown)**2 * r_rTransKp(i,j)
-     &            -fVerT(i,j,kUp)**2   * r_rTrans(i,j)
-     &         -tracer(i,j,k,bi,bj)**2*(rTransKp(i,j)-rTrans(i,j))
+     &            -fVerT(i,j,kUp  )**2 * r_rTrans(i,j)
+     &            -tracer(i,j,k,bi,bj)**2 * (rTransKp(i,j)-rTrans(i,j))
      &        )*rkSign*maskInC(i,j,bi,bj)
 #endif /* GAD_MULTIDIM_COMPRESSIBLE */
-           chiX(i,j) = (chiX(i,j) - localTij(i,j)**2)/deltaTlev(k)
-C     mask weighting
-           chiX(i,j) = chiX(i,j)*hFacC(i,j,k,bi,bj)
           ENDDO
          ENDDO
-         CALL DIAGNOSTICS_FILL( chiX, diagName,k,1,3,bi,bj,myThid )
         ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 
 C--   End of K loop for vertical flux
        ENDDO
 C--   end of if not.implicitAdvection block
+      ENDIF
+#ifdef ALLOW_DIAGNOSTICS
+      diagName = 'VDAD'//diagSufx
+      IF ( DIAGNOSTICS_IS_ON( diagName, myThid ) ) THEN
+C     add variance contriubtion
+       DO k=1,Nr
+        DO j=1,sNy
+         DO i=1,sNx
+C     reconstruct final tracer value
+          localTij(i,j) = tracer(i,j,k,bi,bj)
+     &         + gTracer(i,j,k)*deltaTLev(k)
+          chiX(i,j,k) = ( tracer(i,j,k,bi,bj)**2 - localTij(i,j)**2
+     &         + chiX(i,j,k) ) / deltaTLev(k)
+         ENDDO
+        ENDDO
+       ENDDO
+       CALL DIAGNOSTICS_FILL( chiX, diagName,-1,1,3,bi,bj,myThid )
       ENDIF
 #endif /* DISABLE_MULTIDIM_ADVECTION */
 
