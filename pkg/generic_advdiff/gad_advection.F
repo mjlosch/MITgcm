@@ -1207,7 +1207,7 @@ C     reconstruct final tracer value
          ENDDO
         ENDDO
        ENDDO
-       CALL DIAGNOSTICS_FILL( chiX, diagName,0,1,3,bi,bj,myThid )
+       CALL DIAGNOSTICS_FILL( chiX, diagName,0,Nr,3,bi,bj,myThid )
       ENDIF
 #endif /* DISABLE_MULTIDIM_ADVECTION */
 
