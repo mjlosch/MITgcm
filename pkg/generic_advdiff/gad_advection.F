@@ -871,7 +871,7 @@ C     horizontal contributions only
         ENDDO
         DO j=1,sNy
          DO i=1,sNx
-          chiX(i,j,k) = 0. _d 0
+          chiX(i,j,k) = tracer(i,j,k,bi,bj)**2
 #ifdef GAD_MULTIDIM_COMPRESSIBLE
 C     reset local volume
           localVol(i,j) = rA(i,j,bi,bj)*deepFac2C(k)
@@ -1203,8 +1203,7 @@ C     add variance contriubtion
 C     reconstruct final tracer value
           localTij(i,j) = tracer(i,j,k,bi,bj)
      &         + gTracer(i,j,k)*deltaTLev(k)
-          chiX(i,j,k) = ( tracer(i,j,k,bi,bj)**2 - localTij(i,j)**2
-     &         + chiX(i,j,k) ) / deltaTLev(k)
+          chiX(i,j,k) = ( chiX(i,j,k) - localTij(i,j)**2 )/deltaTLev(k)
          ENDDO
         ENDDO
        ENDDO
