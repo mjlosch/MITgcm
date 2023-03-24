@@ -183,8 +183,8 @@ C     ijkey      :: tape key (depends on indices i,j, and direction)
       LOGICAL     doDiagAdvX, doDiagAdvY, doDiagAdvR
       _RL r_uTrans  (1:sNx+1,1:sNy+1)
       _RL r_vTrans  (1:sNx+1,1:sNy+1)
-      _RL r_rTrans
-      _RL r_rTransKp
+      _RL rFlux
+      _RL rFluxKp
       _RL chiX      (1:sNx,1:sNy,Nr)
 #endif /* ALLOW_DIAGNOSTICS */
 CEOP
@@ -1153,17 +1153,16 @@ C     and consistent with linFSConserveTr and "surfExpan_" monitor.
 C     vertical contributions of explicit advection only
          DO j=1,sNy
           DO i=1,sNx
-           r_rTrans   = 0. _d 0
-           r_rTransKp = 0. _d 0
+           rFlux   = 0. _d 0
+           rFluxKp = 0. _d 0
            IF ( rTrans(i,j) .NE. 0. _d 0 )
-     &          r_rTrans = 1. _d 0 / rTrans(i,j)
+     &          rFlux   = fVerT(i,j,kUp  )**2 / rTrans(i,j)
            IF ( rTransKp(i,j) .NE. 0. _d 0 )
-     &          r_rTransKp = 1. _d 0 / rTransKp(i,j)
+     &          rFluxKp = fVerT(i,j,kDown)**2 / rTransKp(i,j)
 #ifdef GAD_MULTIDIM_COMPRESSIBLE
 C     r-direction
            tmpTrac = chiX(i,j,k)*locVol3d(i,j,k)
-     &      -deltaTLev(k)*( fVerT(i,j,kDown)**2 * r_rTransKp
-     &                     -fVerT(i,j,kUp)**2   * r_rTrans )
+     &      -deltaTLev(k)*( rFluxKp - rFlux )
      &                   *rkSign*maskInC(i,j,bi,bj)
            localVol(i,j) = locVol3d(i,j,k)
      &      -deltaTLev(k)*( rTransKp(i,j) - rTrans(i,j) )
@@ -1175,8 +1174,7 @@ C     r-direction
      &      - deltaTLev(k)*recip_rhoFacC(k)
      &       *_recip_hFacC(i,j,k,bi,bj)*recip_drF(k)
      &       *recip_rA(i,j,bi,bj)*recip_deepFac2C(k)
-     &          *( fVerT(i,j,kDown)**2 * r_rTransKp
-     &            -fVerT(i,j,kUp  )**2 * r_rTrans
+     &          *( rFluxKp - rFlux
      &            -tracer(i,j,k,bi,bj)**2 * (rTransKp(i,j)-rTrans(i,j))
      &        )*rkSign*maskInC(i,j,bi,bj)
 #endif /* GAD_MULTIDIM_COMPRESSIBLE */
@@ -1205,6 +1203,7 @@ C     reconstruct final tracer value
        ENDDO
        CALL DIAGNOSTICS_FILL( chiX, diagName,0,Nr,3,bi,bj,myThid )
       ENDIF
+#endif /* ALLOW_DIAGNOSTICS */
 #endif /* DISABLE_MULTIDIM_ADVECTION */
 
       RETURN
