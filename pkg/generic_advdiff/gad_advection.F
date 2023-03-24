@@ -183,8 +183,8 @@ C     ijkey      :: tape key (depends on indices i,j, and direction)
       LOGICAL     doDiagAdvX, doDiagAdvY, doDiagAdvR
       _RL r_uTrans  (1:sNx+1,1:sNy+1)
       _RL r_vTrans  (1:sNx+1,1:sNy+1)
-      _RL r_rTrans  (1:sNx,1:sNy)
-      _RL r_rTransKp(1:sNx,1:sNy)
+      _RL r_rTrans
+      _RL r_rTransKp
       _RL chiX      (1:sNx,1:sNy,Nr)
 #endif /* ALLOW_DIAGNOSTICS */
 CEOP
@@ -1153,21 +1153,17 @@ C     and consistent with linFSConserveTr and "surfExpan_" monitor.
 C     vertical contributions of explicit advection only
          DO j=1,sNy
           DO i=1,sNx
-           r_rTrans  (i,j) = 0. _d 0
-           r_rTransKp(i,j) = 0. _d 0
+           r_rTrans   = 0. _d 0
+           r_rTransKp = 0. _d 0
            IF ( rTrans(i,j) .NE. 0. _d 0 )
-     &          r_rTrans(i,j) = 1. _d 0 / rTrans(i,j)
+     &          r_rTrans = 1. _d 0 / rTrans(i,j)
            IF ( rTransKp(i,j) .NE. 0. _d 0 )
-     &          r_rTransKp(i,j) = 1. _d 0 / rTransKp(i,j)
-          ENDDO
-         ENDDO
-         DO j=1,sNy
-          DO i=1,sNx
+     &          r_rTransKp = 1. _d 0 / rTransKp(i,j)
 #ifdef GAD_MULTIDIM_COMPRESSIBLE
 C     r-direction
            tmpTrac = chiX(i,j,k)*locVol3d(i,j,k)
-     &      -deltaTLev(k)*( fVerT(i,j,kDown)**2 * r_rTransKp(i,j)
-     &                     -fVerT(i,j,kUp)**2   * r_rTrans(i,j) )
+     &      -deltaTLev(k)*( fVerT(i,j,kDown)**2 * r_rTransKp
+     &                     -fVerT(i,j,kUp)**2   * r_rTrans )
      &                   *rkSign*maskInC(i,j,bi,bj)
            localVol(i,j) = locVol3d(i,j,k)
      &      -deltaTLev(k)*( rTransKp(i,j) - rTrans(i,j) )
@@ -1179,8 +1175,8 @@ C     r-direction
      &      - deltaTLev(k)*recip_rhoFacC(k)
      &       *_recip_hFacC(i,j,k,bi,bj)*recip_drF(k)
      &       *recip_rA(i,j,bi,bj)*recip_deepFac2C(k)
-     &          *( fVerT(i,j,kDown)**2 * r_rTransKp(i,j)
-     &            -fVerT(i,j,kUp  )**2 * r_rTrans(i,j)
+     &          *( fVerT(i,j,kDown)**2 * r_rTransKp
+     &            -fVerT(i,j,kUp  )**2 * r_rTrans
      &            -tracer(i,j,k,bi,bj)**2 * (rTransKp(i,j)-rTrans(i,j))
      &        )*rkSign*maskInC(i,j,bi,bj)
 #endif /* GAD_MULTIDIM_COMPRESSIBLE */
