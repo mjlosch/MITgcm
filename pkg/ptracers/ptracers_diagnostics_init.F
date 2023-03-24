@@ -204,6 +204,15 @@ C-     Diffusive flux:
        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I           diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
+       diagUnits = DIAGS_MK_UNITS( '('//trcUnits//')^2/s', myThid )
+       diagName  = 'VDAD'//diagSufx
+       WRITE(diagTitle,'(2A)')
+     &      'Mass-weighted advective Variance Decay of ',
+     &      locName(1:ilnb)
+       diagCode  = 'SMR     MR      '
+       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I      diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
 C--    Add diagnostics for other pkg contribution to ptracer solution
