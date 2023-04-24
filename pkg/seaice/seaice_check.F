@@ -912,6 +912,32 @@ C     end if usePW79thermodynamics
        ENDIF
 #endif /* SEAICE_ALLOW_EVP */
 
+# ifdef SEAICE_ALLOW_NOISEFILE
+       IF ( SEAICEuseNoisyIceStrength .AND. SEAICEuseMEB ) THEN
+        WRITE(msgBuf,'(2A)')
+     &   'SEAICE_CHECK: SEAICEuseNoisyIceStrength cannot be used',
+     &   ' with SEAICEuseMEB = .TRUE.'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        errCount = errCount + 1
+       ENDIF
+       IF ( SEAICEuseNoisyIceStrength .AND. NoisFile .EQ. ' ' ) THEN
+        WRITE(msgBuf,'(2A)')
+     &   'SEAICE_CHECK: SEAICEuseNoisyIceStrength without specifying',
+     &   ' NoisFile does not make sense.'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        errCount = errCount + 1
+       ENDIF
+# else
+       IF ( SEAICEuseNoisyIceStrength ) THEN
+        WRITE(msgBuf,'(A)')
+     &   'SEAICE_CHECK: SEAICEuseNoisyIceStrength = .TRUE.'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        WRITE(msgBuf,'(2A)') ' but CPP-flag ',
+     &   'SEAICE_ALLOW_NOISEFILE is #undef in SEAICE_OPTIONS.h'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        errCount = errCount + 1
+       ENDIF
+# endif
 C     SEAICEuseDynamics
       ENDIF
 #endif /* SEAICE_ALLOW_DYNAMICS */

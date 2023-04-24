@@ -385,6 +385,7 @@ C--   Read initial snow thickness from file if available.
         ENDDO
        ENDIF
 
+#ifdef SEAICE_ALLOW_NOISEFILE
 C   Read noise field
        IF ( NoisFile .NE. ' ' ) THEN
         CALL READ_FLD_XY_RL( NoisFile, ' ', NOISE, 0, myThid)
@@ -399,6 +400,7 @@ C   Read noise field
          ENDDO
         ENDDO
        ENDIF
+#endif
 
 #ifdef SEAICE_ITD
        DO bj=myByLo(myThid),myByHi(myThid)
