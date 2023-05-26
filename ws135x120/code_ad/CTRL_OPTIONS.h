@@ -40,7 +40,20 @@ CML#define ALLOW_BOTTOMDRAG_CONTROL
 C       >>> Generic Control.
 #define ALLOW_GENARR2D_CONTROL
 #define ALLOW_GENARR3D_CONTROL
-CML#define ALLOW_GENTIM2D_CONTROL
+#define ALLOW_GENTIM2D_CONTROL
+
+C       >>> Open boundaries
+c       >>> Make sure that ALLOW_OBCS is defined
+#define  ALLOW_OBCSN_CONTROL
+C#define  ALLOW_OBCSS_CONTROL
+#define  ALLOW_OBCSW_CONTROL
+#define  ALLOW_OBCSE_CONTROL
+#if (defined (ALLOW_OBCSN_CONTROL) || \
+     defined (ALLOW_OBCSS_CONTROL) || \
+     defined (ALLOW_OBCSW_CONTROL) || \
+     defined (ALLOW_OBCSE_CONTROL))
+# define ALLOW_OBCS_CONTROL
+#endif
 
 C  o Rotation of wind/stress controls adjustments
 C    from Eastward/Northward to model grid directions

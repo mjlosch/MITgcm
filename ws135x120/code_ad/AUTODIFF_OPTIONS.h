@@ -65,7 +65,7 @@ C   are collected in a single buffer field array before storing to tape.
 C   This functionality has been replaced by WHTAPEIO method (see above).
 C   Might still be used for OBCS since WHTAPEIO does not support OBCS fields.
 #undef AUTODIFF_USE_STORE_RESTORE
-#define AUTODIFF_USE_STORE_RESTORE_OBCS
+#undef AUTODIFF_USE_STORE_RESTORE_OBCS
 
 C o allow using viscFacInAd to recompute viscosities in AD
 #define AUTODIFF_ALLOW_VISCFACADJ

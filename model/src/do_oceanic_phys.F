@@ -32,6 +32,9 @@
 # ifdef ALLOW_EXF
 #  include "EXF_OPTIONS.h"
 # endif
+#ifdef ALLOW_OBCS
+# include "OBCS_OPTIONS.h"
+#endif
 #endif /* ALLOW_AUTODIFF */
 
 CBOP
@@ -185,6 +188,10 @@ C     == Global variables ===
 # ifdef ALLOW_SALT_PLUME
 #  include "SALT_PLUME.h"
 # endif
+# ifdef ALLOW_OBCS
+#  include "OBCS_PARAMS.h"
+#  include "OBCS_FIELDS.h"
+# endif
 # ifdef ALLOW_ECCO
 #  ifdef ALLOW_SIGMAR_COST_CONTRIBUTION
 #   include "ecco_cost.h"
@@ -280,6 +287,27 @@ C--   moved before SEAICE_MODEL call since SEAICE_MODEL needs seaice-obcs fields
 # ifdef ALLOW_AUTODIFF_TAMC
 CADJ STORE theta = comlev1, key=ikey_dynamics, kind=isbyte
 CADJ STORE salt  = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE etaN  = comlev1, key=ikey_dynamics, kind=isbyte
+#  ifdef ALLOW_OBCS_STEVENS
+CADJ STORE uVel  = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE vVel  = comlev1, key=ikey_dynamics, kind=isbyte
+#   ifdef ALLOW_OBCS_EAST
+CADJ STORE OBEtStevens = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE OBEsStevens = comlev1, key=ikey_dynamics, kind=isbyte
+#   endif
+#   ifdef ALLOW_OBCS_WEST
+CADJ STORE OBWtStevens = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE OBWsStevens = comlev1, key=ikey_dynamics, kind=isbyte
+#   endif
+#   ifdef ALLOW_OBCS_NORTH
+CADJ STORE OBNtStevens = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE OBNsStevens = comlev1, key=ikey_dynamics, kind=isbyte
+#   endif
+#   ifdef ALLOW_OBCS_SOUTH
+CADJ STORE OBStStevens = comlev1, key=ikey_dynamics, kind=isbyte
+CADJ STORE OBSsStevens = comlev1, key=ikey_dynamics, kind=isbyte
+#   endif
+#  endif /* ALLOW_OBCS_STEVENS */
 # endif
 # ifdef ALLOW_DEBUG
        IF (debugMode) CALL DEBUG_CALL('OBCS_CALC',myThid)
