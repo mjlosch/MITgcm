@@ -32,10 +32,10 @@ C-- Package-specific Options & Macros go here
 #undef ALLOW_PACKUNPACK_METHOD2
 
 C       >>> Other Control.
-CML#define ALLOW_DIFFKR_CONTROL
-CML#define ALLOW_KAPGM_CONTROL
-CML#define ALLOW_KAPREDI_CONTROL
-CML#define ALLOW_BOTTOMDRAG_CONTROL
+#define ALLOW_DIFFKR_CONTROL
+#define ALLOW_KAPGM_CONTROL
+#define ALLOW_KAPREDI_CONTROL
+#define ALLOW_BOTTOMDRAG_CONTROL
 
 C       >>> Generic Control.
 #define ALLOW_GENARR2D_CONTROL
