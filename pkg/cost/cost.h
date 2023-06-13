@@ -92,6 +92,10 @@ cph      _RL  objf_state_final (snx,sny,nsx,nsy)
       _RL  objf_vector (snx,nsx,nsy)
 #endif
 
+      common /cost_fname_c/
+     &     cost_mask_file
+      character*(MAX_LEN_FNAM) cost_mask_file
+
       common /cost_aux_r/
      &                    mult_atl,
      &                    mult_test,
