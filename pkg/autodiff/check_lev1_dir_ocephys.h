@@ -39,8 +39,8 @@ CADJ STORE OBNvStevens = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBSeta      = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBSt        = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBSs        = comlev1, key = ikey_dynamics, kind = isbyte
-CADJ STORE OBSv        = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBSu        = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE OBSv        = comlev1, key = ikey_dynamics, kind = isbyte
 #  ifdef ALLOW_OBCS_STEVENS
 CADJ STORE OBStStevens = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBSsStevens = comlev1, key = ikey_dynamics, kind = isbyte
@@ -94,6 +94,8 @@ CADJ STORE OBWptr = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBNh  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBNa  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBNsn = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE OBNuice = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE OBNvice = comlev1, key = ikey_dynamics, kind = isbyte
 #  ifdef SEAICE_VARIABLE_SALINITY
 CADJ STORE OBNsl = comlev1, key = ikey_dynamics, kind = isbyte
 #  endif
@@ -102,6 +104,8 @@ CADJ STORE OBNsl = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBSh  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBSa  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBSsn = comlev1, key = ikey_dynamics, kind = isbyte
+cCADJ STORE OBSuice = comlev1, key = ikey_dynamics, kind = isbyte
+cCADJ STORE OBSvice = comlev1, key = ikey_dynamics, kind = isbyte
 #   ifdef SEAICE_VARIABLE_SALINITY
 CADJ STORE OBSsl = comlev1, key = ikey_dynamics, kind = isbyte
 #   endif
@@ -110,6 +114,8 @@ CADJ STORE OBSsl = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBEh  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBEa  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBEsn = comlev1, key = ikey_dynamics, kind = isbyte
+cCADJ STORE OBEuice = comlev1, key = ikey_dynamics, kind = isbyte
+cCADJ STORE OBEvice = comlev1, key = ikey_dynamics, kind = isbyte
 #   ifdef SEAICE_VARIABLE_SALINITY
 CADJ STORE OBEsl = comlev1, key = ikey_dynamics, kind = isbyte
 #   endif
@@ -118,6 +124,8 @@ CADJ STORE OBEsl = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBWh  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBWa  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBWsn = comlev1, key = ikey_dynamics, kind = isbyte
+cCADJ STORE OBWuice = comlev1, key = ikey_dynamics, kind = isbyte
+cCADJ STORE OBWvice = comlev1, key = ikey_dynamics, kind = isbyte
 #   ifdef SEAICE_VARIABLE_SALINITY
 CADJ STORE OBWsl = comlev1, key = ikey_dynamics, kind = isbyte
 #   endif

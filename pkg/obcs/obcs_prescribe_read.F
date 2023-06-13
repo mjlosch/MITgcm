@@ -43,6 +43,7 @@ CEOP
       ENDIF
 # endif /* ALLOW_EXF */
 
+# ifndef EXCLUDE_FFIELDS_LOAD
       IF ( .NOT. useEXF ) THEN
 cph#ifndef ALLOW_AUTODIFF_TAMC
        CALL OBCS_FIELDS_LOAD( myTime, myIter, myThid )
@@ -50,6 +51,7 @@ cph#else
 cph       STOP 'PH HAS DISABLED THIS RUNTIME OPTION FOR ALLOW_EXF'
 cph#endif
       ENDIF
+# endif
 
 #endif /* ALLOW_OBCS_PRESCRIBE */
 
