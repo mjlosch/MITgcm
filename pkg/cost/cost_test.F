@@ -73,7 +73,7 @@ cph)
             endif
 #else
             objf_test(bi,bj) = objf_test(bi,bj) +
-     &                         theta(i,j,kLocOut,bi,bj)**2
+     &                         theta(i,j,kLocOut,bi,bj)
 #endif
 
             enddo
