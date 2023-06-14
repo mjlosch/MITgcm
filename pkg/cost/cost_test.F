@@ -104,7 +104,8 @@ C
 CML           thetaTmp = theta(i,j,k,bi,bj) - thetaRef
 C     scale with tmp to reduce truncation error?
            locfc = locfc + volWghtFld(i,j,k,bi,bj) * thetaTmp
-CML           print*, 'mean theta: ',cMeanTheta(i,j,k,bi,bj)
+CML           print*, 'mean theta: ',cMeanTheta(i,j,k,bi,bj),
+CML     &          theta(i,j,k,bi,bj), thetaTmp
 CML           print*, 'weddell sea mask:', mask_ws(i,j,k,bi,bj)
 CML           print*, 'weighted volume', volwghtfld(i,j,k,bi,bj)
 CML           print*, 'mean of tile:',locfc
@@ -121,7 +122,7 @@ C     diagnostics
        DO bi=myBxLo(myThid),myBxHi(myThid)
         write(standardmessageunit,*)
      &       'ml-objf_test     =',objf_test(bi,bj),
-     &       tmp,startTime,endTime
+     &       tmp,startTime,endTime,lastInterval
        ENDDO
       ENDDO
 
