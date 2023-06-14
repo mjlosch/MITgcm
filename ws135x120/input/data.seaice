@@ -1,7 +1,7 @@
 # SEAICE parameters
 &SEAICE_PARM01
-#mk SEAICE_multDim        = 7, missing initial states
-#mk SEAICE_useMultDimSnow = .TRUE., missing initial states
+ SEAICE_multDim        = 7,
+ SEAICE_useMultDimSnow = .TRUE.,
  SEAICEpressReplFac = 0.,
 # this is really questionable (high):
  SEAICE_dryIceAlb   = 0.75,

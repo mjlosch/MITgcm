@@ -26,8 +26,8 @@ C   are specific to this package are assumed to be set in ECCO_CPPOPTIONS.h
 C   ==================================================================
 C-- Package-specific Options & Macros go here
 
-#undef EXCLUDE_CTRL_PACK
-#define CTRL_SET_PREC_32
+#define EXCLUDE_CTRL_PACK
+c#define CTRL_SET_PREC_32
 #undef ALLOW_NONDIMENSIONAL_CONTROL_IO
 #undef ALLOW_PACKUNPACK_METHOD2
 

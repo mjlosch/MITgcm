@@ -4,4 +4,7 @@
 # cost function
 # ******************
  &COST_NML
+ mult_test = 1.,
+ lastinterval = 36000.,
+ cost_mask_file = 'ones.bin',
  &
