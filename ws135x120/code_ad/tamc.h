@@ -31,7 +31,8 @@ C     nchklev_1 :: length of inner loop (=size of storage in memory)
 C     nchklev_2 :: length of second loop (stored on disk)
 C     nchklev_3 :: length of outer loop of 3-level checkpointing
       INTEGER    nchklev_1
-      PARAMETER( nchklev_1 =  10 )
+CML      PARAMETER( nchklev_1 =  10 )
+      PARAMETER( nchklev_1 =   8 )
       INTEGER    nchklev_2
       PARAMETER( nchklev_2 = 220 )
       INTEGER    nchklev_3
@@ -75,7 +76,7 @@ C     maxpass :: maximum number of (active + passive) tracers
 C                Note: defined in PTRACERS_SIZE.h if compiling pkg/ptracers
 #ifndef ALLOW_PTRACERS
       INTEGER    maxpass
-      PARAMETER( maxpass   = 2 )
+      PARAMETER( maxpass   = 3 )
 #endif
 C     maxcube :: for Multi-Dim advection, max number of horizontal directions
       INTEGER    maxcube
