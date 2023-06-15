@@ -55,7 +55,7 @@ CADJ STORE OBSvStevens = comlev1, key = ikey_dynamics, kind = isbyte
 # ifdef ALLOW_OBCS_EAST
 #  ifdef NONLIN_FRSURF
 CADJ STORE OBEeta      = comlev1, key = ikey_dynamics, kind = isbyte
-#  endf
+#  endif
 CADJ STORE OBEt        = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBEs        = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBEu        = comlev1, key = ikey_dynamics, kind = isbyte
