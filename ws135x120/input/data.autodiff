@@ -7,9 +7,8 @@
  cg2dFullAdjoint = .TRUE.,
 # inAdExact = .FALSE.,
  useApproxAdvectionInAdMode = .TRUE.,
-#useKPPinAdMode = .FALSE.,
  useGGL90inAdMode = .FALSE.,
- useGMRediInAdMode = .FALSE.,
+#useGMRediInAdMode = .FALSE.,
 #useSALT_PLUMEinAdMode = .FALSE.,
 # useSmoothCorrel2DinAdMode,
 #SEAICEapproxLevInAd,
@@ -18,7 +17,6 @@
 #
 # SIregFacInAd, SIregFacInFw,
  useSEAICEinAdMode=.TRUE.,
- useSEAICEinAdMode=.FALSE.,
  SEAICEuseFREEDRIFTswitchInAd = .TRUE.,
 #SEAICEuseDYNAMICSswitchInAd = .TRUE.,
  &

@@ -6,5 +6,7 @@
  &COST_NML
  mult_test = 1.,
  lastinterval = 36000.,
- cost_mask_file = 'ones.bin',
+#cost_mask_file = 'ones.bin',
+#cost_mask_file = 'run04_monthly_Weddell-S_regional_box_mask.bin',
+ cost_mask_file = 'run04_monthly_Greenwichlastcycle_monthly_regional_mask.bin',
  &
