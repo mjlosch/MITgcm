@@ -895,7 +895,7 @@ C--     end of diagnostic k loop (Nr:1)
 
 #ifdef ALLOW_AUTODIFF_TAMC
 C     Avoid recomputing sigmaR and IVDConvCount in AD routine.
-CADJ STORE sigmaR                   =comlev1_bibj,key=kkey,kind=isbyte
+CADJ STORE sigmaR                   =comlev1_bibj,key=tkey,kind=isbyte
 CADJ STORE IVDConvCount(:,:,:,bi,bj)=comlev1_bibj,key=tkey,kind=isbyte
 #endif
 
