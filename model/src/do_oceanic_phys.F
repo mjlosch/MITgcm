@@ -194,11 +194,6 @@ C     == Global variables ===
 #  include "OBCS_PARAMS.h"
 #  include "OBCS_FIELDS.h"
 # endif
-# ifdef ALLOW_ECCO
-#  ifdef ALLOW_SIGMAR_COST_CONTRIBUTION
-#   include "ecco_cost.h"
-#  endif
-# endif
 #endif /* ALLOW_AUTODIFF */
 
 #ifdef ALLOW_TAPENADE
