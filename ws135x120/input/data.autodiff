@@ -5,18 +5,15 @@
 #
  &AUTODIFF_PARM01
  cg2dFullAdjoint = .TRUE.,
-# inAdExact = .FALSE.,
  useApproxAdvectionInAdMode = .TRUE.,
+#viscFacInAd = 2.,
+#viscFacInFw = 1.,
  useGGL90inAdMode = .FALSE.,
 #useGMRediInAdMode = .FALSE.,
 #useSALT_PLUMEinAdMode = .FALSE.,
-# useSmoothCorrel2DinAdMode,
-#SEAICEapproxLevInAd,
- viscFacInAd = 2.,
- viscFacInFw = 1.,
-#
-# SIregFacInAd, SIregFacInFw,
- useSEAICEinAdMode=.TRUE.,
- SEAICEuseFREEDRIFTswitchInAd = .TRUE.,
-#SEAICEuseDYNAMICSswitchInAd = .TRUE.,
+#useSEAICEinAdMode=.FALSE.,
+# turns off dynamics in AD mode, so that only thermodynamics AD code is used
+ SEAICEuseDYNAMICSswitchInAd = .TRUE.,
+# replace LSR solver with free drift solver in AD mode (does not work)
+#SEAICEuseFREEDRIFTswitchInAd = .TRUE.,
  &

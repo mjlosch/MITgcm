@@ -31,8 +31,7 @@ C     nchklev_1 :: length of inner loop (=size of storage in memory)
 C     nchklev_2 :: length of second loop (stored on disk)
 C     nchklev_3 :: length of outer loop of 3-level checkpointing
       INTEGER    nchklev_1
-CML      PARAMETER( nchklev_1 =  10 )
-      PARAMETER( nchklev_1 =   8 )
+      PARAMETER( nchklev_1 =  12 )
       INTEGER    nchklev_2
       PARAMETER( nchklev_2 = 220 )
       INTEGER    nchklev_3

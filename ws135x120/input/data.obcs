@@ -2,8 +2,13 @@
 # Open boundaries
 # ***************
  &OBCS_PARM01
- useOBCSsponge=.TRUE.,
-# useOBCSbalance=.TRUE.,
+ useOBCSsponge=.FALSE.,
+ useOBCSbalance=.TRUE.,
+ OBCS_balanceFacN=1.,
+ OBCS_balanceFacS=0.,
+ OBCS_balanceFacE=0.,
+ OBCS_balanceFacW=0.,
+ OBCSbalanceSurf=.TRUE.,
 #OBCSprintDiags     =.FALSE.,
 # useOBCSYearlyFields=.TRUE.,
  useOBCSprescribe=.TRUE.,
@@ -12,50 +17,50 @@
  OB_Ieast  = 66*0, 54*135,
  OB_Jnorth = 135*120,
 #
- OBEtFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEtheta',
- OBWtFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWtheta',
- OBNtFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNtheta',
+ OBEtFile='../obcs_data/OBEtheta',
+ OBWtFile='../obcs_data/OBWtheta',
+ OBNtFile='../obcs_data/OBNtheta',
 #
- OBEsFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEsalt',
- OBWsFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWsalt',
- OBNsFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNsalt',
+ OBEsFile='../obcs_data/OBEsalt',
+ OBWsFile='../obcs_data/OBWsalt',
+ OBNsFile='../obcs_data/OBNsalt',
 #
 #suggestion ML: use uvelmass/hfac
 #I think, it is more consistent to use uvel and OBNeta for nonlin. free surface
- OBEuFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEuvel',
- OBWuFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWuvel',
- OBNuFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNuvel',
+ OBEuFile='../obcs_data/OBEuvel',
+ OBWuFile='../obcs_data/OBWuvel',
+ OBNuFile='../obcs_data/OBNuvel',
 #
- OBEvFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEvvel',
- OBWvFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWvvel',
- OBNvFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNvvel',
+ OBEvFile='../obcs_data/OBEvvel',
+ OBWvFile='../obcs_data/OBWvvel',
+ OBNvFile='../obcs_data/OBNvvel',
 #
- OBEetaFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEeta',
- OBWetaFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWeta',
- OBNetaFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNeta',
+#OBEetaFile='../obcs_data/OBEeta',
+#OBWetaFile='../obcs_data/OBWeta',
+#OBNetaFile='../obcs_data/OBNeta',
 #
 # ice
- OBWhFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWhice',
- OBWaFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWaice',
- OBWsnFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWhsno',
- OBWslFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWhsal',
+ OBWhFile='../obcs_data/OBWhice',
+ OBWaFile='../obcs_data/OBWaice',
+ OBWsnFile='../obcs_data/OBWhsno',
+ OBWslFile='../obcs_data/OBWhsal',
 #
- OBEhFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEhice',
- OBEaFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEaice',
- OBEsnFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEhsno',
- OBEslFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEhsal',
+ OBEhFile='../obcs_data/OBEhice',
+ OBEaFile='../obcs_data/OBEaice',
+ OBEsnFile='../obcs_data/OBEhsno',
+ OBEslFile='../obcs_data/OBEhsal',
 #
- OBNhFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNhice',
- OBNaFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNaice',
- OBNsnFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNhsno',
- OBNslFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNhsal',
+ OBNhFile='../obcs_data/OBNhice',
+ OBNaFile='../obcs_data/OBNaice',
+ OBNsnFile='../obcs_data/OBNhsno',
+ OBNslFile='../obcs_data/OBNhsal',
 #
- OBWuiceFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWuice',
- OBWviceFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBWvice',
- OBEuiceFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEuice',
- OBEviceFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBEvice',
- OBNuiceFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNuice',
- OBNviceFile='/isibhv/projects/p_sochic/SOCHIC_WG6_PACKAGE/LOCAL/obcs_data/OBNvice',
+ OBWuiceFile='../obcs_data/OBWuice',
+ OBWviceFile='../obcs_data/OBWvice',
+ OBEuiceFile='../obcs_data/OBEuice',
+ OBEviceFile='../obcs_data/OBEvice',
+ OBNuiceFile='../obcs_data/OBNuice',
+ OBNviceFile='../obcs_data/OBNvice',
 
 # this is very counterintuitive: we need to specify
 # an input field for the code to do anything, even

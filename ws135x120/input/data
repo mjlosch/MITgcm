@@ -34,10 +34,10 @@
  allowFreezing=.FALSE.,
  hFacMin=.2,
  hFacMinDr=5.,
- select_rStar=2,
- nonlinFreeSurf=4,
- hFacInf=0.2,
- hFacSup=2.0,
+#select_rStar=2,
+#nonlinFreeSurf=4,
+#hFacInf=0.2,
+#hFacSup=2.0,
  gravity=9.81,
  rhonil=1029.,
  rhoConst=1029.,
@@ -47,6 +47,8 @@
  implicitFreeSurface=.TRUE.,
  exactConserv=.TRUE.,
  useSingleCpuIO=.TRUE.,
+#tempAdvection = .FALSE.,
+#saltAdvection = .FALSE.,
  tempAdvScheme=33,
  saltAdvScheme=33,
 #tempAdvScheme=30,
@@ -60,22 +62,33 @@
  useJamartWetPoints=.TRUE.,
  readBinaryPrec=32,
  writeBinaryPrec=32,
-#debugLevel=1,
+ debugLevel=-1,
  &
 
 # Elliptic solver parameters
  &PARM02
  cg2dMaxIters=300,
- cg2dTargetResWunit=1.E-12,
+#cg2dTargetResWunit=1.E-12,
+ cg2dTargetResidual=1.e-7,
  &
 
 # Time stepping parameters
  &PARM03
  nIter0 = 0,
- pickupSuff = '0000000001',
-#50 years of non-leap year (1979)
- nTimeSteps=1752000,
- nTimeSteps=10,
+ pickupSuff = 'run28',
+#pickupStrictlyMatch=.FALSE.,
+#nIter0 = 262800,
+#nTimeSteps=359400,
+# 40 years
+#endTime=1293840000,
+# 62 years (1.1.1958 to 1.1.2020)
+#endTime=1956528000,
+ endTime = 31536000.,
+# ten years (3*366 + 7*365)
+ endTime = 315619200.,
+# 20 years (1958-1-1 to 1978-1-1)
+#endTime = 631152000.,
+#nTimeSteps=100,
  forcing_In_AB=.FALSE.,
  momDissip_In_AB=.FALSE.,
  deltaT = 3600.,
@@ -86,11 +99,13 @@
  alph_AB=0.5,
  beta_AB=0.281105,
 #annual output (seconds for 364 days length)
- pChkptFreq  = 31536000.0,
+ pChkptFreq  = 315360000.0,
  chkptFreq   = 31536000.0,
- dumpFreq    = 1.,
+ dumpInitAndLast=.FALSE.,
+ dumpFreq    = 0.,
  monitorFreq = 86400.0,
- monitorFreq = 1.,
+ adjMonitorFreq = 86400.0,
+#monitorFreq = 1.,
  &
 
 # Gridding parameters
@@ -109,12 +124,13 @@
 
 # Input datasets
  &PARM05
-#adTapeDir='tapes',
- bathyFile      ='ECCO_bathymetry_WG.bin',
+ adTapeDir='/tmp',
+ bathyFile      ='modECCO_bathymetry_WG.bin',
 # hydrogThetaFile='T_OWPv1_M_eccollc_90x50.bin',
 # hydrogSaltFile ='S_OWPv1_M_eccollc_90x50.bin',
  viscA4Dfile    ='viscA4Dfld.Weddell_1deg_nx135ny120f4.bin',
  viscA4Zfile    ='viscA4Zfld.Weddell_1deg_nx135ny120f4.bin',
+ diffKrFile     ='diffKr.bin',
  geothermalFile='geothermalFlux_Weddell_1deg_nx135ny120f4.bin',
 #
  &

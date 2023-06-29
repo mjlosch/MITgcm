@@ -4,8 +4,9 @@
 # *******************
  &CAL_NML
  TheCalendar='gregorian',
- calendarDumps=.TRUE.,
 # TheCalendar='noLeapYear',
- startDate_1=19810101,
+ calendarDumps=.TRUE.,
+#TheCalendar='model',
+ startDate_1=19580101,
  startDate_2=000000,
- &
+ /
