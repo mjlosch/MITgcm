@@ -185,27 +185,27 @@
 
  &EXF_NML_OBCS
   useOBCSYearlyFields=.TRUE.,
-  obcsNstartdate1   = 19810101,
+  obcsNstartdate1   = 19580115,
   obcsNstartdate2   = 000000,
   obcsNperiod       = 2635200.0,
 #
-  obcsWstartdate1   = 19810101,
+  obcsWstartdate1   = 19580115,
   obcsWstartdate2   = 000000,
   obcsWperiod       = 2635200.0,
 #
-  obcsEstartdate1   = 19810101,
+  obcsEstartdate1   = 19580115,
   obcsEstartdate2   = 000000,
   obcsEperiod       = 2635200.0,
 #
-  siobEstartdate1   = 19810101,
+  siobEstartdate1   = 19580115,
   siobEstartdate2   = 000000,
   siobEperiod       = 2635200.0,
 #
-  siobWstartdate1   = 19810101,
+  siobWstartdate1   = 19580115,
   siobWstartdate2   = 000000,
   siobWperiod       = 2635200.0,
 #
-  siobNstartdate1   = 19810101,
+  siobNstartdate1   = 19580115,
   siobNstartdate2   = 000000,
   siobNperiod       = 2635200.0,
  &
