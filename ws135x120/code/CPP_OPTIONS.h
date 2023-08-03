@@ -125,7 +125,7 @@ C o Include/exclude code for Non Self-Adjoint (NSA) conjugate-gradient solver
 #undef ALLOW_CG2D_NSA
 
 C o Include/exclude code for single reduction Conjugate-Gradient solver
-#undef ALLOW_SRCG
+#define ALLOW_SRCG
 
 C o Choices for implicit solver routines solve_*diagonal.F
 C   The following has low memory footprint, but not suitable for AD
