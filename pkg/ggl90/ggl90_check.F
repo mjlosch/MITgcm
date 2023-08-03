@@ -1,7 +1,4 @@
 #include "GGL90_OPTIONS.h"
-#ifdef ALLOW_AUTODIFF
-# include "AUTODIFF_OPTIONS.h"
-#endif
 
       SUBROUTINE GGL90_CHECK( myThid )
 C     *==========================================================*
@@ -132,18 +129,26 @@ C     Compatibility with the use of other pkgs:
          errCount = errCount + 1
       ENDIF
 
-#ifdef ALLOW_AUTODIFF_TAMC
+#ifdef ALLOW_AUTODIFF
 C     Not everything works stably with AD code
       IF ( useGGL90inAdMode .AND. mxlMaxFlag .GT. 1 ) THEN
-       WRITE(msgBuf,'(2A,L,A,I2,A)') 'GGL90_CHECK: ',
+       WRITE(msgBuf,'(2A,L1,A,I2,A)') '** WARNING ** GGL90_CHECK: ',
      &      'useGGL90inAdMode = ', useGGL90inAdMode,
      &      ' with mxlMaxFlag =', mxlMaxFlag, ' (> 1)'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       WRITE(msgBuf,'(2A)') 'GGL90_CHECK: ',
-     &      'tends to be unstable, use mxlMaxFag = 0 or 1'
-       CALL PRINT_ERROR( msgBuf, myThid )
-c      errCount = errCount + 1
+       CALL PRINT_MESSAGE( msgBuf, errorMessageUnit,
+     &                     SQUEEZE_RIGHT, myThid )
+       WRITE(msgBuf,'(2A)') '** WARNING ** GGL90_CHECK: ',
+     &      'tends to be unstable, use mxlMaxFlag = 0 or 1.'
+       CALL PRINT_MESSAGE( msgBuf, errorMessageUnit,
+     &                     SQUEEZE_RIGHT, myThid )
       ENDIF
+      IF ( adMxlMaxFlag .NE. mxlMaxFlag ) THEN
+       WRITE(msgBuf,'(2A,I2,A)') '** WARNING ** GGL90_CHECK: ',
+     &      'Resetting mxlMaxFlag = adMxlMaxFlag =',
+     &      adMxlMaxFlag,' in AD-mode only.'
+       CALL PRINT_MESSAGE( msgBuf, errorMessageUnit,
+     &                     SQUEEZE_RIGHT, myThid )
+       ENDIF
 #endif
 
 C-    Stop cleanly when error was detected
