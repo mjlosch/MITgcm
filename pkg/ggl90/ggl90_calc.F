@@ -343,6 +343,8 @@ c       rMixingLength(i,j,1)  = 0. _d 0
 C     buoyancy frequency
          Nsquare(i,j,k) = gravity*gravitySign*recip_rhoConst
      &                  * sigmaR(i,j,k) * coordFac
+C     rule out negative Nsquare
+         Nsquare(i,j,k) = MAX( Nsquare(i,j,k), 0. )
 C     vertical shear term (dU/dz)^2+(dV/dz)^2 is computed later
 C     to save some memory
 C     Initialise mixing length (eq. 2.35)
@@ -1018,6 +1020,9 @@ C     ===============================
          tmpVisc = MIN(tmpVisc/TKEPrandtlNumber(i,j,k),GGL90diffMax)
      &        * coordFac*coordFac
          GGL90diffKr(i,j,k,bi,bj)= MAX( tmpVisc , diffKrNrS(k) )
+#ifdef ALLOW_OBCS
+     &        * maskInC(i,j,bi,bj)
+#endif
         ENDDO
        ENDDO
 
@@ -1041,6 +1046,9 @@ C     ===============================
          tmpVisc = MIN( tmpVisc , GGL90viscMax )
      &        * coordFac*coordFac
          GGL90viscArU(i,j,k,bi,bj) = MAX( tmpVisc, viscArNr(k) )
+#ifdef ALLOW_OBCS
+     &        * maskInW(i,j,bi,bj)
+#endif
         ENDDO
        ENDDO
 
@@ -1064,6 +1072,9 @@ C     ===============================
          tmpVisc = MIN( tmpVisc , GGL90viscMax )
      &        * coordFac*coordFac
          GGL90viscArV(i,j,k,bi,bj) = MAX( tmpVisc, viscArNr(k) )
+#ifdef ALLOW_OBCS
+     &        * maskInS(i,j,bi,bj)
+#endif
         ENDDO
        ENDDO
       ENDDO
