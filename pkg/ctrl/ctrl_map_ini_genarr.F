@@ -1,6 +1,15 @@
 #include "CTRL_OPTIONS.h"
+#ifdef ALLOW_GMREDI
+# include "GMREDI_OPTIONS.h"
+#endif
+#ifdef ALLOW_SEAICE
+# include "SEAICE_OPTIONS.h"
+#endif
 #ifdef ALLOW_SHELFICE
 # include "SHELFICE_OPTIONS.h"
+#endif
+#ifdef ALLOW_STREAMICE
+# include "STREAMICE_OPTIONS.h"
 #endif
 #ifdef ALLOW_DIC
 # include "DIC_OPTIONS.h"
@@ -36,13 +45,23 @@ C     == global variables ==
 #include "ctrl_dummy.h"
 #include "CTRL_FIELDS.h"
 #include "CTRL_GENARR.h"
+#ifdef ALLOW_GMREDI
+# include "GMREDI.h"
+#endif
 #ifdef ALLOW_PTRACERS
 # include "PTRACERS_SIZE.h"
 # include "PTRACERS_PARAMS.h"
 # include "PTRACERS_FIELDS.h"
 #endif
+#ifdef ALLOW_SEAICE
+# include "SEAICE_SIZE.h"
+# include "SEAICE.h"
+#endif
 #ifdef ALLOW_SHELFICE
 # include "SHELFICE.h"
+#endif
+#ifdef ALLOW_STREAMICE
+# include "STREAMICE.h"
 #endif
 #if (defined ALLOW_DIC && defined DIC_BIOTIC)
 # include "DIC_VARS.h"
@@ -64,11 +83,20 @@ C     == local variables ==
       INTEGER iarr
 #endif
 #ifdef ALLOW_GENARR2D_CONTROL
-      INTEGER igen_etan,igen_bdrag,igen_geoth
+      INTEGER igen_etan, igen_bdrag, igen_geoth
+# ifdef ALLOW_SEAICE
+      INTEGER igen_siarea, igen_siheff
+# endif
 # ifdef ALLOW_SHELFICE
       INTEGER igen_shiCoeffT, igen_shiCoeffS, igen_shiCDrag
-      INTEGER i, j, bi, bj, k2
+      INTEGER i, j, bi, bj
+#  ifdef SHI_ALLOW_GAMMAFRICT
+      INTEGER k2
       LOGICAL dragThermoEqualMom
+#  endif
+# endif
+#ifdef ALLOW_STREAMICE
+      INTEGER igen_b_glen, igen_h_streamice
 # endif
 # if (defined ALLOW_DIC && defined DIC_BIOTIC)
       INTEGER igen_alpha
@@ -87,16 +115,27 @@ C     == local variables ==
 #endif /* ALLOW_GENARR3D_CONTROL */
 CEOP
 
+#ifdef ALLOW_DEBUG
+      IF (debugMode) CALL DEBUG_ENTER('CTRL_MAP_INI_GENARR', myThid )
+#endif
 #ifdef ALLOW_GENARR2D_CONTROL
 C--   generic 2D control variables
 
       igen_etan=0
       igen_bdrag=0
       igen_geoth=0
+#ifdef ALLOW_SEAICE
+      igen_siarea=0
+      igen_siheff=0
+#endif
 #ifdef ALLOW_SHELFICE
       igen_shiCoeffT=0
       igen_shiCoeffS=0
       igen_shiCDrag=0
+#endif
+#ifdef ALLOW_STREAMICE
+      igen_b_glen=0
+      igen_h_streamice=0
 #endif
       DO iarr = 1, maxCtrlArr2D
        IF (xx_genarr2d_weight(iarr).NE.' ') THEN
@@ -106,6 +145,12 @@ C--   generic 2D control variables
      &     igen_bdrag=iarr
         IF (xx_genarr2d_file(iarr)(1:13).EQ.'xx_geothermal')
      &     igen_geoth=iarr
+#ifdef ALLOW_SEAICE
+        IF (xx_genarr2d_file(iarr)(1:9).EQ.'xx_siarea')
+     &     igen_siarea=iarr
+        IF (xx_genarr2d_file(iarr)(1:9).EQ.'xx_siheff')
+     &     igen_siheff=iarr
+#endif
 #ifdef ALLOW_SHELFICE
 # ifndef SHI_ALLOW_GAMMAFRICT
         IF (xx_genarr2d_file(iarr)(1:12).EQ.'xx_shicoefft')
@@ -116,6 +161,12 @@ C--   generic 2D control variables
         IF (xx_genarr2d_file(iarr)(1:11).EQ.'xx_shicdrag')
      &     igen_shiCDrag=iarr
 # endif
+#endif
+#ifdef ALLOW_STREAMICE
+        IF (xx_genarr2d_file(iarr)(1:9).EQ.'xx_b_glen')
+     &     igen_b_glen=iarr
+        IF (xx_genarr2d_file(iarr)(1:14).EQ.'xx_h_streamice')
+     &     igen_h_streamice=iarr
 #endif
 #if (defined ALLOW_DIC && defined DIC_BIOTIC)
         IF (xx_genarr2d_file(iarr)(1:11).EQ.'xx_alpha')
@@ -134,6 +185,13 @@ C--   generic 2D control variables
 #ifdef ALLOW_GEOTHERMAL_FLUX
       IF (igen_geoth.GT.0)
      &  CALL CTRL_MAP_GENARR2D( geothermalFlux, igen_geoth, myThid )
+#endif
+
+#ifdef ALLOW_SEAICE
+      IF (igen_siarea.GT.0)
+     &  CALL CTRL_MAP_GENARR2D(AREA,igen_siarea,myThid)
+      IF (igen_siheff.GT.0)
+     &  CALL CTRL_MAP_GENARR2D(HEFF,igen_siheff,myThid)
 #endif
 #ifdef ALLOW_SHELFICE
 # ifndef SHI_ALLOW_GAMMAFRICT
@@ -168,17 +226,17 @@ C--   xx_shiCoeffT not used, but shiCoeffS is adjusted by xx_shicoeffs
         ENDDO
        ENDDO
       ENDIF
-# else
+# else /* SHI_ALLOW_GAMMAFRICT */
       dragThermoEqualMom = .FALSE.
-      IF (igen_shiCDrag.GT.0)
-     &  CALL CTRL_MAP_GENARR2D(shiCDragFld,igen_shiCDrag,myThid)
+      IF (igen_shiCDrag.GT.0) THEN
+        CALL CTRL_MAP_GENARR2D(shiCDragFld,igen_shiCDrag,myThid)
 C--     Set drag coefficient used in momentum equal to thermodynamic,
 C--      u* drag coefficient
-      DO k2 = 1, maxCtrlProc
-
-       IF (xx_genarr2d_preproc_c(k2,igen_shiCDrag)(1:3).EQ.'mom')
-     &    dragThermoEqualMom = .TRUE.
-      ENDDO
+        DO k2 = 1, maxCtrlProc
+         IF (xx_genarr2d_preproc_c(k2,igen_shiCDrag)(1:3).EQ.'mom')
+     &      dragThermoEqualMom = .TRUE.
+        ENDDO
+      ENDIF
       IF (dragThermoEqualMom) THEN
        DO bj = myByLo(myThid), myByHi(myThid)
         DO bi = myBxLo(myThid), myBxHi(myThid)
@@ -192,6 +250,12 @@ C--      u* drag coefficient
       ENDIF
 # endif /* SHI_ALLOW_GAMMAFRICT */
 #endif /* ALLOW_SHELFICE */
+#ifdef ALLOW_STREAMICE
+      IF (igen_b_glen.GT.0)
+     &  CALL CTRL_MAP_GENARR2D( B_glen, igen_b_glen, myThid )
+      IF (igen_h_streamice.GT.0)
+     &  CALL CTRL_MAP_GENARR2D( H_streamice, igen_h_streamice, myThid )
+#endif /* ALLOW_STREAMICE */
 #if (defined ALLOW_DIC && defined DIC_BIOTIC)
       IF (igen_alpha.GT.0)
      &  CALL CTRL_MAP_GENARR2D( alpha, igen_alpha, myThid )
@@ -252,13 +316,13 @@ C--   generic 3D control variables
      &  CALL CTRL_MAP_GENARR3D( theta, igen_theta0, myThid )
       IF (igen_salt0.GT.0)
      &  CALL CTRL_MAP_GENARR3D( salt, igen_salt0, myThid )
-# ifdef ALLOW_KAPGM_CONTROL
+# if ( defined ALLOW_KAPGM_CONTROL && defined GM_READ_K3D_GM )
       IF (igen_kapgm.GT.0)
-     &  CALL CTRL_MAP_GENARR3D( kapGM, igen_kapgm, myThid )
+     &  CALL CTRL_MAP_GENARR3D( GM_inpK3dGM, igen_kapgm, myThid )
 # endif
-# ifdef ALLOW_KAPREDI_CONTROL
+# if ( defined ALLOW_KAPREDI_CONTROL && defined GM_READ_K3D_REDI )
       IF (igen_kapredi.GT.0)
-     &  CALL CTRL_MAP_GENARR3D( kapRedi, igen_kapredi, myThid )
+     &  CALL CTRL_MAP_GENARR3D( GM_inpK3dRedi, igen_kapredi, myThid )
 # endif
 # if ( defined ALLOW_DIFFKR_CONTROL && defined ALLOW_3D_DIFFKR )
       IF (igen_diffkr.GT.0)
@@ -284,6 +348,10 @@ CADJ loop = parallel
 # endif
 
 #endif /* ALLOW_GENARR3D_CONTROL */
+
+#ifdef ALLOW_DEBUG
+      IF (debugMode) CALL DEBUG_LEAVE('CTRL_MAP_INI_GENARR', myThid )
+#endif
 
       RETURN
       END

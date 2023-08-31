@@ -33,11 +33,17 @@ c     == global variables ==
 # include "OBCS_GRID.h"
 #endif
 #include "ctrl.h"
-#include "CTRL_OBCS.h"
-#include "grdchk.h"
+#ifdef ALLOW_OBCS_CONTROL
+C     CTRL_OBCS.h must be included before GRDCHK.h
+# include "CTRL_OBCS.h"
+#endif
+#include "GRDCHK.h"
 
 c     == routine arguments ==
+      integer       mythid
 
+#ifdef ALLOW_GRDCHK
+c     == local variables ==
       integer       icvrec
       integer       jtile
       integer       itile
@@ -47,17 +53,9 @@ c     == routine arguments ==
       integer       jtilepos
       integer       itest
       integer       ierr
-      integer       mythid
-
-#ifdef ALLOW_GRDCHK
-c     == local variables ==
-
-      integer iG,jG
       integer bi,bj
       integer i,j,k
       integer iobcs
-c     integer biwrk,bjwrk
-      integer iproc, jproc
       integer iwrk, jwrk, kwrk
       integer iobcswrk
       integer irec, irecwrk
@@ -68,10 +66,8 @@ c     integer biwrk,bjwrk
       integer icomptest
       integer nobcsmax
       integer pastit
-
       _RL wetlocal
 
-      logical ltmp
 c     == end of interface ==
 
       jtlo = 1
@@ -114,7 +110,11 @@ c     biwrk     = 1
 
 c--   set max loop index for obcs multiplicities
       if ( ncvargrd(grdchkvarindex) .eq. 'm' ) then
+#ifdef ALLOW_OBCS_CONTROL
          nobcsmax = nobcs
+#else
+         print *, 'S/R grdchk_get_position: Ooops!'
+#endif
       else
          nobcsmax = 1
       endif

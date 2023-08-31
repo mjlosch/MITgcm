@@ -46,7 +46,10 @@ Parts of the :filelink:`seaice <pkg/seaice>` code can be enabled or disabled at
 compile time via CPP preprocessor flags. These options are set in
 :filelink:`SEAICE_OPTIONS.h <pkg/seaice/SEAICE_OPTIONS.h>`.
 :numref:`tab_phys_pkg_seaice_cpp` summarizes the most important ones. For more
-options see :filelink:`SEAICE_OPTIONS.h <pkg/seaice/SEAICE_OPTIONS.h>`.
+options see :filelink:`SEAICE_OPTIONS.h <pkg/seaice/SEAICE_OPTIONS.h>`. Note
+that defining :varlink:`SEAICE_BGRID_DYNAMICS` turns on legacy code and thus
+automatically undefines more recent features, see :filelink:`SEAICE_OPTIONS.h
+<pkg/seaice/SEAICE_OPTIONS.h>` for details.
 
 .. tabularcolumns:: |\Y{.375}|\Y{.1}|\Y{.55}|
 
@@ -56,8 +59,7 @@ options see :filelink:`SEAICE_OPTIONS.h <pkg/seaice/SEAICE_OPTIONS.h>`.
    :name: tab_phys_pkg_seaice_cpp
 
    :varlink:`SEAICE_DEBUG`, #undef, enhance STDOUT for debugging
-   :varlink:`SEAICE_ALLOW_DYNAMICS`, #define, sea ice dynamics code
-   :varlink:`SEAICE_CGRID`, #define, LSR solver on C-grid (rather than original B-grid)
+   :varlink:`SEAICE_CGRID`, #define, use sea ice dynamics on C-grid
    :varlink:`SEAICE_ALLOW_EVP`, #define, enable use of EVP rheology solver
    :varlink:`SEAICE_ALLOW_JFNK`, #define, enable use of JFNK rheology solver
    :varlink:`SEAICE_ALLOW_KRYLOV`, #define, enable use of Krylov rheology solver
@@ -66,16 +68,20 @@ options see :filelink:`SEAICE_OPTIONS.h <pkg/seaice/SEAICE_OPTIONS.h>`.
    :varlink:`SEAICE_ALLOW_MCE`, #undef, enable use of Mohr-Coulomb yield curve with elliptical plastic potential
    :varlink:`SEAICE_ALLOW_TD`, #undef, enable use of teardrop and parabolic Lens yield curves with normal flow rules
    :varlink:`SEAICE_LSR_ZEBRA`, #undef, use a coloring method for LSR solver
+   :varlink:`SEAICE_ALLOW_FREEDRIFT`, #undef, enable solve approximate sea ice momentum equation and bypass solving for sea ice internal stress
    :varlink:`SEAICE_EXTERNAL_FLUXES`, #define, use :filelink:`pkg/exf`-computed fluxes as starting point
    :varlink:`SEAICE_ZETA_SMOOTHREG`, #define, use differentiable regularization for viscosities
    :varlink:`SEAICE_DELTA_SMOOTHREG`, #undef, use differentiable regularization for :math:`1/\Delta`
    :varlink:`SEAICE_ALLOW_BOTTOMDRAG`, #undef, enable grounding parameterization for improved fastice in shallow seas
+   :varlink:`SEAICE_BGRID_DYNAMICS`, #undef, use sea ice dynamics code on legacy B-grid; most of the previous flags are not available with B-grid
+   :varlink:`SEAICE_BICE_STRESS`, #undef, B-grid only for backward compatiblity: turn on ice-stress on ocean; defined by default if :varlink:`SEAICE_BGRID_DYNAMICS` is defined
+   :varlink:`EXPLICIT_SSH_SLOPE`, #undef, B-grid only for backward compatiblity: use ETAN for tilt computations rather than geostrophic velocities; defined by default if :varlink:`SEAICE_BGRID_DYNAMICS` is defined
+   :varlink:`SEAICE_LSRBNEW`, #undef, FV discretization for B-grid
    :varlink:`SEAICE_ITD`, #undef, run with dynamical sea Ice Thickness Distribution (ITD)
    :varlink:`SEAICE_VARIABLE_SALINITY`, #undef, enable sea ice with variable salinity
    :varlink:`SEAICE_CAP_ICELOAD`, #undef, enable to limit seaice load (:varlink:`siceLoad`) on the sea surface
    :varlink:`ALLOW_SITRACER`, #undef, enable sea ice tracer package
-   :varlink:`SEAICE_BICE_STRESS`, #undef, B-grid only for backward compatiblity: turn on ice-stress on ocean
-   :varlink:`EXPLICIT_SSH_SLOPE`, #undef, B-grid only for backward compatiblity: use ETAN for tilt computations rather than geostrophic velocities
+   :varlink:`SEAICE_USE_GROWTH_ADX`, #undef, use of adjointable but more simplified sea ice thermodynamics model in :filelink:`seaice_growth_adx.F <pkg/seaice/seaice_growth_adx.F>` instead of :filelink:`seaice_growth.F <pkg/seaice/seaice_growth.F>`
 
 .. _ssub_phys_pkg_seaice_runtime:
 
@@ -83,7 +89,7 @@ Run-time parameters
 ===================
 
 Run-time parameters (see :numref:`tab_phys_pkg_seaice_runtimeparms`) are set in
-`data.seaice` (read in :filelink:`pkg/seaice/seaice_readparms.F`).
+``data.seaice`` (read in :filelink:`pkg/seaice/seaice_readparms.F`).
 
 Enabling the package
 --------------------
@@ -127,6 +133,8 @@ General flags and parameters
   +------------------------------------+------------------------------+-------------------------------------------------------------------------+
   | :varlink:`SEAICEuseEVPpickup`      |     TRUE                     | use EVP pickups                                                         |
   +------------------------------------+------------------------------+-------------------------------------------------------------------------+
+  | :varlink:`SEAICEuseFREEDRIFT`      |     FALSE                    | solve approximate momentum equation, bypassing rheology                 |
+  +------------------------------------+------------------------------+-------------------------------------------------------------------------+
   | :varlink:`SEAICEuseFluxForm`       |     TRUE                     | use flux form for 2nd central difference advection scheme               |
   +------------------------------------+------------------------------+-------------------------------------------------------------------------+
   | :varlink:`SEAICErestoreUnderIce`   |     FALSE                    | enable restoring to climatology under ice                               |
@@ -152,6 +160,9 @@ General flags and parameters
   | :varlink:`SEAICEadvScheme`         | 77                           | set advection scheme for seaice scalar state variables                  |
   +------------------------------------+------------------------------+-------------------------------------------------------------------------+
   | :varlink:`SEAICEuseFlooding`       | TRUE                         | use flood-freeze algorithm                                              |
+  +------------------------------------+------------------------------+-------------------------------------------------------------------------+
+  | :varlink:`SINegFac`                | 1.0                          | over/undershoot factor for seaice advective term in forward/adjoint     |
+  |                                    |                              | (SEAICE_USE_GROWTH_ADX only)                                            |
   +------------------------------------+------------------------------+-------------------------------------------------------------------------+
   | :varlink:`SEAICE_no_slip`          | FALSE                        | use no-slip boundary conditions instead of free-slip                    |
   +------------------------------------+------------------------------+-------------------------------------------------------------------------+
@@ -196,6 +207,10 @@ General flags and parameters
   | :varlink:`SEAICElinearIterMax`     | 1500/10                      | maximum number of linear iterations (LSR/JFNK)                          |
   +------------------------------------+------------------------------+-------------------------------------------------------------------------+
   | :varlink:`SEAICE_JFNK_lsIter`      | (off)                        | start line search after “lsIter” Newton iterations                      |
+  +------------------------------------+------------------------------+-------------------------------------------------------------------------+
+  | :varlink:`SEAICE_JFNK_lsLmax`      | 4                            | maximum number of line search steps                                     |
+  +------------------------------------+------------------------------+-------------------------------------------------------------------------+
+  | :varlink:`SEAICE_JFNK_lsGamma`     | 0.5                          | line search step size parameter                                         |
   +------------------------------------+------------------------------+-------------------------------------------------------------------------+
   | :varlink:`SEAICEnonLinTol`         | 1.0E-05                      | non-linear tolerance parameter for JFNK solver                          |
   +------------------------------------+------------------------------+-------------------------------------------------------------------------+
@@ -418,15 +433,27 @@ line successive over relaxation (LSOR) method of Zhang and Hibler (1997)
 :cite:`zhang:97` for use in a parallel configuration. An EVP model and a
 free-drift implementation can be selected with run-time flags.
 
+:filelink:`pkg/seaice` includes the original so-called zero-layer
+thermodynamics with a snow cover as in the appendix of Semtner (1976)
+:cite:`semtner:76`.  Two versions of this zero-layer thermodynamic code exist,
+with a more developed version :filelink:`seaice_growth.F
+<pkg/seaice/seaice_growth.F>` and a simplified version
+:filelink:`seaice_growth_adx.F <pkg/seaice/seaice_growth_adx.F>` based on
+Fenty (2013) :cite:`fenty:13` that excludes physics such as ITD, treatment for
+sublimation, and frazil ice but provides a stable sea ice adjointable with
+physical sensitivity.  When the seaice_growth_adx code is enabled (by defining
+:varlink:`SEAICE_USE_GROWTH_ADX` in :filelink:`SEAICE_OPTIONS.h
+<pkg/seaice/SEAICE_OPTIONS.h>`), the regularization parameter
+:varlink:`SINegFac` is set to zero in adjoint mode to disable the potential
+propagation of unphysical terms associated with sea ice dynamics.
+
 
 .. _para_phys_pkg_seaice_thsice:
 
 Compatibility with ice-thermodynamics package :filelink:`pkg/thsice`
 --------------------------------------------------------------------
 
-By default :filelink:`pkg/seaice` includes the original so-called zero-layer
-thermodynamics with a snow cover as in the appendix of Semtner (1976)
-:cite:`semtner:76`. The zero-layer thermodynamic model assumes that ice does
+The zero-layer thermodynamic model assumes that ice does
 not store heat and, therefore, tends to exaggerate the seasonal variability in
 ice thickness. This exaggeration can be significantly reduced by using Winton's
 (Winton 2000 :cite:`winton:00`) three-layer thermodynamic model that permits
@@ -461,23 +488,22 @@ sea-ice model is global: in ice-free regions bulk formulae (by default computed
 in package :filelink:`exf <pkg/exf>`) are used to estimate oceanic forcing from
 the atmospheric fields.
 
-.. _para_phys_pkg_seaice_dynamics:
+.. _ssub_phys_pkg_seaice_dynamics:
 
 Dynamics
---------
-
+========
 
 The momentum equation of the sea-ice model is
 
 .. math::
-   m \frac{D\mathbf{u}}{Dt} = -mf\mathbf{k}\times\mathbf{u} +
+   m \frac{D\mathbf{u}}{Dt} = -mf\hat{\mathbf{k}}\times\mathbf{u} +
    \mathbf{\tau}_\mathrm{air} + \mathbf{\tau}_\mathrm{ocean}
    - m \nabla{\phi(0)} + \mathbf{F}
    :label: eq_momseaice
 
 where :math:`m=m_{i}+m_{s}` is the ice and snow mass per unit area;
-:math:`\mathbf{u}=u\mathbf{i}+v\mathbf{j}` is the ice velocity vector;
-:math:`\mathbf{i}`, :math:`\mathbf{j}`, and :math:`\mathbf{k}` are unit vectors
+:math:`\mathbf{u}=u\hat{\mathbf{i}}+v\hat{\mathbf{j}}` is the ice velocity vector;
+:math:`\hat{\mathbf{i}}`, :math:`\hat{\mathbf{j}}`, and :math:`\hat{\mathbf{k}}` are unit vectors
 in the :math:`x`, :math:`y`, and :math:`z` directions, respectively; :math:`f`
 is the Coriolis parameter; :math:`\mathbf{\tau}_\mathrm{air}` and
 :math:`\mathbf{\tau}_\mathrm{ocean}` are the wind-ice and ocean-ice stresses,
@@ -486,7 +512,7 @@ gradient (or tilt) of the sea surface height; :math:`\phi(0) = g\eta +
 p_{a}/\rho_{0} + mg/\rho_{0}` is the sea surface height potential in response
 to ocean dynamics (:math:`g\eta`), to atmospheric pressure loading
 (:math:`p_{a}/\rho_{0}`, where :math:`\rho_{0}` is a reference density) and a
-term due to snow and ice loading ; and :math:`\mathbf{F}=\nabla\cdot\sigma` is
+term due to snow and ice loading ; and :math:`\mathbf{F}= \nabla  \cdot\sigma` is
 the divergence of the internal ice stress tensor :math:`\sigma_{ij}`.
 Advection of sea-ice momentum is neglected. The wind and ice-ocean stress terms
 are given by
@@ -549,14 +575,14 @@ the code) is the replacement pressure
     :label: eq_pressrepl
 
     P = (1-k_t)\,P_{\max} \left( (1 - f_{r})
-    + f_{r} \frac{\Delta}{\Delta_{reg}}  \right)
+    + f_{r} \frac{\Delta}{\Delta_{\rm reg}}  \right)
 
 where :math:`f_{r}` is run-time parameter :varlink:`SEAICEpressReplFac`
-(default = 1.0), and :math:`\Delta_{reg}` is a regularized form of
+(default = 1.0), and :math:`\Delta_{\rm reg}` is a regularized form of
 :math:`\Delta = \left[ \left(\dot{\epsilon}_{11}+\dot{\epsilon}_{22}\right)^2 +
 e^{-2}\left( \left(\dot{\epsilon}_{11}-\dot{\epsilon}_{22} \right)^2 +
 \dot{\epsilon}_{12}^2 \right) \right]^{\frac{1}{2}}`, for example
-:math:`\Delta_{reg} = \max(\Delta,\Delta_{\min})`.
+:math:`\Delta_{\rm reg} = \max(\Delta,\Delta_{\min})`.
 
 The tensile strength factor :math:`k_t` (run-time parameter
 :varlink:`SEAICE_tensilFac`) determines the ice tensile strength :math:`T =
@@ -874,13 +900,21 @@ with the Jacobian :math:`\mathbf{J}\equiv\mathbf{F}'`.  The root
    :label: eq_jfnklin
 
 for :math:`\delta\mathbf{x}^{k}`. The next (:math:`k`-th) estimate is given by
-:math:`\mathbf{x}^{k}=\mathbf{x}^{k-1}+a\,\delta\mathbf{x}^{k}`.  In order to
-avoid overshoots the factor :math:`a` is iteratively reduced in a line search
-(:math:`a=1, \frac{1}{2}, \frac{1}{4}, \frac{1}{8}, \ldots`) until
+:math:`\mathbf{x}^{k}=\mathbf{x}^{k-1}+(1-\gamma_{\mathrm{LS}})^{l}
+\,\delta\mathbf{x}^{k}`.
+
+By default :math:`l=0`, but in order to avoid overshoots, the step size factor
+:math:`(1-\gamma_{\mathrm{LS}})^{l}` with :math:`\gamma_{\mathrm{LS}}<1` can be
+iteratively reduced in a line search with :math:`l=0,1,2,\ldots` until
 :math:`\|\mathbf{F}(\mathbf{x}^k)\| < \|\mathbf{F}(\mathbf{x}^{k-1})\|`, where
-:math:`\|\cdot\|=\int\cdot\,dx^2` is the :math:`L_2`-norm. In practice, the
-line search is stopped at :math:`a=\frac{1}{8}`. The line search starts after
-:varlink:`SEAICE_JFNK_lsIter` nonlinear Newton iterations (off by default).
+:math:`\|\cdot\|=\int\cdot\,dx^2` is the :math:`L_2`-norm. The line search
+starts after :varlink:`SEAICE_JFNK_lsIter` nonlinear Newton iterations (off by
+default) to allow for full Newton steps at the beginning of the iteration. If
+the line search is turned on by setting :varlink:`SEAICE_JFNK_lsIter` to a
+non-negative value in ``data.seaice``, by default, the line search with
+:math:`\gamma_\mathrm{LS}=\frac{1}{2}` (runtime parameter
+:varlink:`SEAICE_JFNK_lsGamma`) is stopped after :math:`L_{\max}=4` (runtime
+parameter :varlink:`SEAICE_JFNK_lsLmax`) steps.
 
 Forming the Jacobian :math:`\mathbf{J}` explicitly is often avoided as “too
 error prone and time consuming”. Instead, Krylov methods only require the
@@ -1099,7 +1133,7 @@ written as:
 
 .. math::
    \mathbf{u}^{p+1}=\mathbf{u}^p+\frac{1}{\beta}
-   \Big(\frac{\Delta t}{m}\nabla \cdot{\bf \sigma}^{p+1}+
+   \Big(\frac{\Delta t}{m} \nabla  \cdot\boldsymbol{\sigma}^{p+1}+
    \frac{\Delta t}{m}\mathbf{R}^{p}+\mathbf{u}_n
      -\mathbf{u}^p\Big)
    :label: eq_evpstarmom
@@ -1368,10 +1402,10 @@ zeros. In analogy to :math:`(\epsilon_{12})^Z=0` on boundaries, we set
 :math:`\sigma_{21}^{Z}=0`, or equivalently :math:`\eta_{i,j}^{Z}=0`, on
 boundaries.
 
-.. _para_phys_pkg_seaice_thermodynamics:
+.. _ssub_phys_pkg_seaice_thermodynamics:
 
 Thermodynamics
---------------
+==============
 
 **NOTE: THIS SECTION IS STILL NOT COMPLETE**
 
@@ -1382,53 +1416,53 @@ heat capacity of ice is zero, and all internal heat sources so that the heat
 equation reduces to a constant conductive heat flux. This constant upward
 conductive heat flux together with a constant ice conductivity implies a linear
 temperature profile. The boundary conditions for the heat equations are: at the
-bottom of the ice :math:`T|_{bottom} = T_{fr}` (freezing point temperature of
-sea water), and at the surface: :math:`Q_{top} =
-\frac{\partial{T}}{\partial{z}} = (K/h)(T_{0}-T_{fr})`, where :math:`K` is the
-ice conductivity, :math:`h` the ice thickness, and :math:`T_{0}-T_{fr}` the
+bottom of the ice :math:`T|_{\rm bottom} = T_{\rm fr}` (freezing point temperature of
+sea water), and at the surface: :math:`Q_{\rm top} =
+\frac{\partial{T}}{\partial{z}} = (K/h)(T_{0}-T_{\rm fr})`, where :math:`K` is the
+ice conductivity, :math:`h` the ice thickness, and :math:`T_{0}-T_{\rm fr}` the
 difference between the ice surface temperature and the water temperature at the
 bottom of the ice (at the freezing point). The surface heat flux
-:math:`Q_{top}` is computed in a similar way to that of Parkinson and
+:math:`Q_{\rm top}` is computed in a similar way to that of Parkinson and
 Washington (1979) :cite:`parkinson:79` and Manabe et al. (1979)
 :cite:`manabe:79`. The resulting equation for surface temperature is
 
 .. math::
    \begin{aligned}
-   \frac{K}{h}(T_{0}-T_{fr}) &= Q_{SW\downarrow}(1-\mathrm{albedo}) \\
-   & + \epsilon Q_{LW\downarrow} - Q_{LW\uparrow}(T_{0}) \\
-   & + Q_{LH}(T_{0}) + Q_{SH}(T_{0}),
+   \frac{K}{h}(T_{0}-T_{\rm fr}) &= Q_{\rm SW\downarrow}(1-\mathrm{albedo}) \\
+   & + \epsilon Q_{\rm LW\downarrow} - Q_{\rm LW\uparrow}(T_{0}) \\
+   & + Q_{\rm LH}(T_{0}) + Q_{\rm SH}(T_{0}),
    \end{aligned}
    :label: eq_zerolayerheatbalance
 
 where :math:`\epsilon` is the emissivity of the surface (snow or ice),
-:math:`Q_{S/LW\downarrow}` the downwelling shortwave and longwave radiation to
-be prescribed, and :math:`Q_{LW\uparrow}=\epsilon\sigma_B T_{0}^4` the emitted
+:math:`Q_{\rm S/LW\downarrow}` the downwelling shortwave and longwave radiation to
+be prescribed, and :math:`Q_{\rm LW\uparrow}=\epsilon\sigma_B T_{0}^4` the emitted
 long wave radiation with the Stefan-Boltzmann constant :math:`\sigma_B`. With
 explicit expressions in :math:`T_0` for the turbulent fluxes of latent and
 sensible heat
 
 .. math::
    \begin{aligned}
-   Q_{LH} &= \rho_\mathrm{air} C_E (\Lambda_v + \Lambda_f)
+   Q_{\rm LH} &= \rho_\mathrm{air} C_E (\Lambda_v + \Lambda_f)
    |\mathbf{U}_\mathrm{air}|
    \left[ q_\mathrm{air} - q_\mathrm{sat}(T_0)\right] \\
-   Q_{SH} &= \rho_\mathrm{air} c_p C_E |\mathbf{U}_\mathrm{air}|
+   Q_{\rm SH} &= \rho_\mathrm{air} c_p C_E |\mathbf{U}_\mathrm{air}|
    \left[ T_\mathrm{10m} - T_{0} \right],
    \end{aligned}
 
-:eq:`eq_zerolayerheatbalance` can be solved for math:`T_0` with an iterative
-:Ralphson-Newton method, which usually converges very quickly in less that 10
-:iterations. In these equations, :math:`\rho_\mathrm{air}` is the air density
-:(parameter :varlink:`SEAICE_rhoAir`), math:`C_E` is the ice-ocean transfer
-:coefficient for sensible and latent heat (parameter :varlink:`SEAICE_dalton`),
+:eq:`eq_zerolayerheatbalance` can be solved for :math:`T_0` with an iterative
+Ralphson-Newton method, which usually converges very quickly in less that 10
+iterations. In these equations, :math:`\rho_\mathrm{air}` is the air density
+(parameter :varlink:`SEAICE_rhoAir`), :math:`C_E` is the ice-ocean transfer
+coefficient for sensible and latent heat (parameter :varlink:`SEAICE_dalton`),
 :math:`\Lambda_v` and :math:`\Lambda_f` are the latent heat of vaporization and
-:fusion, respectively (parameters :varlink:`SEAICE_lhEvap` and
-::varlink:`SEAICE_lhFusion`), and :math:`c_p` is the specific heat of air
-:(parameter :varlink:`SEAICE_cpAir`). For the latent heat :math:`Q_{LH}` a
-:choice can be made between the old polynomial expression for saturation
-:humidity :math:`q_\mathrm{sat}(T_0)` (by setting
-::varlink:`useMaykutSatVapPoly` to ``.TRUE.``) and the default exponential
-:relation approximation that is more accurate at low temperatures.
+fusion, respectively (parameters :varlink:`SEAICE_lhEvap` and
+:varlink:`SEAICE_lhFusion`), and :math:`c_p` is the specific heat of air
+(parameter :varlink:`SEAICE_cpAir`). For the latent heat :math:`Q_{\rm LH}` a
+choice can be made between the old polynomial expression for saturation
+humidity :math:`q_\mathrm{sat}(T_0)` (by setting
+:varlink:`useMaykutSatVapPoly` to ``.TRUE.``) and the default exponential
+relation approximation that is more accurate at low temperatures.
 
 In the zero-layer model of Semtner (1976) :cite:`semtner:76`, the conductive
 heat flux depends strongly on the ice thickness :math:`h`. However, the ice
@@ -1457,7 +1491,7 @@ al. 2014 :cite:`castro-morales:14`).
 The atmospheric heat flux is balanced by an oceanic heat flux from below. The
 oceanic flux is proportional to :math:`\rho\,c_{p}\left(T_{w}-T_{fr}\right)`
 where :math:`\rho` and :math:`c_{p}` are the density and heat capacity of sea
-water and :math:`T_{fr}` is the local freezing point temperature that is a
+water and :math:`T_{\rm fr}` is the local freezing point temperature that is a
 function of salinity. This flux is not assumed to instantaneously melt or
 create ice, but a time scale of three days (run-time parameter
 :varlink:`SEAICE_gamma_t`) is used to relax :math:`T_{w}` to the freezing
@@ -1485,17 +1519,17 @@ parameter :varlink:`SEAICEuseFlooding` set to ``.TRUE.``.
 Advection of thermodynamic variables
 ------------------------------------
 
-Effective ice thickness (ice volume per unit area, :math:`c\cdot{h}`),
-concentration :math:`c` and effective snow thickness (:math:`c\cdot{h}_{s}`)
+Effective ice thickness (ice volume per unit area, :math:`c h`),
+concentration :math:`c` and effective snow thickness (:math:`c h_s`)
 are advected by ice velocities:
 
 .. math::
    \frac{\partial{X}}{\partial{t}} =
-	 - \nabla\cdot\left(\mathbf{u}\,X\right) + \Gamma_{X} + D_{X}
+	 -  \nabla  \cdot\left(\mathbf{u}\,X\right) + \Gamma_{X} + D_{X}
    :label: eq_advection
 
 where :math:`\Gamma_X` are the thermodynamic source terms and :math:`D_{X}` the
-diffusive terms for quantities :math:`X=(c\cdot{h}), c, (c\cdot{h}_{s})`. From
+diffusive terms for quantities :math:`X= c h, c, c h_s`. From
 the various advection schemes that are available in MITgcm, we recommend
 flux-limited schemes to preserve sharp gradients and edges that are typical of
 sea ice distributions and to rule out unphysical over- and undershoots
@@ -1555,7 +1589,7 @@ thickness :math:`h` following the evolution equation
 
 
 .. math::
-   \frac{\partial g}{\partial t} = - \nabla \cdot (\mathbf{u} g) - \frac{\partial}{\partial h}(fg) + \Psi.
+   \frac{\partial g}{\partial t} = -  \nabla  \cdot (\mathbf{u} g) - \frac{\partial}{\partial h}(fg) + \Psi.
    :label: eq_itd
 
 
@@ -1649,8 +1683,8 @@ to compute :varlink:`Hlimit`:
    H_\mathrm{limit}(k) = H_\mathrm{limit}(k-1) + \frac{c_1}{n}
    + \frac{c_1 c_2}{n} [ 1 + \tanh c_3 (\frac{k-1}{n} - 1) ]
 
-with :math:`H_\mathrm{limit}(0)=0\,\text{m}` and
-:math:`H_\mathrm{limit}(n)=999.9\,\text{m}`. The three constants are the
+with :math:`H_\mathrm{limit}(0)=0` m and
+:math:`H_\mathrm{limit}(n)=999.9` m. The three constants are the
 run-time parameters :varlink:`Hlimit_c1`, :varlink:`Hlimit_c2`, and
 :varlink:`Hlimit_c3`.  The total ice concentration and volume can then be
 calculated by summing up the values for each category.

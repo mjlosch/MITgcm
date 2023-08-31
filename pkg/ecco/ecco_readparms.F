@@ -3,7 +3,7 @@
 # include "CTRL_OPTIONS.h"
 #endif
 
-      subroutine ecco_readparms( myThid )
+      SUBROUTINE ECCO_READPARMS( myThid )
 
 c     ==================================================================
 c     SUBROUTINE ecco_readparms
@@ -25,13 +25,9 @@ c     == global variables ==
 #include "PARAMS.h"
 
 #ifdef ALLOW_ECCO
-# ifdef ECCO_CTRL_DEPRECATED
-#  include "ecco_cost.h"
-# else
-#  include "ECCO_SIZE.h"
-#  include "ECCO.h"
-#  include "ecco_local_params.h"
-# endif
+# include "ECCO_SIZE.h"
+# include "ECCO.h"
+# include "ecco_local_params.h"
 #endif
 #ifdef ALLOW_CTRL
 # include "CTRL_OBCS.h"
@@ -41,17 +37,17 @@ c     == global variables ==
 #endif
 
 c     == routine arguments ==
-      integer myThid
+      INTEGER myThid
 
 c     == external functions ==
-      integer  ilnblnk
-      external ilnblnk
+      INTEGER  ilnblnk
+      EXTERNAL ilnblnk
 
 c     == local variables ==
 C     msgBuf      - Informational/error message buffer
 C     iUnit       - Work variable for IO unit number
       CHARACTER*(MAX_LEN_MBUF) msgBuf
-      INTEGER k, k2, iUnit, num_file, num_var
+      INTEGER k, k2, iUnit
 #ifdef ALLOW_GENCOST_CONTRIBUTION
       INTEGER IL, kk, gencost_k3d, gencost_msk_k3d, ioUnit
       CHARACTER*(128) tempfile
@@ -60,9 +56,10 @@ C     iUnit       - Work variable for IO unit number
 #endif
 
 Catn-- retired parameters
-      CHARACTER*(MAX_LEN_FNAM) topexmeanfile
+      INTEGER nRetired
       CHARACTER*(2) cost_yftype
-      integer nRetired
+      CHARACTER*(MAX_LEN_FNAM) topexmeanfile
+      LOGICAL using_cost_bp, using_cost_scat
 
 c     == end of interface ==
 
@@ -203,6 +200,11 @@ c--   Read the namelist input.
      &         gencost_is1d,
      &         gencost_is3d,
      &         gencost_msk_is3d,
+     &         gencost_useDensityMask,
+     &         gencost_refPressure,
+     &         gencost_sigmaLow,
+     &         gencost_sigmaHigh,
+     &         gencost_tanhScale,
      &         gencost_timevaryweight,
      &         mult_gencost
 #endif /* ALLOW_GENCOST_CONTRIBUTION */
@@ -218,6 +220,7 @@ C     print a (weak) warning if data.ecco is found
       ENDIF
 
       _BEGIN_MASTER( myThid )
+      nRetired = 0
 
 c--     Set default values.
 
@@ -237,21 +240,10 @@ c run time switches for main cost terms
 c- set default to false
       using_cost_transp=.FALSE.
 
-#ifdef ALLOW_BP_COST_CONTRIBUTION
-      using_cost_bp=.TRUE.
-#else
-      using_cost_bp=.FALSE.
-#endif
 #ifdef ALLOW_SST_COST_CONTRIBUTION
       using_cost_sst=.TRUE.
 #else
       using_cost_sst=.FALSE.
-#endif
-#if (defined (ALLOW_SCAT_COST_CONTRIBUTION) || \
-     defined (ALLOW_DAILYSCAT_COST_CONTRIBUTION) )
-      using_cost_scat=.TRUE.
-#else
-      using_cost_scat=.FALSE.
 #endif
 
 c other run time parameters
@@ -381,8 +373,8 @@ catn  eccov4 will run without needing to read in these params
         kapredi_errfile       =    ' '
         diffkr_errfile        =    ' '
         do k=1,NUSERCOST
-         usercost_datafile(k)  =    ' '
-         usercost_errfile(k)   =    ' '
+         usercost_datafile(k) =    ' '
+         usercost_errfile(k)  =    ' '
         enddo
         do k=1,NSSHV4COST
          sshv4cost_scalefile(k) =    ' '
@@ -451,15 +443,15 @@ catn  eccov4 will run without needing to read in these params
 #endif
         mult_curmtr           =      0. _d 0
         mult_kapgm            =      0. _d 0
-        mult_kapredi            =      0. _d 0
+        mult_kapredi          =      0. _d 0
         mult_diffkr           =      0. _d 0
         mult_edtau            =      0. _d 0
         mult_bottomdrag       =      0. _d 0
         do k=1,NUSERCOST
-        mult_usercost(k)       =      0. _d 0
+         mult_usercost(k)     =      0. _d 0
         enddo
         do k=1,NSSHV4COST
-        mult_sshv4cost(k)       =      0. _d 0
+         mult_sshv4cost(k)    =      0. _d 0
         enddo
         mult_smooth_ic        =      0. _d 0
         mult_smooth_bc        =      0. _d 0
@@ -477,7 +469,7 @@ catn  eccov4 will run without needing to read in these params
         wwind0                =      0. _d 0
         wdiffkr0              =      1. _d 0
         wkapgm0               =      1. _d 0
-        wkapredi0               =      1. _d 0
+        wkapredi0             =      1. _d 0
         wedtau0               =      1. _d 0
         whflux0               =      0. _d 0
         wsflux0               =      0. _d 0
@@ -501,10 +493,11 @@ catn  eccov4 will run without needing to read in these params
         ecco_output_sterGloH  =      .FALSE.
         ecco_keepTSeriesOutp_open =  .FALSE.
 
-Catn-- retired parameters
-        topexmeanfile         =    ' '
-        cost_yftype           =   'RL'
-        nRetired              =      0
+C--   retired parameters
+        cost_yftype     =   'RL'
+        topexmeanfile   =    ' '
+        using_cost_bp   = .FALSE.
+        using_cost_scat = .FALSE.
 
 c--     Next, read the data.ecco file.
         WRITE(msgBuf,'(A)') 'ECCO_READPARMS: opening data.ecco'
@@ -524,12 +517,26 @@ c--     Next, read the data.ecco file.
      &                      SQUEEZE_RIGHT, myThid )
 
 C--   Check parameters:
-        IF ( cost_yftype.NE.'RL' ) THEN
-          STOP 'ABNORMAL END: S/R ECCO_READPARMS: invalid cost_yftype'
-        ENDIF
-Catn -- retired parameters
-      IF ( topexmeanfile .NE. ' ' ) THEN
+C-    retired parameters:
+      IF ( cost_yftype.NE.'RL' ) THEN
+       WRITE(msgBuf,'(2A)') 'S/R ECCO_READPARMS: ',
+     &  '"cost_yftype" is no longer allowed in file "data.ecco"'
+       CALL PRINT_ERROR( msgBuf, myThid )
        nRetired = nRetired + 1
+      ENDIF
+      IF ( using_cost_bp ) THEN
+       WRITE(msgBuf,'(2A)') 'S/R ECCO_READPARMS: ',
+     &  '"using_cost_bp" is no longer allowed in file "data.ecco"'
+       CALL PRINT_ERROR( msgBuf, myThid )
+       nRetired = nRetired + 1
+      ENDIF
+      IF ( using_cost_scat ) THEN
+       WRITE(msgBuf,'(2A)') 'S/R ECCO_READPARMS: ',
+     &  '"using_cost_scat" is no longer allowed in file "data.ecco"'
+       CALL PRINT_ERROR( msgBuf, myThid )
+       nRetired = nRetired + 1
+      ENDIF
+      IF ( topexmeanfile .NE. ' ' ) THEN
        WRITE(msgBuf,'(A,A)')
      &  'S/R ECCO_READPARMS: "topexmeanfile" ',
      &  'is no longer allowed in file "data.ecco"'
@@ -537,15 +544,16 @@ Catn -- retired parameters
        WRITE(msgBuf,'(A)')
      &  'S/R ECCO_READPARMS: set "mdtdatfile" instead'
        CALL PRINT_ERROR( msgBuf, myThid )
-       STOP 'ABNORMAL END: S/R ECCO_READPARMS'
+       nRetired = nRetired + 1
       ENDIF
       IF ( nRetired .GT. 0 ) THEN
        WRITE(msgBuf,'(2A)') 'S/R ECCO_READPARMS: ',
      &  'Error reading parameter file "data.ecco"'
        CALL PRINT_ERROR( msgBuf, myThid )
        WRITE(msgBuf,'(A)')
-     &  'some out of date parameters were found in the namelist'
+     &  'some out-of-date parameters were found in the namelist(s)'
        CALL PRINT_ERROR( msgBuf, myThid )
+       CALL ALL_PROC_DIE( 0 )
        STOP 'ABNORMAL END: S/R ECCO_READPARMS'
       ENDIF
 
@@ -611,6 +619,11 @@ c--   Set default values.
          mult_gencost(k)       = 1. _d 0
          gencost_is1d(k)       = .FALSE.
          gencost_is3d(k)       = .FALSE.
+         gencost_useDensityMask(k) = .FALSE.
+         gencost_refPressure(k) = 0. _d 0
+         gencost_sigmaLow(k)    = 0. _d 0
+         gencost_sigmaHigh(k)   = 1. _d 3
+         gencost_tanhScale(k)   = 1. _d 5
          gencost_pointer3d(k)  = 0
          gencost_msk_is3d(k)   = .FALSE.
          gencost_msk_pointer3d(k)  = 0
@@ -621,7 +634,7 @@ c boxmean/horflux masks
      &          1,zeroRL,myThid)
          call ecco_zero(gencost_mskSsurf(1-OLx,1-OLy,1,1,k),
      &          1,zeroRL,myThid)
-         do k2 = 1,nr
+         do k2 = 1,Nr
           gencost_mskVertical(k2,k)= 1. _d 0
          enddo
 c deprecated:

@@ -23,7 +23,7 @@ DEFINES='-DWORDLENGTH=4'
 F90FIXEDFORMAT='-fixed -Tf'
 EXTENDED_SRC_FLAG='-132'
 GET_FC_VERSION="--version"
-OMPFLAG='-openmp'
+OMPFLAG='-qopenmp'
 
 NOOPTFLAGS='-O0 -g'
 NOOPTFILES=''
@@ -68,7 +68,7 @@ else
    #FFLAGS="$FFLAGS -debug all -debug-parameters all -fp-model strict"
     FOPTIM="-O0 -noalign -g -traceback $PROCF"
     NOOPTFLAGS=$FOPTIM
-    NOOPTFILES='adread_adwrite.F mdsio_rw_field.F mdsio_rw_slice.F'
+    NOOPTFILES='adread_adwrite.F'
     FOPTIM="$FOPTIM -warn all -warn nounused"
     FOPTIM="$FOPTIM -fpe0 -ftz -fp-stack-check -check all -ftrapuv"
   fi

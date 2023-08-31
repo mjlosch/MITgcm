@@ -54,9 +54,8 @@ c we may need these for the checkpointing
       use g_cost_mod
       use ctrl_mod
       use ctrl_dummy_mod
-      use ctrl_weights_mod
       use optim_mod
-      use grdchk_mod
+      use GRDCHK_mod
 
 !$TEMPLATE_PRAGMA_DECLARATIONS
       integer, save :: currcp, curradjointcp

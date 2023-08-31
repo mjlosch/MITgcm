@@ -31,12 +31,8 @@ C     and since pkg/ctrl can be used without pkg/ecco, better to have it here
 #undef ECCO_CTRL_DEPRECATED
 
 #undef EXCLUDE_CTRL_PACK
-#define ALLOW_NONDIMENSIONAL_CONTROL_IO
-C     This is necessary for this experiment, because something about
-C     reading the weights in ctrl_pack/unpack (turned on by the
-C     ALLOW_NONDIMENSIONAL_CONTROL_IO flag) is fishy in the default
-C     method.
-#define ALLOW_PACKUNPACK_METHOD2
+#undef ALLOW_NONDIMENSIONAL_CONTROL_IO
+#undef ALLOW_PACKUNPACK_METHOD2
 
 C       >>> Initial values.
 #undef ALLOW_THETA0_CONTROL
@@ -80,13 +76,6 @@ C       >>> Generic Control.
 #undef ALLOW_GENARR2D_CONTROL
 #undef ALLOW_GENARR3D_CONTROL
 #define ALLOW_GENTIM2D_CONTROL
-
-C  o  store and read value of fmin in control vector file
-C     This flag does not have a good name, because it is only used in
-C     ctrl_pack/unpack.F (and unnecessarily in the_main_loop.F). Because
-C     it is only used in, ctrl_pack/unpack.F it must be defined in this
-C     header file.
-#define ALLOW_ECCO_OPTIMIZATION
 
 C  o Rotation of wind/stress controls adjustments
 C    from Eastward/Northward to model grid directions

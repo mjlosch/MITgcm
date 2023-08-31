@@ -120,14 +120,15 @@ C-    On/Off flags for viscosity coefficients
       useHarmonicVisc   = momViscosity .AND. useHarmonicVisc
       useBiharmonicVisc = momViscosity .AND. useBiharmonicVisc
 #endif /* ALLOW_MOM_COMMON */
-      IF ( bottomDragQuadratic.EQ.0. .OR. .NOT.momViscosity )
-     &  selectBotDragQuadr = -1
+      IF ( ( bottomDragQuadratic.EQ.0. .AND. zRoughBot.EQ.0. )
+     &     .OR. .NOT.momViscosity ) selectBotDragQuadr = -1
 
 C--   Free-surface & pressure method
       uniformFreeSurfLev = usingZCoords
 C- Note: comment line below to revert to full-cell hydrostatic-pressure
 C        calculation in surface grid-cell below ice-shelf
       uniformFreeSurfLev = usingZCoords .AND. .NOT.useShelfIce
+     &                                  .AND. topoFile.EQ.' '
       IF ( selectNHfreeSurf.NE.0 .AND.
      &      ( .NOT.nonHydrostatic .OR. usingPCoords
      &        .OR. .NOT.exactConserv
@@ -158,6 +159,7 @@ C--   Set default Vorticity-Term Scheme:
         CALL PRINT_MESSAGE( msgBuf, errorMessageUnit,
      &                      SQUEEZE_RIGHT, myThid )
       ENDIF
+      useAbsVorticity = vectorInvariantMomentum .AND. useAbsVorticity
 C--   Momentum viscosity on/off flag.
       IF ( momViscosity        ) THEN
        vfFacMom = 1. _d 0

@@ -90,20 +90,16 @@ C     using_ers :: flag that indicates the use of ERS data
      &                         using_ers,
      &                         using_gfo,
      &                         using_cost_altim,
-     &                         using_cost_bp,
      &                         using_cost_sst,
-     &                         using_cost_scat,
-     &                         using_cost_seaice
-     &                        ,using_cost_transp
+     &                         using_cost_seaice,
+     &                         using_cost_transp
       LOGICAL using_mdt
       LOGICAL using_tpj
       LOGICAL using_topex
       LOGICAL using_ers
       LOGICAL using_gfo
       LOGICAL using_cost_altim
-      LOGICAL using_cost_bp
       LOGICAL using_cost_sst
-      LOGICAL using_cost_scat
       LOGICAL using_cost_seaice
       LOGICAL using_cost_transp
 
@@ -126,45 +122,37 @@ C                 the current model integration.
       INTEGER ndaysrec
 
       COMMON /ECCO_R/
-     &                    m_eta,m_UE,m_VN,
-     &                    m_bp,
-#ifdef ALLOW_PSBAR_STERIC
-     &                    sterGloH,
-#endif
-#ifdef ATMOSPHERIC_LOADING
-#ifdef ALLOW_IB_CORR
-     &                    ploadbar,
-     &                    AREAsumGlob, PLOADsumGlob,
-     &                    m_bp_nopabar,
-     &                    m_eta_dyn, m_eta_ib,
-#endif
-#endif
+     &                    m_eta, m_UE, m_VN, m_bp,
      &                    trVol, trHeat, trSalt,
-     &                    VOLsumGlob_0, VOLsumGlob,
-     &                    RHOsumGlob_0, RHOsumGlob,
-     &                    frame, cosphi, eccoVol_0
-      _RL VOLsumGlob_0, VOLsumGlob, RHOsumGlob_0, RHOsumGlob
-      _RL frame   (1-OLx:sNx+OLx,1-OLy:sNy+OLy           )
-      _RL cosphi  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
-      _RL m_eta(1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
-      _RL m_bp(1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
+     &                    eccoVol_0, frame
+      _RL m_eta    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
+      _RL m_UE     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL m_VN     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL m_bp     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
+      _RL trVol    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL trHeat   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL trSalt   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL eccoVol_0(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL frame    (1-OLx:sNx+OLx,1-OLy:sNy+OLy           )
+
 #ifdef ALLOW_PSBAR_STERIC
+      COMMON /ECCO_R2/
+     &                    sterGloH,
+     &                    VOLsumGlob_0, VOLsumGlob,
+     &                    RHOsumGlob_0, RHOsumGlob
       _RL sterGloH
+      _RL VOLsumGlob_0, VOLsumGlob, RHOsumGlob_0, RHOsumGlob
 #endif
+
 #ifdef ATMOSPHERIC_LOADING
 #ifdef ALLOW_IB_CORR
-      _RL ploadbar, AREAsumGlob, PLOADsumGlob
+      COMMON /ECCO_R3/
+     &                    m_bp_nopabar,
+     &                    m_eta_dyn
       _RL m_bp_nopabar(1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
-      _RL m_eta_dyn(1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
-      _RL m_eta_ib(1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
+      _RL m_eta_dyn   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,   nSx,nSy)
 #endif
 #endif
-      _RL m_UE (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nr,nSx,nSy)
-      _RL m_VN (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nr,nSx,nSy)
-      _RL trVol(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
-      _RL trHeat(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
-      _RL trSalt(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
-      _RL eccoVol_0(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
 
 C     Two runtime parameters related to outputting sterGloH
 C     ecco_output_sterGloH :: output sterGloH at each time step if true
@@ -223,6 +211,8 @@ C     objf_gencost :: gencost user defined contribution
      &       gencost_bar3d, gencost_mod3d, gencost_wei3d,
      &       gencost_mskC, gencost_mskW, gencost_mskS,
 #endif
+     &       gencost_refPressure, gencost_sigmaLow, gencost_sigmaHigh,
+     &       gencost_tanhScale,
      &       gencost_spmin, gencost_spmax, gencost_spzero,
      &       gencost_period, gencost_preproc_r, gencost_posproc_r,
      &       gencost_wei1d, gencost_1ddata
@@ -248,20 +238,24 @@ C     objf_gencost :: gencost user defined contribution
      &       nSx,nSy,NGENCOST)
       _RL  gencost_mskSsurf(1-OLx:sNx+OLx,1-OLy:sNy+OLy,
      &       nSx,nSy,NGENCOST)
-      _RL  gencost_mskVertical(nr,NGENCOST)
+      _RL  gencost_mskVertical(Nr,NGENCOST)
+      _RL  gencost_sigmaLow(NGENCOST)
+      _RL  gencost_sigmaHigh(NGENCOST)
+      _RL  gencost_refPressure(NGENCOST)
+      _RL  gencost_tanhScale(NGENCOST)
 #ifdef ALLOW_GENCOST3D
       _RL  gencost_bar3d(1-OLx:sNx+OLx,1-OLy:sNy+OLy,
-     &       nr,nSx,nSy,NGENCOST3D)
+     &       Nr,nSx,nSy,NGENCOST3D)
       _RL  gencost_mod3d(1-OLx:sNx+OLx,1-OLy:sNy+OLy,
-     &       nr,nSx,nSy,NGENCOST3D)
+     &       Nr,nSx,nSy,NGENCOST3D)
       _RL  gencost_wei3d(1-OLx:sNx+OLx,1-OLy:sNy+OLy,
-     &       nr,nSx,nSy,NGENCOST3D)
+     &       Nr,nSx,nSy,NGENCOST3D)
       _RL  gencost_mskC(1-OLx:sNx+OLx,1-OLy:sNy+OLy,
-     &       nr,nSx,nSy,NGENCOST3D)
+     &       Nr,nSx,nSy,NGENCOST3D)
       _RL  gencost_mskW(1-OLx:sNx+OLx,1-OLy:sNy+OLy,
-     &       nr,nSx,nSy,NGENCOST3D)
+     &       Nr,nSx,nSy,NGENCOST3D)
       _RL  gencost_mskS(1-OLx:sNx+OLx,1-OLy:sNy+OLy,
-     &       nr,nSx,nSy,NGENCOST3D)
+     &       Nr,nSx,nSy,NGENCOST3D)
 #endif
       _RL gencost_preproc_r(NGENPPROC,NGENCOST)
       _RL gencost_posproc_r(NGENPPROC,NGENCOST)
@@ -304,11 +298,12 @@ C                            Note: currently only used in drifter velocity cost
       COMMON /ECCO_GENCOST_L_1/
      &       gencost_timevaryweight, gencost_barskip,
      &       using_gencost, gencost_is3d, gencost_msk_is3d,
-     &       gencost_is1d
+     &       gencost_is1d, gencost_useDensityMask
       LOGICAL using_gencost(NGENCOST)
       LOGICAL gencost_is3d(NGENCOST)
       LOGICAL gencost_is1d(NGENCOST)
       LOGICAL gencost_msk_is3d(NGENCOST)
+      LOGICAL gencost_useDensityMask(NGENCOST)
       LOGICAL gencost_timevaryweight(NGENCOST)
       LOGICAL gencost_barskip(NGENCOST)
 

@@ -136,6 +136,7 @@ C-    viscosity and diffusivity default value:
       sideDragFactor      = 2. _d 0
       bottomDragLinear    = 0.
       bottomDragQuadratic = 0.
+      zRoughBot           = 0. _d 0
       selectBotDragQuadr  = -1
       viscA4              = 0. _d 11
       viscA4Grid          = 0. _d 0
@@ -264,7 +265,7 @@ C--   Set (free)surface-related parameters
       salt_EvPrRn = 0.
       temp_addMass = UNSET_RL
       salt_addMass = UNSET_RL
-      balanceEmPmR        = .FALSE.
+      selectBalanceEmPmR  = UNSET_I
       balanceQnet         = .FALSE.
       balancePrintMean    = .FALSE.
       balanceThetaClimRelax = .FALSE.
@@ -393,6 +394,7 @@ C--   Input files
       geothermalFile  = ' '
       lambdaThetaFile = ' '
       lambdaSaltFile  = ' '
+      wghtBalanceFile = ' '
       mdsioLocalDir   = ' '
       adTapeDir       = ' '
       the_run_name    = ' '
