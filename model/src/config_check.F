@@ -277,7 +277,21 @@ C     QGLeith code has not been compiled.
         CALL PRINT_ERROR( msgBuf, myThid )
         errCount = errCount + 1
       ENDIF
-#endif
+# ifndef DISABLE_SIGMA_CODE
+      IF ( selectSigmaCoord.NE.0 ) THEN
+        WRITE(msgBuf,'(A)')
+     &   'CONFIG_CHECK: Sigma code does not work with ALLOW_AUTODIFF'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        WRITE(msgBuf,'(A)')
+     &   'CONFIG_CHECK: ==> set #define DISABLE_SIGMA_CODE'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        WRITE(msgBuf,'(A)')
+     &   'CONFIG_CHECK: ==> or at least selectSigmaCoord = 0'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        errCount = errCount + 1
+      ENDIF
+# endif
+#endif /* ALLOW_AUTODIFF */
 
 #ifdef ALLOW_DEPTH_CONTROL
       IF ( useOBCS ) THEN
