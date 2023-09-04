@@ -463,38 +463,38 @@ C--   Remesh shelfice
 C--   Reset geometric factors (hFacC,W,S & recip_hFac) to their current values:
 C     added to simplify adjoint derivation - no effect in forward run
 #ifdef NONLIN_FRSURF
-#ifndef ALLOW_AUTODIFF
+# ifndef ALLOW_AUTODIFF
       IF ( doResetHFactors ) THEN
-#endif
+# endif
        CALL RESET_NLFS_VARS( myTime, myIter, myThid )
        IF ( select_rStar.GT.0 ) THEN
 # ifndef DISABLE_RSTAR_CODE
-# ifdef ALLOW_AUTODIFF_TAMC
+#  ifdef ALLOW_AUTODIFF_TAMC
 CADJ STORE rStarFacC, rStarFacS, rStarFacW =
 CADJ &     comlev1, key = ikey_dynamics, kind = isbyte
-# endif
+#  endif
         CALL TIMER_START('UPDATE_R_STAR       [FORWARD_STEP]',myThid)
         CALL UPDATE_R_STAR( .FALSE., myTime, myIter, myThid )
         CALL TIMER_STOP ('UPDATE_R_STAR       [FORWARD_STEP]',myThid)
 # endif /* DISABLE_RSTAR_CODE */
        ELSE
-#ifdef ALLOW_AUTODIFF_TAMC
+# ifdef ALLOW_AUTODIFF_TAMC
 CADJ STORE hFac_surfC, hFac_surfS, hFac_surfW
 CADJ &     = comlev1, key = ikey_dynamics, kind = isbyte
-#endif
+# endif
         CALL TIMER_START('UPDATE_SURF_DR      [FORWARD_STEP]',myThid)
         CALL UPDATE_SURF_DR( .FALSE., myTime, myIter, myThid )
         CALL TIMER_STOP ('UPDATE_SURF_DR      [FORWARD_STEP]',myThid)
        ENDIF
-#ifdef ALLOW_AUTODIFF_TAMC
+# ifdef ALLOW_AUTODIFF_TAMC
 CADJ STORE hFacC, hFacS, hFacW =
 CADJ &     comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE recip_hFacC, recip_hFacS, recip_hFacW  =
 CADJ &     comlev1, key = ikey_dynamics, kind = isbyte
-#endif
-#ifndef ALLOW_AUTODIFF
+# endif
+# ifndef ALLOW_AUTODIFF
       ENDIF
-#endif
+# endif
 #endif /* NONLIN_FRSURF */
 
 #ifdef ALLOW_PTRACERS
@@ -781,6 +781,9 @@ CADJ &     = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE recip_hFacC, recip_hFacS, recip_hFacW
 CADJ &     = comlev1, key = ikey_dynamics, kind = isbyte
 # endif /* ALLOW_DEPTH_CONTROL */
+# ifndef DISABLE_SIGMA_CODE
+CADJ STORE dEtaSdt, dEtaWdt = comlev1, key = ikey_dynamics, kind=isbyte
+# endif
 #endif /* ALLOW_AUTODIFF_TAMC */
 
 C--   Step forward fields and calculate time tendency terms.
@@ -831,6 +834,9 @@ C     Load new Offline fields and update state-variable
 
 C--   Update geometric factors:
 #ifdef NONLIN_FRSURF
+# ifndef DISABLE_SIGMA_CODE
+CADJ STORE etaHs, etaHw = comlev1, key = ikey_dynamics, kind = isbyte
+# endif
 C-    update hfacC,W,S and recip_hFac according to etaH(n+1) :
       IF ( select_rStar.GT.0 ) THEN
 # ifndef DISABLE_RSTAR_CODE
@@ -964,6 +970,12 @@ C--   These store directives avoid an (expensive) extra
 C     "call solve_for_pressure" in forward_step_ad
 CADJ STORE wVel = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE etaN = comlev1, key = ikey_dynamics, kind = isbyte
+# ifndef DISABLE_SIGMA_CODE
+CADJ STORE dEtaHdt = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE dEtaSdt = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE dEtaWdt = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE etaHs, etaHw = comlev1, key = ikey_dynamics, kind = isbyte
+# endif
 #endif
 
 #ifdef NONLIN_FRSURF

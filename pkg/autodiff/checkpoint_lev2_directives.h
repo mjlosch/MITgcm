@@ -91,6 +91,11 @@ CADJ &     = tapelev2, key = ilev_2
 #  endif
 # endif
 
+# ifndef DISABLE_SIGMA_CODE
+CADJ STORE dEtaSdt, dEtaWdt = tapelev2, key = ilev_2
+CADJ STORE   etaHs,   etaHw = tapelev2, key = ilev_2
+# endif
+
 #endif /* NONLIN_FRSURF */
 
 #if (defined ALLOW_CG2D_NSA || defined NONLIN_FRSURF || \

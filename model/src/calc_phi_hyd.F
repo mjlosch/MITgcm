@@ -614,8 +614,10 @@ CADJ STORE alphaRho = comlev1_bibj_k, key = kkey, kind = isbyte
 CADJ STORE phiHydC  = comlev1_bibj_k, key = kkey, kind = isbyte
 CADJ STORE phiHydF  = comlev1_bibj_k, key = kkey, kind = isbyte
 # endif
+# ifndef DISABLE_SIGMA_CODE
+CADJ STORE phiHydU  = comlev1_bibj_k, key=kkey, kind=isbyte
+# endif
 #endif
-
       IF ( .NOT. useFVgradPhi ) THEN
 C--   r-coordinate and r*-coordinate cases:
 
