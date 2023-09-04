@@ -9,9 +9,10 @@
  useDOWN_SLOPE      = .FALSE.,
  useOBCS            = .TRUE.,
  useDiagnostics     = .TRUE.,
- useAUTODIFF        = .FALSE.,
+ useAUTODIFF        = .TRUE.,
+ useCTRL            = .TRUE.,
+#useCOST            = .TRUE.,
  useECCO            = .FALSE.,
- useCTRL            = .FALSE.,
  useProfiles        = .FALSE.,
  useSMOOTH          = .FALSE.,
  &

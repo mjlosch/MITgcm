@@ -10,6 +10,8 @@
  GGL90TKEbottom = 4.e-6,
  GGL90TKEsurfMin= 1.e-4,
 #calcMeanVertShear = .TRUE.,
+#mxlMaxFlag = 2 is the perferred setting but does not work with adjoint
+# so we use this:
  mxlMaxFlag = 1,
  mxlSurfFlag=.TRUE.,
  GGL90viscMax=1.e2,
