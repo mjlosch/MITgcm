@@ -10,8 +10,7 @@
 - adrun01: 10year integration with mxlMaxFlag = 3 (works also in AD)
            with full JRA55 data (too slow)
 - adrun02: 10year integration with mxlMaxFlag = 1 and coarse JRA55 data
-- adrun03: like adrun02 with useGGL90inAdMode = .FALSE. (obsolete, can
-  be removed)
-- adrun04: very similar to adrun03, can be deleted
+- adrun03: like adrun02 with mxlMaxFlag = 2
+- adrun04: like adrun02 with mxlMaxFlag = 3
 - adrun05: performance test for disk access, uses mxlMaxFlag = 1
 - adrun05a: same as adrun05, use 40 instead of 20 cpu
