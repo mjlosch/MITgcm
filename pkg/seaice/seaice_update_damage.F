@@ -318,8 +318,6 @@ c        ENDIF
       ENDDO
 C      CALL EXCH_Z_3D_RL( damageZ, 1, myThid )
 C      CALL EXCH_Z_3D_RL( dCritZ, 1, myThid )
-C
-# endif /* SEAICE_ALLOW_DAMAGE */
 
       RETURN
       END
@@ -875,7 +873,7 @@ C Option DoubleParameters
       ENDIF
 
 # endif /* SEAICE_ALLOW_MEB */
-#endif /* SEAICE_ALLOW_DYNAMICS and SEAICE_CGRID */
+c#endif /* SEAICE_ALLOW_DYNAMICS and SEAICE_CGRID */
       RETURN
       END
 CBOP
@@ -957,6 +955,8 @@ C     &       (1. _d 0 - wght)*seaice_sigma12C(I,J,bi,bj)
 C     &       + wght * fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj)
 C       ENDDO
 C      ENDDO
+# endif /* SEAICE_ALLOW_DAMAGE */
+#endif /* SEAICE_ALLOW_DYNAMICS and SEAICE_CGRID */
 
       RETURN
       END
