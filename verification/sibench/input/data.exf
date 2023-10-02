@@ -1,0 +1,43 @@
+#
+# *********************
+# External Forcing Data
+# *********************
+ &EXF_NML_01
+#
+ useExfCheckRange  = .TRUE.,
+ repeatPeriod      = 1382400.0,
+ exf_iprec         = 64,
+ exf_monFreq       = 86400000.,
+ atmrho            = 1.3,
+#useRelativeWind = .TRUE.,
+#
+ &
+
+# *********************
+ &EXF_NML_02
+#
+#uwindstartdate1   = 00000101,
+#uwindstartdate2   = 000000,
+ uwindperiod       = 10800.0,
+#
+#vwindstartdate1   = 00000101,
+#vwindstartdate2   = 000000,
+ vwindperiod       = 10800.0,
+#
+ uwindfile         = 'Uwindfield_shifted_8000.bin',
+ vwindfile         = 'Vwindfield_shifted_8000.bin',
+ &
+
+# *********************
+ &EXF_NML_03
+ &
+
+# *********************
+# old open64 compiler (4.2.1) cannot skip this namelist to read in the next one;
+# comment out this namelist (not read).
+#&EXF_NML_04
+#&
+
+# *********************
+ &EXF_NML_OBCS
+ &

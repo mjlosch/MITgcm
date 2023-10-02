@@ -1,0 +1,60 @@
+/ =======================================================
+/ Parameter file "data"
+/ =======================================================
+# ====================
+# | Model parameters |
+# ====================
+#
+ &PARM01
+ tRef= -1.62,
+ sRef= 30.,
+ HeatCapacity_Cp = 3986.,
+ rhoNil          = 1026.,
+ rhoConst        = 1026.,
+ rhoConstFresh   = 1000.,
+ f0=1.46e-4,
+ saltStepping=.FALSE.,
+ tempStepping=.FALSE.,
+ momStepping=.FALSE.,
+ readBinaryPrec=64,
+ writeBinaryPrec=32,
+ useSingleCpuIO=.TRUE.,
+#debugLevel=4,
+ &
+
+# Elliptic solver parameters
+ &PARM02
+ cg2dMaxIters=500,
+ cg2dTargetResidual=1.E-12,
+ &
+
+# Time stepping parameters
+ &PARM03
+ startTime=0.0,
+# 2 days
+#endTime = 172800.,
+#nTimeSteps = 1441,
+ nTimeSteps = 20,
+ deltaT=2.5,
+ abEps=0.1,
+ forcing_In_AB = .FALSE.,
+ writePickupAtEnd = .FALSE.,
+ dumpInitandLast = .FALSE.,
+ dumpFreq  = 0.,
+ monitorSelect=2,
+ &
+
+# Gridding parameters
+ &PARM04
+ usingCartesianGrid=.TRUE.,
+ dxSpacing=8.E3,
+ dySpacing=8.E3,
+ delR= 10.,
+ &
+
+# Input datasets
+ &PARM05
+ bathyFile       = 'bathy_3c_8000.bin',
+ uVelInitFile    = 'uVel_8000.bin',
+ vVelInitFile    = 'vVel_8000.bin',
+ &
