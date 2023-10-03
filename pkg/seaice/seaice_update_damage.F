@@ -96,7 +96,7 @@ C     betaFacU/V     :: analog betaFacP1U/V
       _RL damageCrit
       _RL sumNorm
       _RL recip_healingTime, recip_damageTime
-      _RL sig1, sig2, sigTmp, sigp, sigm
+      _RL sig1, sig2, sigTmp, sigp, sigm, sigI, sigII
       _RL dtmp(1-OLx:sNx+OLx,1-OLy:sNy+OLy), wght
 
       _RL sigmaT        (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -106,8 +106,14 @@ C     betaFacU/V     :: analog betaFacP1U/V
       _RL sig12         (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig12C        (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 
-      _RL MC_FAILURE, TENSILE_FAILURE, fldAtZ, fldAtC
-      EXTERNAL MC_FAILURE, TENSILE_FAILURE, fldAtZ, fldAtC
+      _RL fldAtZ, fldAtC
+      _RL TENSILE_FAILURE
+      _RL MC_FAILURE
+      _RL MC_NORM_FAILURE
+      EXTERNAL fldAtZ, fldAtC
+      EXTERNAL TENSILE_FAILURE
+      EXTERNAL MC_FAILURE
+      EXTERNAL MC_NORM_FAILURE
 
 CEOP
 
@@ -176,7 +182,10 @@ C     abbreviations
 C     principle components
           sig1   = 0.5 _d 0 * ( sigp + sigTmp )
           sig2   = 0.5 _d 0 * ( sigp - sigTmp )
-C     damageCrit = 1 means not additional damage
+C     stess invariants
+          sigI   = 0.5 _d 0 * ( sig1 + sig2 )
+          sigII  = 0.5 _d 0 * ( sig1 - sig2 )
+C     damageCrit = 1 means no additional damage
           damageCrit = 1. _d 0
 C     here we can clearly do something about regularisation
 C     According to our convention, tensile stress is positive and our
@@ -188,11 +197,18 @@ CML     &         sig1 .GT. 0. _d 0 .AND. sig2 .GT. sigmaT(I,J) )
           damageCrit = TENSILE_FAILURE(sig1,sig2,sigmaT(I,J),damageCrit)
           damageCrit = TENSILE_FAILURE(sig2,sig1,sigmaT(I,J),damageCrit)
 c          PRINT *, "MB-Sig", i,j,sig1, sig2, sigmaT(I,J), sigmaC(I,J)
+          IF ( SEAICEmebNormCorr .AND.
+     &         sigI .LT. SEAICEtanThetaCorr*sigII ) THEN
+           damageCrit = MC_NORM_FAILURE(sigI, sigII,
+     &          cohesion(i,j,bi,bj)*HEFF(i,j,bi,bj),
+     &          SEAICEintFrictCoeff, SEAICEtanThetaCorr, damageCrit)
+          ELSE
 C     keep in mind that sigmaC < 0 so that the following criterion catches
 C     the case when sig2 is below sigmaC+q*sig1
-          damageCrit = MC_FAILURE(sig1,sig2,q,sigmaC(I,J),damageCrit)
+           damageCrit = MC_FAILURE(sig1,sig2,q,sigmaC(I,J),damageCrit)
 C     or above sigmaC+q*sig2
-          damageCrit = MC_FAILURE(sig2,sig1,q,sigmaC(I,J),damageCrit)
+           damageCrit = MC_FAILURE(sig2,sig1,q,sigmaC(I,J),damageCrit)
+          ENDIF
 C     critical damage cannot be below zero (eq 39 in mebdoc.tex)
           damageCrit = MAX(damageCrit, 0. _d 0)
 c         PRINT *, damageCrit
@@ -215,23 +231,19 @@ C     make sure that 0 < damage <=1
           damage(I,J,bi,bj) = MIN(1. _d 0, damage(I,J,bi,bj))
           damage(I,J,bi,bj) = MAX(0. _d 0, damage(I,J,bi,bj))
 C Sigma-Update-Options:
-C Option B1: update stress as time dependent as dynamic parameters
-c          dCrit(I,J,bi,bj) = damage(I,J,bi,bj)
-C Option B2: update with dcrit
+#ifdef SEAICE_MEB_UPDATE_STRESS_AS_DAMAGE
+          dCrit(I,J,bi,bj) = maskInC(I,J,bi,bj)
+     &         *(deltaTloc*recip_damageTime*(damageCrit-1. _d 0)
+     &         + 1. _d 0)
+#else
           dCrit(I,J,bi,bj) = damageCrit*maskInC(I,J,bi,bj)
-C Option B3: never update dcrit
-c          dCrit(I,J,bi,bj) = maskInC(I,J,bi,bj)
-C Option B4: update stress comparable to damage
-c          dCrit(I,J,bi,bj) =   maskInC(I,J,bi,bj)
-c     &         *(deltaTloc*recip_damageTime*(damageCrit-1.)+ 1.)
+#endif
           IF ( AREA(I,J,bi,bj) .EQ. 0. _d 0 )
      &         damage(I,J,bi,bj) = 0. _d 0
           IF ( updateSigma ) THEN
 C     compute updated/reduced stress that lies on or within yield curve
-          sig12C(I,J,bi,bj)  = sig12C(I,J,bi,bj) * dCrit(I,J,bi,bj)
-          seaice_sigma1(I,J,bi,bj) = sigp        * dCrit(I,J,bi,bj)
-          seaice_sigma2(I,J,bi,bj) = sigm        * dCrit(I,J,bi,bj)
-          seaice_sigma12C(I,J,bi,bj)=sig12C(I,J,bi,bj)
+           CALL SEAICE_MEB_UPDATE_SIGMA(
+     I          bi, bj, myTime, myIter, myThid )
           ENDIF
 C     just diagnostics
 C     hack to save principle stress before updating sigma
@@ -322,26 +334,54 @@ C      CALL EXCH_Z_3D_RL( dCritZ, 1, myThid )
       RETURN
       END
 
-      _RL FUNCTION MC_FAILURE ( sig1, sig2, q, sigC, damageCrit )
-      IMPLICIT NONE
-C     compute Mohr-Coulomb failure criterion and updage damageCrit
-      _RL sig1, sig2, q, sigC, damageCrit
-      _RL denom, rdenm
-      denom = sig2 - q*sig1
-      rdenm = 0. _d 0
-      IF ( denom .NE. 0. _d 0 ) rdenm = 1./denom
-      mc_failure = damageCrit
-      IF ( denom .LT. sigC ) mc_failure = MIN(damageCrit,sigC*rdenm)
-      RETURN
-      END
-C
+CBOP
+C     !ROUTINE: TENSILE_FAILURE
+C     !INTERFACE:
       _RL FUNCTION TENSILE_FAILURE ( sig1, sig2, sigT, damageCrit )
       IMPLICIT NONE
 C     compute tensile failure criterion and updage damageCrit
       _RL sig1, sig2, sigT, damageCrit
+CEOP
       tensile_failure = damageCrit
       IF ( sig1 .GT. 0. _d 0 .AND. sig2 .GT. sigT )
      &     tensile_failure = MIN(damageCrit,sigT/sig2)
+      RETURN
+      END
+CBOP
+C     !ROUTINE: MC_FAILURE
+C     !INTERFACE:
+      _RL FUNCTION MC_FAILURE ( sig1, sig2, q, sigC, damageCrit )
+      IMPLICIT NONE
+C     compute Mohr-Coulomb failure criterion and updage damageCrit
+      _RL sig1, sig2, q, sigC, damageCrit
+CEOP
+      _RL denom
+      denom = sig2 - q*sig1
+      mc_failure = damageCrit
+      IF ( denom .NE. 0. _d 0 ) THEN
+       IF ( denom .LT. sigC ) mc_failure = MIN(damageCrit,sigC/denom)
+      ENDIF
+      RETURN
+      END
+C
+C     !ROUTINE: MC_NORM_FAILURE
+C     !INTERFACE:
+      _RL FUNCTION MC_NORM_FAILURE ( sigI, sigII, chsn,
+     &     intFrictCoeff, tanThetaCorr, damageCrit )
+      IMPLICIT NONE
+C     compute Mohr-Coulomb failure criterion and updage damageCrit
+C     following Plante and Tremblay (2021)
+C     chsn :: cohesion
+      _RL sigI, sigII, chsn, intFrictCoeff, tanThetaCorr, damageCrit
+CEOP
+      _RL denom, num
+C
+      num = chsn + intFrictCoeff * ( sigII*tanThetaCorr - sigI )
+      denom = (1. _d 0 + intFrictCoeff*tanThetaCorr)*sigII
+      mc_norm_failure = damageCrit
+      IF ( denom .NE. 0. _d 0 ) THEN
+       mc_norm_failure = MIN(damageCrit, num/denom)
+      ENDIF
       RETURN
       END
 C Averaging-Options F1/F2/F3/F4
@@ -463,7 +503,7 @@ CML     &       * EXP((1.-SEAICEdamageParm)*LOG(damage(i,j,bi,bj)))
      &       recip_rlx(i,j) = recip_relaxTime
      &       *damage(i,j,bi,bj)**(1.-SEAICEdamageParm)
         damage(i,j,bi,bj) = damage(i,j,bi,bj)
-        recip_rlx(i,j)    = recip_rlx(i,j)   
+        recip_rlx(i,j)    = recip_rlx(i,j)
        ENDDO
       ENDDO
 
@@ -911,11 +951,10 @@ C     myTime :: Simulation time
 C     myIter :: Simulation timestep number
 C     myThid :: my Thread Id. number
 C
-CMB      _RL dCrit    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL sigPlus  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL sigMinus (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL sigma12  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL sigma12C (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+CML      _RL sigPlus  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+CML      _RL sigMinus (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+CML      _RL sigma12  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+CML      _RL sigma12C (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C
       INTEGER bi, bj
       _RL     myTime
@@ -925,36 +964,80 @@ C
 C     !LOCAL VARIABLES:
 C     === Local variables ===
 C     i,j :: loop indices
-      INTEGER I,J
-      _RL fldAtZ, fldAtC
-      _RL wght
-      EXTERNAL fldAtZ, fldAtC
+C     sigI, sigII  :: stress invariants
+C     cosThetaMohr :: cosine of Mohr circle orientation (to reconstruct
+C                     sig11 and sig22, i.e. seaice_sigma1/2)
+      INTEGER i,j
+      _RL sigI, sigII
+      _RL cosThetaMohr
+c     _RL wght
+c     _RL fldAtC
+c     EXTERNAL fldAtC
 CEOP
-      DO J=0,sNy
-       DO I=0,sNx
-        seaice_sigma1(I,J,bi,bj)  =seaice_sigma1(I,J,bi,bj)
-     &         * dCrit(I,J,bi,bj)
-        seaice_sigma2(I,J,bi,bj)  =seaice_sigma2(I,J,bi,bj)
-     &         * dCrit(I,J,bi,bj)
+
+      cosThetaMohr = 1.
+      IF ( SEAICEmebNormCorr ) THEN
+       DO j=0,sNy
+        DO i=0,sNx
+         cosThetaMohr = 1.
+         IF ( seaice_sigma2(i,j,bi,bj) .NE. 0. _d 0 ) THEN
+          cosThetaMohr = COS( ATAN( 2. * seaice_sigma12C(i,j,bi,bj)
+     &         / seaice_sigma2(i,j,bi,bj) ) )
+         ENDIF
+C     Compute uncorrected invariants
+         sigI  = 0.5 _d 0 * seaice_sigma1(i,j,bi,bj)
+         sigII = 0.5 _d 0 * SQRT( seaice_sigma2(i,j,bi,bj)**2
+     &        + 4. _d 0 * seaice_sigma12C(i,j,bi,bj)**2 )
+C     Correct the invariants
+         IF ( sigI .LT. SEAICEtanThetaCorr*sigII ) THEN
+          sigI  = sigI - sigII*(1. _d 0 - dCrit(i,j,bi,bj))
+     &         *SEAICEtanThetaCorr
+         ELSE
+          sigI = sigI  * dCrit(i,j,bi,bj)
+         ENDIF
+         sigII = sigII * dCrit(i,j,bi,bj)
+C     Update global variables
+         seaice_sigma1(i,j,bi,bj) = 2. _d 0 * sigI
+         seaice_sigma2(i,j,bi,bj) = SIGN(
+     &        2. _d 0 * sigII * cosThetaMohr, seaice_sigma2(i,j,bi,bj) )
+        ENDDO
+       ENDDO
+
+      ELSE
+
+       DO j=0,sNy
+        DO i=0,sNx
+         seaice_sigma1(i,j,bi,bj) = seaice_sigma1(i,j,bi,bj)
+     &        * dCrit(i,j,bi,bj)
+         seaice_sigma2(i,j,bi,bj) = seaice_sigma2(i,j,bi,bj)
+     &        * dCrit(i,j,bi,bj)
+        ENDDO
+       ENDDO
+
+      ENDIF
+
+C     The rest is common to both methods.
+      DO j=0,sNy
+       DO i=0,sNx
 C option D2: uncoupled sig12C
-        seaice_sigma12C(I,J,bi,bj)=seaice_sigma12C(I,J,bi,bj)
-     &         * dCrit(I,J,bi,bj)
+        seaice_sigma12C(i,j,bi,bj) = seaice_sigma12C(i,j,bi,bj)
+     &        * dCrit(i,j,bi,bj)
        ENDDO
       ENDDO
-      DO J=1,sNy+1
-       DO I=1,sNx+1
-        seaice_sigma12(I,J,bi,bj) =seaice_sigma12(I,J,bi,bj)
+      DO j=1,sNy+1
+       DO i=1,sNx+1
+        seaice_sigma12(i,j,bi,bj) = seaice_sigma12(i,j,bi,bj)
      &       * dCritZ(i,j,bi,bj)
        ENDDO
       ENDDO
-C      wght=1. _d 0
-C      DO J=1,sNy
-C       DO I=1,sNx
-C        seaice_sigma12C(I,J,bi,bj) =
-C     &       (1. _d 0 - wght)*seaice_sigma12C(I,J,bi,bj)
-C     &       + wght * fldAtC(seaice_sigma12(:,:,bi,bj),I,J,bi,bj)
-C       ENDDO
-C      ENDDO
+c      wght=1. _d 0
+c      DO j=1,sNy
+c       DO i=1,sNx
+c        seaice_sigma12C(i,j,bi,bj) =
+c     &       (1. _d 0 - wght)*seaice_sigma12C(i,j,bi,bj)
+c     &       + wght * fldAtC(seaice_sigma12(:,:,bi,bj),i,j,bi,bj)
+c       ENDDO
+c      ENDDO
 # endif /* SEAICE_ALLOW_DAMAGE */
 #endif /* SEAICE_ALLOW_DYNAMICS and SEAICE_CGRID */
 

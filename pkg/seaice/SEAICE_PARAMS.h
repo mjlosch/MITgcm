@@ -54,6 +54,7 @@ C     SEAICEupdateDamage:: update damage parameter (true for MEB,
 C                          false otherwise)
 C     SEAICEuseNoisyIceStrength:: method to apply noise to VP ice strength
 C                          (a noise file needs to be given)
+C     SEAICEmebNormCorr :: use normal stress correction (Plante+Tremblay, 2021)
 C     SEAICEuseTilt     :: If true then include surface tilt term in dynamics
 C     SEAICEuseMetricTerms :: use metric terms for dynamics solver
 C                          (default = .true. )
@@ -141,6 +142,7 @@ C     SEAICE_mon_mnc    :: write monitor to netcdf file
      &     SEAICEuseLSR, SEAICEuseKrylov,
      &     SEAICEuseJFNK, SEAICEuseIMEX, SEAICEuseBDF2,SEAICEuseMEB,
      &     SEAICEupdateDamage, SEAICEuseNoisyIceStrength,
+     &     SEAICEmebNormCorr,
      &     SEAICEusePicardAsPrecon,
      &     useHibler79IceStrength, SEAICEsimpleRidging,
      &     SEAICEuseLinRemapITD, SEAICEuseTD, SEAICEusePL,
@@ -172,6 +174,7 @@ C     SEAICE_mon_mnc    :: write monitor to netcdf file
      &     SEAICEuseLSR, SEAICEuseKrylov,
      &     SEAICEuseJFNK, SEAICEuseIMEX, SEAICEuseBDF2, SEAICEuseMEB,
      &     SEAICEupdateDamage, SEAICEuseNoisyIceStrength,
+     &     SEAICEmebNormCorr,
      &     SEAICEusePicardAsPrecon,
      &     useHibler79IceStrength, SEAICEsimpleRidging,
      &     SEAICEuseLinRemapITD, SEAICEuseTD, SEAICEusePL,
@@ -398,6 +401,10 @@ C     SEAICEmohrCoulombSlope :: slope in stress invariant space,
 C                           e.g. cos(45) = 1/sqrt(2)
 C     SEAICEhealingTime  :: 1. _d 5
 C     SEAICEdamageTime   :: 2. _d 0
+C     SEAICEtanThetaCorr :: tangent of stress correction path angle
+C                           (with stress invariant axis,
+C                           default = SEAICEintFrictCoeff, i.e. the path is
+C                           normal to the yield curve)
 C
 C     OCEAN_drag         :: unitless air-ocean drag coefficient (default 0.001)
 C     SEAICE_drag        :: unitless air-ice drag coefficient   (default 0.001)
@@ -570,7 +577,7 @@ C
       _RL SEAICEpoissonRatio, SEAICEviscosity, SEAICEcohesion
       _RL SEAICEdamageMin, SEAICEdamageParm
       _RL SEAICEintFrictCoeff, SEAICEmohrCoulombSlope
-      _RL SEAICEhealingTime, SEAICEdamageTime
+      _RL SEAICEhealingTime, SEAICEdamageTime, SEAICEtanThetaCorr
 
       COMMON /SEAICE_PARM_RL/
      &    SEAICE_deltaTtherm, SEAICE_deltaTdyn,
@@ -622,7 +629,7 @@ C
      &    SEAICEpoissonRatio, SEAICEviscosity, SEAICEcohesion,
      &    SEAICEdamageMin, SEAICEdamageParm,
      &    SEAICEintFrictCoeff, SEAICEmohrCoulombSlope,
-     &    SEAICEhealingTime, SEAICEdamageTime
+     &    SEAICEhealingTime, SEAICEdamageTime, SEAICEtanThetaCorr
 
 C--   COMMON /SEAICE_BOUND_RL/ Various bounding values
 C     MIN_ATEMP         :: minimum air temperature   (deg C)

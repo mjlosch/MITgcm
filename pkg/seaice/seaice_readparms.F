@@ -157,8 +157,8 @@ C--   SEAICE parameters
      & SEAICE_eccfr, SEAICEtdMU, SEAICEmcMu,
      & SEAICEpressReplFac, SEAICE_tensilFac, SEAICE_tensilDepth,
      & SEAICEpoissonRatio, SEAICEviscosity, SEAICEcohesion, CohesFile,
-     & SEAICEdamageMin, SEAICEdamageParm,
-     & SEAICEintFrictCoeff, SEAICEmohrCoulombSlope,
+     & SEAICEdamageMin, SEAICEdamageParm, SEAICEmebNormCorr,
+     & SEAICEintFrictCoeff, SEAICEmohrCoulombSlope, SEAICEtanThetaCorr,
      & SEAICEelasticWaveSp, SEAICEhealingTime, SEAICEdamageTime,
      & SEAICE_lhFusion, SEAICE_lhEvap, SEAICE_dalton,
      & SEAICE_sensHeat, SEAICE_latentWater, SEAICE_latentIce,
@@ -597,12 +597,14 @@ C
       SEAICEupdateDamage  = .FALSE.
 C     MEB parameters
       SEAICEuseMEB        = .FALSE.
+      SEAICEmebNormCorr   = .FALSE.
       SEAICEpoissonRatio  = 0.3
       SEAICEdamageMin     = 1. _d -16
       SEAICEviscosity     = UNSET_RL
       SEAICEcohesion      = 25.0 _d 3
       SEAICEdamageParm    = 4.0 _d 0
       SEAICEintFrictCoeff = UNSET_RL
+      SEAICEtanThetaCorr  = UNSET_RL
       SEAICEmohrCoulombSlope = UNSET_RL
       SEAICEelasticWaveSp = 500. _d 0
       SEAICEhealingTime   = 0. _d 0
@@ -861,6 +863,13 @@ C     Check if all parameters are set.
      &       /SQRT(1. _d 0 + SEAICEintFrictCoeff**2)
        ENDIF
       ENDIF
+
+#ifdef SEAICE_ALLOW_MEB
+      IF ( SEAICEuseMEB .AND. SEAICEmebNormCorr .AND.
+     &     SEAICEtanThetaCorr .EQ. UNSET_RL ) THEN
+       SEAICEtanThetaCorr = SEAICEintFrictCoeff
+      ENDIF
+#endif
 
 #ifdef SEAICE_ALLOW_FREEDRIFT
       IF ( SEAICEuseFREEDRIFT ) SEAICEuseEVP = .FALSE.

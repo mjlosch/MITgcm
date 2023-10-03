@@ -168,6 +168,8 @@ C--  Seaice-Dynamics parameters
       CALL WRITE_0D_L ( SEAICEuseTEM, INDEX_NONE,
      & 'SEAICEuseTEM      =', ' /* use truncated ellipse rheology */')
       IF ( SEAICEuseMEB ) THEN
+       CALL WRITE_0D_L ( SEAICEmebNormCorr, INDEX_NONE,
+     & 'SEAICEmebNormCorr =', ' /* use normal stress correction */')
        CALL WRITE_0D_RL( SEAICE_strength   ,INDEX_NONE,
      & 'SEAICE_strength   =', ' /* undamaged elasticity modulus */')
        CALL WRITE_0D_RL( SEAICEpoissonRatio   ,INDEX_NONE,
@@ -182,6 +184,8 @@ C--  Seaice-Dynamics parameters
      & 'SEAICEdamageTime =', ' /* damage time scale */')
        CALL WRITE_0D_RL( SEAICEdamageMin   ,INDEX_NONE,
      & 'SEAICEdamageMin =', ' /* stability parameter */')
+       CALL WRITE_0D_RL( SEAICEtanThetaCorr   ,INDEX_NONE,
+     & 'SEAICEtanThetaCorr =', ' /* MEB tan(correction path angle) */')
        CALL WRITE_0D_RL( SEAICEintFrictCoeff   ,INDEX_NONE,
      & 'SEAICEintFrictCoeff =', ' /* MEB interal friction coeff. */')
        CALL WRITE_0D_RL( SEAICEmohrCoulombSlope   ,INDEX_NONE,
