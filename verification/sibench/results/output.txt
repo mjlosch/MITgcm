@@ -8,7 +8,7 @@
 (PID.TID 0000.0001) // MITgcmUV version:  checkpoint68e
 (PID.TID 0000.0001) // Build user:        mlosch
 (PID.TID 0000.0001) // Build host:        bkli04m056
-(PID.TID 0000.0001) // Build date:        Mon Oct  2 18:20:50 CEST 2023
+(PID.TID 0000.0001) // Build date:        Tue Oct  3 11:35:29 CEST 2023
 (PID.TID 0000.0001) 
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Execution Environment parameter file "eedata"
@@ -118,7 +118,6 @@
 (PID.TID 0000.0001) > abEps=0.1,
 (PID.TID 0000.0001) > forcing_In_AB = .FALSE.,
 (PID.TID 0000.0001) > writePickupAtEnd = .FALSE.,
-(PID.TID 0000.0001) > dumpInitandLast = .FALSE.,
 (PID.TID 0000.0001) > dumpFreq  = 0.,
 (PID.TID 0000.0001) > monitorSelect=2,
 (PID.TID 0000.0001) > /
@@ -161,7 +160,6 @@
 (PID.TID 0000.0001) >  useEXF    = .TRUE.,
 (PID.TID 0000.0001) >  useSEAICE = .TRUE.,
 (PID.TID 0000.0001) >  useDiagnostics=.TRUE.,
-(PID.TID 0000.0001) ># useMNC = .TRUE.,
 (PID.TID 0000.0001) > /
 (PID.TID 0000.0001) 
 (PID.TID 0000.0001)  PACKAGES_BOOT: finished reading data.pkg
@@ -248,10 +246,12 @@
 (PID.TID 0000.0001) ># SEAICE parameters
 (PID.TID 0000.0001) > &SEAICE_PARM01
 (PID.TID 0000.0001) > SEAICE_monFreq = 1.,
+(PID.TID 0000.0001) > SEAICEwriteState = .TRUE.,
 (PID.TID 0000.0001) > usePW79thermodynamics=.FALSE.,
 (PID.TID 0000.0001) >#SEAICE_strength    = 27.5e+3,
 (PID.TID 0000.0001) >#meb
-(PID.TID 0000.0001) > SEAICE_strength    = 5e+8,
+(PID.TID 0000.0001) > SEAICE_strength    = 5.0e+8,
+(PID.TID 0000.0001) > SEAICEcohesion     = 25.0e+1,
 (PID.TID 0000.0001) > SEAICEhealingTime = 1e+5,
 (PID.TID 0000.0001) > SEAICEuseIMEX= .TRUE.,
 (PID.TID 0000.0001) > SEAICEuseMEB   = .TRUE.,
@@ -268,7 +268,7 @@
 (PID.TID 0000.0001) > SEAICEnonLinIterMax = 100,
 (PID.TID 0000.0001) > SEAICEpreconLinIter = 10,
 (PID.TID 0000.0001) > SEAICElinearIterMax = 50,
-(PID.TID 0000.0001) > SEAICEnonLinTol     = 1.e-04,
+(PID.TID 0000.0001) > SEAICEnonLinTol     = 1.e-03,
 (PID.TID 0000.0001) > SEAICE_JFNK_lsIter  = 10,
 (PID.TID 0000.0001) > SEAICE_JFNK_tolIter = 50,
 (PID.TID 0000.0001) > JFNKres_tFac        = 0.5,
@@ -283,7 +283,7 @@
 (PID.TID 0000.0001) > HeffFile  = 'thickness_aniso_8000.bin',
 (PID.TID 0000.0001) > AreaFile  = 'const_1.0_8000.bin',
 (PID.TID 0000.0001) > HsnowFile = 'const_00_8000.bin',
-(PID.TID 0000.0001) > CohesFile = 'cohesion_8000.bin',
+(PID.TID 0000.0001) >#CohesFile = 'cohesion_8000.bin',
 (PID.TID 0000.0001) > /
 (PID.TID 0000.0001) >
 (PID.TID 0000.0001) > &SEAICE_PARM03
@@ -337,9 +337,9 @@
 (PID.TID 0000.0001) >		   'SItaux  ','SItauy  ',
 (PID.TID 0000.0001) >		   'EXFuwind','EXFvwind',
 (PID.TID 0000.0001) >   fileName(3) = 'snapshot',
-(PID.TID 0000.0001) ># frequency(3) = 1.,
-(PID.TID 0000.0001) >  frequency(3) = -1800.,
-(PID.TID 0000.0001) >  timePhase(3) =  1800.,
+(PID.TID 0000.0001) >  frequency(3) = 1.,
+(PID.TID 0000.0001) ># frequency(3) = -1800.,
+(PID.TID 0000.0001) ># timePhase(3) =  1800.,
 (PID.TID 0000.0001) >  missing_value(3) = -999.,
 (PID.TID 0000.0001) > /
 (PID.TID 0000.0001) >
@@ -395,8 +395,8 @@
 (PID.TID 0000.0001)  DIAGNOSTICS_READPARMS: active diagnostics summary:
 (PID.TID 0000.0001) -----------------------------------------------------
 (PID.TID 0000.0001) Creating Output Stream: snapshot
-(PID.TID 0000.0001) Output Frequency:      -1800.000000 ; Phase:        1800.000000
-(PID.TID 0000.0001)  Averaging Freq.:          0.000000 , Phase:           0.000000 , Cycle:   1
+(PID.TID 0000.0001) Output Frequency:          1.000000 ; Phase:           0.000000
+(PID.TID 0000.0001)  Averaging Freq.:          1.000000 , Phase:           0.000000 , Cycle:   1
 (PID.TID 0000.0001)  missing value: -9.990000000000E+02
 (PID.TID 0000.0001)  Levels:    will be set later
 (PID.TID 0000.0001)  Fields:    SIuice   SIvice   SIheff   SIarea   SIshear  SIcohes  SIsig1   SIsig2   SIdamage SItaux
@@ -895,7 +895,7 @@
 (PID.TID 0000.0001)                 5.000000000000000E+15
 (PID.TID 0000.0001)     ;
 (PID.TID 0000.0001) SEAICEcohesion = /* max. cohesion in pure shear */
-(PID.TID 0000.0001)                 2.500000000000000E+04
+(PID.TID 0000.0001)                 2.500000000000000E+02
 (PID.TID 0000.0001)     ;
 (PID.TID 0000.0001) SEAICEdamageParm = /* exponent alpha of damage*/
 (PID.TID 0000.0001)                 4.000000000000000E+00
@@ -1012,7 +1012,7 @@
 (PID.TID 0000.0001)                      50
 (PID.TID 0000.0001)     ;
 (PID.TID 0000.0001) SEAICEnonLinTol     = /* non-linear solver tolerance */
-(PID.TID 0000.0001)                 1.000000000000000E-04
+(PID.TID 0000.0001)                 1.000000000000000E-03
 (PID.TID 0000.0001)     ;
 (PID.TID 0000.0001) SEAICEpreconLinIter = /* number of linear preconditioner steps */
 (PID.TID 0000.0001)                      10
@@ -1094,7 +1094,7 @@
 (PID.TID 0000.0001)               ''
 (PID.TID 0000.0001)     ;
 (PID.TID 0000.0001) CohesFile = /* Initial sea ice cohesion File */
-(PID.TID 0000.0001)               'cohesion_8000.bin'
+(PID.TID 0000.0001)               ''
 (PID.TID 0000.0001)     ;
 (PID.TID 0000.0001) HsnowFile = /* Initial snow thickness File */
 (PID.TID 0000.0001)               'const_00_8000.bin'
@@ -1106,7 +1106,7 @@
 (PID.TID 0000.0001)               ''
 (PID.TID 0000.0001)     ;
 (PID.TID 0000.0001) SEAICEwriteState  = /* write sea ice state to file */
-(PID.TID 0000.0001)                   F
+(PID.TID 0000.0001)                   T
 (PID.TID 0000.0001)     ;
 (PID.TID 0000.0001) SEAICE_monFreq  = /* monitor frequency */
 (PID.TID 0000.0001)                 1.000000000000000E+00
@@ -1729,7 +1729,7 @@
 (PID.TID 0000.0001)                 0.000000000000000E+00
 (PID.TID 0000.0001)     ;
 (PID.TID 0000.0001) dumpInitAndLast= /* write out Initial & Last iter. model state */
-(PID.TID 0000.0001)                   F
+(PID.TID 0000.0001)                   T
 (PID.TID 0000.0001)     ;
 (PID.TID 0000.0001) snapshot_mdsio =   /* Model IO flag. */
 (PID.TID 0000.0001)                   T
@@ -2101,7 +2101,7 @@ Iter.Nb:         0 ; Time(s):  0.0000000000000E+00
 ------------------------------------------------------------------------
 listId=    1 ; file name: snapshot
  nFlds, nActive,       freq     &     phase        , nLev               
-   13  |   13  |     -1800.000000      1800.000000 |   1
+   13  |   13  |         1.000000         0.000000 |   1
  levels:   1
  diag# | name   |   ipt  |  iMate | kLev|   count |   mate.C|           
    163 |SIuice  |      1 |      2 |   1 |       0 |       0 |
@@ -2123,7 +2123,6 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001)  MDS_READ_FIELD: opening global file: thickness_aniso_8000.bin
 (PID.TID 0000.0001)  MDS_READ_FIELD: opening global file: const_1.0_8000.bin
 (PID.TID 0000.0001)  MDS_READ_FIELD: opening global file: const_00_8000.bin
-(PID.TID 0000.0001)  MDS_READ_FIELD: opening global file: cohesion_8000.bin
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Model current state
 (PID.TID 0000.0001) // =======================================================
@@ -2274,28 +2273,20 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /      1, Nb. of FGMRES iterations =      1
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2      2 0.50000E-01 0.19542E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /      2, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3      3 0.50000E-01 0.96561E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /      3, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4      4 0.33333E-01 0.48281E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /      4, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       5      5 0.33333E-01 0.24141E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      5 /      5, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       6      6 0.33333E-01 0.12070E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      6 /      6, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       7      7 0.33333E-01 0.60352E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3      3 0.50000E-01 0.96561E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =          1
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          7
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          6
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      6 in timestep          1
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep          1
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -2358,21 +2349,21 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                     1
 (PID.TID 0000.0001) %MON seaice_time_sec              =   2.5000000000000E+00
-(PID.TID 0000.0001) %MON seaice_uice_max              =   1.7542640102750E-03
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -1.7969956199743E-03
-(PID.TID 0000.0001) %MON seaice_uice_mean             =  -4.6763699212398E-08
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   7.5487939948445E-04
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   1.6922143286586E-07
-(PID.TID 0000.0001) %MON seaice_vice_max              =   1.7111243523858E-03
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -1.7344359772174E-03
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.9512441866225E-07
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   7.5114009728235E-04
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   1.6786619984667E-07
+(PID.TID 0000.0001) %MON seaice_uice_max              =   1.7542642467018E-03
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -1.7969958677366E-03
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -4.6765033929822E-08
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   7.5487950240945E-04
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   1.6922146283049E-07
+(PID.TID 0000.0001) %MON seaice_vice_max              =   1.7111245851376E-03
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -1.7344362147632E-03
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.9512399976944E-07
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   7.5114019969478E-04
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   1.6786623001367E-07
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_area_min              =   9.9999992127119E-01
 (PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999999570750E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   1.0789794550568E-08
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.5121813730446E-10
+(PID.TID 0000.0001) %MON seaice_area_sd               =   1.0789795706489E-08
+(PID.TID 0000.0001) %MON seaice_area_del2             =   1.5121814248364E-10
 (PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999867197300E-01
 (PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006056493844E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
@@ -2386,30 +2377,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1    101 0.10000E+00 0.11381E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /    101, Nb. of FGMRES iterations =      1
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    102 0.50000E-01 0.16949E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /    102, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3    103 0.50000E-01 0.83383E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /    103, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4    104 0.33333E-01 0.41693E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /    104, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       5    105 0.33333E-01 0.20846E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      5 /    105, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       6    106 0.33333E-01 0.10423E-04
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3    103 0.50000E-01 0.83383E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          6
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          5
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      5 in timestep          2
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep          2
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -2472,21 +2474,21 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                     2
 (PID.TID 0000.0001) %MON seaice_time_sec              =   5.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_uice_max              =   3.5028826258736E-03
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -3.5870811085623E-03
-(PID.TID 0000.0001) %MON seaice_uice_mean             =  -8.9078162108008E-08
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   1.5071903862679E-03
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   3.5374928194490E-07
-(PID.TID 0000.0001) %MON seaice_vice_max              =   3.4170747231668E-03
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -3.4632335845186E-03
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   3.8335259653640E-07
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   1.4997362896519E-03
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   3.5161112363617E-07
+(PID.TID 0000.0001) %MON seaice_uice_max              =   3.5028830972023E-03
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -3.5870816022007E-03
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -8.9080820097077E-08
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   1.5071905914831E-03
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   3.5374935632392E-07
+(PID.TID 0000.0001) %MON seaice_vice_max              =   3.4170751872596E-03
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -3.4632340580678E-03
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   3.8335176329893E-07
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   1.4997364938497E-03
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   3.5161119863053E-07
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999977126199E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999977126197E-01
 (PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999998716397E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   3.1381343166174E-08
-(PID.TID 0000.0001) %MON seaice_area_del2             =   4.0939394120615E-10
+(PID.TID 0000.0001) %MON seaice_area_sd               =   3.1381346528091E-08
+(PID.TID 0000.0001) %MON seaice_area_del2             =   4.0939395440448E-10
 (PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999866972138E-01
 (PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006056257448E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
@@ -2500,30 +2502,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1    201 0.10000E+00 0.11337E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /    201, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    202 0.50000E-01 0.13774E-03
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    202 0.50000E-01 0.18800E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /    202, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3    203 0.50000E-01 0.67128E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /    203, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4    204 0.33333E-01 0.33565E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /    204, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       5    205 0.33333E-01 0.16783E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      5 /    205, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       6    206 0.33333E-01 0.83913E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3    203 0.50000E-01 0.59295E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =          3
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          6
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          5
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      5 in timestep          3
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep          3
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -2586,26 +2599,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                     3
 (PID.TID 0000.0001) %MON seaice_time_sec              =   7.5000000000000E+00
-(PID.TID 0000.0001) %MON seaice_uice_max              =   5.2451215470894E-03
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -5.3690004746120E-03
-(PID.TID 0000.0001) %MON seaice_uice_mean             =  -1.2590547180801E-07
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   2.2565914264339E-03
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   5.7760110917386E-07
-(PID.TID 0000.0001) %MON seaice_vice_max              =   5.1172209952317E-03
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -5.1855892952392E-03
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   5.6169219645159E-07
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   2.2454518435607E-03
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   5.7561546151724E-07
+(PID.TID 0000.0001) %MON seaice_uice_max              =   5.2451222518417E-03
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -5.3690012119632E-03
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -1.2662787536915E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   2.2566207415648E-03
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   5.7517757372705E-07
+(PID.TID 0000.0001) %MON seaice_vice_max              =   5.1172216890728E-03
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -5.1855900030856E-03
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   5.6402513516397E-07
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   2.2454814324602E-03
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   5.7317202480601E-07
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999955956440E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999955873436E-01
 (PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999997441775E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   6.0583813698475E-08
-(PID.TID 0000.0001) %MON seaice_area_del2             =   7.2287698807884E-10
+(PID.TID 0000.0001) %MON seaice_area_sd               =   6.0656274328072E-08
+(PID.TID 0000.0001) %MON seaice_area_del2             =   7.2661246612321E-10
 (PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999866635412E-01
 (PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006055904905E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069226120485E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853747596266E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069226127610E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853747579070E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -2614,30 +2627,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1    301 0.10000E+00 0.11289E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1    301 0.10000E+00 0.11292E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /    301, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    302 0.50000E-01 0.10619E-03
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    302 0.50000E-01 0.24169E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /    302, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3    303 0.50000E-01 0.50746E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /    303, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4    304 0.33333E-01 0.25375E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /    304, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       5    305 0.33333E-01 0.12687E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      5 /    305, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       6    306 0.33333E-01 0.63437E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3    303 0.50000E-01 0.39679E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =          4
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          6
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          5
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      5 in timestep          4
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep          4
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -2700,26 +2724,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                     4
 (PID.TID 0000.0001) %MON seaice_time_sec              =   1.0000000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   6.9802437237733E-03
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -7.1421177550253E-03
-(PID.TID 0000.0001) %MON seaice_uice_mean             =  -1.5636405538381E-07
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   3.0027891480782E-03
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   8.6197515216256E-07
-(PID.TID 0000.0001) %MON seaice_vice_max              =   6.8109367820954E-03
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -6.9007032752121E-03
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   7.2744128219103E-07
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   2.9879984837845E-03
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   8.6122782846661E-07
+(PID.TID 0000.0001) %MON seaice_uice_max              =   6.9802446600443E-03
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -7.1421187352951E-03
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -1.6379894617178E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   3.0031029937128E-03
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   8.2964162322915E-07
+(PID.TID 0000.0001) %MON seaice_vice_max              =   6.8109377039361E-03
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -6.9007042153874E-03
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   7.4995608284106E-07
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   2.9883159558930E-03
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   8.2859553279992E-07
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999929682331E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999995750030E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   9.7178525428734E-08
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.0420772255603E-09
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999928701217E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999995750109E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   9.8024153879052E-08
+(PID.TID 0000.0001) %MON seaice_area_del2             =   1.0866815194724E-09
 (PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999866187921E-01
 (PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006055437991E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069227304426E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853747896521E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069227396386E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853747695309E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -2728,28 +2752,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1    401 0.10000E+00 0.11238E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1    401 0.10000E+00 0.11249E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /    401, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    402 0.50000E-01 0.82171E-04
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    402 0.50000E-01 0.25952E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /    402, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3    403 0.50000E-01 0.37934E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /    403, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4    404 0.33333E-01 0.18969E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /    404, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       5    405 0.33333E-01 0.94846E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3    403 0.50000E-01 0.31713E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =          5
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          5
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          4
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      4 in timestep          5
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep          5
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -2812,26 +2849,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                     5
 (PID.TID 0000.0001) %MON seaice_time_sec              =   1.2500000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   8.7075083240042E-03
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -8.9051538146450E-03
-(PID.TID 0000.0001) %MON seaice_uice_mean             =  -1.7974558509143E-07
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   3.7455340325836E-03
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   1.2150555371487E-06
-(PID.TID 0000.0001) %MON seaice_vice_max              =   8.4975996385836E-03
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -8.6077795503595E-03
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   8.7821964008971E-07
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   3.7271320463685E-03
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   1.2165651816226E-06
+(PID.TID 0000.0001) %MON seaice_uice_max              =   8.7075094896523E-03
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -8.9051550338965E-03
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -2.0313027197689E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   3.7467420267675E-03
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   1.0807824342501E-06
+(PID.TID 0000.0001) %MON seaice_vice_max              =   8.4976007865090E-03
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -8.6077807206738E-03
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   9.3810234011003E-07
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   3.7283584565893E-03
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   1.0805036030401E-06
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999899372741E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999993643529E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   1.4006232372541E-07
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.3268873096212E-09
-(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999865630521E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999895129216E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999993644485E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   1.4381081738405E-07
+(PID.TID 0000.0001) %MON seaice_area_del2             =   1.5265707699925E-09
+(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999865630523E-01
 (PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006054858748E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069228326069E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853748680557E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069228790013E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853747829034E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -2840,28 +2877,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1    501 0.10000E+00 0.11185E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1    501 0.10000E+00 0.11204E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /    501, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    502 0.50000E-01 0.73090E-04
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    502 0.50000E-01 0.27073E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /    502, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3    503 0.50000E-01 0.32914E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /    503, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4    504 0.33333E-01 0.16459E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /    504, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       5    505 0.33333E-01 0.82297E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3    503 0.50000E-01 0.29518E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =          6
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          5
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          4
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      4 in timestep          6
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep          6
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -2924,26 +2974,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                     6
 (PID.TID 0000.0001) %MON seaice_time_sec              =   1.5000000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   1.0426169947205E-02
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -1.0657019254035E-02
-(PID.TID 0000.0001) %MON seaice_uice_mean             =  -1.9552534219081E-07
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   4.4846113136202E-03
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   1.6308182185872E-06
-(PID.TID 0000.0001) %MON seaice_vice_max              =   1.0176591245911E-02
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -1.0306026259732E-02
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.0119865812878E-06
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   4.4626432746804E-03
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   1.6354419990701E-06
+(PID.TID 0000.0001) %MON seaice_uice_max              =   1.0426171339906E-02
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -1.0657020716191E-02
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -2.4292637712242E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   4.4874268559228E-03
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   1.3172858883180E-06
+(PID.TID 0000.0001) %MON seaice_vice_max              =   1.0176592617840E-02
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -1.0306027657785E-02
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.1298539822142E-06
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   4.4655018911444E-03
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   1.3177411494472E-06
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999866018006E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999991125710E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   1.8833835434382E-07
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.5514320697793E-09
-(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999864964073E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999854532124E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999991129779E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   1.9858389975876E-07
+(PID.TID 0000.0001) %MON seaice_area_del2             =   2.0973077661600E-09
+(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999864964086E-01
 (PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006054169452E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069228951722E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853750052996E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069230322552E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853747792278E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -2952,28 +3002,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1    601 0.10000E+00 0.11129E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1    601 0.10000E+00 0.11158E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /    601, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    602 0.50000E-01 0.79032E-04
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    602 0.50000E-01 0.26665E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /    602, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3    603 0.50000E-01 0.36166E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /    603, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4    604 0.33333E-01 0.18085E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /    604, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       5    605 0.33333E-01 0.90427E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3    603 0.50000E-01 0.31523E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =          7
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          5
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          4
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      4 in timestep          7
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep          7
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -3036,26 +3099,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                     7
 (PID.TID 0000.0001) %MON seaice_time_sec              =   1.7500000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   1.2135478100228E-02
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -1.2396702203408E-02
-(PID.TID 0000.0001) %MON seaice_uice_mean             =  -2.0336804514931E-07
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   5.2198298284633E-03
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   2.0928747672947E-06
-(PID.TID 0000.0001) %MON seaice_vice_max              =   1.1847297569684E-02
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -1.1994656002128E-02
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.1270470567862E-06
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   5.1943465230980E-03
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   2.1012704279216E-06
+(PID.TID 0000.0001) %MON seaice_uice_max              =   1.2135479862488E-02
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -1.2396825880201E-02
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -2.8016396055217E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   5.2250524479280E-03
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   1.5407455768331E-06
+(PID.TID 0000.0001) %MON seaice_vice_max              =   1.1847299231215E-02
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -1.1994658493395E-02
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.3241888344378E-06
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   5.1996448608880E-03
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   1.5420148100388E-06
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999830470934E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999988201300E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   2.4134282966300E-07
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.7056028469866E-09
-(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999864189344E-01
-(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006053372573E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999806359786E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999988211353E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   2.6299668037694E-07
+(PID.TID 0000.0001) %MON seaice_area_del2             =   2.8482536497912E-09
+(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999864189410E-01
+(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006053371930E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069228935561E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853752062900E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069231997416E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853747412250E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -3064,28 +3127,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1    701 0.10000E+00 0.11071E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1    701 0.10000E+00 0.11116E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /    701, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    702 0.50000E-01 0.91670E-04
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    702 0.50000E-01 0.25201E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /    702, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3    703 0.50000E-01 0.42982E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /    703, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4    704 0.33333E-01 0.21493E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /    704, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       5    705 0.33333E-01 0.10746E-04
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3    703 0.50000E-01 0.28265E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =          8
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          5
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          4
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      4 in timestep          8
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep          8
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -3148,26 +3224,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                     8
 (PID.TID 0000.0001) %MON seaice_time_sec              =   2.0000000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   1.3834676948818E-02
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -1.4123239045701E-02
-(PID.TID 0000.0001) %MON seaice_uice_mean             =  -2.0313114786315E-07
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   5.9510111868941E-03
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   2.5788224603400E-06
-(PID.TID 0000.0001) %MON seaice_vice_max              =   1.3509108990298E-02
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -1.3672886282456E-02
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.2220483081096E-06
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   5.9220687636950E-03
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   2.5914093840541E-06
+(PID.TID 0000.0001) %MON seaice_uice_max              =   1.3834775564255E-02
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -1.4125946466901E-02
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -3.1902957141970E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   5.9599657929868E-03
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   1.7593352144968E-06
+(PID.TID 0000.0001) %MON seaice_vice_max              =   1.3509288813224E-02
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -1.3673376002032E-02
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.5249569219275E-06
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   5.9311260036012E-03
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   1.7614065988611E-06
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999793413596E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999984875192E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   2.9862096013921E-07
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.7934992557205E-09
-(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999863306836E-01
-(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006052470736E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999750650962E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999984892152E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   3.3739473724274E-07
+(PID.TID 0000.0001) %MON seaice_area_del2             =   3.7780657739369E-09
+(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999863307112E-01
+(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006052460370E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069228025615E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853754702274E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069233838919E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853746760461E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -3176,30 +3252,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1    801 0.10000E+00 0.11010E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1    801 0.10000E+00 0.11081E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /    801, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    802 0.50000E-01 0.10410E-03
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    802 0.50000E-01 0.23344E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /    802, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3    803 0.50000E-01 0.49566E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /    803, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4    804 0.33333E-01 0.24785E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /    804, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       5    805 0.33333E-01 0.12392E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      5 /    805, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       6    806 0.33333E-01 0.61961E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3    803 0.50000E-01 0.24036E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =          9
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          6
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          5
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      5 in timestep          9
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep          9
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -3262,26 +3349,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                     9
 (PID.TID 0000.0001) %MON seaice_time_sec              =   2.2500000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   1.5523005350908E-02
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -1.5835716839505E-02
-(PID.TID 0000.0001) %MON seaice_uice_mean             =  -1.9486725033031E-07
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   6.6779809055597E-03
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   3.0637331449904E-06
-(PID.TID 0000.0001) %MON seaice_vice_max              =   1.5161420406203E-02
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -1.5339940061948E-02
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.2959693492507E-06
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   6.6456405757845E-03
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   3.0806529286947E-06
+(PID.TID 0000.0001) %MON seaice_uice_max              =   1.5525303697557E-02
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -1.5855018199825E-02
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -3.6155655194560E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   6.6925604059756E-03
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   1.9747836209762E-06
+(PID.TID 0000.0001) %MON seaice_vice_max              =   1.5165146501793E-02
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -1.5348833712853E-02
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.7318925618597E-06
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   6.6603312416216E-03
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   1.9775823879062E-06
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999755348288E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999981152903E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   3.5988346320381E-07
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.8298907130145E-09
-(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999862316513E-01
-(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006051466680E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999687446298E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999981173168E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   4.2188459163455E-07
+(PID.TID 0000.0001) %MON seaice_area_del2             =   4.8572416659074E-09
+(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999862316954E-01
+(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006051436931E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069225968610E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853757911824E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069235857522E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853745953662E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -3290,30 +3377,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1    901 0.10000E+00 0.10947E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1    901 0.10000E+00 0.11048E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /    901, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    902 0.50000E-01 0.11322E-03
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2    902 0.50000E-01 0.21616E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /    902, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3    903 0.50000E-01 0.54346E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /    903, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4    904 0.33333E-01 0.27174E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /    904, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       5    905 0.33333E-01 0.13587E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      5 /    905, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       6    906 0.33333E-01 0.67936E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3    903 0.50000E-01 0.20980E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =         10
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          6
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          5
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      5 in timestep         10
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep         10
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -3376,26 +3474,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                    10
 (PID.TID 0000.0001) %MON seaice_time_sec              =   2.5000000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   1.7199697172471E-02
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -1.7533275041773E-02
-(PID.TID 0000.0001) %MON seaice_uice_mean             =  -1.7882670511287E-07
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   7.4005623623105E-03
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   3.5228623450177E-06
-(PID.TID 0000.0001) %MON seaice_vice_max              =   1.6803631311544E-02
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -1.6995046414283E-02
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.3481054189258E-06
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   7.3648899982753E-03
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   3.5439567771984E-06
+(PID.TID 0000.0001) %MON seaice_uice_max              =   1.7220227654934E-02
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -1.7586023171612E-02
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -4.0684768635209E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   7.4230081459244E-03
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   2.1849258707378E-06
+(PID.TID 0000.0001) %MON seaice_vice_max              =   1.6824321285044E-02
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -1.7028587282488E-02
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.9385172947946E-06
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   7.3874260858707E-03
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   2.1889425618341E-06
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999716608421E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999977040074E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   4.2495252183220E-07
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.8343203010978E-09
-(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999861217392E-01
-(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006050363219E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999616769304E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999977054390E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   5.1648257629455E-07
+(PID.TID 0000.0001) %MON seaice_area_del2             =   6.0740699786229E-09
+(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999861219134E-01
+(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006050301871E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069222513670E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853761591973E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069238031472E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853745062229E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -3404,30 +3502,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1001 0.10000E+00 0.10880E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1001 0.10000E+00 0.11017E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /   1001, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1002 0.50000E-01 0.11795E-03
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1002 0.50000E-01 0.20016E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /   1002, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3   1003 0.50000E-01 0.56818E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /   1003, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4   1004 0.33333E-01 0.28410E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /   1004, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       5   1005 0.33333E-01 0.14205E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      5 /   1005, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       6   1006 0.33333E-01 0.71026E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3   1003 0.50000E-01 0.19444E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =         11
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          6
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          5
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      5 in timestep         11
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep         11
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -3490,26 +3599,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                    11
 (PID.TID 0000.0001) %MON seaice_time_sec              =   2.7500000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   1.8863981881420E-02
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -1.9215106540556E-02
-(PID.TID 0000.0001) %MON seaice_uice_mean             =  -1.5546085334742E-07
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   8.1185737243364E-03
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   3.9338580299005E-06
-(PID.TID 0000.0001) %MON seaice_vice_max              =   1.8435145850705E-02
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -1.8637441287581E-02
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.3780492372246E-06
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   8.0796394119220E-03
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   3.9586764940759E-06
+(PID.TID 0000.0001) %MON seaice_uice_max              =   1.8927260039586E-02
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -1.9312851835914E-02
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -4.5466851234062E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   8.1513821481308E-03
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   2.3904789370668E-06
+(PID.TID 0000.0001) %MON seaice_vice_max              =   1.8484269425165E-02
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -1.8714768957363E-02
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   2.1435234560823E-06
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   8.1124821724989E-03
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   2.3952436414205E-06
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999677383576E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999972541950E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   4.9371424318267E-07
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.8253190120727E-09
-(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999860006963E-01
-(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006049163195E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999538630944E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999972535411E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   6.2117917039374E-07
+(PID.TID 0000.0001) %MON seaice_area_del2             =   7.4233060375369E-09
+(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999860013492E-01
+(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006049055430E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069217415035E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853765616728E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069240326159E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853744130496E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -3518,30 +3627,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1101 0.10000E+00 0.10811E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1101 0.10000E+00 0.10987E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /   1101, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1102 0.50000E-01 0.11817E-03
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1102 0.50000E-01 0.18547E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /   1102, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3   1103 0.50000E-01 0.56941E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /   1103, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4   1104 0.33333E-01 0.28472E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /   1104, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       5   1105 0.33333E-01 0.14236E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      5 /   1105, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       6   1106 0.33333E-01 0.71179E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3   1103 0.50000E-01 0.19543E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =         12
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          6
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          5
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      5 in timestep         12
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep         12
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -3604,26 +3724,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                    12
 (PID.TID 0000.0001) %MON seaice_time_sec              =   3.0000000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   2.0515085410254E-02
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -2.0880458019852E-02
-(PID.TID 0000.0001) %MON seaice_uice_mean             =  -1.2542563247788E-07
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   8.8318274764774E-03
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   4.2786401978067E-06
-(PID.TID 0000.0001) %MON seaice_vice_max              =   2.0055372853343E-02
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -2.0266368370239E-02
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.3856705102125E-06
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   8.7897050774085E-03
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   4.3064783778943E-06
+(PID.TID 0000.0001) %MON seaice_uice_max              =   2.0629708272286E-02
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -2.1035628941823E-02
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -5.0441377207911E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   8.8777200998993E-03
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   2.5931126534378E-06
+(PID.TID 0000.0001) %MON seaice_vice_max              =   2.0140310435807E-02
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -2.0398482347935E-02
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   2.3460759862656E-06
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   8.8355310356489E-03
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   2.5980175060964E-06
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999637752456E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999967662691E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   5.6608312766750E-07
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.8156448372447E-09
-(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999858680438E-01
-(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006047869435E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999453033672E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999967615004E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   7.3595982880535E-07
+(PID.TID 0000.0001) %MON seaice_area_del2             =   8.9035621380891E-09
+(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999858699798E-01
+(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006047697865E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069210434015E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853769848475E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069242698739E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853743165766E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -3632,30 +3752,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1201 0.10000E+00 0.10738E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1201 0.10000E+00 0.10956E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /   1201, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1202 0.50000E-01 0.11430E-03
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1202 0.50000E-01 0.17343E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /   1202, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3   1203 0.50000E-01 0.54938E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /   1203, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4   1204 0.33333E-01 0.27470E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /   1204, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       5   1205 0.33333E-01 0.13735E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      5 /   1205, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       6   1206 0.33333E-01 0.68676E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3   1203 0.50000E-01 0.21436E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =         13
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          6
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          5
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      5 in timestep         13
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep         13
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -3718,26 +3849,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                    13
 (PID.TID 0000.0001) %MON seaice_time_sec              =   3.2500000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   2.2160577973361E-02
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -2.2528629689249E-02
-(PID.TID 0000.0001) %MON seaice_uice_mean             =  -8.9584753273504E-08
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   9.5401318455219E-03
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   4.5449925730519E-06
-(PID.TID 0000.0001) %MON seaice_vice_max              =   2.1663725854463E-02
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -2.1881080056599E-02
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.3710947750032E-06
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   9.4948986133652E-03
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   4.5749565830028E-06
+(PID.TID 0000.0001) %MON seaice_uice_max              =   2.2328142515328E-02
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -2.2754722858711E-02
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -5.5576377250824E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   9.6020471719774E-03
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   2.7938080458678E-06
+(PID.TID 0000.0001) %MON seaice_vice_max              =   2.1792847301740E-02
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -2.2077123200068E-02
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   2.5458535107916E-06
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   9.5565937921256E-03
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   2.7991962164526E-06
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999597717933E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999962403994E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   6.4197385015560E-07
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.8094289911566E-09
-(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999857229823E-01
-(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006046484704E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999359974713E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999962293904E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   8.6082117688421E-07
+(PID.TID 0000.0001) %MON seaice_area_del2             =   1.0515767359317E-08
+(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999857277816E-01
+(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006046229458E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069201340350E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853774151284E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069245091886E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853742146706E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -3746,30 +3877,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1301 0.10000E+00 0.10662E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1301 0.10000E+00 0.10927E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /   1301, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1302 0.50000E-01 0.10722E-03
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1302 0.50000E-01 0.16412E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /   1302, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3   1303 0.50000E-01 0.51260E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /   1303, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4   1304 0.33333E-01 0.25631E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /   1304, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       5   1305 0.33333E-01 0.12816E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      5 /   1305, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       6   1306 0.33333E-01 0.64078E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3   1303 0.50000E-01 0.25645E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =         14
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          6
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          5
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      5 in timestep         14
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep         14
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -3832,26 +3974,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                    14
 (PID.TID 0000.0001) %MON seaice_time_sec              =   3.5000000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   2.3796643559727E-02
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -2.4158974420172E-02
-(PID.TID 0000.0001) %MON seaice_uice_mean             =  -4.9011284003844E-08
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   1.0243293277523E-02
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   4.7278004811208E-06
-(PID.TID 0000.0001) %MON seaice_vice_max              =   2.3259623105028E-02
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -2.3480838506573E-02
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.3346823174035E-06
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   1.0195029553208E-02
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   4.7588866706826E-06
+(PID.TID 0000.0001) %MON seaice_uice_max              =   2.4022900623405E-02
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -2.4470294953858E-02
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -6.0842559958930E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   1.0324374068908E-02
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   2.9958879440269E-06
+(PID.TID 0000.0001) %MON seaice_vice_max              =   2.3442103848422E-02
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -2.3751764238803E-02
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   2.7428310237327E-06
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   1.0275683517268E-02
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   3.0011801937404E-06
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999557239486E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999956770524E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   7.2132370721318E-07
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.8061530127893E-09
-(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999855642873E-01
-(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006045011644E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999259448569E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999956574738E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   9.9577156555463E-07
+(PID.TID 0000.0001) %MON seaice_area_del2             =   1.2261255585080E-08
+(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999855747355E-01
+(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006044650516E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069189913187E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853778401464E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069247439853E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853741061815E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -3860,30 +4002,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1401 0.10000E+00 0.10584E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1401 0.10000E+00 0.10897E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /   1401, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1402 0.50000E-01 0.98285E-04
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1402 0.50000E-01 0.15454E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /   1402, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3   1403 0.50000E-01 0.46582E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /   1403, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4   1404 0.33333E-01 0.23293E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /   1404, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       5   1405 0.33333E-01 0.11646E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      5 /   1405, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       6   1406 0.33333E-01 0.58231E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3   1403 0.50000E-01 0.27933E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =         15
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          6
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          5
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      5 in timestep         15
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep         15
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -3946,26 +4099,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                    15
 (PID.TID 0000.0001) %MON seaice_time_sec              =   3.7500000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   2.5419453595619E-02
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -2.5770896338306E-02
-(PID.TID 0000.0001) %MON seaice_uice_mean             =  -4.9862710192876E-09
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   1.0941119157435E-02
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   4.8297877977869E-06
-(PID.TID 0000.0001) %MON seaice_vice_max              =   2.4842487579427E-02
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -2.5064916791625E-02
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.2770076526112E-06
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   1.0889908150731E-02
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   4.8609681204962E-06
+(PID.TID 0000.0001) %MON seaice_uice_max              =   2.5714849651984E-02
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -2.6182388110997E-02
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -6.6189482155779E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   1.1044707819619E-02
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   3.2014419068330E-06
+(PID.TID 0000.0001) %MON seaice_vice_max              =   2.5088116620586E-02
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -2.5423582149440E-02
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   2.9369065114379E-06
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   1.0992803119291E-02
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   3.2058669149586E-06
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999516259801E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999950771019E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   8.0409975197753E-07
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.8055340015960E-09
-(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999853901989E-01
-(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006043452705E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999151448817E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999950459645E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   1.1408202870608E-06
+(PID.TID 0000.0001) %MON seaice_area_del2             =   1.4141657532881E-08
+(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999854108297E-01
+(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006042961358E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069175941866E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853782494678E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069249676519E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853739913884E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -3974,28 +4127,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1501 0.10000E+00 0.10502E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1501 0.10000E+00 0.10868E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /   1501, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1502 0.50000E-01 0.89232E-04
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1502 0.50000E-01 0.14738E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /   1502, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3   1503 0.50000E-01 0.41798E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /   1503, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4   1504 0.33333E-01 0.20901E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /   1504, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       5   1505 0.33333E-01 0.10450E-04
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3   1503 0.50000E-01 0.30407E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =         16
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          5
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          4
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      4 in timestep         16
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep         16
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -4058,26 +4224,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                    16
 (PID.TID 0000.0001) %MON seaice_time_sec              =   4.0000000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   2.7028238996377E-02
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -2.7363848927891E-02
-(PID.TID 0000.0001) %MON seaice_uice_mean             =   4.1006904764807E-08
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   1.1633420127556E-02
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   4.8615470956466E-06
-(PID.TID 0000.0001) %MON seaice_vice_max              =   2.6411746986834E-02
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -2.6632600117851E-02
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.1988399230838E-06
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   1.1579347774944E-02
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   4.8918518187777E-06
+(PID.TID 0000.0001) %MON seaice_uice_max              =   2.7405920791577E-02
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -2.7891055452134E-02
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -7.1590623123928E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   1.1763054135349E-02
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   3.4050897429070E-06
+(PID.TID 0000.0001) %MON seaice_vice_max              =   2.6730873332554E-02
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -2.7093363961827E-02
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   3.1278675181830E-06
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   1.1707952949463E-02
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   3.4123999425846E-06
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999474723870E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999944410478E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   8.9025151465854E-07
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.8056250159738E-09
-(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999851983180E-01
-(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006041810057E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999035969331E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999943950120E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   1.2959751774155E-06
+(PID.TID 0000.0001) %MON seaice_area_del2             =   1.6158681774637E-08
+(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999852360610E-01
+(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006041162315E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069159226609E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853786349337E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069251727527E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853738709722E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -4086,28 +4252,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1601 0.10000E+00 0.10418E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1601 0.10000E+00 0.10838E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /   1601, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1602 0.50000E-01 0.81946E-04
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1602 0.50000E-01 0.13994E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /   1602, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3   1603 0.50000E-01 0.37909E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /   1603, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4   1604 0.33333E-01 0.18956E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /   1604, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       5   1605 0.33333E-01 0.94782E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3   1603 0.50000E-01 0.32700E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =         17
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          5
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          4
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      4 in timestep         17
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep         17
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -4170,26 +4349,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                    17
 (PID.TID 0000.0001) %MON seaice_time_sec              =   4.2500000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   2.8622217494485E-02
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -2.8937332708375E-02
-(PID.TID 0000.0001) %MON seaice_uice_mean             =   8.7293471599209E-08
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   1.2320011612478E-02
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   4.8406188798238E-06
-(PID.TID 0000.0001) %MON seaice_vice_max              =   2.7966833794049E-02
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -2.8183187115446E-02
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   1.1011244646360E-06
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   1.2263166491653E-02
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   4.8692108483014E-06
+(PID.TID 0000.0001) %MON seaice_uice_max              =   2.9094635281041E-02
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -2.9596363027078E-02
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -7.7043953781576E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   1.2479410429324E-02
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   3.6114949711766E-06
+(PID.TID 0000.0001) %MON seaice_vice_max              =   2.8370385940413E-02
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -2.8761258701709E-02
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   3.3155797528062E-06
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   1.2421131298651E-02
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   3.6217630413211E-06
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999432590354E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999937694856E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   9.7973747598235E-07
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.8058142434125E-09
-(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999849855237E-01
-(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006040085471E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9998913005067E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999937047206E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   1.4612417138111E-06
+(PID.TID 0000.0001) %MON seaice_area_del2             =   1.8313914312062E-08
+(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999850504355E-01
+(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006039253719E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069139579218E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853789906861E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069253511006E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853737459774E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -4198,28 +4377,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1701 0.10000E+00 0.10332E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1701 0.10000E+00 0.10809E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /   1701, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1702 0.50000E-01 0.77874E-04
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1702 0.50000E-01 0.12811E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /   1702, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3   1703 0.50000E-01 0.35727E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /   1703, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4   1704 0.33333E-01 0.17865E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /   1704, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       5   1705 0.33333E-01 0.89326E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3   1703 0.50000E-01 0.29118E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =         18
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          5
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          4
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      4 in timestep         18
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep         18
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -4282,26 +4474,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                    18
 (PID.TID 0000.0001) %MON seaice_time_sec              =   4.5000000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   3.0200596704181E-02
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -3.0490892547123E-02
-(PID.TID 0000.0001) %MON seaice_uice_mean             =   1.3202419127221E-07
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   1.3000714432046E-02
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   4.7893844471779E-06
-(PID.TID 0000.0001) %MON seaice_vice_max              =   2.9507185267819E-02
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -2.9715991182447E-02
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   9.8496576103803E-07
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   1.2941187709453E-02
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   4.8156200643434E-06
+(PID.TID 0000.0001) %MON seaice_uice_max              =   3.0781817279864E-02
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -3.1298365322385E-02
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -8.2561948563217E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   1.3193772698000E-02
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   3.8229367942088E-06
+(PID.TID 0000.0001) %MON seaice_vice_max              =   3.0006685318323E-02
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -3.0426981388760E-02
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   3.4999845835550E-06
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   1.3132337885325E-02
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   3.8307184997888E-06
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999389836059E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999930631882E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   1.0725314705685E-06
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.8082638868097E-09
-(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999847479252E-01
-(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006038280163E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9998782552517E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999929751699E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   1.6366229646246E-06
+(PID.TID 0000.0001) %MON seaice_area_del2             =   2.0608734754060E-08
+(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999848539682E-01
+(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006037235904E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069116823809E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853793129517E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069254940278E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853736178373E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -4310,28 +4502,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1801 0.10000E+00 0.10243E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1801 0.10000E+00 0.10780E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /   1801, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1802 0.50000E-01 0.77289E-04
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1802 0.50000E-01 0.12152E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /   1802, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3   1803 0.50000E-01 0.35438E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /   1803, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4   1804 0.33333E-01 0.17721E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /   1804, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       5   1805 0.33333E-01 0.88603E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3   1803 0.50000E-01 0.28455E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =         19
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          5
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          4
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      4 in timestep         19
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep         19
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -4394,26 +4599,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                    19
 (PID.TID 0000.0001) %MON seaice_time_sec              =   4.7500000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   3.1762577487094E-02
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -3.2024114673837E-02
-(PID.TID 0000.0001) %MON seaice_uice_mean             =   1.7319850704181E-07
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   1.3675354620051E-02
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   4.7316847403688E-06
-(PID.TID 0000.0001) %MON seaice_vice_max              =   3.1032243544798E-02
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -3.1230341869424E-02
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   8.5161200231359E-07
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   1.3613240009564E-02
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   4.7551545458100E-06
+(PID.TID 0000.0001) %MON seaice_uice_max              =   3.2467381879193E-02
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -3.2997094548840E-02
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -8.8149723414942E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   1.3906141519557E-02
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   4.0326627669908E-06
+(PID.TID 0000.0001) %MON seaice_vice_max              =   3.1639806323563E-02
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -3.2090092748243E-02
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   3.6809884289329E-06
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   1.3841569472759E-02
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   4.0408933830097E-06
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999346455103E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999923228329E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   1.1686051846199E-06
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.8144207974381E-09
-(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999844808662E-01
-(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006036394590E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9998644609942E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999922065279E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   1.8221240168836E-06
+(PID.TID 0000.0001) %MON seaice_area_del2             =   2.3044384340529E-08
+(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999846466817E-01
+(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006035109202E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069090797532E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853795996492E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069255926409E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853734882520E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -4422,28 +4627,41 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1901 0.10000E+00 0.10152E+00
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       1   1901 0.10000E+00 0.10751E+00
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      1 /   1901, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1902 0.50000E-01 0.79135E-04
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       2   1902 0.50000E-01 0.11654E-03
 (PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      2 /   1902, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       3   1903 0.50000E-01 0.36472E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      3 /   1903, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, initial norm =       4   1904 0.33333E-01 0.18238E-04
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total =      4 /   1904, Nb. of FGMRES iterations =      1
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       5   1905 0.33333E-01 0.91189E-05
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Picard iterate / total, KRYLOVgamma_lin, final   norm =       3   1903 0.50000E-01 0.29424E-04
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // Begin KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  %KRYLOV_MON: time step              =         20
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of time steps      =          1
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          5
-(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          4
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard steps    =          3
+(PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov steps    =          2
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Picard failures =          0
 (PID.TID 0000.0001)  %KRYLOV_MON: Nb. of Krylov failures =          0
 (PID.TID 0000.0001)  // =======================================================
 (PID.TID 0000.0001)  // End KRYLOV statistics
 (PID.TID 0000.0001)  // =======================================================
-(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      4 in timestep         20
+(PID.TID 0000.0001)  S/R SEAICE_KRYLOV: Total number FGMRES iterations =      2 in timestep         20
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // Begin MONITOR dynamic field statistics
 (PID.TID 0000.0001) // =======================================================
@@ -4506,26 +4724,26 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) %MON seaice_tsnumber              =                    20
 (PID.TID 0000.0001) %MON seaice_time_sec              =   5.0000000000000E+01
-(PID.TID 0000.0001) %MON seaice_uice_max              =   3.3307357567449E-02
-(PID.TID 0000.0001) %MON seaice_uice_min              =  -3.3536623462948E-02
-(PID.TID 0000.0001) %MON seaice_uice_mean             =   2.0869366019713E-07
-(PID.TID 0000.0001) %MON seaice_uice_sd               =   1.4343762721507E-02
-(PID.TID 0000.0001) %MON seaice_uice_del2             =   4.6885051218911E-06
-(PID.TID 0000.0001) %MON seaice_vice_max              =   3.2541455737266E-02
-(PID.TID 0000.0001) %MON seaice_vice_min              =  -3.2725586290653E-02
-(PID.TID 0000.0001) %MON seaice_vice_mean             =   7.0244144536370E-07
-(PID.TID 0000.0001) %MON seaice_vice_sd               =   1.4279156437487E-02
-(PID.TID 0000.0001) %MON seaice_vice_del2             =   4.7090420111840E-06
+(PID.TID 0000.0001) %MON seaice_uice_max              =   3.4150655298176E-02
+(PID.TID 0000.0001) %MON seaice_uice_min              =  -3.4692565647271E-02
+(PID.TID 0000.0001) %MON seaice_uice_mean             =  -9.3801543874594E-07
+(PID.TID 0000.0001) %MON seaice_uice_sd               =   1.4616512865657E-02
+(PID.TID 0000.0001) %MON seaice_uice_del2             =   4.2447993651701E-06
+(PID.TID 0000.0001) %MON seaice_vice_max              =   3.3269775416718E-02
+(PID.TID 0000.0001) %MON seaice_vice_min              =  -3.3750213530618E-02
+(PID.TID 0000.0001) %MON seaice_vice_mean             =   3.8584033995957E-06
+(PID.TID 0000.0001) %MON seaice_vice_sd               =   1.4548822427868E-02
+(PID.TID 0000.0001) %MON seaice_vice_del2             =   4.2592594671183E-06
 (PID.TID 0000.0001) %MON seaice_area_max              =   1.0000000000000E+00
-(PID.TID 0000.0001) %MON seaice_area_min              =   9.9999302454656E-01
-(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999915489656E-01
-(PID.TID 0000.0001) %MON seaice_area_sd               =   1.2679248461628E-06
-(PID.TID 0000.0001) %MON seaice_area_del2             =   1.8243670188106E-09
-(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999841789905E-01
-(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006034428193E-01
+(PID.TID 0000.0001) %MON seaice_area_min              =   9.9998499177445E-01
+(PID.TID 0000.0001) %MON seaice_area_mean             =   9.9999913989001E-01
+(PID.TID 0000.0001) %MON seaice_area_sd               =   2.0177453584664E-06
+(PID.TID 0000.0001) %MON seaice_area_del2             =   2.5621925295227E-08
+(PID.TID 0000.0001) %MON seaice_heff_max              =   3.0999844286052E-01
+(PID.TID 0000.0001) %MON seaice_heff_min              =   2.9006032873946E-01
 (PID.TID 0000.0001) %MON seaice_heff_mean             =   3.0067126525963E-01
-(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069061351308E-03
-(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853798499394E-05
+(PID.TID 0000.0001) %MON seaice_heff_sd               =   5.0069256374481E-03
+(PID.TID 0000.0001) %MON seaice_heff_del2             =   1.2853733589725E-05
 (PID.TID 0000.0001) %MON seaice_hsnow_max             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_min             =   0.0000000000000E+00
 (PID.TID 0000.0001) %MON seaice_hsnow_mean            =   0.0000000000000E+00
@@ -4534,131 +4752,148 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) // =======================================================
 (PID.TID 0000.0001) // End MONITOR SEAICE statistics
 (PID.TID 0000.0001) // =======================================================
+ Computing Diagnostic #    163  SIuice       Counter:       1   Parms: UU      M1      
+           Vector  Mate for  SIuice       Diagnostic #    164  SIvice   exists 
+ Computing Diagnostic #    164  SIvice       Counter:       1   Parms: VV      M1      
+           Vector  Mate for  SIvice       Diagnostic #    163  SIuice   exists 
+ Computing Diagnostic #    149  SIheff       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    146  SIarea       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    228  SIshear      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    233  SIcohes      Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    221  SIsig1       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    222  SIsig2       Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    231  SIdamage     Counter:       1   Parms: SM      M1      
+ Computing Diagnostic #    165  SItaux       Counter:       1   Parms: UU      U1      
+           Vector  Mate for  SItaux       Diagnostic #    166  SItauy   exists 
+ Computing Diagnostic #    166  SItauy       Counter:       1   Parms: VV      U1      
+           Vector  Mate for  SItauy       Diagnostic #    165  SItaux   exists 
+ Computing Diagnostic #    133  EXFuwind     Counter:       1   Parms: UM      U1      
+ Computing Diagnostic #    134  EXFvwind     Counter:       1   Parms: VM      U1      
 (PID.TID 0000.0001) Did not write pickup because writePickupAtEnd = FALSE
 (PID.TID 0000.0001)   Seconds in section "ALL                    [THE_MODEL_MAIN]":
-(PID.TID 0000.0001)           User time:   3.9671360845677555
-(PID.TID 0000.0001)         System time:   2.8966999612748623E-002
-(PID.TID 0000.0001)     Wall clock time:   3.9965670108795166
+(PID.TID 0000.0001)           User time:   2.1245409795083106
+(PID.TID 0000.0001)         System time:   2.7249000035226345E-002
+(PID.TID 0000.0001)     Wall clock time:   2.1561679840087891
 (PID.TID 0000.0001)          No. starts:           1
 (PID.TID 0000.0001)           No. stops:           1
 (PID.TID 0000.0001)   Seconds in section "INITIALISE_FIXED       [THE_MODEL_MAIN]":
-(PID.TID 0000.0001)           User time:   1.6939000226557255E-002
-(PID.TID 0000.0001)         System time:   4.4020004570484161E-003
-(PID.TID 0000.0001)     Wall clock time:   2.1536111831665039E-002
+(PID.TID 0000.0001)           User time:   1.6753999516367912E-002
+(PID.TID 0000.0001)         System time:   5.0010001286864281E-003
+(PID.TID 0000.0001)     Wall clock time:   2.2433996200561523E-002
 (PID.TID 0000.0001)          No. starts:           1
 (PID.TID 0000.0001)           No. stops:           1
 (PID.TID 0000.0001)   Seconds in section "THE_MAIN_LOOP          [THE_MODEL_MAIN]":
-(PID.TID 0000.0001)           User time:   3.9501790776848793
-(PID.TID 0000.0001)         System time:   2.4559999816119671E-002
-(PID.TID 0000.0001)     Wall clock time:   3.9750130176544189
+(PID.TID 0000.0001)           User time:   2.1077699735760689
+(PID.TID 0000.0001)         System time:   2.2244001738727093E-002
+(PID.TID 0000.0001)     Wall clock time:   2.1337170600891113
 (PID.TID 0000.0001)          No. starts:           1
 (PID.TID 0000.0001)           No. stops:           1
 (PID.TID 0000.0001)   Seconds in section "INITIALISE_VARIA    [THE_MAIN_LOOP]":
-(PID.TID 0000.0001)           User time:   1.1559998616576195E-002
-(PID.TID 0000.0001)         System time:   7.5200013816356659E-004
-(PID.TID 0000.0001)     Wall clock time:   1.2315988540649414E-002
+(PID.TID 0000.0001)           User time:   1.2903001159429550E-002
+(PID.TID 0000.0001)         System time:   1.9249999895691872E-003
+(PID.TID 0000.0001)     Wall clock time:   1.4832019805908203E-002
 (PID.TID 0000.0001)          No. starts:           1
 (PID.TID 0000.0001)           No. stops:           1
 (PID.TID 0000.0001)   Seconds in section "MAIN LOOP           [THE_MAIN_LOOP]":
-(PID.TID 0000.0001)           User time:   3.9386020712554455
-(PID.TID 0000.0001)         System time:   2.3803999647498131E-002
-(PID.TID 0000.0001)     Wall clock time:   3.9626801013946533
+(PID.TID 0000.0001)           User time:   2.0948499664664268
+(PID.TID 0000.0001)         System time:   2.0315001718699932E-002
+(PID.TID 0000.0001)     Wall clock time:   2.1188681125640869
 (PID.TID 0000.0001)          No. starts:           1
 (PID.TID 0000.0001)           No. stops:           1
 (PID.TID 0000.0001)   Seconds in section "MAIN_DO_LOOP        [THE_MAIN_LOOP]":
-(PID.TID 0000.0001)           User time:   3.9384961016476154
-(PID.TID 0000.0001)         System time:   2.3801000788807869E-002
-(PID.TID 0000.0001)     Wall clock time:   3.9625687599182129
+(PID.TID 0000.0001)           User time:   2.0947409123182297
+(PID.TID 0000.0001)         System time:   2.0311000756919384E-002
+(PID.TID 0000.0001)     Wall clock time:   2.1187603473663330
 (PID.TID 0000.0001)          No. starts:          20
 (PID.TID 0000.0001)           No. stops:          20
 (PID.TID 0000.0001)   Seconds in section "FORWARD_STEP        [MAIN_DO_LOOP]":
-(PID.TID 0000.0001)           User time:   3.9382919147610664
-(PID.TID 0000.0001)         System time:   2.3795003071427345E-002
-(PID.TID 0000.0001)     Wall clock time:   3.9623568058013916
+(PID.TID 0000.0001)           User time:   2.0945387706160545
+(PID.TID 0000.0001)         System time:   2.0306001417338848E-002
+(PID.TID 0000.0001)     Wall clock time:   2.1185462474822998
 (PID.TID 0000.0001)          No. starts:          20
 (PID.TID 0000.0001)           No. stops:          20
 (PID.TID 0000.0001)   Seconds in section "DO_STATEVARS_DIAGS  [FORWARD_STEP]":
-(PID.TID 0000.0001)           User time:   8.4330514073371887E-004
-(PID.TID 0000.0001)         System time:   2.0000152289867401E-005
-(PID.TID 0000.0001)     Wall clock time:   8.5759162902832031E-004
+(PID.TID 0000.0001)           User time:   3.2520666718482971E-003
+(PID.TID 0000.0001)         System time:   1.4000572264194489E-005
+(PID.TID 0000.0001)     Wall clock time:   3.2858848571777344E-003
 (PID.TID 0000.0001)          No. starts:          40
 (PID.TID 0000.0001)           No. stops:          40
 (PID.TID 0000.0001)   Seconds in section "LOAD_FIELDS_DRIVER  [FORWARD_STEP]":
-(PID.TID 0000.0001)           User time:   5.6901004165410995E-002
-(PID.TID 0000.0001)         System time:   4.9200374633073807E-004
-(PID.TID 0000.0001)     Wall clock time:   5.7400941848754883E-002
+(PID.TID 0000.0001)           User time:   5.8985020965337753E-002
+(PID.TID 0000.0001)         System time:   2.1799560636281967E-004
+(PID.TID 0000.0001)     Wall clock time:   5.9204816818237305E-002
 (PID.TID 0000.0001)          No. starts:          20
 (PID.TID 0000.0001)           No. stops:          20
 (PID.TID 0000.0001)   Seconds in section "EXF_GETFORCING     [LOAD_FLDS_DRIVER]":
-(PID.TID 0000.0001)           User time:   5.6488700211048126E-002
-(PID.TID 0000.0001)         System time:   4.6600215137004852E-004
-(PID.TID 0000.0001)     Wall clock time:   5.6966304779052734E-002
+(PID.TID 0000.0001)           User time:   5.8570135384798050E-002
+(PID.TID 0000.0001)         System time:   1.9799731671810150E-004
+(PID.TID 0000.0001)     Wall clock time:   5.8776378631591797E-002
 (PID.TID 0000.0001)          No. starts:          20
 (PID.TID 0000.0001)           No. stops:          20
 (PID.TID 0000.0001)   Seconds in section "EXTERNAL_FLDS_LOAD [LOAD_FLDS_DRIVER]":
-(PID.TID 0000.0001)           User time:   1.0595843195915222E-004
-(PID.TID 0000.0001)         System time:   4.9965456128120422E-006
-(PID.TID 0000.0001)     Wall clock time:   1.1038780212402344E-004
+(PID.TID 0000.0001)           User time:   1.0385736823081970E-004
+(PID.TID 0000.0001)         System time:   6.9998204708099365E-006
+(PID.TID 0000.0001)     Wall clock time:   1.1205673217773438E-004
 (PID.TID 0000.0001)          No. starts:          20
 (PID.TID 0000.0001)           No. stops:          20
 (PID.TID 0000.0001)   Seconds in section "DO_ATMOSPHERIC_PHYS [FORWARD_STEP]":
-(PID.TID 0000.0001)           User time:   9.9115073680877686E-005
-(PID.TID 0000.0001)         System time:   6.0033053159713745E-006
-(PID.TID 0000.0001)     Wall clock time:   1.0299682617187500E-004
+(PID.TID 0000.0001)           User time:   1.0205432772636414E-004
+(PID.TID 0000.0001)         System time:   6.0005113482475281E-006
+(PID.TID 0000.0001)     Wall clock time:   1.0657310485839844E-004
 (PID.TID 0000.0001)          No. starts:          20
 (PID.TID 0000.0001)           No. stops:          20
 (PID.TID 0000.0001)   Seconds in section "DO_OCEANIC_PHYS     [FORWARD_STEP]":
-(PID.TID 0000.0001)           User time:   3.7701357677578926
-(PID.TID 0000.0001)         System time:   2.1941994316875935E-002
-(PID.TID 0000.0001)     Wall clock time:   3.7923464775085449
+(PID.TID 0000.0001)           User time:   1.8735710233449936
+(PID.TID 0000.0001)         System time:   1.5350002795457840E-003
+(PID.TID 0000.0001)     Wall clock time:   1.8754775524139404
 (PID.TID 0000.0001)          No. starts:          20
 (PID.TID 0000.0001)           No. stops:          20
 (PID.TID 0000.0001)   Seconds in section "SEAICE_MODEL    [DO_OCEANIC_PHYS]":
-(PID.TID 0000.0001)           User time:   3.7618392631411552
-(PID.TID 0000.0001)         System time:   2.1760992705821991E-002
-(PID.TID 0000.0001)     Wall clock time:   3.7838656902313232
+(PID.TID 0000.0001)           User time:   1.8652261346578598
+(PID.TID 0000.0001)         System time:   1.5150010585784912E-003
+(PID.TID 0000.0001)     Wall clock time:   1.8671157360076904
 (PID.TID 0000.0001)          No. starts:          20
 (PID.TID 0000.0001)           No. stops:          20
 (PID.TID 0000.0001)   Seconds in section "SEAICE_DYNSOLVER   [SEAICE_MODEL]":
-(PID.TID 0000.0001)           User time:   3.6893497891724110
-(PID.TID 0000.0001)         System time:   2.1252999082207680E-002
-(PID.TID 0000.0001)     Wall clock time:   3.7109031677246094
+(PID.TID 0000.0001)           User time:   1.7926635555922985
+(PID.TID 0000.0001)         System time:   1.3820007443428040E-003
+(PID.TID 0000.0001)     Wall clock time:   1.7944393157958984
 (PID.TID 0000.0001)          No. starts:          20
 (PID.TID 0000.0001)           No. stops:          20
 (PID.TID 0000.0001)   Seconds in section "THERMODYNAMICS      [FORWARD_STEP]":
-(PID.TID 0000.0001)           User time:   8.6207389831542969E-003
-(PID.TID 0000.0001)         System time:   1.8200743943452835E-004
-(PID.TID 0000.0001)     Wall clock time:   8.8019371032714844E-003
+(PID.TID 0000.0001)           User time:   8.6667835712432861E-003
+(PID.TID 0000.0001)         System time:   2.5001354515552521E-005
+(PID.TID 0000.0001)     Wall clock time:   8.6896419525146484E-003
 (PID.TID 0000.0001)          No. starts:          20
 (PID.TID 0000.0001)           No. stops:          20
 (PID.TID 0000.0001)   Seconds in section "TRC_CORRECTION_STEP [FORWARD_STEP]":
-(PID.TID 0000.0001)           User time:   1.1000037193298340E-004
-(PID.TID 0000.0001)         System time:   4.0009617805480957E-006
-(PID.TID 0000.0001)     Wall clock time:   1.1515617370605469E-004
+(PID.TID 0000.0001)           User time:   1.0293722152709961E-004
+(PID.TID 0000.0001)         System time:   3.9990991353988647E-006
+(PID.TID 0000.0001)     Wall clock time:   1.0824203491210938E-004
 (PID.TID 0000.0001)          No. starts:          20
 (PID.TID 0000.0001)           No. stops:          20
 (PID.TID 0000.0001)   Seconds in section "BLOCKING_EXCHANGES  [FORWARD_STEP]":
-(PID.TID 0000.0001)           User time:   1.6434788703918457E-003
-(PID.TID 0000.0001)         System time:   1.1998228728771210E-005
-(PID.TID 0000.0001)     Wall clock time:   1.6524791717529297E-003
+(PID.TID 0000.0001)           User time:   1.6594827175140381E-003
+(PID.TID 0000.0001)         System time:   2.0004808902740479E-006
+(PID.TID 0000.0001)     Wall clock time:   1.6665458679199219E-003
 (PID.TID 0000.0001)          No. starts:          20
 (PID.TID 0000.0001)           No. stops:          20
 (PID.TID 0000.0001)   Seconds in section "MONITOR             [FORWARD_STEP]":
-(PID.TID 0000.0001)           User time:   6.5710067749023438E-002
-(PID.TID 0000.0001)         System time:   7.8000128269195557E-004
-(PID.TID 0000.0001)     Wall clock time:   6.6498994827270508E-002
+(PID.TID 0000.0001)           User time:   6.5616220235824585E-002
+(PID.TID 0000.0001)         System time:   3.1099934130907059E-004
+(PID.TID 0000.0001)     Wall clock time:   6.5926313400268555E-002
 (PID.TID 0000.0001)          No. starts:          20
 (PID.TID 0000.0001)           No. stops:          20
 (PID.TID 0000.0001)   Seconds in section "DO_THE_MODEL_IO     [FORWARD_STEP]":
-(PID.TID 0000.0001)           User time:   3.2894104719161987E-002
-(PID.TID 0000.0001)         System time:   2.9300432652235031E-004
-(PID.TID 0000.0001)     Wall clock time:   3.3187866210937500E-002
+(PID.TID 0000.0001)           User time:   8.1228062510490417E-002
+(PID.TID 0000.0001)         System time:   1.8121997825801373E-002
+(PID.TID 0000.0001)     Wall clock time:  0.10267567634582520
 (PID.TID 0000.0001)          No. starts:          20
 (PID.TID 0000.0001)           No. stops:          20
 (PID.TID 0000.0001)   Seconds in section "DO_WRITE_PICKUP     [FORWARD_STEP]":
-(PID.TID 0000.0001)           User time:   1.0418891906738281E-004
-(PID.TID 0000.0001)         System time:   4.9974769353866577E-006
-(PID.TID 0000.0001)     Wall clock time:   1.0704994201660156E-004
+(PID.TID 0000.0001)           User time:   1.1000037193298340E-004
+(PID.TID 0000.0001)         System time:   6.0033053159713745E-006
+(PID.TID 0000.0001)     Wall clock time:   1.1181831359863281E-004
 (PID.TID 0000.0001)          No. starts:          20
 (PID.TID 0000.0001)           No. stops:          20
 (PID.TID 0000.0001) // ======================================================
@@ -4676,9 +4911,9 @@ Global & Regional Statistics diagnostics: Number of lists:     0
 (PID.TID 0000.0001) //          Total. Y spins =              0
 (PID.TID 0000.0001) //            Avg. Y spins =       0.00E+00
 (PID.TID 0000.0001) // o Thread number: 000001
-(PID.TID 0000.0001) //            No. barriers =           5828
+(PID.TID 0000.0001) //            No. barriers =           5992
 (PID.TID 0000.0001) //      Max. barrier spins =              1
 (PID.TID 0000.0001) //      Min. barrier spins =              1
-(PID.TID 0000.0001) //     Total barrier spins =           5828
+(PID.TID 0000.0001) //     Total barrier spins =           5992
 (PID.TID 0000.0001) //      Avg. barrier spins =       1.00E+00
 PROGRAM MAIN: Execution ended Normally

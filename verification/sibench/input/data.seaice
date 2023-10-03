@@ -1,10 +1,12 @@
 # SEAICE parameters
  &SEAICE_PARM01
  SEAICE_monFreq = 1.,
+ SEAICEwriteState = .TRUE.,
  usePW79thermodynamics=.FALSE.,
 #SEAICE_strength    = 27.5e+3,
 #meb
- SEAICE_strength    = 5e+8,
+ SEAICE_strength    = 5.0e+8,
+ SEAICEcohesion     = 25.0e+1,
  SEAICEhealingTime = 1e+5,
  SEAICEuseIMEX= .TRUE.,
  SEAICEuseMEB   = .TRUE.,
@@ -21,7 +23,7 @@
  SEAICEnonLinIterMax = 100,
  SEAICEpreconLinIter = 10,
  SEAICElinearIterMax = 50,
- SEAICEnonLinTol     = 1.e-04,
+ SEAICEnonLinTol     = 1.e-03,
  SEAICE_JFNK_lsIter  = 10,
  SEAICE_JFNK_tolIter = 50,
  JFNKres_tFac        = 0.5,
@@ -36,7 +38,7 @@
  HeffFile  = 'thickness_aniso_8000.bin',
  AreaFile  = 'const_1.0_8000.bin',
  HsnowFile = 'const_00_8000.bin',
- CohesFile = 'cohesion_8000.bin',
+#CohesFile = 'cohesion_8000.bin',
  &
 
  &SEAICE_PARM03

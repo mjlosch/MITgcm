@@ -39,7 +39,6 @@
  abEps=0.1,
  forcing_In_AB = .FALSE.,
  writePickupAtEnd = .FALSE.,
- dumpInitandLast = .FALSE.,
  dumpFreq  = 0.,
  monitorSelect=2,
  &
