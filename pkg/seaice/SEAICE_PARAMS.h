@@ -328,7 +328,7 @@ C     AreaFile          :: File containing initial sea-ice concentration
 C     HsnowFile         :: File containing initial snow thickness
 C     HsaltFile         :: File containing initial sea ice salt content
 C     HeffFile          :: File containing initial sea-ice thickness
-C     NoisFile          :: File containing noise field 
+C     NoisFile          :: File containing noise field
 C     CohesFile         :: File containing initial sea-ice cohesion
 C     uIceFile          :: File containing initial sea-ice U comp. velocity
 C     vIceFile          :: File containing initial sea-ice V comp. velocity
@@ -402,7 +402,7 @@ C                           e.g. cos(45) = 1/sqrt(2)
 C     SEAICEhealingTime  :: 1. _d 5
 C     SEAICEdamageTime   :: 2. _d 0
 C     SEAICEtanThetaCorr :: tangent of stress correction path angle
-C                           (with stress invariant axis,
+C                           (with shear stress invariant axis,
 C                           default = SEAICEintFrictCoeff, i.e. the path is
 C                           normal to the yield curve)
 C

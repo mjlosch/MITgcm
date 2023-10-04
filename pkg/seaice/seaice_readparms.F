@@ -68,7 +68,13 @@ C     iUnit      :: Work variable for IO unit number
 C     local runtime parameters that are only used in this routine
 C     SEAICEelasticWaveSp :: parameter for undamaged elasticity modulus
 C                            (500. _d 0)
+C     SEAICEthetaCorr     :: stress correction path angle with shear stress
+C                            invariant axis (in degrees);
+C                            default = arctan(SEAICEintFrictCoeff),
+C                            i.e. the path is normal to the yield curve
+C
       _RL SEAICEelasticWaveSp
+      _RL SEAICEthetaCorr
 
 C-    Old parameters (to be retired one day):
       _RL SEAICE_availHeatTaper
@@ -158,7 +164,7 @@ C--   SEAICE parameters
      & SEAICEpressReplFac, SEAICE_tensilFac, SEAICE_tensilDepth,
      & SEAICEpoissonRatio, SEAICEviscosity, SEAICEcohesion, CohesFile,
      & SEAICEdamageMin, SEAICEdamageParm, SEAICEmebNormCorr,
-     & SEAICEintFrictCoeff, SEAICEmohrCoulombSlope, SEAICEtanThetaCorr,
+     & SEAICEintFrictCoeff, SEAICEmohrCoulombSlope, SEAICEthetaCorr,
      & SEAICEelasticWaveSp, SEAICEhealingTime, SEAICEdamageTime,
      & SEAICE_lhFusion, SEAICE_lhEvap, SEAICE_dalton,
      & SEAICE_sensHeat, SEAICE_latentWater, SEAICE_latentIce,
@@ -605,6 +611,7 @@ C     MEB parameters
       SEAICEdamageParm    = 4.0 _d 0
       SEAICEintFrictCoeff = UNSET_RL
       SEAICEtanThetaCorr  = UNSET_RL
+      SEAICEthetaCorr     = UNSET_RL
       SEAICEmohrCoulombSlope = UNSET_RL
       SEAICEelasticWaveSp = 500. _d 0
       SEAICEhealingTime   = 0. _d 0
@@ -865,9 +872,13 @@ C     Check if all parameters are set.
       ENDIF
 
 #ifdef SEAICE_ALLOW_MEB
-      IF ( SEAICEuseMEB .AND. SEAICEmebNormCorr .AND.
-     &     SEAICEtanThetaCorr .EQ. UNSET_RL ) THEN
-       SEAICEtanThetaCorr = SEAICEintFrictCoeff
+      IF ( SEAICEuseMEB .AND. SEAICEmebNormCorr ) THEN
+       IF ( SEAICEthetaCorr .EQ. UNSET_RL ) THEN
+        SEAICEtanThetaCorr = SEAICEintFrictCoeff
+        SEAICEthetaCorr    = ATAN( SEAICEtanThetaCorr )/deg2rad
+       ELSE
+        SEAICEtanThetaCorr = ATAN( SEAICEthetaCorr*deg2rad )
+       ENDIF
       ENDIF
 #endif
 
