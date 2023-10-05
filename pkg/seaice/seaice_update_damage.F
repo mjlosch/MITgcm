@@ -94,10 +94,8 @@ C     betaFacU/V     :: analog betaFacP1U/V
       _RL deltaTloc
       _RL q, recip_q, sqrtq
       _RL damageCrit
-      _RL sumNorm
       _RL recip_healingTime, recip_damageTime
       _RL sig1, sig2, sigTmp, sigp, sigm, sigI, sigII
-      _RL dtmp(1-OLx:sNx+OLx,1-OLy:sNy+OLy), wght
 
       _RL sigmaT        (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sigmaC        (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -240,11 +238,6 @@ C Sigma-Update-Options:
 #endif
           IF ( AREA(I,J,bi,bj) .EQ. 0. _d 0 )
      &         damage(I,J,bi,bj) = 0. _d 0
-          IF ( updateSigma ) THEN
-C     compute updated/reduced stress that lies on or within yield curve
-           CALL SEAICE_MEB_UPDATE_SIGMA(
-     I          bi, bj, myTime, myIter, myThid )
-          ENDIF
 C     just diagnostics
 C     hack to save principle stress before updating sigma
           sigTmp = 0.
@@ -306,7 +299,7 @@ C          dCritZ(i,j,bi,bj) = fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
 C Option B2/C2: update with new dcrit
 c          dCritZ(I,J,bi,bj) = damageCrit
 C option B3: never update dcrit
-c      dCritZ(I,J,bi,bj) = 1. _d 0
+c          dCritZ(I,J,bi,bj) = 1. _d 0
 C Option DoubleParameters
           dCritZ(I,J,bi,bj) = fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
 c          dCritZ(I,J,bi,bj) = 1. _d 0
@@ -317,19 +310,20 @@ C     make sure that 0 < damage <=1
           damageZ(I,J,bi,bj) = MAX(0. _d 0, damageZ(I,J,bi,bj))
          ENDDO
         ENDDO
-C If out of Loop for better performance
-c       IF ( updateSigma ) THEN
-c        DO J=1, sNy+1
-c         DO I=1, sNx+1
-c          seaice_sigma12(I,J,bi,bj) = sig12(I,J)
-c    &         * dCritZ(I,J,bi,bj)
-c         ENDDO
-c        ENDDO
-c        ENDIF
        ENDDO
       ENDDO
-C      CALL EXCH_Z_3D_RL( damageZ, 1, myThid )
-C      CALL EXCH_Z_3D_RL( dCritZ, 1, myThid )
+c      CALL EXCH_Z_3D_RL( damageZ, 1, myThid )
+c      CALL EXCH_Z_3D_RL( dCritZ, 1, myThid )
+
+      IF ( updateSigma ) THEN
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+C     compute updated/reduced stress that lies on or within yield curve
+         CALL SEAICE_MEB_UPDATE_SIGMA(
+     I        bi, bj, myTime, myIter, myThid )
+        ENDIF
+       ENDDO
+      ENDDO
 
       RETURN
       END
@@ -363,7 +357,7 @@ CEOP
       ENDIF
       RETURN
       END
-C
+CBOP
 C     !ROUTINE: MC_NORM_FAILURE
 C     !INTERFACE:
       _RL FUNCTION MC_NORM_FAILURE ( sigI, sigII, chsn,
@@ -385,12 +379,16 @@ C
       RETURN
       END
 C Averaging-Options F1/F2/F3/F4
+CBOP
+C     !ROUTINE: fldAtZ
+C     !INTERFACE:
       _RL FUNCTION fldAtZ ( fldIn, i, j, bi, bj )
       IMPLICIT NONE
 #include "SIZE.h"
 #include "GRID.h"
       INTEGER i,j, bi,bj
       _RL fldIn (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+CEOP
       _RL sumNorm
 C
       sumNorm  = maskInC(I,J,  bi,bj)+maskInC(I-1,J,  bi,bj)
@@ -411,13 +409,16 @@ c     &     + (fldIn(I-1,J-1)*maskInC(I-1,J-1,bi,bj))**2 ))
 C
       RETURN
       END
-
+CBOP
+C     !ROUTINE: fldAtC
+C     !INTERFACE:
       _RL FUNCTION fldAtC ( fldIn, i, j, bi,bj )
       IMPLICIT NONE
 #include "SIZE.h"
 #include "GRID.h"
       INTEGER i,j, bi,bj
       _RL fldIn (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+CEOP
       _RL sumNorm
 C
       sumNorm  = 0.25 _d 0
@@ -566,7 +567,7 @@ C     i,j :: loop indices
       _RL recip_rlx(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL denom(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL denomZ(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RL sumNorm, deltaTloc
+      _RL deltaTloc
       _RL fldAtZ
       EXTERNAL fldAtZ
 CEOP
@@ -800,10 +801,10 @@ C     i,j :: loop indices
       _RL recip_rlx(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL denom(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL denomZ(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RL denom_z
-      _RL sumNorm, deltaTloc
-      _RL SEAICEmebMu, SEAICEmebLambda
-      _RL zetaLoc, etaLoc
+c     _RL denom_z
+      _RL deltaTloc
+c     _RL SEAICEmebMu, SEAICEmebLambda
+c     _RL zetaLoc, etaLoc
       _RL sigp, sigm, ep, em, rhs12
       _RL fldAtZ, fldAtC
       EXTERNAL fldAtZ, fldAtC
