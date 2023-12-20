@@ -1,6 +1,7 @@
 # SEAICE parameters
  &SEAICE_PARM01
  SEAICE_monFreq = 1.,
+ SEAICE_dumpFreq= 1.,
  SEAICEwriteState = .TRUE.,
  usePW79thermodynamics=.FALSE.,
 #SEAICE_strength    = 27.5e+3,

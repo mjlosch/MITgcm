@@ -40,9 +40,9 @@
 		   'SItaux  ','SItauy  ',
 		   'EXFuwind','EXFvwind',
    fileName(3) = 'snapshot',
-# frequency(3) = 1.,
-  frequency(3) = -1800.,
-  timePhase(3) =  1800.,
+  frequency(3) = 1.,
+# frequency(3) = -1800.,
+# timePhase(3) =  1800.,
   missing_value(3) = -999.,
  &
 

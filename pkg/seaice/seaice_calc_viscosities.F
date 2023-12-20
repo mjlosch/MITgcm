@@ -2,9 +2,6 @@
 #ifdef ALLOW_AUTODIFF
 # include "AUTODIFF_OPTIONS.h"
 #endif
-C #ifdef SEAICE_ALLOW_MEB
-C # include "seaice_update_damage.F"
-C #endif
 
 CBOP
 CStartOfInterface
@@ -535,7 +532,7 @@ C DoubleParameters
            zetaZ(i,j,bi,bj) = mu*(poissonFac + 1. _d 0)
            etaZ (i,j,bi,bj) = mu
           ENDDO
-         ENDDO 
+         ENDDO
 c         DO j=1-OLy+1,sNy+OLy-1
 c          DO i=1-OLx+1,sNx+OLx-1
 c           etaZ (i,j,bi,bj) = fldAtZ(eta(:,:,bi,bj),i,j,bi,bj)

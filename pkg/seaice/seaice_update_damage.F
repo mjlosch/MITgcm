@@ -97,12 +97,12 @@ C     betaFacU/V     :: analog betaFacP1U/V
       _RL recip_healingTime, recip_damageTime
       _RL sig1, sig2, sigTmp, sigp, sigm, sigI, sigII
 
-      _RL sigmaT        (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RL sigmaC        (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RL sig11         (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RL sig22         (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RL sig12         (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RL sig12C        (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL sigmaT(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL sigmaC(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL sig11 (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL sig22 (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL sig12 (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL sig12C(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 
       _RL fldAtZ, fldAtC
       _RL TENSILE_FAILURE
@@ -115,6 +115,15 @@ C     betaFacU/V     :: analog betaFacP1U/V
 
 CEOP
 
+      _EXCH_XY_RL(seaice_sigma1, myThid )
+      _EXCH_XY_RL(seaice_sigma2, myThid )
+      _EXCH_XY_RL(seaice_sigma12, myThid )
+      _EXCH_XY_RL(seaice_sigma12C, myThid )
+      _EXCH_XY_RL(damage, myThid )
+      _EXCH_XY_RL(HEFF, myThid )
+      _EXCH_XY_RL(AREA, myThid )
+      _EXCH_XY_RL(HSNOW, myThid )
+      CALL EXCH_UV_XY_RL( uIce, vIce, .TRUE., myThid )
 C
       deltaTloc = SEAICE_deltaTdyn
 
@@ -144,6 +153,7 @@ C     uniaxial (unconfined) compressive strength (needs to include HEFF
 C     because of our definition of stress including HEFF) is negative
 C     according to our convention (this is different from Dansereau et al 2016)
           sigmaC(I,J) = - 2.*cohesion(I,J,bi,bj)*sqrtq*HEFF(I,J,bi,bj)
+CML     &        *EXP(-SEAICE_cStar*(SEAICE_area_max-AREA(i,j,bi,bj)))
 C     tensile strength cutoff
           sigmaT(I,J) = - sigmaC(I,J)*recip_q
 C
@@ -151,6 +161,16 @@ C
           dCritZ(I,J,bi,bj) = 1. _d 0
          ENDDO
         ENDDO
+CMLC     need to update damageZ from previous timestep
+CMLC     after advection of damage?
+CML        DO j=1,sNy+1
+CML         DO i=1,sNx+1
+CML          damageZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
+CMLC     make sure that 0 < damage <=1
+CML          damageZ(I,J,bi,bj) = MIN(1. _d 0, damageZ(I,J,bi,bj))
+CML          damageZ(I,J,bi,bj) = MAX(0. _d 0, damageZ(I,J,bi,bj))
+CML         ENDDO
+CML        ENDDO
 
 C     re-compute stress from most recent strain rates
 #  ifdef SEAICE_ALLOW_MEB
@@ -171,18 +191,30 @@ C     re-compute stress from most recent strain rates
      O        sig11, sig22, sig12,
      I        bi, bj, myTime, myIter, myThid )
         ENDIF
+        DO j=1,sNy+1
+         DO i=1,sNx+1
+          dCritZ(I,J,bi,bj)  = fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
+          damageZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
+C     make sure that 0 < damage <=1
+          damageZ(I,J,bi,bj) = MIN(1. _d 0, damageZ(I,J,bi,bj))
+          damageZ(I,J,bi,bj) = MAX(0. _d 0, damageZ(I,J,bi,bj))
+         ENDDO
+        ENDDO
         DO j=1,sNy
          DO i=1,sNx
 C     abbreviations
           sigp   = sig11(I,J) + sig22(I,J)
           sigm   = sig11(I,J) - sig22(I,J)
-          sigTmp = SQRT( sigm*sigm + 4.*sig12C(I,J,bi,bj)**2 )
+          sigTmp = SQRT( sigm*sigm + 4.*sig12C(I,J)**2 )
 C     principle components
           sig1   = 0.5 _d 0 * ( sigp + sigTmp )
           sig2   = 0.5 _d 0 * ( sigp - sigTmp )
 C     stess invariants
           sigI   = 0.5 _d 0 * ( sig1 + sig2 )
           sigII  = 0.5 _d 0 * ( sig1 - sig2 )
+C     equivalent to
+c         sigI   = 0.5 _d 0 * sigp
+c         sigII  = 0.5 _d 0 * sigTmp
 C     damageCrit = 1 means no additional damage
           damageCrit = 1. _d 0
 C     here we can clearly do something about regularisation
@@ -238,6 +270,7 @@ C Sigma-Update-Options:
 #endif
           IF ( AREA(I,J,bi,bj) .EQ. 0. _d 0 )
      &         damage(I,J,bi,bj) = 0. _d 0
+#ifdef ALLOW_DIAGNOSTICS
 C     just diagnostics
 C     hack to save principle stress before updating sigma
           sigTmp = 0.
@@ -245,13 +278,16 @@ C     hack to save principle stress before updating sigma
      &         sigTmp=1./SEAICE_strength/HEFF(I,J,bi,bj)
           sig11(I,J)  = sig1*sigTmp
           sig22(I,J)  = sig2*sigTmp
+#endif
          ENDDO
         ENDDO
+#ifdef ALLOW_DIAGNOSTICS
         CALL DIAGNOSTICS_FILL(sig11,'SIsig1pr',0,1,2,bi,bj,myThid)
         CALL DIAGNOSTICS_FILL(sig22,'SIsig2pr',0,1,2,bi,bj,myThid)
+#endif
        ENDDO
       ENDDO
-      _EXCH_XY_RL(sig12C, myThid )
+c     _EXCH_XY_RL(sig12C, myThid )
       _EXCH_XY_RL(dCrit, myThid )
       _EXCH_XY_RL(damage, myThid )
       DO bj=myByLo(myThid),myByHi(myThid)
@@ -321,9 +357,9 @@ c      CALL EXCH_Z_3D_RL( dCritZ, 1, myThid )
 C     compute updated/reduced stress that lies on or within yield curve
          CALL SEAICE_MEB_UPDATE_SIGMA(
      I        bi, bj, myTime, myIter, myThid )
-        ENDIF
+        ENDDO
        ENDDO
-      ENDDO
+      ENDIF
 
       RETURN
       END
@@ -788,7 +824,7 @@ C     ouptut :: new stress tensor components
       _RL sig11   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig22   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig12   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RL sig12C  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL sig12C  (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       INTEGER bi, bj
       _RL     myTime
       INTEGER myIter
@@ -812,10 +848,10 @@ CEOP
 
       DO j=1-OLy,sNy+OLy
        DO i=1-OLx,sNx+OLx
-        sig11(i,j) = 0. _d 0
-        sig22(i,j) = 0. _d 0
-        sig12(i,j) = 0. _d 0
-        sig12C(i,j,bi,bj) = 0. _d 0
+        sig11 (i,j) = 0. _d 0
+        sig22 (i,j) = 0. _d 0
+        sig12 (i,j) = 0. _d 0
+        sig12C(i,j) = 0. _d 0
        ENDDO
       ENDDO
 C     some abbreviations
@@ -873,12 +909,12 @@ c        rhs12 = 2.*fldAtC(e12(:,:,bi,bj)*etaZ(:,:,bi,bj),i,j,bi,bj)
 c        rhs12 = 2.*fldAtC(e12(:,:,bi,bj),i,j,bi,bj)
 C Calc-Stress-Options D1/D2
 C Option D1: averaging sigma12
-c        sig12C(I,J,bi,bj) = denom(I,J) * ( deltaTLoc*rhs12 +
+c        sig12C(I,J) = denom(I,J) * ( deltaTLoc*rhs12 +
 c     &       fldAtC(sigma12(:,:,bi,bj),i,j,bi,bj) )
 C Option D2: using uncoupled sigma12C
-c        sig12C(I,J,bi,bj) = denom(I,J)
+c        sig12C(I,J) = denom(I,J)
 c     &   *(deltaTLoc*rhs12+sigma12C(I,J,bi,bj))
-        sig12C(I,J,bi,bj) = rhs12+sigma12C(I,J,bi,bj)*denom(I,J)
+        sig12C(I,J) = rhs12+sigma12C(I,J,bi,bj)*denom(I,J)
        ENDDO
       ENDDO
       DO J=1-OLy+1,sNy+OLy-1

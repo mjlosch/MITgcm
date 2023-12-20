@@ -405,8 +405,18 @@ C     criterion for the transition from accurate to approximate FGMRES
         ENDIF
        ENDIF
 #ifdef SEAICE_ALLOW_DAMAGE
+CML dont we have to put all of this into the same if-statement?
        IF ( SEAICEupdateDamage .AND. SEAICEuseIMEX )
      &      CALL SEAICE_UPDATE_DAMAGE( .FALSE., myTime, myIter, myThid )
+      _EXCH_XY_RL(seaice_sigma1, myThid )
+      _EXCH_XY_RL(seaice_sigma2, myThid )
+      _EXCH_XY_RL(seaice_sigma12, myThid )
+      _EXCH_XY_RL(seaice_sigma12C, myThid )
+      _EXCH_XY_RL(damage, myThid )
+      _EXCH_XY_RL(HEFF, myThid )
+      _EXCH_XY_RL(AREA, myThid )
+      _EXCH_XY_RL(HSNOW, myThid )
+      CALL EXCH_UV_XY_RL( uIce, vIce, .TRUE., myThid )
 C     after updating damage to the current picardIter, ice strength =
 C     elasticity needs to be recomputed
        DO bj=myByLo(myThid),myByHi(myThid)

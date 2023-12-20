@@ -306,6 +306,9 @@ C--   Update overlap regions for a bunch of stuff
        CALL EXCH_3D_RL( AREAITD,  nITD, myThid )
        CALL EXCH_3D_RL( HSNOWITD, nITD, myThid )
 #endif
+#ifdef SEAICE_ALLOW_DAMAGE
+       _EXCH_XY_RL( damage, myThid )
+#endif
 #ifdef SEAICE_VARIABLE_SALINITY
        _EXCH_XY_RL( HSALT, myThid )
 #endif
