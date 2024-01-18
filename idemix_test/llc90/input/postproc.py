@@ -35,7 +35,7 @@ yearstr = year1
 
 cycle = 5
 startyear = 1958
-refdate = "%i-1-1 0:0:0"%(startyear-(cycle-1)*62)
+refdate = "%04i-1-1 0:0:0"%(startyear-(cycle-1)*62)
 mycycle = "cycle%i"%(cycle)
 
 print("preocessing %s (%s) for years %s to %s"%(thisrun,rname,year0,year1))
