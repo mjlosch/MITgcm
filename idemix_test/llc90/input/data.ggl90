@@ -26,7 +26,8 @@
  calcMeanVertShear = .TRUE.,
  mxlMaxFlag=2,
 #mxlMaxFlag=0,
- mxlSurfFlag = .TRUE.,
+# this was true for most of the simulations, but only in the CTRL run, why?
+#mxlSurfFlag = .TRUE.,
  GGL90viscMax=1.e2,
  GGL90diffMax=1.e2,
 #GGL90TKEFile=,
