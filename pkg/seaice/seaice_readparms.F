@@ -108,7 +108,7 @@ C--   SEAICE parameters
      & usePW79thermodynamics, useMaykutSatVapPoly, SEAICEuseFlooding,
      & SEAICErestoreUnderIce, SEAICE_growMeltByConv,
      & SEAICE_salinityTracer, SEAICE_ageTracer,
-     & SEAICEadvHeff, SEAICEadvArea, SEAICEadvSnow,
+     & SEAICEadvHeff, SEAICEadvArea, SEAICEadvSnow, SEAICEadvStress,
      & SEAICEadvSalt, SEAICEadvAge, SEAICEaddSnowMass,
      & SEAICEmomAdvection, SEAICEselectKEscheme, SEAICEselectVortScheme,
      & SEAICEhighOrderVorticity, SEAICEupwindVorticity,
@@ -297,6 +297,7 @@ C     end ridging parampeters
       SEAICEadvHeff      = .TRUE.
       SEAICEadvArea      = .TRUE.
       SEAICEadvSnow      = .TRUE.
+      SEAICEadvStress    = .FALSE.
 #ifdef SEAICE_VARIABLE_SALINITY
       SEAICEadvSalt      = .TRUE.
 #else
@@ -1051,6 +1052,7 @@ C     so we reset them here
        SEAICEadvArea         = .FALSE.
        SEAICEadvSnow         = .FALSE.
        SEAICEadvSalt         = .FALSE.
+       SEAICEadvStress       = .FALSE.
       ENDIF
 C     Set advection schemes to some sensible values if not done in data.seaice
       IF ( SEAICEadvSchArea .EQ. UNSET_I )
