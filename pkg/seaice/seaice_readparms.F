@@ -297,7 +297,7 @@ C     end ridging parampeters
       SEAICEadvHeff      = .TRUE.
       SEAICEadvArea      = .TRUE.
       SEAICEadvSnow      = .TRUE.
-      SEAICEadvStress    = .FALSE.
+      SEAICEadvStress    = .TRUE.
 #ifdef SEAICE_VARIABLE_SALINITY
       SEAICEadvSalt      = .TRUE.
 #else
@@ -718,7 +718,7 @@ C nITD is set in SEAICE_SIZE.h
 C--   Set default values (if not specified in data.seaice namelist)
 
 C--   damage always needs to be updated for MEB
-      IF ( SEAICEuseMEB ) SEAICEupdateDamage = .TRUE.
+CMB      IF ( SEAICEuseMEB ) SEAICEupdateDamage = .TRUE.
 C--   Default ice strength (Pstar)
       IF (SEAICE_strength .EQ. UNSET_RL) THEN
        SEAICE_strength = 2.75 _d +04

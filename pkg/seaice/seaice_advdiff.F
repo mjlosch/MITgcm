@@ -81,11 +81,11 @@ C     xA,yA     :: "areas" of X and Y face of tracer cells
 # ifdef ALLOW_SITRACER_DEBUG_DIAG
       _RL DIAGarray (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr)
 # endif
-# ifdef EAICEadvStress
+#endif /* ALLOW_SITRACER */
+# ifdef SEAICE_ALLOW_MEB
       _RL fldAtZ
       EXTERNAL fldAtZ
 # endif
-#endif /* ALLOW_SITRACER */
       _RL fldNm1    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL uTrans    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL vTrans    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -444,13 +444,14 @@ C     safeguard against overshoots
          ENDIF
 #endif /* SEAICE_ALLOW_DAMAGE */
 
-#ifdef SEAICEadvStress
-        IF ( SEAICEadvArea ) THEN
+#ifdef SEAICE_ALLOW_MEB
+        IF ( SEAICEadvArea .AND. SEAICEadvStress ) THEN
 C advect sigma_1
          CALL SEAICE_ADVECTION(
      I        GAD_AREA, SEAICEadvSchArea,
      I        uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
-     I        uTrans, vTrans, seaice_sigma1(1-OLx,1-OLy,bi,bj), recip_heff,
+     I        uTrans, vTrans, seaice_sigma1(1-OLx,1-OLy,bi,bj), 
+     I        recip_heff,
      O        gFld, afx, afy,
      I        bi, bj, myTime, myIter, myThid )
 CMB         IF ( SEAICEdiffKhArea .GT. 0. _d 0 ) THEN
@@ -465,23 +466,27 @@ CMB         ENDIF
 C     now do the "explicit" time step
          DO j=1,sNy
           DO i=1,sNx
-            seaice_sigma1(i,j,bi,bj) = HEFFM(i,j,bi,bj) * (
-     &          seaice_sigma1(i,j,bi,bj) + SEAICE_deltaTtherm * gFld(i,j)
+           seaice_sigma1(i,j,bi,bj) = HEFFM(i,j,bi,bj) * (
+     &          seaice_sigma1(i,j,bi,bj) 
+     &          + SEAICE_deltaTtherm * gFld(i,j)
      &          )
           ENDDO
          ENDDO
+CMB         PRINT *, "Hallo"
 C advect sigma_2
          CALL SEAICE_ADVECTION(
      I        GAD_AREA, SEAICEadvSchArea,
      I        uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
-     I        uTrans, vTrans, seaice_sigma2(1-OLx,1-OLy,bi,bj), recip_heff,
+     I        uTrans, vTrans, seaice_sigma2(1-OLx,1-OLy,bi,bj), 
+     I        recip_heff,
      O        gFld, afx, afy,
      I        bi, bj, myTime, myIter, myThid )
 C     now do the "explicit" time step
          DO j=1,sNy
           DO i=1,sNx
-            seaice_sigma2(i,j,bi,bj) = HEFFM(i,j,bi,bj) * (
-     &          seaice_sigma2(i,j,bi,bj) + SEAICE_deltaTtherm * gFld(i,j)
+           seaice_sigma2(i,j,bi,bj) = HEFFM(i,j,bi,bj) * (
+     &          seaice_sigma2(i,j,bi,bj) 
+     &          + SEAICE_deltaTtherm * gFld(i,j)
      &          )
           ENDDO
          ENDDO
@@ -489,27 +494,29 @@ C advect sigma_12C
          CALL SEAICE_ADVECTION(
      I        GAD_AREA, SEAICEadvSchArea,
      I        uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
-     I        uTrans, vTrans, seaice_sigma12C(1-OLx,1-OLy,bi,bj), recip_heff,
+     I        uTrans, vTrans, seaice_sigma12C(1-OLx,1-OLy,bi,bj), 
+     I        recip_heff,
      O        gFld, afx, afy,
      I        bi, bj, myTime, myIter, myThid )
 C     now do the "explicit" time step
          DO j=1,sNy
           DO i=1,sNx
-            seaice_sigma12C(i,j,bi,bj) = HEFFM(i,j,bi,bj) * (
-     &          seaice_sigma12C(i,j,bi,bj) + SEAICE_deltaTtherm 
-     &          * gFld(i,j))
+           seaice_sigma12C(i,j,bi,bj) = HEFFM(i,j,bi,bj) * (
+     &          seaice_sigma12C(i,j,bi,bj) 
+     &          + SEAICE_deltaTtherm * gFld(i,j)
+     &          )
           ENDDO
          ENDDO
 C adcevt sigma_12 by averaging
          DO j=1,sNy+1
            DO i=1,sNx+1
-            seaice_sigma12(i,j,bi,bj) = HEFFM(i,j,bi,bj) * (
+            seaice_sigma12(i,j,bi,bj) = (
      &          seaice_sigma12(i,j,bi,bj) + SEAICE_deltaTtherm 
-     &          * fldAtZ(gFld(i,j), i, j, bi, bj))
+     &          * fldAtZ(gFld(:,:), i, j, bi, bj))
            ENDDO
           ENDDO
          ENDIF
-#endif /* SEAICEadvStress */
+#endif /* SEAICE_ALLOW_MEB */
 
 #ifdef ALLOW_SITRACER
 C--   Sea Ice Tracers
