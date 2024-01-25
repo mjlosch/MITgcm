@@ -382,6 +382,8 @@ C     end if SEAICEuseDYNAMICS bloc
      & 'SEAICEadvArea =', ' /* advect fractional ice area */')
       CALL WRITE_0D_L ( SEAICEadvSnow, INDEX_NONE,
      & 'SEAICEadvSnow =', ' /* advect snow layer together with ice */')
+      CALL WRITE_0D_L ( SEAICEadvStress, INDEX_NONE,
+     & 'SEAICEadvStress =', ' /* advect stress tensor */')
 #ifdef SEAICE_VARIABLE_SALINITY
       CALL WRITE_0D_L ( SEAICEadvSalt, INDEX_NONE,
      & 'SEAICEadvSalt =', ' /* advect salinity together with ice */')
