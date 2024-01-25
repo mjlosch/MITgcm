@@ -309,6 +309,12 @@ C--   Update overlap regions for a bunch of stuff
 #ifdef SEAICE_ALLOW_DAMAGE
        _EXCH_XY_RL( damage, myThid )
 #endif
+#ifdef SEAICE_ALLOW_MEB
+       _EXCH_XY_RL( seaice_sigma1,   myThid )
+       _EXCH_XY_RL( seaice_sigma2,   myThid )
+       _EXCH_XY_RL( seaice_sigma12,  myThid )
+       _EXCH_XY_RL( seaice_sigma12C, myThid )
+#endif
 #ifdef SEAICE_VARIABLE_SALINITY
        _EXCH_XY_RL( HSALT, myThid )
 #endif
