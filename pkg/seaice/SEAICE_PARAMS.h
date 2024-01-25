@@ -95,6 +95,8 @@ C     SEAICEadvSnow     :: turn on advection of snow (does not work with
 C                          non-default Leap-frog scheme for advection)
 C     SEAICEadvSalt     :: turn on advection of salt (does not work with
 C                          non-default Leap-frog scheme for advection)
+C     SEAICEadvStress     :: turn on advection of stress tensor
+C                          (default = .false.)
 C     SEAICEmultiDimAdvection:: internal flag, set to false if any sea ice
 C                          variable uses a non-multi-dimensional advection
 C                          scheme
@@ -152,8 +154,8 @@ C     SEAICE_mon_mnc    :: write monitor to netcdf file
      &     SEAICE_maskRHS, SEAICEscaleSurfStress,
      &     SEAICE_clipVelocities, SEAICEaddSnowMass,
      &     useHB87stressCoupling, SEAICEupdateOceanStress,
-     &     SEAICEuseFluxForm, SEAICEadvHeff, SEAICEadvArea,
-     &     SEAICEmultiDimAdvection,
+     &     SEAICEuseFluxForm, SEAICEadvHeff, SEAICEadvArea, 
+     &     SEAICEadvStress, SEAICEmultiDimAdvection,
      &     SEAICEadvSnow, SEAICEadvSalt, SEAICEmomAdvection,
      &     SEAICEhighOrderVorticity, SEAICEupwindVorticity,
      &     SEAICEuseAbsVorticity, SEAICEuseJamartMomAdv,
@@ -184,7 +186,8 @@ C     SEAICE_mon_mnc    :: write monitor to netcdf file
      &     SEAICE_maskRHS, SEAICEscaleSurfStress,
      &     SEAICE_clipVelocities, SEAICEaddSnowMass,
      &     useHB87stressCoupling, SEAICEupdateOceanStress,
-     &     SEAICEuseFluxForm, SEAICEadvHeff, SEAICEadvArea,
+     &     SEAICEuseFluxForm, SEAICEadvHeff, SEAICEadvArea, 
+     &     SEAICEadvStress,
      &     SEAICEadvSnow, SEAICEadvSalt, SEAICEmomAdvection,
      &     SEAICEmultiDimAdvection,
      &     SEAICEhighOrderVorticity, SEAICEupwindVorticity,

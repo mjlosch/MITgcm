@@ -108,7 +108,7 @@ C--   SEAICE parameters
      & usePW79thermodynamics, useMaykutSatVapPoly, SEAICEuseFlooding,
      & SEAICErestoreUnderIce, SEAICE_growMeltByConv,
      & SEAICE_salinityTracer, SEAICE_ageTracer,
-     & SEAICEadvHeff, SEAICEadvArea, SEAICEadvSnow,
+     & SEAICEadvHeff, SEAICEadvArea, SEAICEadvSnow, SEAICEadvStress,
      & SEAICEadvSalt, SEAICEadvAge, SEAICEaddSnowMass,
      & SEAICEmomAdvection, SEAICEselectKEscheme, SEAICEselectVortScheme,
      & SEAICEhighOrderVorticity, SEAICEupwindVorticity,
@@ -297,6 +297,7 @@ C     end ridging parampeters
       SEAICEadvHeff      = .TRUE.
       SEAICEadvArea      = .TRUE.
       SEAICEadvSnow      = .TRUE.
+      SEAICEadvStress    = .TRUE.
 #ifdef SEAICE_VARIABLE_SALINITY
       SEAICEadvSalt      = .TRUE.
 #else
@@ -717,7 +718,7 @@ C nITD is set in SEAICE_SIZE.h
 C--   Set default values (if not specified in data.seaice namelist)
 
 C--   damage always needs to be updated for MEB
-      IF ( SEAICEuseMEB ) SEAICEupdateDamage = .TRUE.
+CMB      IF ( SEAICEuseMEB ) SEAICEupdateDamage = .TRUE.
 C--   Default ice strength (Pstar)
       IF (SEAICE_strength .EQ. UNSET_RL) THEN
        SEAICE_strength = 2.75 _d +04
@@ -1051,6 +1052,7 @@ C     so we reset them here
        SEAICEadvArea         = .FALSE.
        SEAICEadvSnow         = .FALSE.
        SEAICEadvSalt         = .FALSE.
+       SEAICEadvStress       = .FALSE.
       ENDIF
 C     Set advection schemes to some sensible values if not done in data.seaice
       IF ( SEAICEadvSchArea .EQ. UNSET_I )
