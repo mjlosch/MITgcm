@@ -499,8 +499,8 @@ C advect sigma_12C
      O        gFld, afx, afy,
      I        bi, bj, myTime, myIter, myThid )
 C     now do the "explicit" time step
-         DO j=1,sNy
-          DO i=1,sNx
+         DO j=0,sNy+1
+          DO i=0,sNx+1
            seaice_sigma12C(i,j,bi,bj) = HEFFM(i,j,bi,bj) * (
      &          seaice_sigma12C(i,j,bi,bj) 
      &          + SEAICE_deltaTtherm * gFld(i,j)
