@@ -456,7 +456,7 @@ C upper-convected part
      I     seaice_sigma2(1-OLx,1-OLy,bi,bj),
      I     seaice_sigma12(1-OLx,1-OLy,bi,bj),
      I     seaice_sigma12C(1-OLx,1-OLy,bi,bj),     
-     O     gFld1, gFld2, gFld12, afx, afy,
+     O     gFld1, gFld2, gFld12,
      I     bi, bj, myTime, myIter, myThid)
 C advect sigma_1
          CALL SEAICE_ADVECTION(
@@ -474,7 +474,6 @@ C advect sigma_1
      &          )
           ENDDO
          ENDDO
-CMB         PRINT *, "Hallo"
 C advect sigma_2
          CALL SEAICE_ADVECTION(
      I        GAD_AREA, SEAICEadvSchArea,

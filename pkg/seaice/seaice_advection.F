@@ -817,7 +817,7 @@ C !INTERFACE: ==========================================================
       SUBROUTINE SEAICE_ADV_TENSOR(
      I     uFld, vFld, uTrans, vTrans, 
      I     sigPlus, sigMinus, sig12, sig12C,
-     O     gFld1, gFld2, gFld12, afx, afy,
+     O     gFld1, gFld2, gFld12,
      I     bi, bj, myTime, myIter, myThid)
 
 C !DESCRIPTION:
@@ -880,7 +880,6 @@ C  myThid            :: my Thread Id number
       _RL sigMinus (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig12    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig12C   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      INTEGER iStep
       INTEGER bi,bj
       _RL myTime
       INTEGER myIter
@@ -893,24 +892,12 @@ C  afy                  :: horizontal advective flux, y direction
       _RL gFld1   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL gFld2   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL gFld12  (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RL afx     (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RL afy     (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 
 #ifdef ALLOW_GENERIC_ADVDIFF
 C !LOCAL VARIABLES: ====================================================
-C  maskLocW      :: 2-D array for mask at West points
-C  maskLocS      :: 2-D array for mask at South points
-C  iMin,iMax,    :: loop range for called routines
-C  jMin,jMax     :: loop range for called routines
-C [iMin,iMax]Upd :: loop range to update sea-ice field
-C [jMin,jMax]Upd :: loop range to update sea-ice field
-C  i,j,k         :: loop indices
+C  i,j         :: loop indices
 C
-      _RS maskLocW(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RS maskLocS(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      INTEGER iMin,iMax,jMin,jMax
-      INTEGER iMinUpd,iMaxUpd,jMinUpd,jMaxUpd
-      INTEGER i,j,k
+      INTEGER i,j
 C components of stress tensor
       _RL sig11 (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL sig22 (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -936,14 +923,7 @@ C     hFacU, hFacV :: determine the no-slip boundary condition
 #ifdef ALLOW_EXCH2
       INTEGER myTile
 #endif
-#ifdef ALLOW_DIAGNOSTICS
-      CHARACTER*8 diagName
-      CHARACTER*4 SEAICE_DIAG_SUFX, diagSufx
-      EXTERNAL    SEAICE_DIAG_SUFX
-#endif
 C
-CMB      DO bj=myByLo(myThid),myByHi(myThid)
-CMB       DO bi=myBxLo(myThid),myBxHi(myThid)
 C     compute components of stress tensor
         DO j=1-OLy,sNy+OLy
          DO i=1-OLx,sNx+OLx
@@ -990,44 +970,36 @@ C     on Z-points
           vave(i,j) = 0.5 _d 0 * (vFld(i,j)+vFld(i-1,j))
          ENDDO
         ENDDO
+C     compute physical components dudy, dvdx
+        DO j=1-OLy+1,sNy+OLy
+         DO i=1-OLx+1,sNx+OLx
+          dudy(i,j) = (dudy(i,j) - k1AtZ(i,j,bi,bj) * vave(i,j))
+     &         *HEFFM(i  ,j  ,bi,bj)*HEFFM(i-1,j  ,bi,bj)
+     &         *HEFFM(i  ,j-1,bi,bj)*HEFFM(i-1,j-1,bi,bj)
+     &         + noSlipFac * (
+     &           2.0 _d 0 * uave(i,j) * _recip_dyU(i,j,bi,bj) * hFacU
+     &         )
+         ENDDO
+        ENDDO
+        DO j=1-OLy+1,sNy+OLy
+         DO i=1-OLx+1,sNx+OLx
+          dvdx(i,j) = (dvdx(i,j) - k2AtZ(i,j,bi,bj) * uave(i,j))
+     &         *HEFFM(i  ,j  ,bi,bj)*HEFFM(i-1,j  ,bi,bj)
+     &         *HEFFM(i  ,j-1,bi,bj)*HEFFM(i-1,j-1,bi,bj)
+     &         + noSlipFac * (
+     &         + 2.0 _d 0 * vave(i,j) * _recip_dxV(i,j,bi,bj) * hFacV
+     &         )
+         ENDDO
+        ENDDO
         DO j=1-OLy+1,sNy+OLy
          DO i=1-OLx+1,sNx+OLx
           hFacU = SIMaskU(i,j,bi,bj) - SIMaskU(i,j-1,bi,bj)
           hFacV = SIMaskV(i,j,bi,bj) - SIMaskV(i-1,j,bi,bj)
           e12Loc(i,j) = 0.5 _d 0 * (
      &         dudy(i,j) + dvdx(i,j)
-     &         - k1AtZ(i,j,bi,bj) * vave(i,j)
-     &         - k2AtZ(i,j,bi,bj) * uave(i,j)
-     &         )
-     &         *HEFFM(i  ,j  ,bi,bj)*HEFFM(i-1,j  ,bi,bj)
-     &         *HEFFM(i  ,j-1,bi,bj)*HEFFM(i-1,j-1,bi,bj)
-     &         + noSlipFac * (
-     &           2.0 _d 0 * uave(i,j) * _recip_dyU(i,j,bi,bj) * hFacU
-     &         + 2.0 _d 0 * vave(i,j) * _recip_dxV(i,j,bi,bj) * hFacV
      &         )
           gFld1z(i,j) = 2.0 _d 0 * sig12(i,j) * e12Loc(i,j)
-          gFld2z(i,j) = sig12(i,j) * ( dudy(i,j) - dvdx(i,j)
-     &         - k1AtZ(i,j,bi,bj) * vave(i,j)
-     &         + k2AtZ(i,j,bi,bj) * uave(i,j)
-     &         )
-     &         *HEFFM(i  ,j  ,bi,bj)*HEFFM(i-1,j  ,bi,bj)
-     &         *HEFFM(i  ,j-1,bi,bj)*HEFFM(i-1,j-1,bi,bj)
-     &         + noSlipFac * (
-     &           2.0 _d 0 * uave(i,j) * _recip_dyU(i,j,bi,bj) * hFacU
-     &         + 2.0 _d 0 * vave(i,j) * _recip_dxV(i,j,bi,bj) * hFacV
-     &         )
-CMB       Vorzeichen im letzten Teil?
-         ENDDO
-        ENDDO
-C     compute physical components dudy, dvdx
-        DO j=1-OLy+1,sNy+OLy
-         DO i=1-OLx+1,sNx+OLx
-          dudy(i,j) = dudy(i,j) - k1AtZ(i,j,bi,bj) * vave(i,j) 
-         ENDDO
-        ENDDO
-        DO j=1-OLy+1,sNy+OLy
-         DO i=1-OLx+1,sNx+OLx
-          dvdx(i,j) = dvdx(i,j) - k2AtZ(i,j,bi,bj) * uave(i,j)
+          gFld2z(i,j) = sig12(i,j) * ( dvdx(i,j) - dudy(i,j))
          ENDDO
         ENDDO
 C-    store additonal tendency in gFld1, gFld2, gFld12:
@@ -1045,8 +1017,20 @@ C-    store additonal tendency in gFld1, gFld2, gFld12:
      &            + sig22(i,j) * fldAtC(dudy(:,:), i, j, bi, bj) )
          ENDDO
         ENDDO
-CMB       ENDDO
-CMB      ENDDO
+C lower-convected terms
+C        DO j=1-OLy,sNy+OLy
+C         DO i=1-OLx,sNx+OLx
+C          gFld1(i,j)  = 2.0 _d 0 * ( sig11(i,j) * e11Loc(i,j) 
+C     &            + sig22(i,j) * e22Loc(i,j)
+C     &            + fldAtC(gFld1z(:,:), i, j, bi, bj) )
+C          gFld2(i,j)  = 2.0 _d 0 * ( sig11(i,j) * e11Loc(i,j)
+C     &            - sig22(i,j) * e22Loc(i,j)
+C     &            + fldAtC(gFld2z(:,:), i, j, bi, bj) )
+C          gFld12(i,j) = sig12C(i,j) * (e11Loc(i,j) + e22Loc(i,j))
+C     &            + sig11(i,j) * fldAtC(dudy(:,:), i, j, bi, bj) 
+C     &            + sig22(i,j) * fldAtC(dvdx(:,:), i, j, bi, bj)
+C         ENDDO
+C        ENDDO
 #endif /* ALLOW_GENERIC_ADVDIFF */
       RETURN
       END
