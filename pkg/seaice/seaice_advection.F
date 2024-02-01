@@ -809,3 +809,228 @@ C-    explicit advection is done ; store tendency in gFld:
 #endif /* ALLOW_GENERIC_ADVDIFF */
       RETURN
       END
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+CBOP
+C !ROUTINE: SEAICE_ADV_TENSOR
+
+C !INTERFACE: ==========================================================
+      SUBROUTINE SEAICE_ADV_TENSOR(
+     I     uFld, vFld, uTrans, vTrans, 
+     I     sigPlus, sigMinus, sig12, sig12C,
+     O     gFld1, gFld2, gFld12,
+     I     bi, bj, myTime, myIter, myThid)
+
+C !DESCRIPTION:
+C Calculates the extra term needed to advect the stress tensor.
+C It folloes the description in  "Introductiont o Complex Fluids" 
+C by A. Morozov and S. Spagnolie (2015). We choose the upper-convected version.
+C
+C The algorithm is as follows:
+C G_1 = -2*(sig_11*e_11 + sig_22*e_22 + 2*sig_12*e_12)
+C G_2 = 2*(sig_22*e_22 - sig_11*e_11 + sig_12* (dxv-dyu))
+C G_12 = -(sig_11*dxv + sig_22*dyu + sig_12*(e_11+e_22))
+
+C !USES: ===============================================================
+      IMPLICIT NONE
+#include "SIZE.h"
+#include "EEPARAMS.h"
+#include "PARAMS.h"
+#include "GRID.h"
+#include "SEAICE_SIZE.h"
+#include "SEAICE_PARAMS.h"
+#include "SEAICE.h"
+#ifdef ALLOW_GENERIC_ADVDIFF
+# include "GAD.h"
+#endif
+#ifdef ALLOW_AUTODIFF
+# include "AUTODIFF_PARAMS.h"
+#endif /* ALLOW_AUTODIFF */
+#ifdef ALLOW_AUTODIFF_TAMC
+# include "tamc.h"
+# ifdef ALLOW_PTRACERS
+#  include "PTRACERS_SIZE.h"
+# endif
+#endif /* ALLOW_AUTODIFF_TAMC */
+#ifdef ALLOW_EXCH2
+#include "W2_EXCH2_SIZE.h"
+#include "W2_EXCH2_TOPOLOGY.h"
+#endif /* ALLOW_EXCH2 */
+      LOGICAL extensiveFld
+      PARAMETER ( extensiveFld = .TRUE. )
+
+C !INPUT PARAMETERS: ===================================================
+C  tracerIdentity    :: tracer identifier
+C  advectionSchArg   :: advection scheme to use (Horizontal plane)
+C  extensiveFld      :: indicates to advect an "extensive" type of ice field
+C  uFld              :: velocity, zonal component
+C  vFld              :: velocity, meridional component
+C  uTrans,vTrans     :: volume transports at U,V points
+C  sig1, sig2, sig12 :: sea-ice field
+C  r_hFld            :: reciprocal of ice-thickness (only used for 
+C                       "intensive" type of sea-ice field)
+C  bi,bj             :: tile indices
+C  myTime            :: current time
+C  myIter            :: iteration number
+C  myThid            :: my Thread Id number
+      _RL uFld     (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL vFld     (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL uTrans   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL vTrans   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL sigPlus  (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL sigMinus (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL sig12    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL sig12C   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      INTEGER bi,bj
+      _RL myTime
+      INTEGER myIter
+      INTEGER myThid
+
+C !OUTPUT PARAMETERS: ==================================================
+C  gFld1, gFld2, gFld12 :: tendency array
+C  afx                  :: horizontal advective flux, x direction
+C  afy                  :: horizontal advective flux, y direction
+      _RL gFld1   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL gFld2   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL gFld12  (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+
+#ifdef ALLOW_GENERIC_ADVDIFF
+C !LOCAL VARIABLES: ====================================================
+C  i,j         :: loop indices
+C
+      INTEGER i,j
+C components of stress tensor
+      _RL sig11 (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL sig22 (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+C component of strain rate tensor
+      _RL e11Loc (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL e22Loc (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL e12Loc (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+C     auxillary variables that help writing code that
+C     vectorizes even after TAFization
+      _RL dudx (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL dvdy (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL dudy (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL dvdx (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL uave (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL vave (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+C     auxillary variables that compute the part on z-point
+      _RL gFld1z   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL gFld2z   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+C     hFacU, hFacV :: determine the no-slip boundary condition
+      _RS hFacU, hFacV, noSlipFac
+      _RL fldAtC
+      EXTERNAL fldAtC
+#ifdef ALLOW_EXCH2
+      INTEGER myTile
+#endif
+C
+C     compute components of stress tensor
+        DO j=1-OLy,sNy+OLy
+         DO i=1-OLx,sNx+OLx
+          sig11 = 0.5 _d 0 * (sigPlus(i,j) 
+     &            + sigMinus(i,j))
+          sig22 = 0.5 _d 0 * (sigPlus(i,j) 
+     &            - sigMinus(i,j))
+         ENDDO
+        ENDDO
+C     compute strain rates
+C     on C-points
+        DO j=1-OLy,sNy+OLy-1
+         DO i=1-OLx,sNx+OLx-1
+          dudx(i,j) = _recip_dxF(i,j,bi,bj) *
+     &         (uFld(i+1,j)-uFld(i,j))
+          uave(i,j) = 0.5 _d 0 * (uFld(i,j)+uFld(i+1,j))
+         ENDDO
+        ENDDO
+        DO j=1-OLy,sNy+OLy-1
+         DO i=1-OLx,sNx+OLx-1
+          dvdy(i,j) = _recip_dyF(i,j,bi,bj) *
+     &         (vFld(i,j+1)-vFld(i,j))
+          vave(i,j) = 0.5 _d 0 * (vFld(i,j)+vFld(i,j+1))
+         ENDDO
+        ENDDO
+        DO j=1-OLy,sNy+OLy-1
+         DO i=1-OLx,sNx+OLx-1       
+          e11Loc(i,j) = dudx(i,j) + vave(i,j) * k2AtC(1-OLx,1-OLy,bi,bj)
+          e22Loc(i,j) = dvdy(i,j) + uave(i,j) * k1AtC(i,j,bi,bj)
+         ENDDO
+        ENDDO
+C     on Z-points
+        DO j=1-OLy+1,sNy+OLy
+         DO i=1-OLx+1,sNx+OLx
+          dudy(i,j) = ( uFld(i,j) - uFld(i  ,j-1) )
+     &         * _recip_dyU(i,j,bi,bj)
+          uave(i,j) = 0.5 _d 0 * (uFld(i,j)+uFld(i  ,j-1))
+         ENDDO
+        ENDDO
+        DO j=1-OLy+1,sNy+OLy
+         DO i=1-OLx+1,sNx+OLx
+          dvdx(i,j) = ( vFld(i,j) - vFld(i-1,j) )
+     &         * _recip_dxV(i,j,bi,bj)
+          vave(i,j) = 0.5 _d 0 * (vFld(i,j)+vFld(i-1,j))
+         ENDDO
+        ENDDO
+C     compute physical components dudy, dvdx
+        DO j=1-OLy+1,sNy+OLy
+         DO i=1-OLx+1,sNx+OLx
+          dudy(i,j) = (dudy(i,j) - k1AtZ(i,j,bi,bj) * vave(i,j))
+     &         *HEFFM(i  ,j  ,bi,bj)*HEFFM(i-1,j  ,bi,bj)
+     &         *HEFFM(i  ,j-1,bi,bj)*HEFFM(i-1,j-1,bi,bj)
+     &         + noSlipFac * (
+     &           2.0 _d 0 * uave(i,j) * _recip_dyU(i,j,bi,bj) * hFacU
+     &         )
+         ENDDO
+        ENDDO
+        DO j=1-OLy+1,sNy+OLy
+         DO i=1-OLx+1,sNx+OLx
+          dvdx(i,j) = (dvdx(i,j) - k2AtZ(i,j,bi,bj) * uave(i,j))
+     &         *HEFFM(i  ,j  ,bi,bj)*HEFFM(i-1,j  ,bi,bj)
+     &         *HEFFM(i  ,j-1,bi,bj)*HEFFM(i-1,j-1,bi,bj)
+     &         + noSlipFac * (
+     &         + 2.0 _d 0 * vave(i,j) * _recip_dxV(i,j,bi,bj) * hFacV
+     &         )
+         ENDDO
+        ENDDO
+        DO j=1-OLy+1,sNy+OLy
+         DO i=1-OLx+1,sNx+OLx
+          hFacU = SIMaskU(i,j,bi,bj) - SIMaskU(i,j-1,bi,bj)
+          hFacV = SIMaskV(i,j,bi,bj) - SIMaskV(i-1,j,bi,bj)
+          e12Loc(i,j) = 0.5 _d 0 * (
+     &         dudy(i,j) + dvdx(i,j)
+     &         )
+          gFld1z(i,j) = 2.0 _d 0 * sig12(i,j) * e12Loc(i,j)
+          gFld2z(i,j) = sig12(i,j) * ( dvdx(i,j) - dudy(i,j))
+         ENDDO
+        ENDDO
+C-    store additonal tendency in gFld1, gFld2, gFld12:
+        DO j=1-OLy,sNy+OLy
+         DO i=1-OLx,sNx+OLx
+          gFld1(i,j)  = - 2.0 _d 0 * ( sig11(i,j) * e11Loc(i,j) 
+     &            + sig22(i,j) * e22Loc(i,j)
+     &            + fldAtC(gFld1z(:,:), i, j, bi, bj) )
+          gFld2(i,j)  = 2.0 _d 0 * ( sig22(i,j) * e22Loc(i,j)
+     &            - sig11(i,j) * e11Loc(i,j)
+     &            + fldAtC(gFld2z(:,:), i, j, bi, bj) )
+          gFld12(i,j) = - 1.0 _d 0 * ( sig12C(i,j) 
+     &            * (e11Loc(i,j) + e22Loc(i,j))
+     &            + sig11(i,j) * fldAtC(dvdx(:,:), i, j, bi, bj) 
+     &            + sig22(i,j) * fldAtC(dudy(:,:), i, j, bi, bj) )
+         ENDDO
+        ENDDO
+C lower-convected terms
+C        DO j=1-OLy,sNy+OLy
+C         DO i=1-OLx,sNx+OLx
+C          gFld1(i,j)  = 2.0 _d 0 * ( sig11(i,j) * e11Loc(i,j) 
+C     &            + sig22(i,j) * e22Loc(i,j)
+C     &            + fldAtC(gFld1z(:,:), i, j, bi, bj) )
+C          gFld2(i,j)  = 2.0 _d 0 * ( sig11(i,j) * e11Loc(i,j)
+C     &            - sig22(i,j) * e22Loc(i,j)
+C     &            + fldAtC(gFld2z(:,:), i, j, bi, bj) )
+C          gFld12(i,j) = sig12C(i,j) * (e11Loc(i,j) + e22Loc(i,j))
+C     &            + sig11(i,j) * fldAtC(dudy(:,:), i, j, bi, bj) 
+C     &            + sig22(i,j) * fldAtC(dvdx(:,:), i, j, bi, bj)
+C         ENDDO
+C        ENDDO
+#endif /* ALLOW_GENERIC_ADVDIFF */
+      RETURN
+      END
