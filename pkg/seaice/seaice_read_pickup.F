@@ -165,7 +165,7 @@ C       use log-normal distribution based on mean thickness instead
         CALL SEAICE_ITD_PICKUP( nIter0, myThid )
 #endif
 #if defined SEAICE_CGRID && ( defined SEAICE_ALLOW_EVP || defined SEAICE_ALLOW_MEB ) 
-        IF ( (SEAICEuseEVP .OR. SEAICEuseMEB) 
+        IF ( (SEAICEuseEVP .OR. SEAICEuseMEB)
      &   .AND. SEAICEuseEVPpickup ) THEN
          CALL READ_REC_3D_RL(fn,fp,1,seaice_sigma1,nj, nIter0, myThid )
          nj = nj + 1
@@ -253,19 +253,25 @@ C        update total ice area as well as mean ice and snow thickness
 
         ENDIF
 
+#ifdef SEAICE_ALLOW_DAMAGE
+        IF ( SEAICEupdateDamage )
+     &   CALL READ_MFLDS_3D_RL( 'siDamage', damage,
+     &                                      nj, fp, 1, nIter0, myThid )
+#endif
+
 C--    read Sea-Ice Dynamics variables (all 2-D fields):
-         CALL READ_MFLDS_3D_RL( 'siUICE  ', UICE,
+        CALL READ_MFLDS_3D_RL( 'siUICE  ', UICE,
      &                                      nj, fp, 1, nIter0, myThid )
-         CALL READ_MFLDS_3D_RL( 'siVICE  ', VICE,
+        CALL READ_MFLDS_3D_RL( 'siVICE  ', VICE,
      &                                      nj, fp, 1, nIter0, myThid )
-         IF ( SEAICEuseBDF2 ) THEN
-          CALL READ_MFLDS_3D_RL('siUicNm1', uIceNm1,
+        IF ( SEAICEuseBDF2 ) THEN
+         CALL READ_MFLDS_3D_RL('siUicNm1', uIceNm1,
      &                                      nj, fp, 1, nIter0, myThid )
-          CALL READ_MFLDS_3D_RL('siVicNm1', vIceNm1,
+         CALL READ_MFLDS_3D_RL('siVicNm1', vIceNm1,
      &                                      nj, fp, 1, nIter0, myThid )
-         ENDIF
-#if defined SEAICE_CGRID && \
-    ( defined SEAICE_ALLOW_EVP || defined SEAICE_ALLOW_MEB ) 
+        ENDIF
+#ifdef SEAICE_CGRID
+# if ( defined SEAICE_ALLOW_EVP || defined SEAICE_ALLOW_MEB )
         IF ( SEAICEuseEVP .OR. SEAICEuseMEB ) THEN
          CALL READ_MFLDS_3D_RL( 'siSigm1 ', seaice_sigma1,
      &                                      nj, fp, 1, nIter0, myThid )
@@ -274,7 +280,13 @@ C--    read Sea-Ice Dynamics variables (all 2-D fields):
          CALL READ_MFLDS_3D_RL( 'siSigm12', seaice_sigma12,
      &                                      nj, fp, 1, nIter0, myThid )
         ENDIF
-#endif /* SEAICE_ALLOW_EVP or SEAICE_ALLOW_MEB */
+# endif /* SEAICE_ALLOW_EVP or SEAICE_ALLOW_MEB */
+# ifdef SEAICE_ALLOW_MEB
+        IF ( SEAICEuseMEB )
+     &   CALL READ_MFLDS_3D_RL( 'siSig12C', seaice_sigma12C,
+     &                                      nj, fp, 1, nIter0, myThid )
+# endif /* SEAICE_ALLOw_MEB */
+#endif /* SEAICE_CGRID */
 
 C---   end: new way to read pickup file
        ENDIF
@@ -322,14 +334,25 @@ C--    Update overlap regions
        _EXCH_XY_RL( AREA, myThid )
        CALL EXCH_3D_RL( TICES, nITD, myThid )
        _EXCH_XY_RL(HSNOW, myThid )
-#if defined SEAICE_CGRID && \
-    ( defined SEAICE_ALLOW_EVP || defined SEAICE_ALLOW_MEB ) 
-       IF ( SEAICEuseEVP .OR. SEAICEuseMEB ) THEN
-          _EXCH_XY_RL(seaice_sigma1 , myThid )
-          _EXCH_XY_RL(seaice_sigma2 , myThid )
-          _EXCH_XY_RL(seaice_sigma12, myThid )
+#ifdef SEAICE_ALLOW_DAMAGE
+       IF ( SEAICEupdateDamage ) THEN
+        _EXCH_XY_RL(damage,  myThid )
+        _EXCH_XY_RL(damageZ, myThid )
        ENDIF
-#endif /* SEAICE_ALLOW_EVP or SEAICE_ALLOw_MEB */
+#endif
+#ifdef SEAICE_CGRID
+# if ( defined SEAICE_ALLOW_EVP || defined SEAICE_ALLOW_MEB )
+       IF ( SEAICEuseEVP .OR. SEAICEuseMEB ) THEN
+        _EXCH_XY_RL(seaice_sigma1 , myThid )
+        _EXCH_XY_RL(seaice_sigma2 , myThid )
+        _EXCH_XY_RL(seaice_sigma12, myThid )
+       ENDIF
+# endif /* SEAICE_ALLOW_EVP or SEAICE_ALLOw_MEB */
+# ifdef SEAICE_ALLOW_MEB
+       IF ( SEAICEuseMEB )
+     &  _EXCH_XY_RL(seaice_sigma12C, myThid )
+# endif /* SEAICE_ALLOw_MEB */
+#endif /* SEAICE_CGRID */
 #ifdef SEAICE_VARIABLE_SALINITY
        _EXCH_XY_RL(HSALT, myThid )
 #endif

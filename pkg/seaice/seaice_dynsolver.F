@@ -70,6 +70,10 @@ C     bi,bj  :: tile counters
       INTEGER i, j, bi, bj
       _RL phiSurf(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL mask_uice, mask_vice
+#ifdef SEAICE_ALLOW_DAMAGE
+      _RL fldAtZ
+      EXTERNAL fldAtZ
+#endif
 #ifdef ALLOW_DIAGNOSTICS
 # ifdef ALLOW_AUTODIFF
       _RL strDivX(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -227,6 +231,25 @@ C     initialise fields
 #endif
          ENDDO
         ENDDO
+#ifdef SEAICE_ALLOW_DAMAGE
+        IF ( SEAICEupdateDamage ) THEN
+         DO j=2-OLy,sNy+OLy
+          DO i=2-OLx,sNx+OLx
+           damageZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
+C     make sure that 0 < damage <=1
+           damageZ(I,J,bi,bj) = MIN(1. _d 0, damageZ(I,J,bi,bj))
+           damageZ(I,J,bi,bj) = MAX(0. _d 0, damageZ(I,J,bi,bj))
+          ENDDO
+         ENDDO
+         DO j=1-OLy,sNy+OLy
+          DO i=1-OLx,sNx+OLx
+           damageNm1(I,J,bi,bj) = damage(I,J,bi,bj)
+C     no longer used for damage option A1 (sea seaice_update_damage.F)
+c          damageNm1Z(I,J,bi,bj)= damageZ(I,J,bi,bj)
+          ENDDO
+         ENDDO
+        ENDIF
+#endif /* SEAICE_ALLOW_DAMAGE */
        ENDDO
       ENDDO
 
@@ -349,21 +372,6 @@ C--   now add in tilt
          CALL OBCS_APPLY_UVICE( uIce, vIce, myThid )
        ENDIF
 #endif /* ALLOW_OBCS */
-
-#ifdef SEAICE_ALLOW_DAMAGE
-       IF ( SEAICEupdateDamage ) THEN
-        DO bj=myByLo(myThid),myByHi(myThid)
-         DO bi=myBxLo(myThid),myBxHi(myThid)
-          DO j=1-OLy,sNy+OLy
-           DO i=1-OLx,sNx+OLx
-            damageNm1(I,J,bi,bj) = damage(I,J,bi,bj)
-            damageNm1Z(I,J,bi,bj)= damageZ(I,J,bi,bj)
-           ENDDO
-          ENDDO
-         ENDDO
-        ENDDO
-       ENDIF
-#endif /* SEAICE_ALLOW_DAMAGE */
 
 #ifdef SEAICE_ALLOW_EVP
 # ifdef ALLOW_AUTODIFF_TAMC
@@ -650,9 +658,9 @@ c     &            recip_prs = 1. _d 0 / press0(i,j,bi,bj)
              sig1(i,j) = 0.5 _d 0*(sigp + sigTmp)*recip_prs
              sig2(i,j) = 0.5 _d 0*(sigp - sigTmp)*recip_prs
              sig11(i,j) = 0.5 _d 0*(sigp+sigm)
-             sig22(i,j) = 0.5 _d 0*(sigp-sigm)    
+             sig22(i,j) = 0.5 _d 0*(sigp-sigm)
 CMB             sig11(i,j) = sigp
-CMB             sig22(i,j) = sigm        
+CMB             sig22(i,j) = sigm
             ENDDO
            ENDDO
           ENDIF
