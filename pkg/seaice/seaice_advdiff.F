@@ -450,6 +450,8 @@ C     safeguard against overshoots
 #ifdef SEAICE_ALLOW_MEB
         IF ( SEAICEadvArea .AND. SEAICEadvStress ) THEN
 C upper-convected part
+         CALL TIMER_START('STRESS_ADV   [SEAICE]',myThid)
+         CALL TIMER_START('STRESS_TENSOR_ADV   [SEAICE]',myThid)
          CALL SEAICE_ADV_TENSOR(
      I     uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj), 
      I     uTrans, vTrans, seaice_sigma1(1-OLx,1-OLy,bi,bj),
@@ -458,6 +460,7 @@ C upper-convected part
      I     seaice_sigma12C(1-OLx,1-OLy,bi,bj),     
      O     gFld1, gFld2, gFld12,
      I     bi, bj, myTime, myIter, myThid)
+         CALL TIMER_STOP('STRESS_TENSOR_ADV   [SEAICE]',myThid)
 C advect sigma_1
          CALL SEAICE_ADVECTION(
      I        GAD_AREA, SEAICEadvSchArea,
@@ -517,6 +520,7 @@ C adcevt sigma_12 by averaging
      &          + fldAtZ(gFld12(:,:), i, j, bi, bj)))
            ENDDO
           ENDDO
+          CALL TIMER_STOP('STRESS_ADV   [SEAICE]',myThid)
          ENDIF
 #endif /* SEAICE_ALLOW_MEB */
 
