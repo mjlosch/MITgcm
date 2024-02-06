@@ -191,15 +191,6 @@ C     re-compute stress from most recent strain rates
      O        sig11, sig22, sig12,
      I        bi, bj, myTime, myIter, myThid )
         ENDIF
-        DO j=1,sNy+1
-         DO i=1,sNx+1
-          dCritZ(I,J,bi,bj)  = fldAtZ(dCrit(:,:,bi,bj),I,J,bi,bj)
-          damageZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
-C     make sure that 0 < damage <=1
-          damageZ(I,J,bi,bj) = MIN(1. _d 0, damageZ(I,J,bi,bj))
-          damageZ(I,J,bi,bj) = MAX(0. _d 0, damageZ(I,J,bi,bj))
-         ENDDO
-        ENDDO
         DO j=1,sNy
          DO i=1,sNx
 C     abbreviations
