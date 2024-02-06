@@ -144,6 +144,14 @@ C---  continue to write 2-D fields:
          ENDDO
 #endif
        ENDIF
+#ifdef SEAICE_ALLOW_DAMAGE
+         IF ( SEAICEupdateDamage ) THEN
+          j = j + 1
+          nj = nj-1
+          CALL WRITE_REC_3D_RL( fn, fp,  1, damage, nj, myIter, myThid )
+          IF (j.LE.listDim) wrFldList(j) = 'siDamage'
+         ENDIF
+#endif
 
 C--    write Sea-Ice Dynamics variables (all 2-D fields):
        j = j + 1
@@ -167,8 +175,8 @@ C--    write Sea-Ice Dynamics variables (all 2-D fields):
         CALL WRITE_REC_3D_RL( fn, fp,  1, vIceNm1 , nj, myIter, myThid )
         IF (j.LE.listDim)  wrFldList(j) = 'siVicNm1'
        ENDIF
-#if defined SEAICE_CGRID && \
-    ( defined SEAICE_ALLOW_EVP || defined SEAICE_ALLOW_MEB ) 
+#ifdef SEAICE_CGRID
+# if ( defined SEAICE_ALLOW_EVP || defined SEAICE_ALLOW_MEB )
        IF ( SEAICEuseEVP .OR. SEAICEuseMEB ) THEN
         j = j + 1
         nj = nj-1
@@ -188,7 +196,17 @@ C--    write Sea-Ice Dynamics variables (all 2-D fields):
      &                                            nj, myIter, myThid )
         IF (j.LE.listDim) wrFldList(j) = 'siSigm12'
        ENDIF
-#endif /* SEAICE_ALLOW_EVP or SEAICEuseMEB */
+# endif /* SEAICE_ALLOW_EVP or SEAICEuseMEB */
+# ifdef SEAICE_ALLOW_MEB )
+       IF ( SEAICEuseMEB ) THEN
+        j = j + 1
+        nj = nj-1
+        CALL WRITE_REC_3D_RL( fn, fp,  1, seaice_sigma12C,
+     &                                            nj, myIter, myThid )
+        IF (j.LE.listDim) wrFldList(j) = 'siSig12C'
+       ENDIF
+# endif
+#endif /* SEAICE_CGRID */
 
        nWrFlds = j
        IF ( nWrFlds.GT.listDim ) THEN

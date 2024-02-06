@@ -451,6 +451,28 @@ C--   Read initial sea ice age from file if available.
        ENDDO
 #endif /* ALLOW_SITRACER */
 
+#ifdef SEAICE_ALLOW_DAMAGE
+       call port_ranarr((sNx+2*Olx)*(sNy+2*Oly)*nSx*nSy,
+     &        cohesion)
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+         DO j=1-OLy,sNy+OLy
+          DO i=1-OLx,sNx+OLx
+C     no damage means damage = 1
+           damage   (I,J,bi,bj) = 1. _d 0 * maskC(I,J,kSrf,bi,bj)
+           damageNm1(I,J,bi,bj) = damage(I,J,bi,bj)
+           damageZ  (I,J,bi,bj) = 1. _d 0
+           damageNm1Z(I,J,bi,bj)= damageZ(I,J,bi,bj)
+           dCrit    (I,J,bi,bj) = 1. _d 0
+           dCritZ   (I,J,bi,bj) = 1. _d 0
+C          cohesion (I,J,bi,bj) = SEAICEcohesion
+C    &          *( 1.+cohesion(I,J,bi,bj) ) * maskC(I,J,kSrf,bi,bj)
+           seaice_sigma12C   (I,J,bi,bj) = 0. _d 0
+          ENDDO
+         ENDDO
+        ENDDO
+       ENDDO
+#endif /* SEAICE_ALLOW_DAMAGE */
       ENDIF
 
 #if (defined (ALLOW_MEAN_SFLUX_COST_CONTRIBUTION) || defined (ALLOW_SSH_GLOBMEAN_COST_CONTRIBUTION))
@@ -525,24 +547,6 @@ C---  Complete initialization
      &         *(ONE-fldAtZ(AREA(:,:,bi,bj),i,j,bi,bj)))
          ENDDO
         ENDDO
-#ifdef SEAICE_ALLOW_DAMAGE
-        call port_ranarr((sNx+2*Olx)*(sNy+2*Oly)*nSx*nSy,
-     &        cohesion)
-        DO j=1-OLy,sNy+OLy
-         DO i=1-OLx,sNx+OLx
-C     no damage means damage = 1
-          damage   (I,J,bi,bj) = 1. _d 0 * maskC(I,J,kSrf,bi,bj)
-          damageNm1(I,J,bi,bj) = damage(I,J,bi,bj)
-          damageZ  (I,J,bi,bj) = 1. _d 0
-          damageNm1Z(I,J,bi,bj)= damageZ(I,J,bi,bj)
-          dCrit    (I,J,bi,bj) = 1. _d 0
-          dCritZ   (I,J,bi,bj) = 1. _d 0
-C          cohesion (I,J,bi,bj) = SEAICEcohesion
-C    &          *( 1.+cohesion(I,J,bi,bj) ) * maskC(I,J,kSrf,bi,bj)
-          seaice_sigma12C   (I,J,bi,bj) = 0. _d 0
-         ENDDO
-        ENDDO
-#endif /* SEAICE_ALLOW_DAMAGE */
         IF ( useRealFreshWaterFlux .AND. .NOT.useThSIce ) THEN
          DO j=1-OLy,sNy+OLy
           DO i=1-OLx,sNx+OLx
