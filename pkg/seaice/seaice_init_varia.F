@@ -452,8 +452,8 @@ C--   Read initial sea ice age from file if available.
 #endif /* ALLOW_SITRACER */
 
 #ifdef SEAICE_ALLOW_DAMAGE
-       call port_ranarr((sNx+2*Olx)*(sNy+2*Oly)*nSx*nSy,
-     &        cohesion)
+c      call port_ranarr((sNx+2*Olx)*(sNy+2*Oly)*nSx*nSy,
+c    &        cohesion)
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO j=1-OLy,sNy+OLy
