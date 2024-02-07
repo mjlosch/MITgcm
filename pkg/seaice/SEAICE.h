@@ -149,7 +149,7 @@ C     in analogy to the maximal compressive stress PRESS0
       _RL CbotC      (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 #endif /* SEAICE_ALLOW_BOTTOMDRAG */
 
-#if defined ( SEAICE_ALLOW_DAMAGE ) || defined ( SEAICE_ALLOW_MEB )
+#if ( defined SEAICE_ALLOW_DAMAGE || defined SEAICE_ALLOW_MEB )
       COMMON/SEAICE_DAMAGE/
      & damage, damageNm1, cohesion, dCrit, dCritZ, seaice_sigma12C,
      & damageZ, damageNm1Z
