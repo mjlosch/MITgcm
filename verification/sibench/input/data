@@ -38,7 +38,6 @@
  deltaT=2.5,
  abEps=0.1,
  forcing_In_AB = .FALSE.,
- writePickupAtEnd = .FALSE.,
  dumpFreq  = 0.,
  monitorSelect=2,
  &
