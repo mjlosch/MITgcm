@@ -454,7 +454,7 @@ C upper-convected part
          CALL TIMER_START('STRESS_TENSOR_ADV [SEAICE_ADVDIFF]',myThid)
          CALL SEAICE_ADV_TENSOR(
      I     uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
-     I     uTrans, vTrans, seaice_sigma1(1-OLx,1-OLy,bi,bj),
+     I     seaice_sigma1(1-OLx,1-OLy,bi,bj),
      I     seaice_sigma2(1-OLx,1-OLy,bi,bj),
      I     seaice_sigma12(1-OLx,1-OLy,bi,bj),
      I     seaice_sigma12C(1-OLx,1-OLy,bi,bj),
@@ -505,19 +505,18 @@ C advect sigma_12C
 C     now do the "explicit" time step
          DO j=0,sNy+1
           DO i=0,sNx+1
+           gFld(i,j) = gFld(i,j) + gFld12(i,j)
            seaice_sigma12C(i,j,bi,bj) = HEFFM(i,j,bi,bj) * (
      &          seaice_sigma12C(i,j,bi,bj)
-     &          + SEAICE_deltaTtherm * (gFld(i,j) + gFld12(i,j))
+     &          + SEAICE_deltaTtherm * gFld(i,j)
      &          )
           ENDDO
          ENDDO
-C adcevt sigma_12 by averaging
+C advect sigma_12 by averaging the tendency for sigma12C to Z-points
          DO j=1,sNy+1
           DO i=1,sNx+1
-           seaice_sigma12(i,j,bi,bj) = (
-     &          seaice_sigma12(i,j,bi,bj) + SEAICE_deltaTtherm
-     &          * (fldAtZ(gFld(:,:), i, j, bi, bj)
-     &          + fldAtZ(gFld12(:,:), i, j, bi, bj)))
+           seaice_sigma12(i,j,bi,bj) = ( seaice_sigma12(i,j,bi,bj)
+     &          + SEAICE_deltaTtherm * fldAtZ(gFld,i,j,bi,bj) )
           ENDDO
          ENDDO
         ENDIF
