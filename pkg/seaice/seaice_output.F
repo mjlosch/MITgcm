@@ -161,8 +161,9 @@ c           CALL MNC_CW_RL_W(pf,'sice',0,0,'si_AREAITD',AREAITD,myThid)
              ENDDO
 #endif
             ENDIF
-#if ( defined(SEAICE_CGRID) && defined(SEAICE_ALLOW_EVP) )
-            IF ( SEAICEuseEVP ) THEN
+#ifdef SEAICE_CGRID
+# if ( defined SEAICE_ALLOW_MEB || defined SEAICE_ALLOW_EVP )
+            IF ( SEAICEuseEVP .OR. SEAICEuseMEB ) THEN
              CALL WRITE_FLD_XY_RL('SIGMA1.',suff,seaice_sigma1,
      &            myIter,myThid)
              CALL WRITE_FLD_XY_RL('SIGMA2.',suff,seaice_sigma2,
@@ -170,7 +171,18 @@ c           CALL MNC_CW_RL_W(pf,'sice',0,0,'si_AREAITD',AREAITD,myThid)
              CALL WRITE_FLD_XY_RL('SIGMA12.',suff,seaice_sigma12,
      &            myIter,myThid)
             ENDIF
-#endif /* SEAICE_CGRID and SEAICE_ALLOW_EVP */
+# endif /* SEAICE_ALLOW_MEB or SEAICE_ALLOW_EVP */
+# ifdef SEAICE_ALLOW_MEB
+            IF ( SEAICEuseMEB )
+     &       CALL WRITE_FLD_XY_RL('SIGMA12C.',suff,seaice_sigma12C,
+     &            myIter,myThid)
+# endif
+# ifdef SEAICE_ALLOW_DAMAGE
+            IF ( SEAICEupdateDamage )
+     &       CALL WRITE_FLD_XY_RL('DAMAGE.',suff,damage,
+     &            myIter,myThid)
+# endif
+#endif
 C--   end SEAICE_dump_mdsio block
           ENDIF
 
