@@ -736,9 +736,10 @@ C     i,j :: loop indices
       _RL sig12C  (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 CEOP
 
-C     update press0 to include new damage
-      CALL SEAICE_CALC_ICE_STRENGTH(
-     I     bi, bj, myTime, myIter, myThid )
+CMBC     update press0 to include new damage
+C new damage should always be uptodate.Testreport agrees.
+CMB      CALL SEAICE_CALC_ICE_STRENGTH(
+CMB     I     bi, bj, myTime, myIter, myThid )
 C
       CALL SEAICE_MEB_CALC_STRESS(
      I     e11, e22, e12, press0, damage,

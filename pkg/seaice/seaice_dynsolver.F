@@ -231,25 +231,25 @@ C     initialise fields
 #endif
          ENDDO
         ENDDO
-#ifdef SEAICE_ALLOW_DAMAGE
-        IF ( SEAICEupdateDamage ) THEN
-         DO j=2-OLy,sNy+OLy
-          DO i=2-OLx,sNx+OLx
-           damageZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
-C     make sure that 0 < damage <=1
-           damageZ(I,J,bi,bj) = MIN(1. _d 0, damageZ(I,J,bi,bj))
-           damageZ(I,J,bi,bj) = MAX(0. _d 0, damageZ(I,J,bi,bj))
-          ENDDO
-         ENDDO
-         DO j=1-OLy,sNy+OLy
-          DO i=1-OLx,sNx+OLx
-           damageNm1(I,J,bi,bj) = damage(I,J,bi,bj)
-C     no longer used for damage option A1 (sea seaice_update_damage.F)
-c          damageNm1Z(I,J,bi,bj)= damageZ(I,J,bi,bj)
-          ENDDO
-         ENDDO
-        ENDIF
-#endif /* SEAICE_ALLOW_DAMAGE */
+CMB#ifdef SEAICE_ALLOW_DAMAGE
+CMB        IF ( SEAICEupdateDamage ) THEN
+CMB         DO j=2-OLy,sNy+OLy
+CMB          DO i=2-OLx,sNx+OLx
+CMB           damageZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
+CMBC     make sure that 0 < damage <=1
+CMB           damageZ(I,J,bi,bj) = MIN(1. _d 0, damageZ(I,J,bi,bj))
+CMB           damageZ(I,J,bi,bj) = MAX(0. _d 0, damageZ(I,J,bi,bj))
+CMB          ENDDO
+CMB         ENDDO
+CMB         DO j=1-OLy,sNy+OLy
+CMB          DO i=1-OLx,sNx+OLx
+CMB           damageNm1(I,J,bi,bj) = damage(I,J,bi,bj)
+CMBC     no longer used for damage option A1 (sea seaice_update_damage.F)
+CMBc          damageNm1Z(I,J,bi,bj)= damageZ(I,J,bi,bj)
+CMB          ENDDO
+CMB         ENDDO
+CMB        ENDIF
+CMB#endif /* SEAICE_ALLOW_DAMAGE */
        ENDDO
       ENDDO
 
@@ -338,7 +338,25 @@ C--   now add in tilt
          ENDDO
         ENDDO
         ENDIF
-
+#ifdef SEAICE_ALLOW_DAMAGE
+        IF ( SEAICEupdateDamage ) THEN
+         DO j=2-OLy,sNy+OLy
+          DO i=2-OLx,sNx+OLx
+           damageZ(I,J,bi,bj) = fldAtZ(damage(:,:,bi,bj),I,J,bi,bj)
+C     make sure that 0 < damage <=1
+           damageZ(I,J,bi,bj) = MIN(1. _d 0, damageZ(I,J,bi,bj))
+           damageZ(I,J,bi,bj) = MAX(0. _d 0, damageZ(I,J,bi,bj))
+          ENDDO
+         ENDDO
+         DO j=1-OLy,sNy+OLy
+          DO i=1-OLx,sNx+OLx
+           damageNm1(I,J,bi,bj) = damage(I,J,bi,bj)
+C     no longer used for damage option A1 (sea seaice_update_damage.F)
+c          damageNm1Z(I,J,bi,bj)= damageZ(I,J,bi,bj)
+          ENDDO
+         ENDDO
+        ENDIF
+#endif /* SEAICE_ALLOW_DAMAGE */
         CALL SEAICE_CALC_ICE_STRENGTH( bi, bj, myTime, myIter, myThid )
 
        ENDDO
