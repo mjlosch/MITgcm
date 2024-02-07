@@ -815,14 +815,14 @@ C !ROUTINE: SEAICE_ADV_TENSOR
 
 C !INTERFACE: ==========================================================
       SUBROUTINE SEAICE_ADV_TENSOR(
-     I     uFld, vFld, uTrans, vTrans, 
+     I     uFld, vFld, uTrans, vTrans,
      I     sigPlus, sigMinus, sig12, sig12C,
      O     gFld1, gFld2, gFld12,
      I     bi, bj, myTime, myIter, myThid)
 
 C !DESCRIPTION:
 C Calculates the extra term needed to advect the stress tensor.
-C It folloes the description in  "Introductiont o Complex Fluids" 
+C It folloes the description in  "Introductiont o Complex Fluids"
 C by A. Morozov and S. Spagnolie (2015). We choose the upper-convected version.
 C
 C The algorithm is as follows:
@@ -866,7 +866,7 @@ C  uFld              :: velocity, zonal component
 C  vFld              :: velocity, meridional component
 C  uTrans,vTrans     :: volume transports at U,V points
 C  sig1, sig2, sig12 :: sea-ice field
-C  r_hFld            :: reciprocal of ice-thickness (only used for 
+C  r_hFld            :: reciprocal of ice-thickness (only used for
 C                       "intensive" type of sea-ice field)
 C  bi,bj             :: tile indices
 C  myTime            :: current time
@@ -929,9 +929,9 @@ C
 C     compute components of stress tensor
         DO j=1-OLy,sNy+OLy
          DO i=1-OLx,sNx+OLx
-          sig11(i,j) = 0.5 _d 0 * (sigPlus(i,j) 
+          sig11(i,j) = 0.5 _d 0 * (sigPlus(i,j)
      &            + sigMinus(i,j))
-          sig22(i,j) = 0.5 _d 0 * (sigPlus(i,j) 
+          sig22(i,j) = 0.5 _d 0 * (sigPlus(i,j)
      &            - sigMinus(i,j))
          ENDDO
         ENDDO
@@ -952,7 +952,7 @@ C     on C-points
          ENDDO
         ENDDO
         DO j=1-OLy,sNy+OLy-1
-         DO i=1-OLx,sNx+OLx-1       
+         DO i=1-OLx,sNx+OLx-1
           e11Loc(i,j) = dudx(i,j) + vave(i,j) * k2AtC(i,j,bi,bj)
           e22Loc(i,j) = dvdy(i,j) + uave(i,j) * k1AtC(i,j,bi,bj)
          ENDDO
@@ -1005,31 +1005,31 @@ C     compute physical components dudy, dvdx
          ENDDO
         ENDDO
 C-    store additonal tendency in gFld1, gFld2, gFld12:
-        DO j=1-OLy,sNy+OLy-1
-         DO i=1-OLx,sNx+OLx-1
-          gFld1(i,j)  = - 2.0 _d 0 * (sig11(i,j)*e11Loc(i,j) 
+        DO j=1-OLy,sNy+OLy
+         DO i=1-OLx,sNx+OLx
+          gFld1(i,j)  = - 2.0 _d 0 * ( sig11(i,j) * e11Loc(i,j)
      &            + sig22(i,j) * e22Loc(i,j)
      &            + fldAtC(gFld1z(:,:), i, j, bi, bj) )
           gFld2(i,j)  = 2.0 _d 0 * ( sig22(i,j) * e22Loc(i,j)
      &            - sig11(i,j) * e11Loc(i,j)
      &            + fldAtC(gFld2z(:,:), i, j, bi, bj) )
-          gFld12(i,j) = - 1.0 _d 0 * ( sig12C(i,j) 
+          gFld12(i,j) = - 1.0 _d 0 * ( sig12C(i,j)
      &            * (e11Loc(i,j) + e22Loc(i,j))
-     &            + sig11(i,j) * fldAtC(dvdx(:,:), i, j, bi, bj) 
+     &            + sig11(i,j) * fldAtC(dvdx(:,:), i, j, bi, bj)
      &            + sig22(i,j) * fldAtC(dudy(:,:), i, j, bi, bj) )
          ENDDO
         ENDDO
 C lower-convected terms
 C        DO j=1-OLy,sNy+OLy
 C         DO i=1-OLx,sNx+OLx
-C          gFld1(i,j)  = 2.0 _d 0 * ( sig11(i,j) * e11Loc(i,j) 
+C          gFld1(i,j)  = 2.0 _d 0 * ( sig11(i,j) * e11Loc(i,j)
 C     &            + sig22(i,j) * e22Loc(i,j)
 C     &            + fldAtC(gFld1z(:,:), i, j, bi, bj) )
 C          gFld2(i,j)  = 2.0 _d 0 * ( sig11(i,j) * e11Loc(i,j)
 C     &            - sig22(i,j) * e22Loc(i,j)
 C     &            + fldAtC(gFld2z(:,:), i, j, bi, bj) )
 C          gFld12(i,j) = sig12C(i,j) * (e11Loc(i,j) + e22Loc(i,j))
-C     &            + sig11(i,j) * fldAtC(dudy(:,:), i, j, bi, bj) 
+C     &            + sig11(i,j) * fldAtC(dudy(:,:), i, j, bi, bj)
 C     &            + sig22(i,j) * fldAtC(dvdx(:,:), i, j, bi, bj)
 C         ENDDO
 C        ENDDO

@@ -444,35 +444,35 @@ C     safeguard against overshoots
            damage(i,j,bi,bj) = MAX( 0. _d 0, damage(i,j,bi,bj) )
           ENDDO
          ENDDO
-         ENDIF
+        ENDIF
 #endif /* SEAICE_ALLOW_DAMAGE */
 
 #ifdef SEAICE_ALLOW_MEB
+        CALL TIMER_START('STRESS_ADV        [SEAICE_ADVDIFF]',myThid)
         IF ( SEAICEadvArea .AND. SEAICEadvStress ) THEN
 C upper-convected part
-         CALL TIMER_START('STRESS_ADV   [SEAICE]',myThid)
-         CALL TIMER_START('STRESS_TENSOR_ADV   [SEAICE]',myThid)
+         CALL TIMER_START('STRESS_TENSOR_ADV [SEAICE_ADVDIFF]',myThid)
          CALL SEAICE_ADV_TENSOR(
-     I     uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj), 
+     I     uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
      I     uTrans, vTrans, seaice_sigma1(1-OLx,1-OLy,bi,bj),
      I     seaice_sigma2(1-OLx,1-OLy,bi,bj),
      I     seaice_sigma12(1-OLx,1-OLy,bi,bj),
-     I     seaice_sigma12C(1-OLx,1-OLy,bi,bj),     
+     I     seaice_sigma12C(1-OLx,1-OLy,bi,bj),
      O     gFld1, gFld2, gFld12,
      I     bi, bj, myTime, myIter, myThid)
-         CALL TIMER_STOP('STRESS_TENSOR_ADV   [SEAICE]',myThid)
+         CALL TIMER_STOP ('STRESS_TENSOR_ADV [SEAICE_ADVDIFF]',myThid)
 C advect sigma_1
          CALL SEAICE_ADVECTION(
      I        GAD_AREA, SEAICEadvSchArea,
      I        uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
-     I        uTrans, vTrans, seaice_sigma1(1-OLx,1-OLy,bi,bj), 
+     I        uTrans, vTrans, seaice_sigma1(1-OLx,1-OLy,bi,bj),
      I        recip_heff,
      O        gFld, afx, afy,
      I        bi, bj, myTime, myIter, myThid )
          DO j=1,sNy
           DO i=1,sNx
            seaice_sigma1(i,j,bi,bj) = HEFFM(i,j,bi,bj) * (
-     &          seaice_sigma1(i,j,bi,bj) 
+     &          seaice_sigma1(i,j,bi,bj)
      &          + SEAICE_deltaTtherm * (gFld(i,j) + gFld1(i,j))
      &          )
           ENDDO
@@ -481,7 +481,7 @@ C advect sigma_2
          CALL SEAICE_ADVECTION(
      I        GAD_AREA, SEAICEadvSchArea,
      I        uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
-     I        uTrans, vTrans, seaice_sigma2(1-OLx,1-OLy,bi,bj), 
+     I        uTrans, vTrans, seaice_sigma2(1-OLx,1-OLy,bi,bj),
      I        recip_heff,
      O        gFld, afx, afy,
      I        bi, bj, myTime, myIter, myThid )
@@ -489,7 +489,7 @@ C     now do the "explicit" time step
          DO j=1,sNy
           DO i=1,sNx
            seaice_sigma2(i,j,bi,bj) = HEFFM(i,j,bi,bj) * (
-     &          seaice_sigma2(i,j,bi,bj) 
+     &          seaice_sigma2(i,j,bi,bj)
      &          + SEAICE_deltaTtherm * (gFld(i,j) + gFld2(i,j))
      &          )
           ENDDO
@@ -498,7 +498,7 @@ C advect sigma_12C
          CALL SEAICE_ADVECTION(
      I        GAD_AREA, SEAICEadvSchArea,
      I        uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
-     I        uTrans, vTrans, seaice_sigma12C(1-OLx,1-OLy,bi,bj), 
+     I        uTrans, vTrans, seaice_sigma12C(1-OLx,1-OLy,bi,bj),
      I        recip_heff,
      O        gFld, afx, afy,
      I        bi, bj, myTime, myIter, myThid )
@@ -506,22 +506,22 @@ C     now do the "explicit" time step
          DO j=0,sNy+1
           DO i=0,sNx+1
            seaice_sigma12C(i,j,bi,bj) = HEFFM(i,j,bi,bj) * (
-     &          seaice_sigma12C(i,j,bi,bj) 
+     &          seaice_sigma12C(i,j,bi,bj)
      &          + SEAICE_deltaTtherm * (gFld(i,j) + gFld12(i,j))
      &          )
           ENDDO
          ENDDO
 C adcevt sigma_12 by averaging
          DO j=1,sNy+1
-           DO i=1,sNx+1
-            seaice_sigma12(i,j,bi,bj) = (
-     &          seaice_sigma12(i,j,bi,bj) + SEAICE_deltaTtherm 
+          DO i=1,sNx+1
+           seaice_sigma12(i,j,bi,bj) = (
+     &          seaice_sigma12(i,j,bi,bj) + SEAICE_deltaTtherm
      &          * (fldAtZ(gFld(:,:), i, j, bi, bj)
      &          + fldAtZ(gFld12(:,:), i, j, bi, bj)))
-           ENDDO
           ENDDO
-          CALL TIMER_STOP('STRESS_ADV   [SEAICE]',myThid)
-         ENDIF
+         ENDDO
+        ENDIF
+        CALL TIMER_STOP ('STRESS_ADV        [SEAICE_ADVDIFF]',myThid)
 #endif /* SEAICE_ALLOW_MEB */
 
 #ifdef ALLOW_SITRACER
