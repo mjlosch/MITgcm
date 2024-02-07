@@ -924,12 +924,14 @@ C     hFacU, hFacV :: determine the no-slip boundary condition
       INTEGER myTile
 #endif
 C
+      noSlipFac = 0. _d 0
+      IF ( SEAICE_no_slip ) noSlipFac = 1. _d 0
 C     compute components of stress tensor
         DO j=1-OLy,sNy+OLy
          DO i=1-OLx,sNx+OLx
-          sig11 = 0.5 _d 0 * (sigPlus(i,j) 
+          sig11(i,j) = 0.5 _d 0 * (sigPlus(i,j) 
      &            + sigMinus(i,j))
-          sig22 = 0.5 _d 0 * (sigPlus(i,j) 
+          sig22(i,j) = 0.5 _d 0 * (sigPlus(i,j) 
      &            - sigMinus(i,j))
          ENDDO
         ENDDO
@@ -951,7 +953,7 @@ C     on C-points
         ENDDO
         DO j=1-OLy,sNy+OLy-1
          DO i=1-OLx,sNx+OLx-1       
-          e11Loc(i,j) = dudx(i,j) + vave(i,j) * k2AtC(1-OLx,1-OLy,bi,bj)
+          e11Loc(i,j) = dudx(i,j) + vave(i,j) * k2AtC(i,j,bi,bj)
           e22Loc(i,j) = dvdy(i,j) + uave(i,j) * k1AtC(i,j,bi,bj)
          ENDDO
         ENDDO
@@ -973,6 +975,7 @@ C     on Z-points
 C     compute physical components dudy, dvdx
         DO j=1-OLy+1,sNy+OLy
          DO i=1-OLx+1,sNx+OLx
+          hFacU = SIMaskU(i,j,bi,bj) - SIMaskU(i,j-1,bi,bj)
           dudy(i,j) = (dudy(i,j) - k1AtZ(i,j,bi,bj) * vave(i,j))
      &         *HEFFM(i  ,j  ,bi,bj)*HEFFM(i-1,j  ,bi,bj)
      &         *HEFFM(i  ,j-1,bi,bj)*HEFFM(i-1,j-1,bi,bj)
@@ -983,6 +986,7 @@ C     compute physical components dudy, dvdx
         ENDDO
         DO j=1-OLy+1,sNy+OLy
          DO i=1-OLx+1,sNx+OLx
+          hFacV = SIMaskV(i,j,bi,bj) - SIMaskV(i-1,j,bi,bj)
           dvdx(i,j) = (dvdx(i,j) - k2AtZ(i,j,bi,bj) * uave(i,j))
      &         *HEFFM(i  ,j  ,bi,bj)*HEFFM(i-1,j  ,bi,bj)
      &         *HEFFM(i  ,j-1,bi,bj)*HEFFM(i-1,j-1,bi,bj)
@@ -993,8 +997,6 @@ C     compute physical components dudy, dvdx
         ENDDO
         DO j=1-OLy+1,sNy+OLy
          DO i=1-OLx+1,sNx+OLx
-          hFacU = SIMaskU(i,j,bi,bj) - SIMaskU(i,j-1,bi,bj)
-          hFacV = SIMaskV(i,j,bi,bj) - SIMaskV(i-1,j,bi,bj)
           e12Loc(i,j) = 0.5 _d 0 * (
      &         dudy(i,j) + dvdx(i,j)
      &         )
@@ -1003,9 +1005,9 @@ C     compute physical components dudy, dvdx
          ENDDO
         ENDDO
 C-    store additonal tendency in gFld1, gFld2, gFld12:
-        DO j=1-OLy,sNy+OLy
-         DO i=1-OLx,sNx+OLx
-          gFld1(i,j)  = - 2.0 _d 0 * ( sig11(i,j) * e11Loc(i,j) 
+        DO j=1-OLy,sNy+OLy-1
+         DO i=1-OLx,sNx+OLx-1
+          gFld1(i,j)  = - 2.0 _d 0 * (sig11(i,j)*e11Loc(i,j) 
      &            + sig22(i,j) * e22Loc(i,j)
      &            + fldAtC(gFld1z(:,:), i, j, bi, bj) )
           gFld2(i,j)  = 2.0 _d 0 * ( sig22(i,j) * e22Loc(i,j)
