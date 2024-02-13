@@ -107,10 +107,13 @@ C     betaFacU/V     :: analog betaFacP1U/V
       _RL fldAtZ, fldAtC
       _RL TENSILE_FAILURE
       _RL MC_FAILURE
+      _RL MC_FAILURE_INV
       _RL MC_NORM_FAILURE
       EXTERNAL fldAtZ, fldAtC
       EXTERNAL TENSILE_FAILURE
+ 
       EXTERNAL MC_FAILURE
+      EXTERNAL MC_FAILURE_INV
       EXTERNAL MC_NORM_FAILURE
 
 CEOP
@@ -215,7 +218,7 @@ C     The tensile failure criterion switch sig1 and sig2 with respect to
 C     Dansereau et al (2016) so that for sig1>0, sig2>sigmaT
 CML          IF ( SEAICEuseTensileCutoff .AND.
 CML     &         sig1 .GT. 0. _d 0 .AND. sig2 .GT. sigmaT(I,J) )
-          damageCrit = TENSILE_FAILURE(sig1,sig2,sigmaT(I,J),damageCrit)
+C          damageCrit = TENSILE_FAILURE(sig1,sig2,sigmaT(I,J),damageCrit)
           damageCrit = TENSILE_FAILURE(sig2,sig1,sigmaT(I,J),damageCrit)
 c          PRINT *, "MB-Sig", i,j,sig1, sig2, sigmaT(I,J), sigmaC(I,J)
           IF ( SEAICEmebNormCorr .AND.
@@ -228,7 +231,7 @@ C     keep in mind that sigmaC < 0 so that the following criterion catches
 C     the case when sig2 is below sigmaC+q*sig1
            damageCrit = MC_FAILURE(sig1,sig2,q,sigmaC(I,J),damageCrit)
 C     or above sigmaC+q*sig2
-           damageCrit = MC_FAILURE(sig2,sig1,q,sigmaC(I,J),damageCrit)
+C           damageCrit = MC_FAILURE(sig2,sig1,q,sigmaC(I,J),damageCrit)
           ENDIF
 C     critical damage cannot be below zero (eq 39 in mebdoc.tex)
           damageCrit = MAX(damageCrit, 0. _d 0)
@@ -381,6 +384,23 @@ CEOP
       mc_failure = damageCrit
       IF ( denom .NE. 0. _d 0 ) THEN
        IF ( denom .LT. sigC ) mc_failure = MIN(damageCrit,sigC/denom)
+      ENDIF
+      RETURN
+      END
+CBOP
+C     !ROUTINE: MC_FAILURE_INV
+C     !INTERFACE:
+      _RL FUNCTION MC_FAILURE_INV ( sigI, sigII, intFrictCoeff, chsn, 
+     &     damageCrit )
+      IMPLICIT NONE
+C     compute Mohr-Coulomb failure criterion and updage damageCrit
+      _RL sigI, sigII, intFrictCoeff, chsn, damageCrit
+CEOP
+      _RL denom
+      denom = sigII + intFrictCoeff*sigI
+      mc_failure_inv = damageCrit
+      IF ( denom .NE. 0. _d 0 ) THEN
+       IF ( denom .GT. chsn ) mc_failure_inv =MIN(damageCrit,chsn/denom)
       ENDIF
       RETURN
       END
