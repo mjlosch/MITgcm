@@ -229,7 +229,9 @@ c          PRINT *, "MB-Sig", i,j,sig1, sig2, sigmaT(I,J), sigmaC(I,J)
           ELSE
 C     keep in mind that sigmaC < 0 so that the following criterion catches
 C     the case when sig2 is below sigmaC+q*sig1
-           damageCrit = MC_FAILURE(sig1,sig2,q,sigmaC(I,J),damageCrit)
+CMB           damageCrit = MC_FAILURE(sig1,sig2,q,sigmaC(I,J),damageCrit)
+           damageCrit = MC_FAILURE_INV(sigI,sigII,SEAICEintFrictCoeff,
+     &            cohesion(i,j,bi,bj)*HEFF(i,j,bi,bj),damageCrit)
 C     or above sigmaC+q*sig2
 C           damageCrit = MC_FAILURE(sig2,sig1,q,sigmaC(I,J),damageCrit)
           ENDIF
