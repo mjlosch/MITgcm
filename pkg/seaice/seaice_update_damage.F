@@ -219,7 +219,7 @@ C     Dansereau et al (2016) so that for sig1>0, sig2>sigmaT
 CML          IF ( SEAICEuseTensileCutoff .AND.
 CML     &         sig1 .GT. 0. _d 0 .AND. sig2 .GT. sigmaT(I,J) )
 C          damageCrit = TENSILE_FAILURE(sig1,sig2,sigmaT(I,J),damageCrit)
-          damageCrit = TENSILE_FAILURE(sig2,sig1,sigmaT(I,J),damageCrit)
+CMB          damageCrit = TENSILE_FAILURE(sig2,sig1,sigmaT(I,J),damageCrit)
 c          PRINT *, "MB-Sig", i,j,sig1, sig2, sigmaT(I,J), sigmaC(I,J)
           IF ( SEAICEmebNormCorr .AND.
      &         sigI .LT. SEAICEtanThetaCorr*sigII ) THEN
