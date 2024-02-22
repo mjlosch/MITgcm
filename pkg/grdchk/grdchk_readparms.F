@@ -3,63 +3,47 @@
 # include "CTRL_OPTIONS.h"
 #endif
 
-      SUBROUTINE GRDCHK_READPARMS( mythid )
+      SUBROUTINE GRDCHK_READPARMS( myThid )
 
-c     ==================================================================
-c     SUBROUTINE grdchk_readparms
-c     ==================================================================
-c
-c     o Initialize the ECCO gradient check.
-c
-c     started: Christian Eckert eckert@mit.edu 03-Mar-2000
-c     continued: heimbach@mit.edu: 13-Jun-2001
-c
-c     ==================================================================
-c     SUBROUTINE grdchk_readparms
-c     ==================================================================
+C     ==================================================================
+C     SUBROUTINE grdchk_readparms
+C     ==================================================================
+C
+C     o Read Gradient-check package parameters
+C
+C     started: Christian Eckert eckert@mit.edu 03-Mar-2000
+C     continued: heimbach@mit.edu: 13-Jun-2001
+C
+C     ==================================================================
+C     SUBROUTINE grdchk_readparms
+C     ==================================================================
 
-      implicit none
+      IMPLICIT NONE
 
-c     == global variables ==
-
+C     == global variables ==
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "PARAMS.h"
 
-#include "ctrl.h"
-#include "grdchk.h"
+#include "CTRL.h"
+#ifdef ALLOW_OBCS_CONTROL
+C     CTRL_OBCS.h must be included before GRDCHK.h
+# include "CTRL_OBCS.h"
+#endif
+#include "GRDCHK.h"
 
-c     == routine arguments ==
-
-      integer mythid
+C     == routine arguments ==
+      INTEGER myThid
 
 #ifdef ALLOW_GRDCHK
-c     == local variables ==
-
+C     == local variables ==
       INTEGER iGloTile, jGloTile
-c     integer i,j,k
-c     integer bi,bj
-c     integer itlo,ithi
-c     integer jtlo,jthi
-c     integer jmin,jmax
-c     integer imin,imax
+      INTEGER iUnit
+      CHARACTER*(MAX_LEN_MBUF) msgBuf
+C     == end of interface ==
 
-      integer errio
-      integer il
-      integer iUnit
-
-      character*(max_len_mbuf) msgbuf
-      character*(max_len_prec) record
-
-c     == external ==
-
-      integer  ilnblnk
-      external ilnblnk
-
-c     == end of interface ==
-
-c--   Optimization parameters.
-      namelist /grdchk_nml/
+C--   Gradient-Check parameters.
+      NAMELIST /grdchk_nml/
      &                  grdchk_eps,
      &                  nbeg,
      &                  nstep,
@@ -89,18 +73,9 @@ C     print a (weak) warning if data.grdchk is found
         RETURN
       ENDIF
 
-c     jtlo = mybylo(mythid)
-c     jthi = mybyhi(mythid)
-c     itlo = mybxlo(mythid)
-c     ithi = mybxhi(mythid)
-c     jmin = 1-oly
-c     jmax = sny+oly
-c     imin = 1-olx
-c     imax = snx+olx
+      _BEGIN_MASTER( myThid )
 
-      _BEGIN_MASTER( mythid )
-
-c--     Set default values.
+C--     Set default values.
         grdchk_eps      = 1. _d 0
         nbeg            = 0
         nend            = 0
@@ -117,10 +92,10 @@ c--     Set default values.
         obcsglo         = 1
         recglo          = 1
 
-c       Next, read the calendar data file.
+C       Next, read the GRDCHK parameter file.
         WRITE(msgBuf,'(A)') 'GRDCHK_READPARMS: opening data.grdchk'
         CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
-     &                    SQUEEZE_RIGHT , 1)
+     &                      SQUEEZE_RIGHT, myThid )
 
         CALL OPEN_COPY_DATA_FILE(
      I                          'data.grdchk', 'GRDCHK_READPARMS',
@@ -165,10 +140,7 @@ C--    From Tile Global-Indices, set Tile Local-Indices and proc. number
           grdchkwhichproc = myProcId
         ENDIF
 
-c--     Summarize the gradient check setup.
-        call grdchk_Summary( mythid )
-
-      _END_MASTER( mythid )
+      _END_MASTER( myThid )
       _BARRIER
 
 #endif /* ALLOW_GRDCHK */

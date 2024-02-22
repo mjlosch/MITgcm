@@ -48,6 +48,14 @@ CEOP
         ENDDO
        ENDDO
       ENDDO
+#ifdef ALLOW_AUTODIFF
+C- Note: To simplify dependency & avoid recomputations, when compiling
+C        pkg/autodiff, we always call SHELFICE_INIT_VARIA to initialise control
+C        variables (as done above) without condition on useShelfIce.
+C        Therefore, in this case, the "If useShelfIce" is added back here:
+      IF ( useShelfIce ) THEN
+#endif
+
       IF ( .NOT. SHELFICEuseGammaFrict ) THEN
        IF ( SHELFICETransCoeffTFile .NE. ' ' ) THEN
         CALL READ_FLD_XY_RL( SHELFICETransCoeffTFile, ' ',
@@ -105,9 +113,10 @@ C     shiCDragQuadFld used in shelfice_u/v_drag_coeff
      &     ( nIter0.NE.0 .OR. startTime.NE.baseTime
      &                   .OR. pickupSuff.NE.' ') ) THEN
         CALL SHELFICE_READ_PICKUP( 1, nIter0, myThid )
-c     ENDIF
+      ENDIF
 
-c     IF ( SHELFICEMassStepping ) THEN
+#ifdef ALLOW_SHELFICE_REMESHING
+      IF ( SHI_update_kTopC ) THEN
 C     set/update "kTopC" to agree with changing ice-shelf mass
         DO bj = myByLo(myThid), myByHi(myThid)
          DO bi = myBxLo(myThid), myBxHi(myThid)
@@ -124,6 +133,7 @@ C     set/update "kTopC" to agree with changing ice-shelf mass
          ENDDO
         ENDDO
       ENDIF
+#endif /* ALLOW_SHELFICE_REMESHING */
 
 #ifdef ALLOW_COST
       DO bj = myByLo(myThid), myByHi(myThid)
@@ -145,6 +155,11 @@ c--
        ENDDO
       ENDDO
 #endif /* ALLOW_COST */
+
+#ifdef ALLOW_AUTODIFF
+C-    end if useShelfIce block
+      ENDIF
+#endif
 
 #endif /* ALLOW_SHELFICE */
 

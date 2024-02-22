@@ -79,10 +79,9 @@ C     == Global variables ==
 #include "EEPARAMS.h"
 #include "PARAMS.h"
 #include "MOM_VISC.h"
-#ifdef ALLOW_AUTODIFF
+#ifdef ALLOW_AUTODIFF_TAMC
 #include "tamc.h"
-#include "tamc_keys.h"
-#endif /* ALLOW_AUTODIFF */
+#endif /* ALLOW_AUTODIFF_TAMC */
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     myThid               :: my thread Id number
@@ -107,7 +106,9 @@ C     !LOCAL VARIABLES:
       _RL shiftAh, shiftA4
 #endif
 #ifdef ALLOW_AUTODIFF_TAMC
-      INTEGER lockey_1, lockey_2
+C     kkey   :: tape key (depends on levels and tiles)
+C     ijkkey :: tape key (depends on i,j-indices, levels, and tiles)
+      INTEGER kkey, ijkkey
 #endif
       _RL smag2fac, smag4fac
       _RL leith2fac, leith4fac
@@ -141,26 +142,18 @@ C     !LOCAL VARIABLES:
 #ifdef ALLOW_LEITH_QG
       _RL viscAh_ZLthQG(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL viscAh_DLthQG(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL sqargQG
 #endif
       _RL viscAh_ZSmg(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL viscAh_DSmg(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL viscA4_ZSmg(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL viscA4_DSmg(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL sqargAh, sqargA4, sqargAhD, sqargA4D, sqargSmag
       LOGICAL calcLeith, calcSmag, calcLeithQG
-      _RL sqargAh, sqargA4, sqargAhD, sqargA4D, sqargQG, sqargSmag
 
 #ifdef ALLOW_AUTODIFF_TAMC
-          act1 = bi - myBxLo(myThid)
-          max1 = myBxHi(myThid) - myBxLo(myThid) + 1
-          act2 = bj - myByLo(myThid)
-          max2 = myByHi(myThid) - myByLo(myThid) + 1
-          act3 = myThid - 1
-          max3 = nTx*nTy
-          act4 = ikey_dynamics - 1
-          ikey = (act1 + 1) + act2*max1
-     &                      + act3*max1*max2
-     &                      + act4*max1*max2*max3
-          lockey_1 = (ikey-1)*Nr + k
+      kkey = bi + (bj-1)*nSx + (ikey_dynamics-1)*nSx*nSy
+      kkey = k  + (kkey-1)*Nr
 #endif /* ALLOW_AUTODIFF_TAMC */
 
 C--   Set flags which are used in this S/R and elsewhere :
@@ -381,12 +374,10 @@ CCCCCCCCCCCCCCC Divergence Point CalculationsCCCCCCCCCCCCCCCCCCCC
 
 #ifdef ALLOW_AUTODIFF_TAMC
 # ifndef AUTODIFF_DISABLE_LEITH
-           lockey_2 = i+OLx + (sNx+2*OLx)*(j+OLy-1)
-     &                      + (sNx+2*OLx)*(sNy+2*OLy)*(lockey_1-1)
-CADJ STORE viscA4_ZSmg(i,j)
-CADJ &     = comlev1_mom_ijk_loop , key=lockey_2, byte=isbyte
-CADJ STORE viscAh_ZSmg(i,j)
-CADJ &     = comlev1_mom_ijk_loop , key=lockey_2, byte=isbyte
+         ijkkey = i+OLx + (j+OLy-1)*(sNx+2*OLx)
+     &                   + (kkey-1)*(sNx+2*OLx)*(sNy+2*OLy)
+CADJ STORE viscA4_ZSmg(i,j)=comlev1_mom_ijk_loop,key=ijkkey,byte=isbyte
+CADJ STORE viscAh_ZSmg(i,j)=comlev1_mom_ijk_loop,key=ijkkey,byte=isbyte
 # endif
 #endif /* ALLOW_AUTODIFF_TAMC */
 

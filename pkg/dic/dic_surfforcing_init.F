@@ -6,7 +6,7 @@ C !ROUTINE: DIC_SURFFORCING_INIT
 
 C !INTERFACE: ==========================================================
       SUBROUTINE DIC_SURFFORCING_INIT(
-     I          myThid)
+     I          myThid )
 
 C !DESCRIPTION:
 C  Calculate first guess of pH
@@ -23,7 +23,6 @@ C !USES: ===============================================================
 #include "PTRACERS_SIZE.h"
 #include "PTRACERS_PARAMS.h"
 #include "PTRACERS_FIELDS.h"
-#include "DIC_LOAD.h"
 
 C !INPUT PARAMETERS: ===================================================
 C  myThid               :: thread number
@@ -32,13 +31,10 @@ C  myThid               :: thread number
 #ifdef ALLOW_DIC
 
 C !LOCAL VARIABLES: ====================================================
-       INTEGER i,j, kLev, it
-       INTEGER intimeP, intime0, intime1
-       _RL aWght, bWght, co3dummy
-C Number of iterations for pCO2 solvers...
-C Solubility relation coefficients
-C local variables for carbon chem
+      INTEGER i,j, kLev, it
       INTEGER iMin,iMax,jMin,jMax, bi, bj
+       _RL co3dummy
+C local variables for carbon chem
       _RL surfalk(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL surfphos(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL surfsi(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -47,88 +43,21 @@ C local variables for carbon chem
       _RL surfdic(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       INTEGER iprt,jprt
       LOGICAL debugPrt
-      LOGICAL pH_isLoaded
-
+#ifdef ALLOW_DEBUG
 C     msgBuf     :: Informational/error message buffer
       CHARACTER*(MAX_LEN_MBUF) msgBuf
+#endif
 CEOP
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-      kLev=1
-
-      CALL DIC_INI_ATMOS( startTime, nIter0, myThid )
-
-ccccccccccccccccccccccccccccccccccccccccc
-      IF ( periodicExternalForcing ) THEN
-
-c read in silica field
-         CALL LEF_ZERO( silica0,myThid )
-         CALL LEF_ZERO( silica1,myThid )
-
-C--   Now calculate whether it is time to update the forcing arrays
-       CALL GET_PERIODIC_INTERVAL(
-     O                   intimeP, intime0, intime1, bWght, aWght,
-     I                   externForcingCycle, externForcingPeriod,
-     I                   deltaTClock, startTime, myThid )
-
-       _BARRIER
-       _BEGIN_MASTER(myThid)
-        WRITE(standardMessageUnit,'(A,I10,A,2(2I5,A))')
-     &   ' DIC_SURFFORCING_INIT, it=', nIter0,
-     &   ' : Reading new data, i0,i1=', intime0, intime1
-       _END_MASTER(myThid)
-
-       IF ( DIC_silicaFile .NE. ' '  ) THEN
-         CALL READ_REC_XY_RS( DIC_silicaFile,silica0,intime0,
-     &        nIter0,myThid )
-         CALL READ_REC_XY_RS( DIC_silicaFile,silica1,intime1,
-     &        nIter0,myThid )
-       ENDIF
-
-c#ifdef ALLOW_OFFLINE
-C--    This call has been moved to S/R OFFLINE_INIT_VARIA
-c      IF ( useOffLine ) THEN
-c        CALL OFFLINE_FIELDS_LOAD( startTime, nIter0, myThid )
-c      ENDIF
-c#endif
-
-       _EXCH_XY_RS(silica0, myThid )
-       _EXCH_XY_RS(silica1, myThid )
-
-       IF ( DIC_silicaFile .NE. ' '  ) THEN
-        DO bj = myByLo(myThid), myByHi(myThid)
-         DO bi = myBxLo(myThid), myBxHi(myThid)
-          DO j=1-OLy,sNy+OLy
-           DO i=1-OLx,sNx+OLx
-             SILICA(i,j,bi,bj)= bWght*silica0(i,j,bi,bj)
-     &                        + aWght*silica1(i,j,bi,bj)
-           ENDDO
-          ENDDO
-         ENDDO
-        ENDDO
-       ENDIF
-
-c end periodicExternalForcing
-      ENDIF
 
 C =================================================================
 
+      kLev = 1
       jMin=1
       jMax=sNy
       iMin=1
       iMax=sNx
 
-      DO bj=myByLo(myThid),myByHi(myThid)
-       DO bi=myBxLo(myThid),myBxHi(myThid)
-         DO j=1-OLy,sNy+OLy
-          DO i=1-OLx,sNx+OLx
-            pH(i,j,bi,bj) = 8. _d 0
-          ENDDO
-         ENDDO
-       ENDDO
-      ENDDO
-
+C Solubility relation coefficients
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
         DO j=1-OLy,sNy+OLy
@@ -153,51 +82,40 @@ C =================================================================
        ENDDO
       ENDDO
 
-      pH_isLoaded = .FALSE.
-      IF ( nIter0.GT.PTRACERS_Iter0 .OR.
-     &    (nIter0.EQ.PTRACERS_Iter0 .AND. pickupSuff.NE.' ')
-     &   ) THEN
-C       Read pH from a pickup file if needed
-        CALL DIC_READ_PICKUP(
-     O                        pH_isLoaded,
-     I                        nIter0, myThid )
-      ENDIF
-
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
 
 C determine inorganic carbon chem coefficients
         DO j=jMin,jMax
          DO i=iMin,iMax
-
 #ifdef DIC_BIOTIC
 #ifdef DIC_BOUNDS
-             surfalk(i,j) = max(0.4 _d 0,
-     &                          min(10. _d 0,PTRACER(i,j,kLev,bi,bj,2)))
-     &                          * maskC(i,j,kLev,bi,bj)
-             surfphos(i,j)  = max(1.0 _d -11,
-     &                          min(1. _d -1,PTRACER(i,j,kLev,bi,bj,3)))
-     &                          * maskC(i,j,kLev,bi,bj)
+            surfalk(i,j)  = MAX( 0.4 _d 0,
+     &                      MIN( 10. _d 0, PTRACER(i,j,kLev,bi,bj,2) ) )
+     &                    * maskC(i,j,kLev,bi,bj)
+            surfphos(i,j) = MAX( 1.0 _d -11,
+     &                      MIN( 1. _d -1, PTRACER(i,j,kLev,bi,bj,3) ) )
+     &                    * maskC(i,j,kLev,bi,bj)
 #else
-             surfalk(i,j) = PTRACER(i,j,kLev,bi,bj,2)
-     &                          * maskC(i,j,kLev,bi,bj)
-             surfphos(i,j)= PTRACER(i,j,kLev,bi,bj,3)
-     &                          * maskC(i,j,kLev,bi,bj)
+            surfalk(i,j)  = PTRACER(i,j,kLev,bi,bj,2)
+     &                    * maskC(i,j,kLev,bi,bj)
+            surfphos(i,j) = PTRACER(i,j,kLev,bi,bj,3)
+     &                    * maskC(i,j,kLev,bi,bj)
 #endif
 #else /* DIC_BIOTIC */
-             surfalk(i,j) = 2.366595 _d 0 *salt(i,j,kLev,bi,bj)/35. _d 0
-     &                          * maskC(i,j,kLev,bi,bj)
-             surfphos(i,j)= 5.1225 _d -4 * maskC(i,j,kLev,bi,bj)
+            surfalk(i,j)  = 2.366595 _d 0 *salt(i,j,kLev,bi,bj)/35. _d 0
+     &                    * maskC(i,j,kLev,bi,bj)
+            surfphos(i,j) = 5.1225 _d -4 * maskC(i,j,kLev,bi,bj)
 #endif /* DIC_BIOTIC */
-C FOR NON-INTERACTIVE Si
-             surfsi(i,j)   =  Silica(i,j,bi,bj) * maskC(i,j,kLev,bi,bj)
+C for non-interactive Si
+            surfsi(i,j)   = silicaSurf(i,j,bi,bj)*maskC(i,j,kLev,bi,bj)
 #ifdef DIC_BOUNDS
-            surftemp(i,j) = max(-4. _d 0,
-     &                          min(50. _d 0, theta(i,j,kLev,bi,bj)))
-            surfsalt(i,j) = max(4. _d 0,
-     &                          min(50. _d 0, salt(i,j,kLev,bi,bj)))
-            surfdic(i,j)  = max(0.4 _d 0,
-     &                         min(10. _d 0, PTRACER(i,j,kLev,bi,bj,1)))
+            surftemp(i,j) = MAX( -4. _d 0,
+     &                      MIN( 50. _d 0, theta(i,j,kLev,bi,bj) ) )
+            surfsalt(i,j) = MAX( 4. _d 0,
+     &                      MIN( 50. _d 0, salt(i,j,kLev,bi,bj) ) )
+            surfdic(i,j)  = MAX( 0.4 _d 0,
+     &                      MIN( 10. _d 0, PTRACER(i,j,kLev,bi,bj,1) ) )
 #else
             surftemp(i,j) = theta(i,j,kLev,bi,bj)
             surfsalt(i,j) = salt(i,j,kLev,bi,bj)
@@ -221,11 +139,12 @@ C FOR NON-INTERACTIVE Si
         CALL CARBON_COEFFS(
      I                       surftemp,surfsalt,
      I                       bi,bj,iMin,iMax,jMin,jMax,myThid)
+
 #endif /* CARBONCHEM_SOLVESAPHE */
 
 C====================================================================
 
-        IF ( .NOT.pH_isLoaded ) THEN
+        IF ( .NOT.pH_isLoaded(1) ) THEN
 C set guess of pH for first step here
 #ifdef ALLOW_DEBUG
           IF (debugMode) THEN
@@ -235,7 +154,7 @@ C set guess of pH for first step here
 #endif
 
           debugPrt = debugMode
-c first approximation
+C first approximation
 C$TAF LOOP = parallel
           DO j=jMin,jMax
 C$TAF LOOP = parallel
@@ -280,8 +199,8 @@ C Use the original Follows et al. (2006) solver
               ENDIF
 #endif
               DO it=1,10
-C$TAF STORE pH(i,j,bi,bj)                              = dic_surf
-C$TAF STORE surfalk(i,j), surfphos(i,j), surfsi(i,j)   = dic_surf
+cC$TAF STORE pH(i,j,bi,bj)                              = dic_surf
+cC$TAF STORE surfalk(i,j), surfphos(i,j), surfsi(i,j)   = dic_surf
                CALL CALC_PCO2_APPROX(
      I          surftemp(i,j),surfsalt(i,j),
      I          surfdic(i,j), surfphos(i,j),
@@ -304,7 +223,7 @@ C$TAF STORE surfalk(i,j), surfphos(i,j), surfsi(i,j)   = dic_surf
           ENDDO
 
 #ifdef ALLOW_DEBUG
-        IF (debugMode) THEN
+         IF (debugMode) THEN
           iprt = MIN(20,sNx)
           jprt = MIN(20,sNy)
           WRITE(msgBuf,'(4(A,F9.6),2(A,F11.8),A,F9.6)')
@@ -324,11 +243,11 @@ c    &        ' DIC ' ,surfdic(iprt,jprt),
 c    &        ' PO4 ' ,surfphos(iprt,jprt),
 c    &        ' SiT ' ,surfsi(iprt,jprt),
 c    &        ' ALK ' ,surfalk(iprt,jprt)
-c        CALL DEBUG_MSG(msgBuf,myThid)
-        ENDIF
+c         CALL DEBUG_MSG(msgBuf,myThid)
+         ENDIF
 #endif
 
-C ENDIF (.NOT.pH_isLoaded)
+C end if-block (.NOT.pH_isLoaded)
         ENDIF
 C     end bi,bj loops
        ENDDO

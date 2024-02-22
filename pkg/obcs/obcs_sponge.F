@@ -49,7 +49,13 @@ CEndOfInterface
 #if defined(ALLOW_OBCS) && defined(ALLOW_OBCS_SPONGE)
 C     == Local variables ==
 C     Loop counters
-      INTEGER i, j, isl, jsl
+      INTEGER i, j
+#if (defined ALLOW_OBCS_EAST ) || (defined ALLOW_OBCS_WEST )
+      INTEGER isl
+#endif
+#if (defined ALLOW_OBCS_NORTH) || (defined ALLOW_OBCS_SOUTH)
+      INTEGER jsl
+#endif
       _RL urelax, lambda_obcs_u
 
       IF ( useOBCSsponge .AND. spongeThickness.NE.0 ) THEN
@@ -243,7 +249,13 @@ CEndOfInterface
 #if defined(ALLOW_OBCS) && defined(ALLOW_OBCS_SPONGE)
 C     == Local variables ==
 C     Loop counters
-      INTEGER i, j, isl, jsl
+      INTEGER i, j
+#if (defined ALLOW_OBCS_EAST ) || (defined ALLOW_OBCS_WEST )
+      INTEGER isl
+#endif
+#if (defined ALLOW_OBCS_NORTH) || (defined ALLOW_OBCS_SOUTH)
+      INTEGER jsl
+#endif
       _RL vrelax,lambda_obcs_v
 
       IF ( useOBCSsponge .AND. spongeThickness.NE.0 ) THEN
@@ -419,10 +431,6 @@ C     == Global data ==
 #include "OBCS_PARAMS.h"
 #include "OBCS_GRID.h"
 #include "OBCS_FIELDS.h"
-#ifdef ALLOW_AUTODIFF_TAMC
-# include "tamc.h"
-# include "tamc_keys.h"
-#endif
 
 C     == Routine arguments ==
 C     gT_arr    :: the tendency array
@@ -441,31 +449,20 @@ CEndOfInterface
 #if defined(ALLOW_OBCS) && defined(ALLOW_OBCS_SPONGE)
 C     == Local variables ==
 C     Loop counters
-      INTEGER i, j, isl, jsl
+      INTEGER i, j
+#if (defined ALLOW_OBCS_EAST ) || (defined ALLOW_OBCS_WEST )
+      INTEGER isl
+#endif
+#if (defined ALLOW_OBCS_NORTH) || (defined ALLOW_OBCS_SOUTH)
+      INTEGER jsl
+#endif
       _RL trelax, lambda_obcs_t
 
       IF ( useOBCSsponge .AND. spongeThickness.NE.0 ) THEN
 
-#ifdef ALLOW_AUTODIFF_TAMC
-       act1 = bi - myBxLo(myThid)
-       max1 = myBxHi(myThid) - myBxLo(myThid) + 1
-       act2 = bj - myByLo(myThid)
-       max2 = myByHi(myThid) - myByLo(myThid) + 1
-       act3 = myThid - 1
-       max3 = nTx*nTy
-       act4 = ikey_dynamics - 1
-       ikey = (act1 + 1) + act2*max1
-     &      + act3*max1*max2
-     &      + act4*max1*max2*max3
-       kkey = (ikey-1)*Nr + k
-#endif /* ALLOW_AUTODIFF_TAMC */
-
 C Northern Open Boundary
 #ifdef ALLOW_OBCS_NORTH
        IF ( OBCSsponge_N .AND. OBCSsponge_Theta ) THEN
-#ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE OBNt(:,k,bi,bj)  = comlev1_bibj_k, key=kkey, byte=isbyte
-#endif
         DO i=iMin,iMax
          IF ( OB_Jn(i,bi,bj).NE.OB_indexNone ) THEN
           DO jsl= 1,spongeThickness
@@ -503,9 +500,6 @@ CADJ STORE OBNt(:,k,bi,bj)  = comlev1_bibj_k, key=kkey, byte=isbyte
 C Southern Open Boundary
 #ifdef ALLOW_OBCS_SOUTH
        IF ( OBCSsponge_S .AND. OBCSsponge_Theta ) THEN
-#ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE OBSt(:,k,bi,bj)  = comlev1_bibj_k, key=kkey, byte=isbyte
-#endif
         DO i=iMin,iMax
          IF ( OB_Js(i,bi,bj).NE.OB_indexNone ) THEN
           DO jsl= 1,spongeThickness
@@ -543,9 +537,6 @@ CADJ STORE OBSt(:,k,bi,bj)  = comlev1_bibj_k, key=kkey, byte=isbyte
 C Eastern Open Boundary
 #ifdef ALLOW_OBCS_EAST
        IF ( OBCSsponge_E .AND. OBCSsponge_Theta ) THEN
-#ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE OBEt(:,k,bi,bj)  = comlev1_bibj_k, key=kkey, byte=isbyte
-#endif
         DO j=jMin,jMax
          IF ( OB_Ie(j,bi,bj).NE.OB_indexNone ) THEN
           DO isl= 1,spongeThickness
@@ -583,9 +574,6 @@ CADJ STORE OBEt(:,k,bi,bj)  = comlev1_bibj_k, key=kkey, byte=isbyte
 C Western Open Boundary
 #ifdef ALLOW_OBCS_WEST
        IF ( OBCSsponge_W .AND. OBCSsponge_Theta ) THEN
-#ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE OBWt(:,k,bi,bj)  = comlev1_bibj_k, key=kkey, byte=isbyte
-#endif
         DO j=jMin,jMax
          IF ( OB_Iw(j,bi,bj).NE.OB_indexNone ) THEN
           DO isl= 1,spongeThickness
@@ -651,10 +639,6 @@ C     == Global data ==
 #include "OBCS_PARAMS.h"
 #include "OBCS_GRID.h"
 #include "OBCS_FIELDS.h"
-#ifdef ALLOW_AUTODIFF_TAMC
-# include "tamc.h"
-# include "tamc_keys.h"
-#endif
 
 C     == Routine arguments ==
 C     gS_arr    :: the tendency array
@@ -673,31 +657,20 @@ CEndOfInterface
 #if defined(ALLOW_OBCS) && defined(ALLOW_OBCS_SPONGE)
 C     == Local variables ==
 C     Loop counters
-      INTEGER i, j, isl, jsl
+      INTEGER i, j
+#if (defined ALLOW_OBCS_EAST ) || (defined ALLOW_OBCS_WEST )
+      INTEGER isl
+#endif
+#if (defined ALLOW_OBCS_NORTH) || (defined ALLOW_OBCS_SOUTH)
+      INTEGER jsl
+#endif
       _RL srelax, lambda_obcs_s
 
       IF ( useOBCSsponge .AND. spongeThickness.NE.0 ) THEN
 
-#ifdef ALLOW_AUTODIFF_TAMC
-       act1 = bi - myBxLo(myThid)
-       max1 = myBxHi(myThid) - myBxLo(myThid) + 1
-       act2 = bj - myByLo(myThid)
-       max2 = myByHi(myThid) - myByLo(myThid) + 1
-       act3 = myThid - 1
-       max3 = nTx*nTy
-       act4 = ikey_dynamics - 1
-       ikey = (act1 + 1) + act2*max1
-     &      + act3*max1*max2
-     &      + act4*max1*max2*max3
-       kkey = (ikey-1)*Nr + k
-#endif /* ALLOW_AUTODIFF_TAMC */
-
 C Northern Open Boundary
 #ifdef ALLOW_OBCS_NORTH
        IF ( OBCSsponge_N .AND. OBCSsponge_Salt ) THEN
-#ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE OBNs(:,k,bi,bj)  = comlev1_bibj_k, key=kkey, byte=isbyte
-#endif
         DO i=iMin,iMax
          IF ( OB_Jn(i,bi,bj).NE.OB_indexNone ) THEN
           DO jsl= 1,spongeThickness
@@ -735,9 +708,6 @@ CADJ STORE OBNs(:,k,bi,bj)  = comlev1_bibj_k, key=kkey, byte=isbyte
 C Southern Open Boundary
 #ifdef ALLOW_OBCS_SOUTH
        IF ( OBCSsponge_S .AND. OBCSsponge_Salt ) THEN
-#ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE OBSs(:,k,bi,bj)  = comlev1_bibj_k, key=kkey, byte=isbyte
-#endif
         DO i=iMin,iMax
          IF ( OB_Js(i,bi,bj).NE.OB_indexNone ) THEN
           DO jsl= 1,spongeThickness
@@ -775,9 +745,6 @@ CADJ STORE OBSs(:,k,bi,bj)  = comlev1_bibj_k, key=kkey, byte=isbyte
 C Eastern Open Boundary
 #ifdef ALLOW_OBCS_EAST
       IF ( OBCSsponge_E .AND. OBCSsponge_Salt ) THEN
-#ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE OBEs(:,k,bi,bj)  = comlev1_bibj_k, key=kkey, byte=isbyte
-#endif
        DO j=jMin,jMax
         IF ( OB_Ie(j,bi,bj).NE.OB_indexNone ) THEN
          DO isl= 1,spongeThickness
@@ -815,9 +782,6 @@ CADJ STORE OBEs(:,k,bi,bj)  = comlev1_bibj_k, key=kkey, byte=isbyte
 C Western Open Boundary
 #ifdef ALLOW_OBCS_WEST
       IF ( OBCSsponge_W .AND. OBCSsponge_Salt ) THEN
-#ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE OBWs(:,k,bi,bj)  = comlev1_bibj_k, key=kkey, byte=isbyte
-#endif
        DO j=jMin,jMax
         IF ( OB_Iw(j,bi,bj).NE.OB_indexNone ) THEN
          DO isl= 1,spongeThickness

@@ -65,7 +65,7 @@ C  scalingFactor :: scaling factor (from acceleration to density)
       _RL scalingFactor
 CEOP
 
-      IF ( use3dCoriolis .OR. useNHMTerms ) THEN
+      IF ( select3dCoriScheme.GE.1 .OR. useNHMTerms ) THEN
 
         IF ( usingZCoords ) THEN
 C--   Z-coordinate case: Input is density anomaly
@@ -78,12 +78,10 @@ c         scalingFactor=gravitySign*recip_gravity
         ELSEIF ( fluidIsWater ) THEN
 C--   P-coordinate, oceanic case: Input is specific-volume anomaly
 
-          scalingFactor = recip_rhoConst*recip_gravity
-c         scalingFactor = rVel2wUnit(k) <-- @ interface = wrong location
-C-    should use expression below (consistent with omega <-> w-velocity
-C      conversion) but rhoRef(k) = rho(tRef,sRef,p) is computed
-C     in S/R SET_REF_STATE but is not stored:
-c         scalingFactor = ( oneRL / rhoRef(k) )*recip_gravity
+c         scalingFactor = recip_rhoConst*recip_gravity
+C     better to use rhoRef = rho(tRef,sRef,p) and consistent with
+C-    omega <-> w-velocity conversion:
+          scalingFactor = ( oneRL / rhoRef(k) )*recip_gravity
 
         ELSE
 C--   P-coord., Ideal-Gas case: Input is virtual potential temp. anomaly
@@ -98,7 +96,7 @@ C     (see White & Bromley, QJRMS 1995)
          ENDDO
         ENDDO
 
-        IF ( use3dCoriolis ) THEN
+        IF ( select3dCoriScheme.GE.1 ) THEN
          DO j=jMin,jMax
           DO i=iMin,iMax
            gWinBuoy(i,j) = fCoriCos(i,j,bi,bj)*

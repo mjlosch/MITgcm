@@ -6,9 +6,29 @@
 #ifdef ALLOW_CTRL
 # include "CTRL_OPTIONS.h"
 #endif
-#ifdef ALLOW_SHELFICE
-# include "SHELFICE_OPTIONS.h"
-#endif
+#ifdef ALLOW_TAPENADE
+# ifdef ALLOW_SHELFICE
+#  include "SHELFICE_OPTIONS.h"
+# endif
+# ifdef ALLOW_GMREDI
+#  include "GMREDI_OPTIONS.h"
+# endif
+# ifdef ALLOW_EXF
+#  include "EXF_OPTIONS.h"
+# endif
+# ifdef ALLOW_SEAICE
+#  include "SEAICE_OPTIONS.h"
+# endif
+# ifdef ALLOW_ECCO
+#  include "ECCO_OPTIONS.h"
+# endif
+c# ifdef ALLOW_THSICE
+c# include "THSICE_OPTIONS.h"
+c# endif
+# ifdef ALLOW_BLING
+#  include "BLING_OPTIONS.h"
+# endif
+#endif /* ALLOW_TAPENADE */
 
 CBOP
 C     !ROUTINE: INITIALISE_VARIA
@@ -90,19 +110,68 @@ C     == Global variables ==
 #ifdef ALLOW_AUTODIFF
 # include "GRID.h"
 # include "FFIELDS.h"
-# include "CTRL_FIELDS.h"
-# if (defined ALLOW_SHELFICE) && (defined ALLOW_GENARR2D_CONTROL)
-#  include "SHELFICE.h"
-# endif
 #endif
 
+#ifdef ALLOW_TAPENADE
+# ifdef ALLOW_GMREDI
+#  include "GMREDI.h"
+# endif
+# ifdef ALLOW_CTRL
+#  include "CTRL_SIZE.h"
+#  include "CTRL.h"
+#  include "CTRL_GENARR.h"
+#  include "CTRL_DUMMY.h"
+# endif
+# ifdef ALLOW_CD_CODE
+#  include "CD_CODE_VARS.h"
+# endif
+# ifdef ALLOW_DIC
+#  include "DIC_VARS.h"
+#  include "DIC_ATMOS.h"
+#  include "DIC_LOAD.h"
+# endif
+# ifdef ALLOW_PTRACERS
+#  include "PTRACERS_SIZE.h"
+#  include "PTRACERS_FIELDS.h"
+#  include "PTRACERS_PARAMS.h"
+# endif
+# ifdef ALLOW_GENERIC_ADVDIFF
+#  include "GAD_SOM_VARS.h"
+# endif
+# ifdef ALLOW_EXF
+#  include "EXF_PARAM.h"
+#  include "EXF_INTERP_SIZE.h"
+#  include "EXF_INTERP_PARAM.h"
+#  include "EXF_FIELDS.h"
+# endif
+# ifdef ALLOW_STREAMICE
+#  include "STREAMICE.h"
+#  include "STREAMICE_CG.h"
+# endif
+# ifdef ALLOW_THSICE
+#  include "THSICE_VARS.h"
+# endif
+# ifdef ALLOW_SEAICE
+#  include "SEAICE_SIZE.h"
+#  include "SEAICE.h"
+# endif
+# ifdef ALLOW_ECCO
+#  include "ECCO_SIZE.h"
+#  include "ECCO.h"
+# endif
+# ifdef ALLOW_BLING
+#  include "BLING_VARS.h"
+#  include "BLING_LOAD.h"
+# endif
+#endif /* ALLOW_TAPENADE */
+
 C     !INPUT/OUTPUT PARAMETERS:
-C     == Routine arguments ==
       INTEGER myThid
 
 C     !LOCAL VARIABLES:
-C     == Local variables ==
+#ifdef INCLUDE_CONVECT_INI_CALL
       INTEGER bi,bj
+#endif
 CEOP
 
 #ifdef ALLOW_DEBUG
@@ -113,8 +182,7 @@ CEOP
       nIter0 = NINT( (startTime-baseTime)/deltaTClock )
 #endif /* ALLOW_AUTODIFF */
 
-#ifdef ALLOW_CTRL
-# ifdef ALLOW_DEPTH_CONTROL
+#ifdef ALLOW_DEPTH_CONTROL
 C--   Intialize the depth for TAF/TAMC
       CALL INI_DEPTHS( myThid )
 C--   Get control parameter depth
@@ -123,8 +191,7 @@ C--   Re-calculate hFacS/W and some other parameters from hFacC
       CALL UPDATE_MASKS_ETC( myThid )
 C--   Update laplace operators for use in 2D conjugate gradient solver.
       CALL UPDATE_CG2D( startTime, nIter0, myThid )
-# endif /* ALLOW_DEPTH_CONTROL */
-#endif /* ALLOW_CTRL */
+#endif /* ALLOW_DEPTH_CONTROL */
 
 C--   Initialise Non-Lin FreeSurf variables:
       CALL INI_NLFS_VARS( myThid )
@@ -149,6 +216,9 @@ C     are set here. Fields are either set to default or read from
 C     stored files.
 #ifdef ALLOW_DEBUG
       IF (debugMode) CALL DEBUG_CALL('INI_FIELDS',myThid)
+#endif
+#ifdef ALLOW_AUTODIFF_TAMC
+CADJ STORE phi0surf = tapelev_init, key = 1
 #endif
       CALL INI_FIELDS( myThid )
 
@@ -182,16 +252,6 @@ C--   Initialize variable data for packages
 # ifdef NONLIN_FRSURF
 CADJ STORE recip_hFacC = tapelev_init, key = 1
 # endif
-# if (defined ALLOW_SHELFICE) && (defined ALLOW_GENARR2D_CONTROL)
-CADJ STORE shelficeFreshwaterFlux = tapelev_init, key = 1
-CADJ STORE shelficeHeatFlux = tapelev_init, key = 1
-#  ifndef SHI_ALLOW_GAMMAFRICT
-CADJ STORE shiTransCoeffT = tapelev_init, key = 1
-CADJ STORE shiTransCoeffS = tapelev_init, key = 1
-#  else
-CADJ STORE shiCDragFld = tapelev_init, key = 1
-#  endif
-# endif
 #endif
       CALL PACKAGES_INIT_VARIABLES( myThid )
 
@@ -210,7 +270,7 @@ c      CALL THE_CORRECTION_STEP(startTime, nIter0, myThid)
 c     ENDIF
 c#endif
 
-#ifndef ALLOW_AUTODIFF_WHTAPEIO
+#ifdef INCLUDE_CONVECT_INI_CALL
 C--   Initial conditions are convectively adjusted (for historical reasons)
       IF ( startTime .EQ. baseTime .AND. cAdjFreq .NE. 0. ) THEN
 #ifdef ALLOW_DEBUG
@@ -225,7 +285,7 @@ CADJ loop = parallel
          ENDDO
         ENDDO
       ENDIF
-#endif /* ALLOW_AUTODIFF_WHTAPEIO */
+#endif /* INCLUDE_CONVECT_INI_CALL */
 
 #ifdef NONLIN_FRSURF
 C--   Compute the surface level thickness <-- function of etaH(n)
@@ -245,6 +305,12 @@ C     and modify hFac(C,W,S) accordingly :
 # endif /* DISABLE_SIGMA_CODE */
        ELSE
         CALL CALC_SURF_DR(etaH, startTime, -1 , myThid )
+#ifdef ALLOW_AUTODIFF_TAMC
+C     These fields are only updated in the surface layer and TAF gets
+C     confused about it so that their contribution is not always added
+C     to the hfac*_ad lateron. This directive fixes that.
+CADJ INCOMPLETE recip_hFacC, recip_hFacW, recip_hFacS
+#endif /* ALLOW_AUTODIFF_TAMC */
         CALL UPDATE_SURF_DR( .TRUE., startTime, nIter0, myThid )
        ENDIF
       ENDIF

@@ -36,27 +36,24 @@ c     == end of interface ==
 
 c--   Read the namelist input.
       namelist /cost_nml/
-     &         mult_atl, mult_test, mult_tracer
-     &       , multTheta, multSalt, multUvel, multVvel, multEtan
-#ifdef ALLOW_COST_TRANSPORT
-     &       , mult_transport
-#endif
+     &         mult_atl, mult_test, mult_tracer,
+     &         multTheta, multSalt, multUvel, multVvel, multEtan,
 #ifdef ALLOW_COST_DEPTH
-     &       , mult_depth
+     &         mult_depth,
 #endif
-     &       , lastinterval
-cHFLUXM_CONTROL
-     &                 , mult_temp_tut, mult_hflux_tut
-cHFLUXM_CONTROL
+#ifdef ALLOW_COST_HFLUXM
+     &         mult_temp_tut, mult_hflux_tut,
+#endif
 #ifdef ALLOW_COST_MEAN_SALT
-     &     , mult_mean_salt
-     &     , mult_sflux_bering
-     &     , mult_mean_slvl_arc_oc
-     &     , mult_mean_slvl_arc_coa
-     &     , mult_sflux_fram
-     &     , mult_sflux_barents
-     &     , mult_sflux_caa
+     &     mult_mean_salt,
+     &     mult_sflux_bering,
+     &     mult_mean_slvl_arc_oc,
+     &     mult_mean_slvl_arc_coa,
+     &     mult_sflux_fram,
+     &     mult_sflux_barents,
+     &     mult_sflux_caa,
 #endif
+     &         lastinterval
 
       _BEGIN_MASTER( myThid )
 
@@ -69,15 +66,13 @@ c--     Set default values.
         multUvel              =      0. _d 0
         multVvel              =      0. _d 0
         multEtan              =      0. _d 0
-#ifdef ALLOW_COST_TRANSPORT
-        mult_transport        =      0. _d 0
-#endif
 #ifdef ALLOW_COST_DEPTH
         mult_depth            =      0. _d 0
 #endif
-cHFLUXM_CONTROL
+#ifdef ALLOW_COST_HFLUXM
         mult_temp_tut         =      0. _d 0
         mult_hflux_tut        =      0. _d 0
+#endif
 cHFLUXM_CONTROL
 #ifdef ALLOW_COST_MEAN_SALT
         mult_mean_salt        =      0. _d 0
@@ -114,9 +109,9 @@ c--     Next, read the cost data file.
         CLOSE(iUnit,STATUS='DELETE')
 #endif /* SINGLE_DISK_IO */
 
-        IF ( MOD(lastinterval,deltaTclock) .GT. 0. )
+        IF ( MOD(lastinterval,deltaTClock) .GT. 0. )
      &       lastinterval = MAX(
-     &       INT(lastinterval/deltaTclock-1)*deltaTclock,deltaTclock)
+     &       INT(lastinterval/deltaTClock-1)*deltaTClock,deltaTClock)
 
 #if (defined ALLOW_COST_HFLUXM) || (defined ALLOW_COST_TEMP)
 c-- get the weights for the cost functions

@@ -1,5 +1,8 @@
 #include "PACKAGES_CONFIG.h"
 #include "CPP_OPTIONS.h"
+#ifdef ALLOW_AUTODIFF
+# include "AUTODIFF_OPTIONS.h"
+#endif
 
 CBOP
 C     !ROUTINE: CALC_3D_DIFFUSIVITY
@@ -256,6 +259,10 @@ C--   Set vertical diffusivity contribution from KPP
 #endif /* ALLOW_SMAG_3D_DIFFUSIVITY */
 
 #ifndef EXCLUDE_PCELL_MIX_CODE
+# ifdef ALLOW_AUTODIFF_TAMC
+CADJ INIT loctape_3d_diff = COMMON, Nr
+CADJ STORE kappartr = loctape_3d_diff
+# endif
       IF ( interDiffKr_pCell ) THEN
 C--   This is a hack: alter vertical diffusivity (instead of changing many S/R)
 C     in order to account for missing hFac in diffusion term
@@ -285,6 +292,14 @@ C     in order to to increase mixing for too thin surface/bottom partial cell
          IF ( pCellMix_delR.LT.drF(k) )
      &     pC_kFac = pCellMix_delR*recip_drF(k)
 
+# ifdef ALLOW_AUTODIFF
+         DO j = 1-OLy, sNy+OLy
+          DO i = 1-OLx, sNx+OLx
+           tmpFac(i,j) = 0. _d 0
+          ENDDO
+         ENDDO
+# endif
+
 C-    Increase KappaRTr above bottom level:
          IF ( mixBott.GE.1 ) THEN
           DO j = 2-OLy, sNy+OLy
@@ -296,6 +311,9 @@ C-    Increase KappaRTr above bottom level:
              ENDIF
            ENDDO
           ENDDO
+# ifdef ALLOW_AUTODIFF_TAMC
+CADJ STORE tmpFac          = loctape_3d_diff, key = k
+# endif
           IF ( mixBott.EQ.2 ) THEN
            DO j = 2-OLy, sNy+OLy
             DO i = 2-OLx, sNx+OLx
@@ -320,6 +338,14 @@ C-    increase mixing above bottom (by ~(1/hFac)^mixBott) if too thin p-cell
           DO j = 2-OLy, sNy+OLy
            DO i = 2-OLx, sNx+OLx
              tmpFac(i,j) = MIN( tmpFac(i,j), pCellMix_maxFac )
+# ifdef ALLOW_AUTODIFF_TAMC
+           ENDDO
+          ENDDO
+CADJ STORE tmpFac          = loctape_3d_diff, key = k
+CADJ STORE kappartr(:,:,k) = loctape_3d_diff, key = k
+          DO j = 2-OLy, sNy+OLy
+           DO i = 2-OLx, sNx+OLx
+# endif
              KappaRTr(i,j,k) = MAX( KappaRTr(i,j,k),
      &                              pCellMix_diffKr(k)*tmpFac(i,j) )
            ENDDO
@@ -341,6 +367,9 @@ C-    Increase KappaRTr below surface level:
              ENDIF
            ENDDO
           ENDDO
+# ifdef ALLOW_AUTODIFF_TAMC
+CADJ STORE tmpFac          = loctape_3d_diff, key = k
+# endif
           IF ( mixSurf.EQ.2 ) THEN
            DO j = 2-OLy, sNy+OLy
             DO i = 2-OLx, sNx+OLx
@@ -365,6 +394,14 @@ C-    increase mixing below surface (by ~(1/hFac)^mixSurf) if too thin p-cell
           DO j = 2-OLy, sNy+OLy
            DO i = 2-OLx, sNx+OLx
              tmpFac(i,j) = MIN( tmpFac(i,j), pCellMix_maxFac )
+# ifdef ALLOW_AUTODIFF_TAMC
+           ENDDO
+          ENDDO
+CADJ STORE tmpFac          = loctape_3d_diff, key = k
+CADJ STORE kappartr(:,:,k) = loctape_3d_diff, key = k
+          DO j = 2-OLy, sNy+OLy
+           DO i = 2-OLx, sNx+OLx
+# endif
              KappaRTr(i,j,k) = MAX( KappaRTr(i,j,k),
      &                              pCellMix_diffKr(k)*tmpFac(i,j) )
            ENDDO

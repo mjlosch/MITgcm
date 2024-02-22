@@ -46,51 +46,27 @@ C     tile_fc   :: Final cost function contribution from this tile
      &                objf_tracer,
      &                objf_entropy,
      &                objf_t_misfit,
-#ifdef ALLOW_COST_TRANSPORT
-     &                objf_transport,
-#endif
 #ifdef ALLOW_COST_DEPTH
      &                objf_depth,
 #endif
      &                objf_eflux
-cHFLUXM_CONTROL
+#ifdef ALLOW_COST_HFLUXM
      &               ,objf_hflux_tut
      &               ,objf_temp_tut
-cHFLUXM_CONTROL
-#ifdef ALLOW_COST_MEAN_SALT
-     &               ,objf_mean_salt
-     &               ,objf_mean_slvl_arc_oc
-     &               ,objf_mean_slvl_arc_coa
-     &               ,objf_sflux_bering
-     &               ,objf_sflux_fram
-     &               ,objf_sflux_barents
-     &               ,objf_sflux_caa
 #endif
 
-      _RL  objf_atl  (nsx,nsy)
-      _RL  objf_test (nsx,nsy)
-      _RL  objf_tracer (nsx,nsy)
-      _RL  objf_entropy (nsx,nsy)
-      _RL  objf_t_misfit (nsx,nsy)
-      _RL  objf_eflux (nsx,nsy)
-#ifdef ALLOW_COST_TRANSPORT
-      _RL  objf_transport (nsx,nsy)
-#endif
+      _RL  objf_atl  (nSx,nSy)
+      _RL  objf_test (nSx,nSy)
+      _RL  objf_tracer (nSx,nSy)
+      _RL  objf_entropy (nSx,nSy)
+      _RL  objf_t_misfit (nSx,nSy)
+      _RL  objf_eflux (nSx,nSy)
 #ifdef ALLOW_COST_DEPTH
-      _RL  objf_depth (nsx,nsy)
+      _RL  objf_depth (nSx,nSy)
 #endif
-cHFLUXM_CONTROL
-      _RL  objf_hflux_tut (nsx,nsy)
-      _RL  objf_temp_tut (nsx,nsy)
-cHFLUXM_CONTROL
-#ifdef ALLOW_COST_MEAN_SALT
-      _RL  objf_mean_salt        (nsx,nsy)
-      _RL  objf_mean_slvl_arc_oc (nsx,nsy)
-      _RL  objf_mean_slvl_arc_coa(nsx,nsy)
-      _RL  objf_sflux_bering     (nsx,nsy)
-      _RL  objf_sflux_fram       (nsx,nsy)
-      _RL  objf_sflux_barents    (nsx,nsy)
-      _RL  objf_sflux_caa        (nsx,nsy)
+#ifdef ALLOW_COST_HFLUXM
+      _RL  objf_hflux_tut (nSx,nSy)
+      _RL  objf_temp_tut (nSx,nSy)
 #endif
 
       common /cost_param_r/
@@ -101,13 +77,13 @@ cHFLUXM_CONTROL
       common /cost_state_final_r/
      &                objf_state_final
 cph      _RL  objf_state_final (snx,sny,nsx,nsy)
-      _RL  objf_state_final (snx,sny,nsx,nsy,4*Nr+1)
+      _RL  objf_state_final (sNx,sNy,nSx,nSy,4*Nr+1)
 #endif
 
 #ifdef ALLOW_COST_VECTOR
       common /cost_vector_r/
      &                objf_vector
-      _RL  objf_vector (snx,nsx,nsy)
+      _RL  objf_vector (sNx,nSx,nSy)
 #endif
 
       common /cost_aux_r/
@@ -121,25 +97,13 @@ cph      _RL  objf_state_final (snx,sny,nsx,nsy)
      &                    multSalt,
      &                    multUvel,
      &                    multVvel,
-#ifdef ALLOW_COST_TRANSPORT
-     &                    mult_transport,
-#endif
 #ifdef ALLOW_COST_DEPTH
      &                    mult_depth,
 #endif
      &                    multEtan
-cHFLUXM_CONTROL
+#ifdef ALLOW_COST_HFLUXM
      &                   ,mult_hflux_tut
      &                   ,mult_temp_tut
-cHFLUXM_CONTROL
-#ifdef ALLOW_COST_MEAN_SALT
-     &                   ,mult_mean_salt
-     &                   ,mult_mean_slvl_arc_oc
-     &                   ,mult_mean_slvl_arc_coa
-     &                   ,mult_sflux_bering
-     &                   ,mult_sflux_fram
-     &                   ,mult_sflux_barents
-     &                   ,mult_sflux_caa
 #endif
 
       _RL  mult_atl
@@ -153,24 +117,12 @@ cHFLUXM_CONTROL
       _RL  multUvel
       _RL  multVvel
       _RL  multEtan
-#ifdef ALLOW_COST_TRANSPORT
-      _RL  mult_transport
-#endif
 #ifdef ALLOW_COST_DEPTH
       _RL  mult_depth
 #endif
-cHFLUXM_CONTROL
+#ifdef ALLOW_COST_HFLUXM
       _RL  mult_hflux_tut
       _RL  mult_temp_tut
-cHFLUXM_CONTROL
-#ifdef ALLOW_COST_MEAN_SALT
-      _RL  mult_mean_salt
-      _RL  mult_mean_slvl_arc_oc
-      _RL  mult_mean_slvl_arc_coa
-      _RL  mult_sflux_bering
-      _RL  mult_sflux_fram
-      _RL  mult_sflux_barents
-      _RL  mult_sflux_caa
 #endif
 
 #ifdef ALLOW_COST_TEST

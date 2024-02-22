@@ -140,9 +140,11 @@ C     == Global variables ===
 #include "EEPARAMS.h"
 #include "PARAMS.h"
 #ifdef ALLOW_ADMTLM
-# include "tamc.h"
-# include "ctrl.h"
-# include "optim.h"
+# ifdef ALLOW_AUTODIFF_TAMC
+#  include "tamc.h"
+# endif
+# include "CTRL.h"
+# include "OPTIMCYCLE.h"
 # include "cost.h"
 # include "adcost.h"
 # include "g_cost.h"

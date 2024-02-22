@@ -260,11 +260,13 @@ C     == Global variables ==
 # include "FFIELDS.h"
 # include "SURFACE.h"
 
-# include "tamc.h"
+# ifdef ALLOW_AUTODIFF_TAMC
+#  include "tamc.h"
+# endif
 # ifdef ALLOW_CTRL
 #  include "CTRL_SIZE.h"
-#  include "ctrl.h"
-#  include "ctrl_dummy.h"
+#  include "CTRL.h"
+#  include "CTRL_DUMMY.h"
 #  include "CTRL_GENARR.h"
 #  include "CTRL_OBCS.h"
 # endif
@@ -368,10 +370,30 @@ C     == Global variables ==
 # ifdef ALLOW_OFFLINE
 #  include "OFFLINE.h"
 # endif
-# if (defined ALLOW_CG2D_NSA) || (defined NONLIN_FRSURF)
+# if (defined ALLOW_CG2D_NSA || defined NONLIN_FRSURF || \
+      defined ALLOW_DEPTH_CONTROL)
 #  include "CG2D.h"
 # endif
 #endif /* ALLOW_AUTODIFF */
+
+#ifdef ALLOW_TAPENADE
+c# ifdef ALLOW_KPP
+c#  include "KPP_PARAMS.h"
+c# endif
+# ifdef ALLOW_GMREDI
+#  include "GMREDI_TAVE.h"
+# endif
+# ifdef ALLOW_TIMEAVE
+#  include "TIMEAVE_STATV.h"
+# endif
+# ifdef ALLOW_MOM_FLUXFORM
+#  include "MOM_FLUXFORM.h"
+# endif
+# ifdef ALLOW_EXF
+#  include "EXF_PARAM.h"
+#  include "EXF_INTERP_PARAM.h"
+# endif
+#endif /* ALLOW_TAPENADE */
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     == Routine arguments ==
@@ -838,16 +860,11 @@ CADJ STORE hFacC, hFacS, hFacW =
 CADJ &     comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE recip_hFacC, recip_hFacS, recip_hFacW  =
 CADJ &     comlev1, key = ikey_dynamics, kind = isbyte
-#  ifdef ALLOW_CG2D_NSA
-CADJ STORE aW2d, aS2d, aC2d =
-CADJ &     comlev1, key = ikey_dynamics, kind = isbyte
-CADJ STORE pC, pS, pW =
-CADJ &     comlev1, key = ikey_dynamics, kind = isbyte
-#  endif
 # endif
 #endif /* NONLIN_FRSURF */
 
-#if ( defined NONLIN_FRSURF || defined ALLOW_SOLVE4_PS_AND_DRAG )
+#if ( defined NONLIN_FRSURF || defined ALLOW_SOLVE4_PS_AND_DRAG || \
+      defined ALLOW_CG2D_NSA || defined ALLOW_DEPTH_CONTROL )
 C-    update CG2D matrix (and preconditioner)
       IF ( momStepping .AND.
      &     ( nonlinFreeSurf.GT.2 .OR. selectImplicitDrag.EQ.2 ) ) THEN
@@ -855,6 +872,12 @@ C-    update CG2D matrix (and preconditioner)
         CALL UPDATE_CG2D( myTime, myIter, myThid )
         CALL TIMER_STOP ('UPDATE_CG2D         [FORWARD_STEP]',myThid)
       ENDIF
+# ifdef ALLOW_AUTODIFF_TAMC
+CADJ STORE aW2d, aS2d, aC2d =
+CADJ &     comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE pC, pS, pW =
+CADJ &     comlev1, key = ikey_dynamics, kind = isbyte
+# endif
 #endif /* NONLIN_FRSURF or ALLOW_SOLVE4_PS_AND_DRAG */
 
 C--   Apply Filters to u*,v* before SOLVE_FOR_PRESSURE
@@ -937,9 +960,10 @@ C       (+ update "etaN" & "etaH", exact volume conservation):
         CALL TIMER_STOP ('INTEGR_CONTINUITY   [FORWARD_STEP]',myThid)
       ENDIF
 #ifdef ALLOW_AUTODIFF_TAMC
-C--   This simple store directive avoids an (expensive) extra
+C--   These store directives avoid an (expensive) extra
 C     "call solve_for_pressure" in forward_step_ad
 CADJ STORE wVel = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE etaN = comlev1, key = ikey_dynamics, kind = isbyte
 #endif
 
 #ifdef NONLIN_FRSURF
@@ -1179,8 +1203,8 @@ C--     this is done after exchanges to allow interpolation
 #endif
 
 #ifdef ALLOW_ECCO
-C--   Diagnoze variables for pkg/ecco averaging and cost function purposes
-      IF ( useECCO ) CALL ECCO_PHYS( myThid )
+C--   Diagnose variables for pkg/ecco averaging and cost function purposes
+      IF ( useECCO ) CALL ECCO_PHYS( myTime, myIter, myThid )
 #endif
 
 C--   Check if it has reached the end of simulation

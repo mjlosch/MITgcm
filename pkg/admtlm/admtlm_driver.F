@@ -24,9 +24,10 @@ C     == Global variables ===
 #include "DYNVARS.h"
 
 #ifdef ALLOW_ADMTLM
-# include "tamc.h"
-# include "ctrl.h"
-# include "optim.h"
+# ifdef ALLOW_AUTODIFF_TAMC
+#  include "tamc.h"
+# endif
+# include "CTRL.h"
 #endif
 
 C     !INPUT/OUTPUT PARAMETERS:

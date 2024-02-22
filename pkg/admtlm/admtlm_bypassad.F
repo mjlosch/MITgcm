@@ -12,9 +12,9 @@ C     == Global variables ===
 #include "EEPARAMS.h"
 #include "PARAMS.h"
 #if (defined (ALLOW_ADMTLM) && defined (ALLOW_BYPASSAD))
-# include "ctrl.h"
-# include "ctrl_dummy.h"
-# include "optim.h"
+# include "CTRL.h"
+# include "CTRL_DUMMY.h"
+# include "OPTIMCYCLE.h"
 # include "adcost.h"
 # include "g_cost.h"
 # include "adcommon.h"
@@ -40,6 +40,9 @@ C     ========= Local variables =========================
       logical equal
       double precision fac
       character*(80) fnamegeneric
+
+      _RL tmpfld2d (1-olx:snx+olx,1-oly:sny+oly,   nsx,nsy)
+      _RL tmpfld3d (1-olx:snx+olx,1-oly:sny+oly,nr,nsx,nsy)
 
 C     ==============================================
 C     declare external procedures and functions

@@ -41,7 +41,9 @@ C     === Global variables ===
       INTEGER i, j, bi, bj, k, iter_count, iter_rpt
       INTEGER Gi, Gj
       INTEGER new_partial(4)
+#ifdef ALLOW_AUTODIFF_TAMC
       INTEGER ikey_front, ikey_1
+#endif
       _RL iter_flag
       _RL n_flux_1, n_flux_2
       _RL href, rho, partial_vol, tot_flux, hpot
@@ -106,7 +108,7 @@ CADJ &     = comlev1_stream_front, key = ikey_front
         ENDDO
        ENDIF
 
-!       iter_count = iter_count + 1
+c       iter_count = iter_count + 1
        iter_rpt = iter_rpt + 1
 
        DO bj=myByLo(myThid),myByHi(myThid)
@@ -119,19 +121,8 @@ CADJ &     = comlev1_stream_front, key = ikey_front
             Gi = (myXGlobalLo-1)+(bi-1)*sNx+i
 
 #ifdef ALLOW_AUTODIFF_TAMC
-          act1 = bi - myBxLo(myThid)
-          max1 = myBxHi(myThid) - myBxLo(myThid) + 1
-          act2 = bj - myByLo(myThid)
-          max2 = myByHi(myThid) - myByLo(myThid) + 1
-          act3 = myThid - 1
-          max3 = nTx*nTy
-          act4 = ikey_front - 1
-          ikey_1 = i + 1
-     &         + (sNx+2)*(j)
-     &         + (sNx+2)*(sNy+2)*act1
-     &         + (sNx+2)*(sNy+2)*max1*act2
-     &         + (sNx+2)*(sNy+2)*max1*max2*act3
-     &         + (sNx+2)*(sNy+2)*max1*max2*max3*act4
+            ikey_1 = bi + (bj-1)*nSx + (ikey_front-1)*nSx*nSy
+            ikey_1 = i + 1  + (j)*(sNx+2) + (ikey_1-1)*(sNx+2)*(sNy+2)
 CADJ STORE area_shelf_streamice(i,j,bi,bj)
 CADJ &     = comlev1_stream_ij, key = ikey_1
 CADJ STORE h_streamice(i,j,bi,bj)
@@ -155,8 +146,7 @@ CADJ &     = comlev1_stream_ij, key = ikey_1
              tot_flux = 0. _d 0
 
 #ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE hflux_x_SI(i,j,bi,bj)
-CADJ &     = comlev1_stream_ij, key = ikey_1
+CADJ STORE hflux_x_SI(i,j,bi,bj) = comlev1_stream_ij, key = ikey_1
 #endif
              IF (hflux_x_SI(i,j,bi,bj).gt. 0. _d 0) THEN
               n_flux_1 = n_flux_1 + 1. _d 0
@@ -167,8 +157,7 @@ CADJ &     = comlev1_stream_ij, key = ikey_1
              ENDIF
 
 #ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE hflux_x_SI(i,j,bi,bj)
-CADJ &     = comlev1_stream_ij, key = ikey_1
+CADJ STORE hflux_x_SI(i+1,j,bi,bj) = comlev1_stream_ij, key = ikey_1
 #endif
              IF (hflux_x_SI(i+1,j,bi,bj).lt. 0. _d 0) THEN
               n_flux_1 = n_flux_1 + 1. _d 0
@@ -179,8 +168,7 @@ CADJ &     = comlev1_stream_ij, key = ikey_1
              ENDIF
 
 #ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE hflux_y_SI(i,j,bi,bj)
-CADJ &     = comlev1_stream_ij, key = ikey_1
+CADJ STORE hflux_y_SI(i,j,bi,bj) = comlev1_stream_ij, key = ikey_1
 #endif
              IF (hflux_y_SI(i,j,bi,bj).gt. 0. _d 0) THEN
               n_flux_1 = n_flux_1 + 1. _d 0
@@ -191,8 +179,7 @@ CADJ &     = comlev1_stream_ij, key = ikey_1
              ENDIF
 
 #ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE hflux_y_SI(i,j,bi,bj)
-CADJ &     = comlev1_stream_ij, key = ikey_1
+CADJ STORE hflux_y_SI(i,j+1,bi,bj) = comlev1_stream_ij, key = ikey_1
 #endif
              IF (hflux_y_SI(i,j+1,bi,bj).lt. 0. _d 0) THEN
               n_flux_1 = n_flux_1 + 1. _d 0

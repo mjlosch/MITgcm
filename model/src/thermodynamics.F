@@ -15,6 +15,9 @@
 #  include "KPP_OPTIONS.h"
 # endif
 #endif /* ALLOW_AUTODIFF */
+#ifdef ALLOW_CTRL
+# include "CTRL_OPTIONS.h"
+#endif
 
 CBOP
 C     !ROUTINE: THERMODYNAMICS
@@ -49,8 +52,9 @@ C     == Global variables ===
 #endif
 
 #ifdef ALLOW_AUTODIFF
-# include "tamc.h"
-# include "tamc_keys.h"
+# ifdef ALLOW_AUTODIFF_TAMC
+#  include "tamc.h"
+# endif
 # include "EOS.h"
 # ifdef ALLOW_KPP
 #  include "KPP.h"
@@ -62,6 +66,12 @@ C     == Global variables ===
 #  include "EBM.h"
 # endif
 #endif /* ALLOW_AUTODIFF */
+
+#ifdef ALLOW_TAPENADE
+# ifdef ALLOW_GENERIC_ADVDIFF
+#  include "GAD_SOM_VARS.h"
+# endif
+#endif /* ALLOW_TAPENADE */
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     == Routine arguments ==
@@ -98,6 +108,10 @@ C     i, j, k        :: loop indices
       _RL wrTime
       _RL trAdvCFL(3,nSx,nSy)
 # endif /* ALLOW_MONITOR */
+#ifdef ALLOW_AUTODIFF_TAMC
+C     tkey :: tape key (tile dependent)
+      INTEGER tkey
+#endif
 CEOP
 
 #ifdef ALLOW_DEBUG
@@ -116,11 +130,8 @@ CEOP
 
 #ifdef ALLOW_AUTODIFF_TAMC
 C--   dummy statement to end declaration part
-      ikey = 1
-      itdkey = 1
-#endif /* ALLOW_AUTODIFF_TAMC */
+      tkey = 1
 
-#ifdef ALLOW_AUTODIFF_TAMC
 C--   HPF directive to help TAMC
 CHPF$ INDEPENDENT
 #endif /* ALLOW_AUTODIFF_TAMC */
@@ -162,16 +173,7 @@ CADJ STORE ptracer = comlev1, key = ikey_dynamics, byte=isbyte
        DO bi=myBxLo(myThid),myBxHi(myThid)
 
 #ifdef ALLOW_AUTODIFF_TAMC
-          act1 = bi - myBxLo(myThid)
-          max1 = myBxHi(myThid) - myBxLo(myThid) + 1
-          act2 = bj - myByLo(myThid)
-          max2 = myByHi(myThid) - myByLo(myThid) + 1
-          act3 = myThid - 1
-          max3 = nTx*nTy
-          act4 = ikey_dynamics - 1
-          itdkey = (act1 + 1) + act2*max1
-     &                      + act3*max1*max2
-     &                      + act4*max1*max2*max3
+        tkey = bi + (bj-1)*nSx + (ikey_dynamics-1)*nSx*nSy
 #endif /* ALLOW_AUTODIFF_TAMC */
 
 C--   Set up work arrays with valid (i.e. not NaN) values
@@ -278,20 +280,23 @@ c    &     ' , CFL =', (trAdvCFL(i,bi,bj),i=1,3)
 C-    Apply AB on T,S : moved inside TEMP/SALT_INTEGRATE
 
 #ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE recip_hFacNew(:,:,:) = comlev1_bibj , key=itdkey, byte=isbyte
-CADJ STORE uFld (:,:,:)       = comlev1_bibj, key=itdkey, byte=isbyte
-CADJ STORE vFld (:,:,:)       = comlev1_bibj, key=itdkey, byte=isbyte
-CADJ STORE wFld (:,:,:)       = comlev1_bibj, key=itdkey, byte=isbyte
-CADJ STORE theta(:,:,:,bi,bj) = comlev1_bibj, key=itdkey, byte=isbyte
-CADJ STORE salt (:,:,:,bi,bj) = comlev1_bibj, key=itdkey, byte=isbyte
-# if ((defined NONLIN_FRSURF) || (defined ALLOW_DEPTH_CONTROL)) && (defined ALLOW_GMREDI)
-#  ifdef GM_NON_UNITY_DIAGONAL
-CADJ STORE kux(:,:,:,bi,bj) = comlev1_bibj, key=itdkey, byte=isbyte
-CADJ STORE kvy(:,:,:,bi,bj) = comlev1_bibj, key=itdkey, byte=isbyte
-#  endif
+CADJ STORE recip_hFacNew(:,:,:) = comlev1_bibj, key=tkey, byte=isbyte
+CADJ STORE uFld (:,:,:)         = comlev1_bibj, key=tkey, byte=isbyte
+CADJ STORE vFld (:,:,:)         = comlev1_bibj, key=tkey, byte=isbyte
+CADJ STORE wFld (:,:,:)         = comlev1_bibj, key=tkey, byte=isbyte
+CADJ STORE theta(:,:,:,bi,bj)   = comlev1_bibj, key=tkey, byte=isbyte
+CADJ STORE salt (:,:,:,bi,bj)   = comlev1_bibj, key=tkey, byte=isbyte
+# ifdef ALLOW_SALT_PLUME
+CADJ STORE saltPlumeFlux(:,:,bi,bj)  = comlev1_bibj,key=tkey,kind=isbyte
+CADJ STORE saltPlumeDepth(:,:,bi,bj) = comlev1_bibj,key=tkey,kind=isbyte
+# endif
+# if (defined NONLIN_FRSURF || defined ALLOW_DEPTH_CONTROL) \
+        && defined ALLOW_GMREDI
+CADJ STORE kux(:,:,:,bi,bj) = comlev1_bibj, key=tkey, byte=isbyte
+CADJ STORE kvy(:,:,:,bi,bj) = comlev1_bibj, key=tkey, byte=isbyte
 #  ifdef GM_EXTRA_DIAGONAL
-CADJ STORE kuz(:,:,:,bi,bj) = comlev1_bibj, key=itdkey, byte=isbyte
-CADJ STORE kvz(:,:,:,bi,bj) = comlev1_bibj, key=itdkey, byte=isbyte
+CADJ STORE kuz(:,:,:,bi,bj) = comlev1_bibj, key=tkey, byte=isbyte
+CADJ STORE kvz(:,:,:,bi,bj) = comlev1_bibj, key=tkey, byte=isbyte
 #  endif
 # endif
 #endif /* ALLOW_AUTODIFF_TAMC */

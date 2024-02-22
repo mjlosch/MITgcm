@@ -3,7 +3,12 @@ c     store directives for checkpoint level 3
 c
 c     created: heimbach@mit.edu 10-Jan-2002
 c
-#ifdef AUTODIFF_USE_OLDSTORE_2D
+#ifdef AUTODIFF_USE_STORE_RESTORE
+c
+CADJ STORE StoreDynVars2D = tapelev3, key = ilev_3
+CADJ STORE StoreDynVars3D = tapelev3, key = ilev_3
+c
+#else
 c
 CADJ STORE etan  = tapelev3, key = ilev_3
 #ifndef EXCLUDE_FFIELDS_LOAD
@@ -40,52 +45,37 @@ CADJ STORE dEtaHdt = tapelev3, key = ilev_3
 CADJ STORE PmEpR = tapelev3, key = ilev_3
 #endif
 c
-#else /* ndef AUTODIFF_USE_OLDSTORE_2D */
-c
-CADJ STORE StoreDynVars2D     = tapelev3, key = ilev_3
-c
-#endif /* AUTODIFF_USE_OLDSTORE_2D */
-c
-#ifdef AUTODIFF_USE_OLDSTORE_3D
-c
 #ifdef ALLOW_ADAMSBASHFORTH_3
 CADJ STORE gtnm  = tapelev3, key = ilev_3
 CADJ STORE gsnm  = tapelev3, key = ilev_3
 CADJ STORE gunm  = tapelev3, key = ilev_3
 CADJ STORE gvnm  = tapelev3, key = ilev_3
 #else
-CADJ STORE gtnm1  = tapelev3, key = ilev_3
-CADJ STORE gsnm1  = tapelev3, key = ilev_3
-CADJ STORE gunm1  = tapelev3, key = ilev_3
-CADJ STORE gvnm1  = tapelev3, key = ilev_3
+CADJ STORE gtnm1 = tapelev3, key = ilev_3
+CADJ STORE gsnm1 = tapelev3, key = ilev_3
+CADJ STORE gunm1 = tapelev3, key = ilev_3
+CADJ STORE gvnm1 = tapelev3, key = ilev_3
 #endif
-CADJ STORE theta  = tapelev3, key = ilev_3
+CADJ STORE theta = tapelev3, key = ilev_3
 CADJ STORE salt  = tapelev3, key = ilev_3
 CADJ STORE uvel  = tapelev3, key = ilev_3
 CADJ STORE vvel  = tapelev3, key = ilev_3
 CADJ STORE wvel  = tapelev3, key = ilev_3
-CADJ STORE totphihyd  = tapelev3, key = ilev_3
+CADJ STORE totphihyd     = tapelev3, key = ilev_3
 c
-#else /* ndef AUTODIFF_USE_OLDSTORE_3D */
-c
-CADJ STORE StoreDynVars3D     = tapelev3, key = ilev_3
-c
-#endif /* AUTODIFF_USE_OLDSTORE_3D */
-
-CADJ STORE phi0surf     = tapelev3, key = ilev_3
-CADJ STORE saltflux     = tapelev3, key = ilev_3
+#endif /* AUTODIFF_USE_STORE_RESTORE */
 
 #ifdef EXACT_CONSERV
-cphCADJ STORE hDivFlow  = tapelev3, key = ilev_3
+cphCADJ STORE hDivFlow   = tapelev3, key = ilev_3
 #endif /* EXACT_CONSERV */
 
 #ifdef NONLIN_FRSURF
 CADJ STORE hfac_surfc    = tapelev3, key = ilev_3
 CADJ STORE hfac_surfs    = tapelev3, key = ilev_3
 CADJ STORE hfac_surfw    = tapelev3, key = ilev_3
-CADJ STORE hFac_surfNm1C= tapelev3, key = ilev_3
-CADJ STORE hFac_surfNm1S= tapelev3, key = ilev_3
-CADJ STORE hFac_surfNm1W= tapelev3, key = ilev_3
+CADJ STORE hFac_surfNm1C = tapelev3, key = ilev_3
+CADJ STORE hFac_surfNm1S = tapelev3, key = ilev_3
+CADJ STORE hFac_surfNm1W = tapelev3, key = ilev_3
 
 # ifndef DISABLE_RSTAR_CODE
 CADJ STORE rstarexpc,rstarexps,rstarexpw
@@ -94,14 +84,20 @@ CADJ STORE rstarfacc,rstarfacs,rstarfacw
 CADJ &     = tapelev3, key = ilev_3
 CADJ STORE rStarFacNm1C,rStarFacNm1S,rStarFacNm1W
 CADJ &     = tapelev3, key = ilev_3
+#  if (defined ALLOW_MOM_FLUXFORM || \
+       defined ALLOW_CG2D_NSA || defined ALLOW_DEPTH_CONTROL)
 CADJ STORE rstardhcdt,rstardhsdt,rstardhwdt
 CADJ &     = tapelev3, key = ilev_3
+#  endif
 # endif
 
+#endif /* NONLIN_FRSURF */
+
+#if (defined ALLOW_CG2D_NSA || defined NONLIN_FRSURF || \
+      defined ALLOW_DEPTH_CONTROL)
 CADJ STORE aW2d, aS2d, aC2d = tapelev3, key = ilev_3
 CADJ STORE pc, ps, pw       = tapelev3, key = ilev_3
-
-#endif /* NONLIN_FRSURF */
+#endif
 
 #ifdef ALLOW_CD_CODE
 # include "cd_code_ad_check_lev3_dir.h"
@@ -109,10 +105,6 @@ CADJ STORE pc, ps, pw       = tapelev3, key = ilev_3
 
 #ifdef ALLOW_GGL90
 # include "ggl90_ad_check_lev3_dir.h"
-#endif
-
-#ifdef ALLOW_ECCO
-# include "ecco_ad_check_lev3_dir.h"
 #endif
 
 #ifdef ALLOW_EXF
@@ -136,6 +128,7 @@ CADJ STORE pc, ps, pw       = tapelev3, key = ilev_3
 #endif
 
 #ifdef ALLOW_SEAICE
+CADJ STORE phiHydLow  = tapelev3, key = ilev_3
 # include "seaice_ad_check_lev3_dir.h"
 #endif /* ALLOW_SEAICE */
 
@@ -186,6 +179,10 @@ CADJ STORE empmr = tapelev3, key = ilev_3
 #endif /* ALLOW_EBM */
 
 #ifdef ALLOW_COST
+C     Whether or not the following store directives are necessary
+C     depends heavily on the details of the cost function, so we stick
+C     to the strategy of inserting these store directives regardless of
+C     the "not necessary" warnings they produce.
 CADJ STORE cMeanTheta = tapelev3, key = ilev_3
 CADJ STORE cMeanSalt  = tapelev3, key = ilev_3
 CADJ STORE cMeanUVel  = tapelev3, key = ilev_3
@@ -199,23 +196,4 @@ CADJ STORE cMeanEtaTot    = tapelev3, key = ilev_3
 
 #ifdef ALLOW_COST_TRACER
 CADJ STORE objf_tracer = tapelev3, key = ilev_3
-#endif
-
-#ifdef ALLOW_COST_TRANSPORT
-CADJ STORE objf_transport = tapelev3, key = ilev_3
-#endif
-
-#ifdef ALLOW_HFLUXM_CONTROL
-CADJ STORE qnetm          = tapelev3, key = ilev_3
-#endif
-
-#ifdef ALLOW_SEAICE
-cph temporary for HD
-# ifdef ANNUAL_BALANCE
-CADJ STORE balance_itcount = tapelev3, key = ilev_3
-CADJ STORE atmfw_tilesum   = tapelev3, key = ilev_3
-CADJ STORE qnet_tilesum    = tapelev3, key = ilev_3
-CADJ STORE empmr_corr      = tapelev3, key = ilev_3
-CADJ STORE qnet_corr       = tapelev3, key = ilev_3
-# endif /* ANNUAL_BALANCE */
 #endif

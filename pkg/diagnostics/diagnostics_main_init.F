@@ -917,6 +917,15 @@ c     diagTitle = 'Free-Surface r-Position (Pressure, Height) (Pa,m)'
 # endif /* ALLOW_GMREDI */
 #endif /* ALLOW_EDDYPSI */
 
+#ifdef INCLUDE_SOUNDSPEED_CALC_CODE
+      diagName  = 'CSound  '
+      diagTitle = 'Speed of sound in seawater'
+      diagUnits = 'm/s             '
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#endif
+
 #ifdef ALLOW_AUTODIFF
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 C     Adjoint state variables
@@ -983,8 +992,8 @@ C--   surface fluxes:
      I   diagName, diagCode, diagUnits, diagTitle, diagMate, myThid )
 
       diagName  = 'ADJempmr'
-      diagTitle = 'dJ/dEmPmR: Sensitivity to net surface Fresh-Water'
-     &          //' flux into the ocean'
+      diagTitle = 'dJ/dEmPmR: Sensitivity to net surface freshwater'
+     &          //' flux'
       diagUnits = 'dJ/(kg/m^2/s)   '
       diagCode  = 'SM A    U1      '
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
@@ -992,7 +1001,6 @@ C--   surface fluxes:
 
       diagName  = 'ADJqnet'
       diagTitle = 'dJ/dQnet: Sensitivity to net surface heat flux'
-     &          //'into the ocean'
       diagUnits = 'dJ/(W/m^2)      '
       diagCode  = 'SM A    U1      '
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,

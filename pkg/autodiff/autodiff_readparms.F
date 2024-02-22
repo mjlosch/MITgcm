@@ -42,6 +42,9 @@ C     iUnit      :: Work variable for IO unit number
 #ifdef ALLOW_GENERIC_ADVDIFF
       LOGICAL validAdvScheme
 #endif /* ALLOW_GENERIC_ADVDIFF */
+C     retired parameter
+      INTEGER nRetired
+      LOGICAL useSmoothCorrel2DinAdMode
 
       NAMELIST /AUTODIFF_PARM01/
      &       dumpAdVarExch, mon_AdVarExch,
@@ -52,7 +55,8 @@ C     iUnit      :: Work variable for IO unit number
      &       useSEAICEinAdMode, useSmoothCorrel2DinAdMode,
      &       inAdExact, SEAICEapproxLevInAd,
      &       viscFacInAd, viscFacInFw, SIregFacInAd, SIregFacInFw,
-     &       SEAICEuseFREEDRIFTswitchInAd, SEAICEuseDYNAMICSswitchInAd
+     &       SEAICEuseFREEDRIFTswitchInAd, SEAICEuseDYNAMICSswitchInAd,
+     &       cg2dFullAdjoint
 
       IF ( .NOT.useAUTODIFF ) THEN
 C-    pkg AUTODIFF is not used
@@ -80,6 +84,7 @@ C--   default : write one file per record
       useSEAICEinAdMode  = .TRUE.
       useGGL90inAdMode   = .TRUE.
       useSALT_PLUMEinAdMode = .TRUE.
+      cg2dFullAdjoint    = .FALSE.
       inAdExact          = .TRUE.
       useApproxAdvectionInAdMode = .FALSE.
       SEAICEapproxLevInAd = 0
@@ -91,7 +96,7 @@ C--   default : write one file per record
 C-- pkg/seaice related switches
       SEAICEuseFREEDRIFTswitchInAd = .FALSE.
       SEAICEuseDYNAMICSswitchInAd  = .FALSE.
-      useSmoothCorrel2DinAdMode = .TRUE.
+      useSmoothCorrel2DinAdMode    = .TRUE.
 
       WRITE(msgBuf,'(A)') 'AUTODIFF_READPARMS: opening data.autodiff'
       CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
@@ -154,6 +159,23 @@ c     level of approximation in seaice thermodynamics adjoint
      &   SEAICEapproxLevInAd=MAX(SEAICEapproxLevInAd,0)
 #endif
 
+C-    Retired parameters
+      nRetired = 0
+      IF ( .NOT. useSmoothCorrel2DinAdMode ) THEN
+       nRetired = nRetired + 1
+       WRITE(msgBuf,'(A,A)')
+     &  'S/R AUTODIFF_READPARMS: "useSmoothCorrel2DinAdMode" ',
+     &  'is no longer allowed in file "data.autodiff"'
+       CALL PRINT_ERROR( msgBuf, myThid )
+       WRITE(msgBuf,'(A)')
+     &  'S/R AUTODIFF_READPARMS: use "pkg/smooth" instead'
+       CALL PRINT_ERROR( msgBuf, myThid )
+      ENDIF
+      IF ( nRetired .GT. 0 ) THEN
+       CALL ALL_PROC_DIE( 0 )
+       STOP 'ABNORMAL END: S/R AUTODIFF_READPARMS'
+      ENDIF
+
 C--   Print out some key parameters :
       WRITE(msgBuf,'(A)') '// ==================================='
       CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
@@ -168,6 +190,9 @@ C--   Print out some key parameters :
      &  'inAdExact =', ' /* get an exact adjoint (no approximation) */')
        CALL WRITE_0D_L( useApproxAdvectionInAdMode, INDEX_NONE,
      & 'useApproxAdvectionInAdMode =',' /* approximate AD-advection */')
+       CALL WRITE_0D_L( cg2dFullAdjoint, INDEX_NONE,
+     &   'cg2dFullAdjoint =',
+     &   ' /* use full hand written cg2d adjoint (no approximation) */')
        CALL WRITE_0D_L( useKPPinAdMode, INDEX_NONE,
      &   'useKPPinAdMode =',      ' /* use KPP in adjoint mode */')
        CALL WRITE_0D_L( useGMRediInAdMode, INDEX_NONE,

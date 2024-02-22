@@ -1,4 +1,10 @@
 #include "GAD_OPTIONS.h"
+#ifdef ALLOW_PTRACERS
+# include "PTRACERS_OPTIONS.h"
+#endif
+#ifdef ALLOW_AUTODIFF
+# include "AUTODIFF_OPTIONS.h"
+#endif
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 CBOP
@@ -27,6 +33,12 @@ C !USES: ===============================================================
 #include "PARAMS.h"
 #include "GRID.h"
 #include "GAD.h"
+#ifdef ALLOW_AUTODIFF_TAMC
+# include "tamc.h"
+# ifdef ALLOW_PTRACERS
+#  include "PTRACERS_SIZE.h"
+# endif
+#endif
 #ifdef ALLOW_EXCH2
 #include "W2_EXCH2_SIZE.h"
 #include "W2_EXCH2_TOPOLOGY.h"
@@ -64,6 +76,7 @@ C  gTracer           :: tendency array
       _RL smTr   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy,nSOM)
       _RL gTracer(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr)
 
+#if ( defined GAD_ALLOW_TS_SOM_ADV || defined PTRACERS_ALLOW_DYN_STATE )
 C !LOCAL VARIABLES: ====================================================
 C  maskUp        :: 2-D array mask for W points
 C  i,j,k         :: loop indices
@@ -133,6 +146,9 @@ c     _RL  localTr
       LOGICAL N_edge, S_edge, E_edge, W_edge
       LOGICAL noFlowAcrossSurf
       CHARACTER*(MAX_LEN_MBUF) msgBuf
+#ifdef ALLOW_AUTODIFF_TAMC
+      INTEGER ipasskey
+#endif
 #ifdef ALLOW_EXCH2
       INTEGER myTile
 #endif
@@ -234,6 +250,17 @@ C--   Set tile-specific parameters for horizontal fluxes
 
       limiter = MOD(advectionScheme, 10)
 
+#ifdef ALLOW_AUTODIFF_TAMC
+      IF ( npass.GT.maxcube ) THEN
+        WRITE(msgBuf,'(A,2(I3,A))') 'S/R GAD_SOM_ADVECT: npass =',
+     &     npass, ' >', maxcube, ' = maxcube, ==> check "tamc.h"'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        STOP 'ABNORMAL END: S/R GAD_SOM_ADVECT'
+      ENDIF
+CADJ INIT somtape = COMMON, 1
+CADJ INIT somtape_k = COMMON, Nr
+CADJ INIT somtape_k_pass = COMMON, maxcube*Nr
+#endif
 C--   Start of k loop for horizontal fluxes
       DO k=1,Nr
 
@@ -268,9 +295,18 @@ C-    fill empty grid-box:
         ENDDO
        ENDDO
 
+#ifdef ALLOW_AUTODIFF_TAMC
+CADJ STORE smtr(:,:,k,bi,bj,:) = somtape_k, key=k, kind=isbyte
+CADJ STORE smtr0(:,:,k)        = somtape_k, key=k, kind=isbyte
+CADJ STORE smVol(:,:,k)        = somtape_k, key=k, kind=isbyte
+CADJ STORE smcorners           = somtape_k, key=k, kind=isbyte
+#endif
 C--   Multiple passes for different directions on different tiles
 C--   For cube need one pass for each of red, green and blue axes.
        DO ipass=1,npass
+#ifdef ALLOW_AUTODIFF_TAMC
+        ipasskey = ipass + (k-1) * maxcube
+#endif /* ALLOW_AUTODIFF_TAMC */
 
         interiorOnly = .FALSE.
         overlapOnly  = .FALSE.
@@ -296,6 +332,12 @@ C-    not CubedSphere
           calc_fluxes_X = MOD(ipass,2).EQ.1
           calc_fluxes_Y = .NOT.calc_fluxes_X
         ENDIF
+#ifdef ALLOW_AUTODIFF_TAMC
+CADJ STORE smtr(:,:,k,bi,bj,:) =somtape_k_pass,key=ipasskey,kind=isbyte
+CADJ STORE smtr0(:,:,k)        =somtape_k_pass,key=ipasskey,kind=isbyte
+CADJ STORE smVol(:,:,k)        =somtape_k_pass,key=ipasskey,kind=isbyte
+CADJ STORE smcorners           =somtape_k_pass,key=ipasskey,kind=isbyte
+#endif
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
@@ -390,7 +432,6 @@ C-     Solve advection in Y and update moments
 
 C--   End of Y direction
         ENDIF
-
 C--   End of ipass loop
        ENDDO
 
@@ -451,6 +492,10 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
       IF ( .NOT.implicitAdvection ) THEN
 C--   Apply limiter (if any):
+#ifdef ALLOW_AUTODIFF_TAMC
+CADJ STORE smtr(:,:,:,bi,bj,:) = somtape, key=1, kind=isbyte
+CADJ STORE smtr0               = somtape, key=1, kind=isbyte
+#endif
        CALL GAD_SOM_LIM_R( bi,bj, limiter,
      U                     smVol,
      U                     smTr0,
@@ -467,6 +512,18 @@ C--   Apply limiter (if any):
 
 C--   Start of k loop for vertical flux
        DO k=Nr,1,-1
+#ifdef ALLOW_AUTODIFF_TAMC
+CADJ STORE smtr(:,:,k,bi,bj,:) = somtape_k, key=k, kind=isbyte
+CADJ STORE smtr0(:,:,k)        = somtape_k, key=k, kind=isbyte
+CADJ STORE smVol(:,:,k)        = somtape_k, key=k, kind=isbyte
+CADJ STORE alp, aln   = somtape_k, key=k, kind=isbyte
+CADJ STORE fp_v,fn_v,fp_o,fn_o,fp_x,fn_x,fp_y,fn_y,fp_z,fn_z
+CADJ &                         = somtape_k, key=k, kind=isbyte
+CADJ STORE fp_xx, fn_xx, fp_yy, fn_yy, fp_zz, fn_zz
+CADJ &                         = somtape_k, key=k, kind=isbyte
+CADJ STORE fp_xy, fn_xy, fp_xz, fn_xz, fp_yz, fn_yz
+CADJ &                         = somtape_k, key=k, kind=isbyte
+#endif
 C--   kUp    Cycles through 1,2 to point to w-layer above
 C--   kDown  Cycles through 2,1 to point to w-layer below
         kUp  = 1+MOD(Nr-k,2)
@@ -613,6 +670,7 @@ C--   End of k loop for vertical flux
        ENDDO
 C--   end of if not.implicitAdvection block
       ENDIF
+#endif /* GAD_ALLOW_TS_SOM_ADV or PTRACERS_ALLOW_DYN_STATE */
 
       RETURN
       END

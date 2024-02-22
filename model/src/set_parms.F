@@ -35,7 +35,7 @@ c     EXTERNAL ILNBLNK
 
 C     !LOCAL VARIABLES:
       CHARACTER*(MAX_LEN_MBUF) msgBuf
-      INTEGER k
+      INTEGER errCount, k
       _RL tmpVar
 CEOP
 
@@ -49,6 +49,35 @@ C-    For off-line calculation, switch off Momentum and Active-tracers (=T,S):
 #endif /* ALLOW_OFFLINE */
 
       _BEGIN_MASTER(myThid)
+      errCount = 0
+
+C--   Make metric term & Coriolis settings consistent with underlying grid.
+      IF ( usingCartesianGrid ) THEN
+        selectMetricTerms = 0
+        useNHMTerms   = .FALSE.
+      ENDIF
+      IF ( usingCylindricalGrid ) THEN
+        useNHMTerms   = .FALSE.
+        WRITE(msgBuf,'(A)') 'S/R INI_PARMS ; Cylinder OK'
+        CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+     &                     SQUEEZE_RIGHT, myThid )
+      ENDIF
+      IF ( usingCurvilinearGrid ) THEN
+        selectMetricTerms = 0
+      ENDIF
+      IF ( selectCoriMap.EQ.-1 ) THEN
+        IF ( usingCartesianGrid.OR.usingCylindricalGrid ) THEN
+C       default is to use Beta-Plane Coriolis
+          selectCoriMap = 1
+        ELSE
+C       default for other grids is to use Spherical Coriolis
+          selectCoriMap = 2
+        ENDIF
+      ENDIF
+      IF ( .NOT.(nonHydrostatic.OR.quasiHydrostatic) )
+     &                          select3dCoriScheme = 0
+      IF ( (selectCoriMap.EQ.0 .OR.selectCoriMap.EQ.1)
+     &     .AND. fPrime.EQ.0. ) select3dCoriScheme = 0
 
 C--   On/Off flags for each terms of the momentum equation
       nonHydrostatic   = momStepping .AND. nonHydrostatic
@@ -58,7 +87,7 @@ C--   On/Off flags for each terms of the momentum equation
       momForcing       = momStepping .AND. momForcing
       momTidalForcing  = momForcing  .AND. momTidalForcing
       useCoriolis      = momStepping .AND. useCoriolis
-      use3dCoriolis    = useCoriolis .AND. use3dCoriolis
+      IF ( .NOT.useCoriolis ) select3dCoriScheme = 0
       useCDscheme      = momStepping .AND. useCDscheme
       momPressureForcing= momStepping .AND. momPressureForcing
       implicitIntGravWave=momPressureForcing .AND. implicitIntGravWave
@@ -69,27 +98,26 @@ C--   On/Off flags for each terms of the momentum equation
       calc_wVelocity   = momStepping .OR. exactConserv
 
 #ifndef ALLOW_3D_VISCAH
-       IF ( viscAhDfile.NE.' ' .OR. viscAhZfile.NE.' ' ) THEN
+      IF ( viscAhDfile.NE.' ' .OR. viscAhZfile.NE.' ' ) THEN
         WRITE(msgBuf,'(2A)') 'SET_PARMS: ',
      &      'viscAhDfile and viscAhZfile cannot be used with'
         CALL PRINT_ERROR( msgBuf, myThid )
         WRITE(msgBuf,'(2A)') 'SET_PARMS: ',
      &      '"#undef ALLOW_3D_VISCAH" in MOM_COMMON_OPTIONS.h'
         CALL PRINT_ERROR( msgBuf, myThid )
-        STOP 'ABNORMAL END: S/R SET_PARMS'
-c       errCount = errCount + 1
-       ENDIF
+        errCount = errCount + 1
+      ENDIF
 #endif
 #ifndef ALLOW_3D_VISCA4
-       IF ( viscA4Dfile.NE.' ' .OR. viscA4Zfile.NE.' ' ) THEN
+      IF ( viscA4Dfile.NE.' ' .OR. viscA4Zfile.NE.' ' ) THEN
         WRITE(msgBuf,'(2A)') 'SET_PARMS: ',
      &      'viscA4Dfile and viscA4Zfile cannot be used with'
         CALL PRINT_ERROR( msgBuf, myThid )
         WRITE(msgBuf,'(2A)') 'SET_PARMS: ',
      &      '"#undef ALLOW_3D_VISCA4" in MOM_COMMON_OPTIONS.h'
         CALL PRINT_ERROR( msgBuf, myThid )
-        STOP 'ABNORMAL END: S/R SET_PARMS'
-       ENDIF
+        errCount = errCount + 1
+      ENDIF
 #endif
 
 #ifdef ALLOW_MOM_COMMON
@@ -120,14 +148,15 @@ C-    On/Off flags for viscosity coefficients
       useHarmonicVisc   = momViscosity .AND. useHarmonicVisc
       useBiharmonicVisc = momViscosity .AND. useBiharmonicVisc
 #endif /* ALLOW_MOM_COMMON */
-      IF ( bottomDragQuadratic.EQ.0. .OR. .NOT.momViscosity )
-     &  selectBotDragQuadr = -1
+      IF ( ( bottomDragQuadratic.EQ.0. .AND. zRoughBot.EQ.0. )
+     &     .OR. .NOT.momViscosity ) selectBotDragQuadr = -1
 
 C--   Free-surface & pressure method
       uniformFreeSurfLev = usingZCoords
 C- Note: comment line below to revert to full-cell hydrostatic-pressure
 C        calculation in surface grid-cell below ice-shelf
       uniformFreeSurfLev = usingZCoords .AND. .NOT.useShelfIce
+     &                                  .AND. topoFile.EQ.' '
       IF ( selectNHfreeSurf.NE.0 .AND.
      &      ( .NOT.nonHydrostatic .OR. usingPCoords
      &        .OR. .NOT.exactConserv
@@ -158,6 +187,7 @@ C--   Set default Vorticity-Term Scheme:
         CALL PRINT_MESSAGE( msgBuf, errorMessageUnit,
      &                      SQUEEZE_RIGHT, myThid )
       ENDIF
+      useAbsVorticity = vectorInvariantMomentum .AND. useAbsVorticity
 C--   Momentum viscosity on/off flag.
       IF ( momViscosity        ) THEN
        vfFacMom = 1. _d 0
@@ -189,7 +219,7 @@ C--   Pressure term on/off flag.
        pfFacMom = 0. _d 0
       ENDIF
 C--   Metric terms on/off flag.
-      IF ( metricTerms ) THEN
+      IF ( selectMetricTerms.GE.1 ) THEN
        mTFacMom = 1. _d 0
       ELSE
        mTFacMom = 0. _d 0
@@ -225,6 +255,13 @@ C--   Dynamically Active Tracers : set flags
         IF ( sBeta .EQ.0. ) saltIsActiveTr = .FALSE.
       ENDIF
 
+C--   Set default for latitude-band where relaxation to climatology applies
+C     note: done later (once domain size is known) if using CartesianGrid
+      IF ( latBandClimRelax .EQ. UNSET_RL) THEN
+        IF ( usingSphericalPolarGrid ) latBandClimRelax= 180. _d 0
+        IF ( usingCurvilinearGrid )    latBandClimRelax= 180. _d 0
+      ENDIF
+
       IF ( usingZCoords ) THEN
 C--   Select which pressure to use in EOS:
 C     set default according to EOS type (as it was until chkpt65t)
@@ -241,7 +278,7 @@ C     set default according to EOS type (as it was until chkpt65t)
           WRITE(msgBuf,'(A,I9,A)') 'SET_PARMS: selectP_inEOS_Zc=',
      &                  selectP_inEOS_Zc, ' : invalid selection'
           CALL PRINT_ERROR( msgBuf, myThid )
-          STOP 'ABNORMAL END: S/R SET_PARMS'
+          errCount = errCount + 1
         ELSEIF ( .NOT.nonHydrostatic ) THEN
           selectP_inEOS_Zc = MIN( selectP_inEOS_Zc, 2 )
         ENDIF
@@ -250,7 +287,7 @@ C     set default according to EOS type (as it was until chkpt65t)
           WRITE(msgBuf,'(A,I9,2A)') 'SET_PARMS: selectP_inEOS_Zc=',
      &     selectP_inEOS_Zc, ' : invalid with eosType=', eosType
           CALL PRINT_ERROR( msgBuf, myThid )
-          STOP 'ABNORMAL END: S/R SET_PARMS'
+          errCount = errCount + 1
         ENDIF
       ELSE
         selectP_inEOS_Zc = -1
@@ -290,7 +327,24 @@ C     several places, test for last iteration with time==endTime :
       ENDIF
 #endif /* ALLOW_LONGSTEP */
 
-C--  After this point, main model parameters are not supposed to be modified.
+      IF ( OLx.LE.0 .OR. OLy.LE.0 ) THEN
+C--   Overlap-size will be checked later in CONFIG_CHECK. This minimal
+C     check here is just to set-up the model grid (INI_GRID) safely.
+        WRITE(msgBuf,'(2A)') 'SET_PARMS: ',
+     &      'model unusable with no overlap (OLx,OLy = 0)'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        errCount = errCount + 1
+      ENDIF
+
+      IF ( errCount.GE.1 ) THEN
+        WRITE(msgBuf,'(A,I3,A)')
+     &       'SET_PARMS: detected', errCount,' fatal error(s)'
+        CALL PRINT_ERROR( msgBuf, myThid )
+        CALL ALL_PROC_DIE( 0 )
+        STOP 'ABNORMAL END: S/R SET_PARMS'
+      ENDIF
+
+C--   After this point, main model parameters are not supposed to be modified.
        WRITE(msgBuf,'(A,A)') 'SET_PARMS: done'
        CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &                      SQUEEZE_RIGHT , 1)

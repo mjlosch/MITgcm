@@ -61,7 +61,7 @@ CADJ STORE runoftemp  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE saltflx    = comlev1, key = ikey_dynamics, kind = isbyte
 #endif
 #  ifdef EXF_SEAICE_FRACTION
-CADJ STORE areamask   = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE exf_iceFraction=comlev1,key=ikey_dynamics, kind = isbyte
 #  endif
 #  ifdef EXF_ALLOW_TIDES
 CADJ STORE tidePot    = comlev1, key = ikey_dynamics, kind = isbyte
@@ -85,15 +85,15 @@ CADJ STORE wind       = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE atmosP     = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE silica     = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE fIce       = comlev1, key = ikey_dynamics, kind = isbyte
-CADJ STORE InputFe    = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE inputFe    = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE apco2      = comlev1, key = ikey_dynamics, kind = isbyte
 # endif /* ALLOW_BLING */
 # ifdef ALLOW_DIC
 CADJ STORE wind       = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE atmosP     = comlev1, key = ikey_dynamics, kind = isbyte
-CADJ STORE silica     = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE silicaSurf = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE fIce       = comlev1, key = ikey_dynamics, kind = isbyte
-CADJ STORE InputFe    = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE inputFe    = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE PAR        = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE CHL        = comlev1, key = ikey_dynamics, kind = isbyte
 # endif /* ALLOW_DIC */

@@ -104,35 +104,34 @@ C                     BryanLewis79 vertical diffusivity
 #endif
 
 C     Diagnostic Variables:
-C     phiHydLow    :: Phi-Hydrostatic at r-lower boundary
-C                     (bottom in z-coordinates, top in p-coordinates)
+C     rhoInSitu    :: In-Situ density anomaly [kg/m^3] at cell center level.
 C     totPhiHyd    :: total hydrostatic Potential (anomaly, for now),
 C                     at cell center level ; includes surface contribution.
 C                     (for diagnostic + used in Z-coord with EOS_funct_P)
-C     rhoInSitu    :: In-Situ density anomaly [kg/m^3] at cell center level.
+C     phiHydLow    :: Phi-Hydrostatic at r-lower boundary
+C                     (bottom in z-coordinates, top in p-coordinates)
 C     hMixLayer    :: Mixed layer depth [m]
 C                     (for diagnostic + used GMRedi "fm07")
 C     IVDConvCount :: Impl.Vert.Diffusion convection counter:
 C                     = 0 (not convecting) or 1 (convecting)
       COMMON /DYNVARS_DIAG/
-     &                phiHydLow, totPhiHyd,
      &                rhoInSitu,
+     &                totPhiHyd, phiHydLow,
      &                hMixLayer, IVDConvCount
-      _RL  phiHydLow(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL  totPhiHyd(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       _RL  rhoInSitu(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL  totPhiHyd(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL  phiHydLow(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL  hMixLayer(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL  IVDConvCount(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
 
-#if (defined (ALLOW_SIGMAR_COST_CONTRIBUTION) || defined (ALLOW_LEITH_QG))
+#ifdef ALLOW_LEITH_QG
 C     Leith QG dynamic viscosity scheme requires buoyancy frequency.
-C     ECCO sometimes uses sigmaR (with ALLOW_SIGMAR_COST_CONTRIBUTION).
 C     Store sigmaRfield to avoid computing density multiple times and give
 C     access to all levels during the k-loop
 C     sigmaRfield           :: vertical gradient of buoyancy.
       COMMON /DYNVARS_sigmaR/ sigmaRfield
       _RL sigmaRfield  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
-#endif /* ALLOW_SIGMAR_COST_CONTRIBUTION or ALLOW_LEITH_QG */
+#endif /* ALLOW_LEITH_QG */
 
 #ifdef ALLOW_SOLVE4_PS_AND_DRAG
 C     Variables for Implicit friction (& vert. visc) in 2-D pressure solver
@@ -146,3 +145,11 @@ C                     pressure gradient in Y (no Units)
       _RL  dU_psFacX(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       _RL  dV_psFacY(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
 #endif /* ALLOW_SOLVE4_PS_AND_DRAG */
+
+#ifdef INCLUDE_SOUNDSPEED_CALC_CODE
+C     cSound       :: Speed of sound in seawater (m/s)
+C                     following Del Grosso (1974)
+      COMMON /DYNVARS_cSound/ cSound
+      _RL  cSound(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+#endif /* INCLUDE_SOUNDSPEED_CALC_CODE */
+

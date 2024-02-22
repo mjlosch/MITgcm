@@ -7,22 +7,22 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
 CBOP
 #ifndef ALLOW_OPENAD
-      SUBROUTINE STREAMICE_VEL_PHISTAGE ( 
-     I                   myThid, 
-     I                   maxNLIter, 
-     I                   maxCGiter, 
-     O                   cgtol, 
+      SUBROUTINE STREAMICE_VEL_PHISTAGE (
+     I                   myThid,
+     I                   maxNLIter,
+     I                   maxCGiter,
+     O                   cgtol,
      O                   nL_iter,
      O                   CONVERGED,
      O                   err_last_change,
      O                   err_init,
      I                   isinloop)
 #else
-      SUBROUTINE STREAMICE_VEL_PHISTAGE ( 
-     I                   myThid, 
-     I                   maxNLIter, 
-     I                   maxCGiter, 
-     O                   cgtol, 
+      SUBROUTINE STREAMICE_VEL_PHISTAGE (
+     I                   myThid,
+     I                   maxNLIter,
+     I                   maxCGiter,
+     O                   cgtol,
      O                   nL_iter,
      O                   adj_iter,
      O                   CONVERGED,
@@ -47,11 +47,6 @@ C     === Global variables ===
 #include "STREAMICE.h"
 #include "STREAMICE_CG.h"
 
-
-#ifdef ALLOW_AUTODIFF_TAMC
-# include "tamc.h"
-#endif
-
 C     !INPUT/OUTPUT ARGUMENTS
       INTEGER myThid
       INTEGER maxNLIter
@@ -59,7 +54,6 @@ C     !INPUT/OUTPUT ARGUMENTS
       _RL     cgtol
       _RL     err_last_change
       _RL     err_init
-      _RL     err_max
       INTEGER nL_iter
       LOGICAL CONVERGED
       INTEGER isinloop
@@ -68,42 +62,40 @@ C     !INPUT/OUTPUT ARGUMENTS
       LOGICAL adj_CONVERGED
 #endif
 
-#ifdef ALLOW_STREAMICE
-#if (defined (ALLOW_STREAMICE_OAD_FP))
+#ifdef ALLOW_STREAMICE_OAD_FP
 
 C     LOCAL VARIABLES
 
       INTEGER i, j, bi, bj, cg_iters, m
-      _RL err_max_fp, errmax
+      _RL     err_max, err_max_fp
       CHARACTER*(MAX_LEN_MBUF) msgBuf
-      
+
 #ifdef ALLOW_OPENAD
       adj_iter=0
       adj_CONVERGED=.false.
 #endif
 
-      IF(ISINLOOP .ne. 0) THEN
-        IF(.NOT. CONVERGED) THEN
+      IF (ISINLOOP .ne. 0) THEN
+        IF (.NOT. CONVERGED) THEN
           NL_ITER = (NL_ITER + 1)
           CALL streamice_vel_phi(MYTHID,MAXNLITER,MAXCGITER,CGTOL
      +,CG_ITERS,err_max)
 
-          WRITE(MSGBUF,'(A,I5,A,I4,A)') 'streamice linear solve number',
+          WRITE(msgBuf,'(A,I5,A,I4,A)') 'streamice linear solve number',
      +NL_ITER,' ',CG_ITERS,' iterations '
-
-          CALL print_message(MSGBUF,STANDARDMESSAGEUNIT,'R',1)
+          CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+     +         SQUEEZE_RIGHT, 1)
 
 C!!!!!!!!!!! conv check
 
-          if (STREAMICE_chkresidconvergence) then
-
+          IF (STREAMICE_chkresidconvergence) THEN
 
            WRITE(msgBuf,'(A,E15.7)') 'err/err_init', err_max/err_init
-           CALL PRINT_MESSAGE( msgBuf, standardMessageUnit, SQUEEZE_RIGH
-     +T , 1)
+           CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+     +         SQUEEZE_RIGHT, 1)
 
            IF (err_max .LE. streamice_nonlin_tol * err_init) THEN
-            CONVERGED = .true.
+            CONVERGED = .TRUE.
            ENDIF
 
            IF (err_max<err_last_change*1.e-2 .and. STREAMICE_lower_cg_to
@@ -111,27 +103,26 @@ C!!!!!!!!!!! conv check
             cgtol = cgtol * 5.e-2
             err_last_change = err_max
             WRITE(msgBuf,'(A,E15.7)') 'new cg tol: ', cgtol
-            CALL PRINT_MESSAGE( msgBuf, standardMessageUnit, SQUEEZE_RIG
-     +HT , 1)
+            CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+     +           SQUEEZE_RIGHT, 1)
            ENDIF
 
-          endif
+          ENDIF
 
-          if (STREAMICE_chkfixedptconvergence) then
+          IF (STREAMICE_chkfixedptconvergence) THEN
 
            CALL STREAMICE_GET_FP_ERR_OAD ( err_max_fp, myThid )
 
            WRITE(msgBuf,'(A,1PE22.14)') 'STREAMICE_FP_ERROR =', err_max_
      +fp
-           CALL PRINT_MESSAGE( msgBuf, standardMessageUnit, SQUEEZE_RIGH
-     +T , 1)
+           CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+     +          SQUEEZE_RIGHT, 1)
 
            IF (err_max_fp .LE. streamice_nonlin_tol_fp) THEN
-            CONVERGED = .true.
+            CONVERGED = .TRUE.
            ENDIF
 
-
-          endif
+          ENDIF
 
           DO bj = myByLo(myThid), myByHi(myThid)
            DO bi = myBxLo(myThid), myBxHi(myThid)
@@ -152,16 +143,11 @@ C!!!!!!!!!!! conv check
            ENDDO
           ENDDO
 
-
 C!!!!!!!!!!! end conv check
 
+        ENDIF
+      ENDIF
 
-        end if
-      end if
-
-
-
-#endif
-#endif
+#endif /* ALLOW_STREAMICE_OAD_FP */
       RETURN
       END
