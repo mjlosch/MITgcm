@@ -67,6 +67,15 @@ c--   Initialize the tiled cost function contributions.
             objf_vector(i,bi,bj) = 0. _d 0
           end do
 #endif
+#ifdef ALLOW_COST_MEAN_SALT
+          objf_mean_salt    (bi,bj) = 0. _d 0
+          objf_mean_slvl_arc_oc(bi,bj)  = 0. _d 0
+          objf_mean_slvl_arc_coa(bi,bj) = 0. _d 0
+          objf_sflux_bering (bi,bj) = 0. _d 0
+          objf_sflux_fram   (bi,bj) = 0. _d 0
+          objf_sflux_barents(bi,bj) = 0. _d 0
+          objf_sflux_caa    (bi,bj) = 0. _d 0
+#endif
 c
 #ifdef ALLOW_COST
           do k=1,Nr
@@ -78,6 +87,8 @@ c
                 cMeanVVel(i,j,k,bi,bj)  = 0. _d 0
                 cMeanThetaUVel(i,j,k,bi,bj) = 0. _d 0
                 cMeanThetaVVel(i,j,k,bi,bj) = 0. _d 0
+                cMeanSaltUVel (i,j,k,bi,bj) = 0. _d 0
+                cMeanSaltVVel (i,j,k,bi,bj) = 0. _d 0
               end do
             end do
           end do

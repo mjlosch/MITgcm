@@ -61,9 +61,6 @@ C     == Global variables ===
 # ifdef ALLOW_EBM
 #  include "EBM.h"
 # endif
-# ifdef ALLOW_SALT_PLUME
-#  include "SALT_PLUME.h"
-# endif
 #endif /* ALLOW_AUTODIFF */
 
 C     !INPUT/OUTPUT PARAMETERS:
@@ -287,12 +284,6 @@ CADJ STORE vFld (:,:,:)       = comlev1_bibj, key=itdkey, byte=isbyte
 CADJ STORE wFld (:,:,:)       = comlev1_bibj, key=itdkey, byte=isbyte
 CADJ STORE theta(:,:,:,bi,bj) = comlev1_bibj, key=itdkey, byte=isbyte
 CADJ STORE salt (:,:,:,bi,bj) = comlev1_bibj, key=itdkey, byte=isbyte
-# ifdef ALLOW_SALT_PLUME
-CADJ STORE saltPlumeFlux(:,:,bi,bj)   =
-CADJ &     comlev1_bibj, key=itdkey,kind = isbyte
-CADJ STORE saltPlumeDepth(:,:,bi,bj)   =
-CADJ &     comlev1_bibj, key=itdkey,kind = isbyte
-# endif
 # if ((defined NONLIN_FRSURF) || (defined ALLOW_DEPTH_CONTROL)) && (defined ALLOW_GMREDI)
 #  ifdef GM_NON_UNITY_DIAGONAL
 CADJ STORE kux(:,:,:,bi,bj) = comlev1_bibj, key=itdkey, byte=isbyte

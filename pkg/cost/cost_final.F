@@ -143,8 +143,26 @@ c--   Sum up all contributions.
 #endif
 #ifdef ALLOW_COST_MEAN_SALT
           write(standardmessageunit,'(A,D22.15)')
-     &         ' --> objf_mean_salt(bi,bj)   = ',
+     &         ' --> objf_mean_salt(bi,bj)    = ',
      &         objf_mean_salt(bi,bj)
+          write(standardmessageunit,'(A,D22.15)')
+     &         ' --> objf_sflux_bering(bi,bj) = ',
+     &         objf_sflux_bering(bi,bj)
+          write(standardmessageunit,'(A,D22.15)')
+     &         ' --> objf_sflux_fram(bi,bj)   = ',
+     &         objf_sflux_fram(bi,bj)
+          write(standardmessageunit,'(A,D22.15)')
+     &         ' --> objf_sflux_barents(bi,bj)= ',
+     &         objf_sflux_barents(bi,bj)
+          write(standardmessageunit,'(A,D22.15)')
+     &         ' --> objf_sflux_caa(bi,bj)    = ',
+     &         objf_sflux_caa(bi,bj)
+          write(standardmessageunit,'(A,D22.15)')
+     &         ' --> objf_mean_slvl_arc_oc(bi,bj)  = ',
+     &         objf_mean_slvl_arc_oc(bi,bj)
+          write(standardmessageunit,'(A,D22.15)')
+     &         ' --> objf_mean_slvl_arc_coa(bi,bj) = ',
+     &         objf_mean_slvl_arc_coa(bi,bj)
 #endif
 
          tile_fc(bi,bj) = tile_fc(bi,bj)
@@ -169,7 +187,13 @@ c--   Sum up all contributions.
      &            + mult_hflux_tut * objf_hflux_tut(bi,bj)
 #endif
 #ifdef ALLOW_COST_MEAN_SALT
-     &            + mult_mean_salt  * objf_mean_salt(bi,bj)
+     &            + mult_mean_salt     * objf_mean_salt(bi,bj)
+     &            + mult_sflux_bering  * objf_sflux_bering(bi,bj)
+     &            + mult_sflux_fram    * objf_sflux_fram(bi,bj)
+     &            + mult_sflux_barents * objf_sflux_barents(bi,bj)
+     &            + mult_sflux_caa     * objf_sflux_caa(bi,bj)
+     &         + mult_mean_slvl_arc_oc * objf_mean_slvl_arc_oc(bi,bj)
+     &        + mult_mean_slvl_arc_coa * objf_mean_slvl_arc_coa(bi,bj)
 #endif
 
 #ifdef ALLOW_PROFILES

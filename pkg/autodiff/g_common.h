@@ -149,10 +149,6 @@ cph larger common block, so be careful
       common /g_exf_atm_temp_r/ g_atemp, g_aqh, g_hs, g_hl,
      &  g_lwflux, g_evap, g_precip, g_snowprecip
 # endif /* ALLOW_ATM_TEMP */
-# ifdef ALLOW_RUNOFF
-      _RL g_runoff    (1-olx:snx+olx,1-oly:sny+oly,nsx,nsy)
-      common /g_exf_runoff_r/ g_runoff
-# endif
 
       _RL g_uwind     (1-olx:snx+olx,1-oly:sny+oly,nsx,nsy)
       _RL g_vwind     (1-olx:snx+olx,1-oly:sny+oly,nsx,nsy)

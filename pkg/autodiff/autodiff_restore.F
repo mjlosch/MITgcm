@@ -38,11 +38,10 @@ c These includes are needed for
 c AD-checkpointing.
 c They provide the fields to be stored.
 
-# include "GRID.h"
-# include "DYNVARS.h"
-# include "FFIELDS.h"
-# include "SURFACE.h"
-# include "AUTODIFF.h"
+#include "GRID.h"
+#include "DYNVARS.h"
+#include "FFIELDS.h"
+#include "SURFACE.h"
 
 #ifdef ALLOW_OBCS
 # include "OBCS_FIELDS.h"
@@ -62,6 +61,8 @@ c They provide the fields to be stored.
 # include "ctrl.h"
 # include "CTRL_OBCS.h"
 #endif
+c     it is important that this file is included after SEAICE_SIZE.h
+#include "AUTODIFF_STORE.h"
 
 c     == routine arguments ==
 c     note: under the multi-threaded model myIter and
@@ -92,34 +93,36 @@ C--   Over all tiles
 C-      2D arrays
         DO J=1-OLy,sNy+OLy
          DO I=1-OLx,sNx+OLx
-          etaN(I,J,bi,bj)  = StoreDynVars2D(I,J,bi,bj,1)
-          taux0(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,2)
-          taux1(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,3)
-          tauy0(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,4)
-          tauy1(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,5)
-          qnet0(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,6)
-          qnet1(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,7)
-          empmr0(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,8)
-          empmr1(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,9)
-          sst0(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,10)
-          sst1(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,11)
-          sss0(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,12)
-          sss1(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,13)
-          saltflux0(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,14)
-          saltflux1(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,15)
+          etaN(I,J,bi,bj)    = StoreDynVars2D(I,J,bi,bj,1)
+#ifdef EXACT_CONSERV
+          etaH(I,J,bi,bj)    = StoreDynVars2D(I,J,bi,bj,2)
+          dEtaHdt(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,3)
+          PmEpR(I,J,bi,bj)   = StoreDynVars2D(I,J,bi,bj,4)
+#endif
+#ifndef EXCLUDE_FFIELDS_LOAD
+          taux0(I,J,bi,bj)     = StoreDynVars2D(I,J,bi,bj, 5)
+          taux1(I,J,bi,bj)     = StoreDynVars2D(I,J,bi,bj, 6)
+          tauy0(I,J,bi,bj)     = StoreDynVars2D(I,J,bi,bj, 7)
+          tauy1(I,J,bi,bj)     = StoreDynVars2D(I,J,bi,bj, 8)
+          qnet0(I,J,bi,bj)     = StoreDynVars2D(I,J,bi,bj, 9)
+          qnet1(I,J,bi,bj)     = StoreDynVars2D(I,J,bi,bj,10)
+          empmr0(I,J,bi,bj)    = StoreDynVars2D(I,J,bi,bj,11)
+          empmr1(I,J,bi,bj)    = StoreDynVars2D(I,J,bi,bj,12)
+          sst0(I,J,bi,bj)      = StoreDynVars2D(I,J,bi,bj,13)
+          sst1(I,J,bi,bj)      = StoreDynVars2D(I,J,bi,bj,14)
+          sss0(I,J,bi,bj)      = StoreDynVars2D(I,J,bi,bj,15)
+          sss1(I,J,bi,bj)      = StoreDynVars2D(I,J,bi,bj,16)
+          saltflux0(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,17)
+          saltflux1(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,18)
 #ifdef SHORTWAVE_HEATING
-          qsw0(I,J,bi,bj)    = StoreDynVars2D(I,J,bi,bj,16)
-          qsw1(I,J,bi,bj)    = StoreDynVars2D(I,J,bi,bj,17)
+          qsw0(I,J,bi,bj)      = StoreDynVars2D(I,J,bi,bj,19)
+          qsw1(I,J,bi,bj)      = StoreDynVars2D(I,J,bi,bj,20)
 #endif
 #ifdef ATMOSPHERIC_LOADING
-          pload0(I,J,bi,bj)  = StoreDynVars2D(I,J,bi,bj,18)
-          pload1(I,J,bi,bj)  = StoreDynVars2D(I,J,bi,bj,19)
+          pload0(I,J,bi,bj)    = StoreDynVars2D(I,J,bi,bj,21)
+          pload1(I,J,bi,bj)    = StoreDynVars2D(I,J,bi,bj,22)
 #endif
-#ifdef EXACT_CONSERV
-          etaH(I,J,bi,bj)    = StoreDynVars2D(I,J,bi,bj,20)
-          dEtaHdt(I,J,bi,bj) = StoreDynVars2D(I,J,bi,bj,21)
-          PmEpR(I,J,bi,bj)   = StoreDynVars2D(I,J,bi,bj,22)
-#endif
+#endif /* ndef EXCLUDE_FFIELDS_LOAD */
          ENDDO
         ENDDO
 #endif /* AUTODIFF_USE_OLDSTORE_2D */
@@ -298,10 +301,6 @@ C-      2D arrays
           xx_apressure0(I,J,bi,bj) = StoreCTRLS1(I,J,bi,bj,19)
           xx_apressure1(I,J,bi,bj) = StoreCTRLS1(I,J,bi,bj,20)
 # endif
-# ifdef ALLOW_RUNOFF_CONTROL
-          xx_runoff0(I,J,bi,bj)    = StoreCTRLS1(I,J,bi,bj,21)
-          xx_runoff1(I,J,bi,bj)    = StoreCTRLS1(I,J,bi,bj,22)
-# endif
          ENDDO
         ENDDO
        ENDDO
@@ -465,41 +464,41 @@ C--   Over all tiles
 C-      2D arrays
         DO J=1-OLy,sNy+OLy
          DO I=1-OLx,sNx+OLx
-          AREA(I,J,bi,bj)   = StoreSEAICE(I,J,bi,bj,1)
-          HEFF(I,J,bi,bj)   = StoreSEAICE(I,J,bi,bj,2)
-          HSNOW(I,J,bi,bj)    = StoreSEAICE(I,J,bi,bj,3)
-CML          TICE(I,J,bi,bj)     = StoreSEAICE(I,J,bi,bj,4)
-          RUNOFF(I,J,bi,bj)   = StoreSEAICE(I,J,bi,bj,5)
+          AREA  (I,J,bi,bj)            = StoreSEAICE(I,J,bi,bj, 1)
+          HEFF  (I,J,bi,bj)            = StoreSEAICE(I,J,bi,bj, 2)
+          HSNOW (I,J,bi,bj)            = StoreSEAICE(I,J,bi,bj, 3)
+          RUNOFF(I,J,bi,bj)            = StoreSEAICE(I,J,bi,bj, 4)
+          UICE  (I,J,bi,bj)            = StoreSEAICE(I,J,bi,bj, 5)
+          VICE  (I,J,bi,bj)            = StoreSEAICE(I,J,bi,bj, 6)
+          ZETA  (I,J,bi,bj)            = StoreSEAICE(I,J,bi,bj, 7)
+          ETA   (I,J,bi,bj)            = StoreSEAICE(I,J,bi,bj, 8)
 # ifdef SEAICE_CGRID
-          stressDivergenceX(I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,14)
-          stressDivergenceY(I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,15)
-# endif
-# ifdef SEAICE_MULTICATEGORY
-cph moved to seaice_ad_check_lev because of extra dim. MULTDIM
-cph          TICES(I,J,bi,bj)     = StoreSEAICE(I,J,bi,bj,6)
-# endif
-          UICE(I,J,bi,bj)    = StoreSEAICE(I,J,bi,bj,7)
-          VICE(I,J,bi,bj)    = StoreSEAICE(I,J,bi,bj,8)
-          ZETA(I,J,bi,bj)      = StoreSEAICE(I,J,bi,bj,9)
-          ETA(I,J,bi,bj)       = StoreSEAICE(I,J,bi,bj,10)
-# ifdef SEAICE_CGRID
-          dwatn(I,J,bi,bj)          = StoreSEAICE(I,J,bi,bj,11)
+          dwatn(I,J,bi,bj)             = StoreSEAICE(I,J,bi,bj, 9)
 #  ifdef SEAICE_ALLOW_BOTTOMDRAG
-          cbotc(I,J,bi,bj)          = StoreSEAICE(I,J,bi,bj,12)
+          cbotc(I,J,bi,bj)             = StoreSEAICE(I,J,bi,bj,10)
 #  endif /* SEAICE_ALLOW_BOTTOMDRAG */
-CML          seaicemasku(I,J,bi,bj)    = StoreSEAICE(I,J,bi,bj,12)
-CML          seaicemaskv(I,J,bi,bj)    = StoreSEAICE(I,J,bi,bj,13)
+          stressDivergenceX(I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,11)
+          stressDivergenceY(I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,12)
 # endif /* SEAICE_CGRID */
 # ifdef SEAICE_ALLOW_EVP
-          seaice_sigma1(I,J,bi,bj)  = StoreSEAICE(I,J,bi,bj,16)
-          seaice_sigma2(I,J,bi,bj)  = StoreSEAICE(I,J,bi,bj,17)
-          seaice_sigma12(I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,18)
+          seaice_sigma1    (I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,13)
+          seaice_sigma2    (I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,14)
+          seaice_sigma12   (I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,15)
 # endif /* SEAICE_ALLOW_EVP */
 # ifdef SEAICE_VARIABLE_SALINITY
-          HSALT(I,J,bi,bj)          = StoreSEAICE(I,J,bi,bj,19)
+          HSALT            (I,J,bi,bj) = StoreSEAICE(I,J,bi,bj,16)
 # endif
          ENDDO
         ENDDO
+C--   this 3D array comes last because it has a variable size nITD
+        DO k=1,nITD
+         DO J=1-OLy,sNy+OLy
+          DO I=1-OLx,sNx+OLx
+           TICES(I,J,k,bi,bj) = StoreSEAICE(I,J,bi,bj,16+k)
+          ENDDO
+         ENDDO
+        ENDDO
+C
        ENDDO
       ENDDO
 #endif /* ALLOW_SEAICE */

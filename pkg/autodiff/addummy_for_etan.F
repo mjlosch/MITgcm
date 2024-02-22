@@ -5,9 +5,6 @@
 #ifdef ALLOW_CTRL
 # include "CTRL_OPTIONS.h"
 #endif
-#ifdef ALLOW_DIAGNOSTICS
-# include "DIAG_OPTIONS.h"
-#endif
 #include "AD_CONFIG.h"
 
 CBOP
@@ -64,10 +61,6 @@ C     == Global variables ===
 # endif /* ALLOW_OPENAD */
 # ifdef ALLOW_MNC
 #  include "MNC_PARAMS.h"
-# endif
-# ifdef ALLOW_DIAGNOSTICS
-#  include "DIAGNOSTICS_SIZE.h"
-#  include "DIAGNOSTICS.h"
 # endif
 #endif /* ALLOW_AUTODIFF_MONITOR */
 

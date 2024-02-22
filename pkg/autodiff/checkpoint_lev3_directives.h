@@ -159,10 +159,6 @@ CADJ STORE pc, ps, pw       = tapelev3, key = ilev_3
 # include "offline_ad_check_lev3_dir.h"
 #endif /* ALLOW_OFFLINE */
 
-#ifdef ALLOW_GCHEM
-# include "gchem_ad_check_lev3_dir.h"
-#endif
-
 #ifdef ALLOW_CFC
 # include "cfc_ad_check_lev3_dir.h"
 #endif
@@ -191,11 +187,14 @@ CADJ STORE empmr = tapelev3, key = ilev_3
 
 #ifdef ALLOW_COST
 CADJ STORE cMeanTheta = tapelev3, key = ilev_3
+CADJ STORE cMeanSalt  = tapelev3, key = ilev_3
 CADJ STORE cMeanUVel  = tapelev3, key = ilev_3
 CADJ STORE cMeanVVel  = tapelev3, key = ilev_3
 CADJ STORE cMeanThetaUVel = tapelev3, key = ilev_3
 CADJ STORE cMeanThetaVVel = tapelev3, key = ilev_3
-CADJ STORE cMeanSalt = tapelev3, key = ilev_3
+CADJ STORE cMeanSaltUVel  = tapelev3, key = ilev_3
+CADJ STORE cMeanSaltVVel  = tapelev3, key = ilev_3
+CADJ STORE cMeanEtaTot    = tapelev3, key = ilev_3
 #endif
 
 #ifdef ALLOW_COST_TRACER
