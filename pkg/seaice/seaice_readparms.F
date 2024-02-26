@@ -297,7 +297,7 @@ C     end ridging parampeters
       SEAICEadvHeff      = .TRUE.
       SEAICEadvArea      = .TRUE.
       SEAICEadvSnow      = .TRUE.
-      SEAICEadvStress    = .TRUE.
+      SEAICEadvStress    = .FALSE.
 #ifdef SEAICE_VARIABLE_SALINITY
       SEAICEadvSalt      = .TRUE.
 #else

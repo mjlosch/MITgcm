@@ -960,8 +960,8 @@ C     compute physical components dudy, dvdx
      &         )
          ENDDO
         ENDDO
-        DO j=1-OLy+1,sNy+OLy
-         DO i=1-OLx+1,sNx+OLx
+        DO j=2-OLy,sNy+OLy
+         DO i=2-OLx,sNx+OLx
           hFacV = SIMaskV(i,j,bi,bj) - SIMaskV(i-1,j,bi,bj)
           dvdx(i,j) = (dvdx(i,j) - k2AtZ(i,j,bi,bj) * uave(i,j))
      &         *HEFFM(i  ,j  ,bi,bj)*HEFFM(i-1,j  ,bi,bj)
@@ -971,8 +971,8 @@ C     compute physical components dudy, dvdx
      &         )
          ENDDO
         ENDDO
-        DO j=1-OLy+1,sNy+OLy
-         DO i=1-OLx+1,sNx+OLx
+        DO j=2-OLy,sNy+OLy
+         DO i=2-OLx,sNx+OLx
           e12Loc(i,j) = 0.5 _d 0 * (
      &         dudy(i,j) + dvdx(i,j)
      &         )
@@ -981,8 +981,8 @@ C     compute physical components dudy, dvdx
          ENDDO
         ENDDO
 C-    store additonal tendency in gFld1, gFld2, gFld12:
-        DO j=1-OLy,sNy+OLy-1
-         DO i=1-OLx,sNx+OLx-1
+        DO j=2-OLy,sNy+OLy-1
+         DO i=2-OLx,sNx+OLx-1
           gFld1(i,j)  = - 2.0 _d 0 * (
      &              sig11(i,j) * e11Loc(i,j)
      &            + sig22(i,j) * e22Loc(i,j)
