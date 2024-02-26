@@ -40,7 +40,7 @@ C     i,j,k,bi,bj :: Loop counters
       INTEGER kSrf
       _RS  mask_uice
       INTEGER k
-#if (defined SEAICE_ALLOW_DAMAGE || SEAICE_ALLOW_MEB)
+#if (defined SEAICE_ALLOW_DAMAGE || defined SEAICE_ALLOW_MEB)
       _RL fldAtZ
       EXTERNAL fldAtZ
 #endif /* ALLOW_DAMAGE ALLOW_MEB */
@@ -541,7 +541,7 @@ C---  Complete initialization
           PRESS0(i,j,bi,bj) = PRESS0(i,j,bi,bj)*HEFFM(i,j,bi,bj)
          ENDDO
         ENDDO
-#if (defined SEAICE_ALLOW_DAMAGE || SEAICE_ALLOW_MEB)
+#if (defined SEAICE_ALLOW_DAMAGE || defined SEAICE_ALLOW_MEB)
         DO j=1-OLy+1,sNy+OLy-1
          DO i=1-OLx+1,sNx+OLx-1
           PRESS0Z(i,j,bi,bj) = SEAICE_strength

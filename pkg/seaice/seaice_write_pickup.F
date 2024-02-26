@@ -197,7 +197,7 @@ C--    write Sea-Ice Dynamics variables (all 2-D fields):
         IF (j.LE.listDim) wrFldList(j) = 'siSigm12'
        ENDIF
 # endif /* SEAICE_ALLOW_EVP or SEAICEuseMEB */
-# ifdef SEAICE_ALLOW_MEB )
+# ifdef SEAICE_ALLOW_MEB
        IF ( SEAICEuseMEB ) THEN
         j = j + 1
         nj = nj-1

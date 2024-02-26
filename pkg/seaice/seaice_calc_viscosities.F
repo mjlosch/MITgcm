@@ -48,8 +48,7 @@ C
       _RL zMax  (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL HEFFM (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C
-      _RL press0(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL press0Z(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL press0(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)      
       _RL press (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C
       _RL deltaC(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -63,6 +62,7 @@ C     shear viscosity
       _RL zetaZ (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 C
 #ifdef SEAICE_ALLOW_DAMAGE
+      _RL press0Z(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL damage(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL damageZ(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 #else
@@ -150,7 +150,7 @@ CMB mu = E*SEAICEmebMu
           ENDDO
          ENDDO
         ELSE
-#else /* SEAICE_ALLOW_MEB */
+#else
         IF (.TRUE.) THEN
 #endif /* SEAICE_ALLOW_MEB */
 #ifdef ALLOW_AUTODIFF_TAMC

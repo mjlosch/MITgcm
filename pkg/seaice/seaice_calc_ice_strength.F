@@ -53,7 +53,7 @@ C
       INTEGER i, j
       INTEGER iMin, iMax, jMin, jMax
       _RL tmpscal1, tmpscal2
-#if (defined SEAICE_ALLOW_DAMAGE || SEAICE_ALLOW_MEB)
+#if (defined SEAICE_ALLOW_DAMAGE || defined SEAICE_ALLOW_MEB)
       _RL fldAtZ
       EXTERNAL fldAtZ
 #endif /* ALLOW_DAMAGE ALLOW_MEB */
@@ -133,7 +133,7 @@ C--   now set up ice pressure and viscosities
           ENDDO
          ENDIF
 #endif
-#if (defined SEAICE_ALLOW_DAMAGE || SEAICE_ALLOW_MEB)
+#if (defined SEAICE_ALLOW_DAMAGE || defined SEAICE_ALLOW_MEB)
        DO j=1,sNy+1
         DO i=1,sNx+1
          PRESS0Z(I,J,bi,bj)=SEAICE_strength

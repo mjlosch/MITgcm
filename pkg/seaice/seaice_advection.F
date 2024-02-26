@@ -872,7 +872,7 @@ C  gFld1, gFld2, gFld12 :: tendency array
 CEOP
 
 #ifdef ALLOW_GENERIC_ADVDIFF
-#ifdef (defined SEAICE_ALLOW_DAMAGE || defined SEAICE_ALLOW_MEB)
+#if (defined SEAICE_ALLOW_DAMAGE || defined SEAICE_ALLOW_MEB)
 C !LOCAL VARIABLES: ====================================================
 C  i,j         :: loop indices
 C
