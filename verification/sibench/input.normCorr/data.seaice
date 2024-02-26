@@ -25,7 +25,7 @@
  SEAICEnonLinIterMax = 100,
  SEAICEpreconLinIter = 10,
  SEAICElinearIterMax = 50,
- SEAICEnonLinTol     = 1.e-03,
+ SEAICEnonLinTol     = 1.e-12,
  SEAICE_JFNK_lsIter  = 10,
  SEAICE_JFNK_tolIter = 50,
  JFNKres_tFac        = 0.5,
