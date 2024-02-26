@@ -53,8 +53,10 @@ C
       INTEGER i, j
       INTEGER iMin, iMax, jMin, jMax
       _RL tmpscal1, tmpscal2
+#if (defined SEAICE_ALLOW_DAMAGE || SEAICE_ALLOW_MEB)
       _RL fldAtZ
       EXTERNAL fldAtZ
+#endif /* ALLOW_DAMAGE ALLOW_MEB */
 #ifdef SEAICE_ITD
 C     variables related to ridging schemes
 C     ridgingModeNorm :: norm to ensure convervation (N in Lipscomb et al 2007)
@@ -131,6 +133,7 @@ C--   now set up ice pressure and viscosities
           ENDDO
          ENDIF
 #endif
+#if (defined SEAICE_ALLOW_DAMAGE || SEAICE_ALLOW_MEB)
        DO j=1,sNy+1
         DO i=1,sNx+1
          PRESS0Z(I,J,bi,bj)=SEAICE_strength
@@ -139,6 +142,7 @@ C--   now set up ice pressure and viscosities
      &        *(SEAICE_area_max-fldAtZ(AREA(:,:,bi,bj),i,j,bi,bj)))
         ENDDO
        ENDDO
+#endif /* ALLOW_DAMAGE ALLOW_MEB */
 #ifdef SEAICE_ITD
       ELSE
 C     not useHiber79IceStrength

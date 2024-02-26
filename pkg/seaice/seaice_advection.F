@@ -872,6 +872,7 @@ C  gFld1, gFld2, gFld12 :: tendency array
 CEOP
 
 #ifdef ALLOW_GENERIC_ADVDIFF
+#ifdef (defined SEAICE_ALLOW_DAMAGE || defined SEAICE_ALLOW_MEB)
 C !LOCAL VARIABLES: ====================================================
 C  i,j         :: loop indices
 C
@@ -1011,5 +1012,6 @@ C     &            + sig22(i,j) * fldAtC(dvdx(:,:), i, j, bi, bj)
 C         ENDDO
 C        ENDDO
 #endif /* ALLOW_GENERIC_ADVDIFF */
-      RETURN
+#endif /* ALLOW_DAMAGE ALLOW_MEB */
+      RETURN  
       END

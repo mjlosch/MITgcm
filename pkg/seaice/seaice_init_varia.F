@@ -40,8 +40,10 @@ C     i,j,k,bi,bj :: Loop counters
       INTEGER kSrf
       _RS  mask_uice
       INTEGER k
+#if (defined SEAICE_ALLOW_DAMAGE || SEAICE_ALLOW_MEB)
       _RL fldAtZ
       EXTERNAL fldAtZ
+#endif /* ALLOW_DAMAGE ALLOW_MEB */
 #ifdef ALLOW_SITRACER
       INTEGER iTr, jTh
 #endif
@@ -539,6 +541,7 @@ C---  Complete initialization
           PRESS0(i,j,bi,bj) = PRESS0(i,j,bi,bj)*HEFFM(i,j,bi,bj)
          ENDDO
         ENDDO
+#if (defined SEAICE_ALLOW_DAMAGE || SEAICE_ALLOW_MEB)
         DO j=1-OLy+1,sNy+OLy-1
          DO i=1-OLx+1,sNx+OLx-1
           PRESS0Z(i,j,bi,bj) = SEAICE_strength
@@ -547,6 +550,7 @@ C---  Complete initialization
      &         *(ONE-fldAtZ(AREA(:,:,bi,bj),i,j,bi,bj)))
          ENDDO
         ENDDO
+#endif /* ALLOW_DAMAGE ALLOW_MEB */
         IF ( useRealFreshWaterFlux .AND. .NOT.useThSIce ) THEN
          DO j=1-OLy,sNy+OLy
           DO i=1-OLx,sNx+OLx

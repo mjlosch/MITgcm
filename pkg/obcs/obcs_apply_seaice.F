@@ -57,16 +57,16 @@ C     Set model variables to OB values on Northern Boundary
          DO i=1-OLx,sNx+OLx
           Jobc = OB_Jn(I,bi,bj)
           IF ( Jobc.NE.OB_indexNone ) THEN
+#if ( defined SEAICE_ALLOW_DAMAGE || defined SEAICE_ALLOW_MEB )
             damage(i,Jobc,bi,bj) = 1.0
             damageZ(i,Jobc,bi,bj) = 1.0
             seaice_sigma1(i,Jobc,bi,bj) = 0.0
             seaice_sigma2(i,Jobc,bi,bj) = 0.0
             seaice_sigma12(i,Jobc,bi,bj) = 0.0
             seaice_sigma12C(i,Jobc,bi,bj) = 0.0
-            HEFF (i,Jobc,bi,bj) = 1.0
-            AREA (i,Jobc,bi,bj) = 1.0
-c            HEFF (i,Jobc,bi,bj) = OBNh (i,bi,bj)
-c            AREA (i,Jobc,bi,bj) = OBNa (i,bi,bj)
+#endif
+            HEFF (i,Jobc,bi,bj) = OBNh (i,bi,bj)
+            AREA (i,Jobc,bi,bj) = OBNa (i,bi,bj)
             HSNOW(i,Jobc,bi,bj) = OBNsn(i,bi,bj)
 # ifdef SEAICE_VARIABLE_SALINITY
             HSALT(i,Jobc,bi,bj) = OBNsl(i,bi,bj)
