@@ -104,7 +104,7 @@ c        IF ( missFldList(nj).EQ.'siAGE   ' ) oldIceAge = .FALSE.
            _END_MASTER( myThid )
 C     copy TICE -> TICES, already done in s/r seaice_read_pickup
           ENDIF
-         ELSEIF ( fldName(1:6).EQ.'siSigm' ) THEN
+         ELSEIF ( fldName(1:5).EQ.'siSig' ) THEN
 C- Note: try to restart without Sigma1,2,12 (as if SEAICEuseEVPpickup=F)
 C        An alternative would be to restart only if SEAICEuseEVPpickup=F:
 C        if SEAICEuseEVPpickup then stop / else warning / endif
@@ -120,6 +120,17 @@ C        if SEAICEuseEVPpickup then stop / else warning / endif
           IF ( .NOT.pickupStrictlyMatch ) THEN
 C     print a warning and restart anyway
            SEAICEmomStartBDF = 0
+           _BEGIN_MASTER( myThid )
+           WRITE(msgBuf,'(4A)') '** WARNING ** SEAICE_CHECK_PICKUP:',
+     &      ' restart without "',fldName,'" (set to zero)'
+           CALL PRINT_MESSAGE( msgBuf, ioUnit, SQUEEZE_RIGHT, myThid )
+           _END_MASTER( myThid )
+          ENDIF
+         ELSEIF ( fldName(1:8).EQ.'siDamage' ) THEN
+C- Note: try to restart without Sigma1,2,12 (as if SEAICEuseEVPpickup=F)
+C        An alternative would be to restart only if SEAICEuseEVPpickup=F:
+C        if SEAICEuseEVPpickup then stop / else warning / endif
+          IF ( .NOT.pickupStrictlyMatch ) THEN
            _BEGIN_MASTER( myThid )
            WRITE(msgBuf,'(4A)') '** WARNING ** SEAICE_CHECK_PICKUP:',
      &      ' restart without "',fldName,'" (set to zero)'
