@@ -1,0 +1,178 @@
+
+# runs for the idemix comparison paper
+
+# in order to run the JRA55 62 year forcing for 5 cycles I save the
+# pickup of 2020-01-01 in a sub-directory "pickups" and trick the
+# model by resetting the startdate in data.cal manually to
+#
+# startDate_1=19580101, for the first cycle
+# startDate_1=18960101, for the second cycle
+# startDate_1=18340101, for the third cycle
+# startDate_1=17720101, for the fourth cycle
+# startDate_1=17100101, for the fifth cycle
+#
+# and also adjust the nIter0 in data accordingly
+#
+# this requires to adjust the timePhase for diagSeaice to get output only for the last year
+# (dt.datetime(2019,1,1)-dt.datetime(1896,1,1)).days * 86400. = 3881520000.0
+# (dt.datetime(2019,1,1)-dt.datetime(1834,1,1)).days * 86400. = 5838048000.0
+# not sure here, we want to use the last 40 years for analysis, so more adjustments need to be made
+# (dt.datetime(2019,1,1)-dt.datetime(1772,1,1)).days * 86400. = 7794576000.0
+#
+# not sure what to do about leap years (so far the default
+# no_leap_years=.false. is active, leading to funny dates and the end
+# of the year in the second cycle)
+#
+# in the fourth cycle (starting with nIter0 = 3260880), we save output after 1980
+# (dt.datetime(1980,1,1)-dt.datetime(1958,1,1)).days*86400/1800. = 385680 timesteps
+# deltaT * [(nIter0=3260880) + 385680] = 1800. * 3646560 = 6563808000. seconds
+
+# in the fifth cycle (starting with nIter0 = 4347840), we save output after 1980
+# (dt.datetime(1980,1,1)-dt.datetime(1958,1,1)).days*86400/1800. = 385680 timesteps
+# deltaT * [(nIter0=4347840) + 385680] = 1800. * 3646560 = 6563808000. seconds
+
+# in the 4th cycle the density levels for the layers packages are
+# different than in the 5th cycle, where I use density levels that are
+# smoother and less crowded in near the surface
+
+run00: baseline,
+ - GGL90ck = 0.1
+ - GGL90ceps = 0.7
+ - GGL90alpha = 30.0
+ - GGL90mixingLengthMin = 1.e-08
+ - GGL90visc/diffMax = 100,
+ - GGL90m2 = 3.75
+ - GGL90TKEmin = 1.e-06,
+ - GGL90TKEbottom=4.e-6,
+ - GGL90TKEsurfMin=1.e-4,
+ - GGL90mixingLengthMin = 1.e-08
+ - calcMeanVertShear = .TRUE.,
+ - mxlMaxFlag=2,
+ - sss-restoring (300 days),
+ - temp/saltAdvscheme = 33,
+ - viscA4Grid=0.01
+ - (very noise solutions, and overturing dies down after 60years already.
+run00i: same as run00 with ifort compiler, just a test
+
+run01: like run00 with more sss-restoring (90 days, 10m/90days = 1.286008230452675e-06 m/s),
+ -viscA4Grid=0.05, HO_south  = 0.5 (instead of 1.)
+
+run01_idemix: like run01 with idemix turned on
+ - IDEMIX_tau_v =  2.0*86400.0 _d 0
+ - IDEMIX_tau_h = 15.0*86400.0 _d 0
+ - IDEMIX_gamma      = 1.57 _d 0
+ - IDEMIX_jstar      = 5.0 _d 0
+ - IDEMIX_mu0        = 1.0 _d 0/3.0 _d 0
+ - IDEMIX_mixing_efficiency = 0.1666 _d 0
+ - IDEMIX_diff_max   = 1.0 _d 0
+ - IDEMIX_diff_min   = 1.0 _d -9
+ - IDEMIX_frac_F_b   = 1.0 _d 0
+ - IDEMIX_tidal_file  = '~/idemix_forcing/idemix_tidal_forcing_jayne.llc90.bin'
+ - IDEMIX_wind_file   = '~/idemix_forcing/idemix_wind_forcing.llc90.bin'
+ - IDEMIX_include_GM_bottom = .FALSE.,
+ - IDEMIX_include_GM        = .FALSE.,
+
+run02: like run01 with no sss-restoring (overturning dies)
+
+run03: like run01 with sss-restoring of 60 days, 10m/60days = 1.9290123456790124e-06 m/s,
+
+# three idemix runs with different forcing
+background diffusion turned off:
+ - diffKrT/S = 0.0,
+ - IDEMIX_tau_v =  2.0*86400.0 _d 0
+ - IDEMIX_tau_h = 15.0*86400.0 _d 0
+ - IDEMIX_gamma      = 1.57 _d 0
+ - IDEMIX_jstar      = 5.0 _d 0
+ - IDEMIX_mu0        = 1.0 _d 0/3.0 _d 0
+ - IDEMIX_mixing_efficiency = 0.1666 _d 0
+ - IDEMIX_diff_max   = 1.0 _d 0
+ - IDEMIX_diff_min   = 1.0 _d -9
+ - IDEMIX_frac_F_b   = 1.0 _d 0
+ - IDEMIX_tidal_file  = '~/idemix_forcing/idemix_tidal_forcing_jayne.llc90.bin'
+ - IDEMIX_wind_file   = '~/idemix_forcing/idemix_wind_forcing.llc90.bin'
+ - IDEMIX_include_GM_bottom = .FALSE.,
+ - IDEMIX_include_GM        = .FALSE.,
+# beware: these runs all use slightly wrong idemix forcing, where the net energy input has been slightly wrong, and the stormtide run contains too little energy, but this (over)-compensated by a bug in the coarse graining
+run03_jayne:     IDEMIX_tidal_file  = 'idemix_tidal_forcing_jayne.llc90.bin',
+run03_nycander:  IDEMIX_tidal_file  = 'idemix_tidal_forcing_nycander.llc90.bin',
+run03_stormtide: IDEMIX_tidal_file  = 'idemix_tidal_forcing_stormtide.llc90.bin',
+
+# tests with different drag coefficient for wind forcing (earlier useRelativeWinds=.FALSE. with ggl90 lead to weird circulation and a blowing up model)
+run04: like run03, but with new ly09 drag coefficient (branch cdrag_ly2009) and useRelativeWinds=.FALSE.
+run04a: like run03, but with useRelativeWinds=.FALSE.
+run_kpp: like run04, but use KPP
+
+run05: like run04, but with different GMredi parameters: GM_background_K    = 850., and Visbeck scheme turned off, following Marshall etal 2017 about strength of overturning circulation
+
+run06: like run03, but without enhanced background biharmonic viscosity in the deep ocean, comment out the follwing lines in  data, in attempt to address the reversed Indo-Pacific overturning circulation:
+#viscA4Dfile    ='viscA4Dfld.bin',
+#viscA4Zfile    ='viscA4Zfld.bin',
+
+run06a: like run06 with deltaT=3600. (instead of 1800.).
+
+run07: like run06a, but with larger constant viscA4grid=0.5 and no Leith-Viscosity
+
+run08: like run03, but with ivdc_kappa=1. (was commented out for some reason)
+run09: like run08, but without salt_plume parameterisation
+
+run10: like run03, deltaT=3600 and core2 forcing (data.exf_core2)
+
+run11: like run09, but with restoreUnderIce = .TRUE. (and the run is setup to run the full 310 years without my interference)
+
+run12: like run03 with KPP
+run13: like run03 with less sea ice (  SEAICE_multDim = 1, SEAICE_useMultDimSnow = .FALSE. )
+
+Summary so far: the only substantial difference can be acchieved by a different forcing, i.e. a different data.exf. The CORE interannual forcing does not contain any snowprecip, so it is very likely that the problem is related to snowprecip.
+
+run14: like run09, but with exf_inscal_snowprecip = 1.e-03,
+                   the previous 3.03e-3 was most likely wrong
+Finally, with run14 the overturning in the Pacific looks OK, exf_inscal_snowprecip =3.03e-3 was wrong and from now on I will use that and delete all previous runs.
+
+run15: new reference run: like run03 with saltPlume and new phc-based initial files (in /home/ollie/mlosch/idemix_forcing/, generated by phc_interp2mitgcm_2.py):
+ hydrogThetaFile='theta_winter_phc3.0.llc90.bin',
+ hydrogSaltFile ='salt_winter_phc3.0.llc90.bin',
+ deltaT = 3600.,
+ vertical viscosity viscAr = 1e-4 is required for all experiments for numerical stability (runs with idemix blow up with viscAr = 0.)
+The idemix tidal forcing files have been fixed, better (more conservative) interpolation, more components of nycander (C_noM2) added to stormtide (see webex discussion)
+run15_jayne:     IDEMIX_tidal_file  = 'idemix_tidal_forcing_jayne.llc90.bin',
+run15_nycander:  IDEMIX_tidal_file  = 'idemix_tidal_forcing_nycander.llc90.bin',
+run15_stormtide: IDEMIX_tidal_file  = 'idemix_tidal_forcing_stormtide.llc90.bin',
+
+run15a_stormtide: last cycle of run15_stormtide with verticalShear not scaled by recip_hFacI**2
+run15b_stormtide: first cycle of run15_stormtide with verticalShear not scaled by recip_hFacI**2 and a3d, c3d not scaled by recip_hFacI
+
+run16: like run15, but with ivdc_kappa=1 (fesom uses 0.1) and scaling with recip_hFacI also without IDEMIX
+
+# new IDEMIX_wind_file   = '~/idemix_forcing/idemix_wind_forcing_cfsr.llc90.bin'
+run16_stormtide: like run15, but with parameter clipping for idemix as in cvmix of fesom/icon
+
+
+run17: like run15, but with ivdc_kappa=1 (fesom uses 0.1)
+run17_stormtide: like run17, remove scaling with recip_hFacI when using IDEMIX, use parameter clipping for IDEMIX as in cvmix of fesom/icon, also Prandtl number computation as in cvmix
+
+run18_stormtide: like run17_stormtide but with 5 iterations for horizontal diffusion
+
+run19_stormtide: like run17_stormtide, without partial cells (hFacMin=0)
+
+run20_stormtide: like run17_stormtide, with fewer recip_hfaC in idemix
+
+- It appears that ivdc_kappa=1 removes the strong bottom intensified mixing near the bottom of the ocean, but not the interior instabilities near the Antarctic Continent.
+- The scaling with or without recip_hfac, while inconsistent, does not seem to have any serious effects, especially apparent with run19 without partical cells.
+
+run19: like run15 without horizontal smoothing: ALLOW_GGL90_SMOOTH undefined, and more hFacs in ggl90_calc.F
+run20: like run15 with GGL90eps=1e-12 (instead of 2.23e-16), and more hFacs in ggl90_calc.F
+
+run21: repeat run16 with KPP instead of GGL90 for SOCHIC (ifort compiler, and eosType='JMD95Z')
+run21p: pickup from run16 at the beginning of cycle5, with KPP instead of GGL90 for SOCHIC (ifort compiler)
+
+run22: repeat run16 with stable initial conditions derived from WAGHC (Gouretski et al)
+run23: like run22 with GM_background_K = 1000. and no Visbeck (this seems to get rid of the internal static instabilities around Antarctica)
+run24: repeat run16 with PHC-initial conditions, GM_background_K = 600. and no Visbeck
+run25: like run24, but with GM_AdvForm = .TRUE., GM_Visbeck_depth = 1000. (default), GM_Visbeck_maxval_K = 2500. (default), and GM_Visbeck_minVal_K= 300.,
+run26: repeat run16 with PHC-initial conditions, GM_AdvForm = .TRUE., GM_isopycK = 600.
+run27: repeat run16 with PHC-initial conditions, GM_AdvForm = .TRUE., GM_Kmin_horiz = 0.
+run28: repeat run16 with PHC-initial conditions, GM_AdvForm = .TRUE., GM_Kmin_horiz = 0., GM_background_K = 600., no Visbeck
+run29: repeat run16 with PHC-initial conditions, GM_AdvForm = .TRUE., GM_Kmin_horiz = 0., Visbeck defaults (GM_Visbeck_length=200.e+3, GM_Visbeck_depth=1000., GM_Visbeck_maxval_K=2500.,) and GM_Visbeck_alpha=0.015
+run30: like run29 with GM_Visbeck_alpha=0.010,
+run31: like run29 with GM_Visbeck_alpha=0.005,
+run32: like run29 with GM_Visbeck_alpha=0.015, GM_Visbeck_maxmal_K=600.,
