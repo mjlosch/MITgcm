@@ -310,6 +310,32 @@ CADJ STORE heff(:,:,bi,bj)  = comlev1_bibj, key = iicekey,byte=isbyte
         ENDDO
 #endif /* SEAICE_VARIABLE_SALINITY */
 
+#endif /* SEAICE_ALLOW_DAMAGE */
+
+#ifdef SEAICE_ALLOW_MEB
+        DO j = 1-Oly,sNy+Oly
+         DO i = 1-Olx,sNx+Olx
+          IF ( AREA(i,j,bi,bj) .LE. 0. _d 0 ) THEN
+           seaice_sigma1(i,j,bi,bj)   = 0. _d 0
+           seaice_sigma2(i,j,bi,bj)   = 0. _d 0
+           seaice_sigma12C(i,j,bi,bj) = 0. _d 0
+          ENDIF
+         ENDDO
+        ENDDO
+        DO j = 1-Oly+1,sNy+Oly
+         DO i = 1-Olx+1,sNx+Olx
+C     here we have to modify the mask so that it is not affected by
+C     AREA = 0 on land
+CML          IF ( AREA(i,j,bi,bj)+AREA(i-1,j,bi,bj)+AREA(i,j-1,bi,bj)
+CML     &         +AREA(i-1,j-1,bi,bj) .LE. 0. _d 0 ) THEN
+          IF ( AREA(i,j,bi,bj)*AREA(i-1,j,bi,bj)*AREA(i,j-1,bi,bj)
+     &         *AREA(i-1,j-1,bi,bj) .LE. 0. _d 0 ) THEN
+           seaice_sigma12(i,j,bi,bj) = 0. _d 0
+          ENDIF
+         ENDDO
+        ENDDO
+#endif /* SEAICE_ALLOW_MEB */
+
 C =====================================================================
 C ========== PART 2: ridging algorithm  ===============================
 C =====================================================================

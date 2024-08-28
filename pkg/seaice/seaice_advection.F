@@ -19,6 +19,7 @@ C !INTERFACE: ==========================================================
       SUBROUTINE SEAICE_ADVECTION(
      I     tracerIdentity,
      I     advectionSchArg,
+     I     extensiveFld,
      I     uFld, vFld, uTrans, vTrans, iceFld, r_hFld,
      O     gFld, afx, afy,
      I     bi, bj, myTime, myIter, myThid)
@@ -70,8 +71,6 @@ C !USES: ===============================================================
 #include "W2_EXCH2_SIZE.h"
 #include "W2_EXCH2_TOPOLOGY.h"
 #endif /* ALLOW_EXCH2 */
-      LOGICAL extensiveFld
-      PARAMETER ( extensiveFld = .TRUE. )
 
 C !INPUT PARAMETERS: ===================================================
 C  tracerIdentity  :: tracer identifier
@@ -89,6 +88,7 @@ C  myIter          :: iteration number
 C  myThid          :: my Thread Id number
       INTEGER tracerIdentity
       INTEGER advectionSchArg
+      LOGICAL extensiveFld
       _RL uFld  (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL vFld  (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL uTrans(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -1013,5 +1013,5 @@ C         ENDDO
 C        ENDDO
 #endif /* ALLOW_GENERIC_ADVDIFF */
 #endif /* ALLOW_DAMAGE ALLOW_MEB */
-      RETURN  
+      RETURN
       END

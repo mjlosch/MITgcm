@@ -193,7 +193,7 @@ C--   Effective Thickness (Volume)
         IF ( SEAICEadvHeff ) THEN
          DO it=1,SEAICE_multDim
           CALL SEAICE_ADVECTION(
-     I         GAD_HEFF, SEAICEadvSchHeff,
+     I         GAD_HEFF, SEAICEadvSchHeff, .TRUE.,
      I         uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
      I         uTrans, vTrans, HEFFITD(1-OLx,1-OLy,it,bi,bj),
      I         recip_heff,
@@ -222,7 +222,7 @@ C--   Fractional area
         IF ( SEAICEadvArea ) THEN
          DO it=1,SEAICE_multDim
           CALL SEAICE_ADVECTION(
-     I         GAD_AREA, SEAICEadvSchArea,
+     I         GAD_AREA, SEAICEadvSchArea, .TRUE.,
      I         uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
      I         uTrans, vTrans, AREAITD(1-OLx,1-OLy,it,bi,bj),
      I         recip_heff,
@@ -247,7 +247,7 @@ C     now do the "explicit" time step
          ENDDO
 C     open water fraction needs to be advected for the ridging scheme
          CALL SEAICE_ADVECTION(
-     I        GAD_AREA, SEAICEadvSchArea,
+     I        GAD_AREA, SEAICEadvSchArea, .TRUE.,
      I        uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
      I        uTrans, vTrans, opnWtrFrac(1-OLx,1-OLy,bi,bj), recip_heff,
      O        gFld, afx, afy,
@@ -274,7 +274,7 @@ C--   Effective Snow Thickness (Volume)
         IF ( SEAICEadvSnow ) THEN
          DO it=1,SEAICE_multDim
           CALL SEAICE_ADVECTION(
-     I         GAD_SNOW, SEAICEadvSchSnow,
+     I         GAD_SNOW, SEAICEadvSchSnow, .TRUE.,
      I         uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
      I         uTrans, vTrans, HSNOWITD(1-OLx,1-OLy,it,bi,bj),
      I         recip_heff,
@@ -308,7 +308,7 @@ C     (necessary here because updated HEFF is used below for SItracer)
 C--   Effective Thickness (Volume)
         IF ( SEAICEadvHeff ) THEN
           CALL SEAICE_ADVECTION(
-     I         GAD_HEFF, SEAICEadvSchHeff,
+     I         GAD_HEFF, SEAICEadvSchHeff, .TRUE.,
      I         uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
      I         uTrans, vTrans, HEFF(1-OLx,1-OLy,bi,bj), recip_heff,
      O         gFld, afx, afy,
@@ -335,7 +335,7 @@ C     now do the "explicit" time step
 C--   Fractional area
         IF ( SEAICEadvArea ) THEN
           CALL SEAICE_ADVECTION(
-     I         GAD_AREA, SEAICEadvSchArea,
+     I         GAD_AREA, SEAICEadvSchArea, .TRUE.,
      I         uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
      I         uTrans, vTrans, AREA(1-OLx,1-OLy,bi,bj), recip_heff,
      O         gFld, afx, afy,
@@ -362,7 +362,7 @@ C     now do the "explicit" time step
 C--   Effective Snow Thickness (Volume)
         IF ( SEAICEadvSnow ) THEN
           CALL SEAICE_ADVECTION(
-     I         GAD_SNOW, SEAICEadvSchSnow,
+     I         GAD_SNOW, SEAICEadvSchSnow, .TRUE.,
      I         uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
      I         uTrans, vTrans, HSNOW(1-OLx,1-OLy,bi,bj), recip_heff,
      O         gFld, afx, afy,
@@ -391,7 +391,7 @@ C     now do the "explicit" time step
 C--   Effective Sea Ice Salinity (Mass of salt)
         IF ( SEAICEadvSalt ) THEN
           CALL SEAICE_ADVECTION(
-     I         GAD_SALT, SEAICEadvSchSalt,
+     I         GAD_SALT, SEAICEadvSchSalt, .TRUE.,
      I         uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
      I         uTrans, vTrans, HSALT(1-OLx,1-OLy,bi,bj), recip_heff,
      O         gFld, afx, afy,
@@ -419,7 +419,7 @@ C     now do the "explicit" time step
 #ifdef SEAICE_ALLOW_DAMAGE
         IF ( SEAICEadvArea .AND. SEAICEupdateDamage ) THEN
          CALL SEAICE_ADVECTION(
-     I        GAD_AREA, SEAICEadvSchArea,
+     I        GAD_AREA, SEAICEadvSchArea, .FALSE.,
      I        uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
      I        uTrans, vTrans, damage(1-OLx,1-OLy,bi,bj), recip_heff,
      O        gFld, afx, afy,
@@ -463,23 +463,25 @@ C upper-convected part
          CALL TIMER_STOP ('STRESS_TENSOR_ADV [SEAICE_ADVDIFF]',myThid)
 C advect sigma_1
          CALL SEAICE_ADVECTION(
-     I        GAD_AREA, SEAICEadvSchArea,
+     I        GAD_AREA, SEAICEadvSchArea, .FALSE.,
      I        uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
      I        uTrans, vTrans, seaice_sigma1(1-OLx,1-OLy,bi,bj),
      I        recip_heff,
      O        gFld, afx, afy,
      I        bi, bj, myTime, myIter, myThid )
+C     now do the "explicit" time step
          DO j=1,sNy
           DO i=1,sNx
+           gFld(i,j) = (gFld(i,j) + gFld1(i,j))
            seaice_sigma1(i,j,bi,bj) = HEFFM(i,j,bi,bj) * (
      &          seaice_sigma1(i,j,bi,bj)
-     &          + SEAICE_deltaTtherm * (gFld(i,j) + gFld1(i,j))
+     &          + SEAICE_deltaTtherm * gFld(i,j)
      &          )
           ENDDO
          ENDDO
 C advect sigma_2
          CALL SEAICE_ADVECTION(
-     I        GAD_AREA, SEAICEadvSchArea,
+     I        GAD_AREA, SEAICEadvSchArea, .FALSE.,
      I        uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
      I        uTrans, vTrans, seaice_sigma2(1-OLx,1-OLy,bi,bj),
      I        recip_heff,
@@ -488,15 +490,16 @@ C advect sigma_2
 C     now do the "explicit" time step
          DO j=1,sNy
           DO i=1,sNx
+           gFld(i,j) = (gFld(i,j) + gFld2(i,j))
            seaice_sigma2(i,j,bi,bj) = HEFFM(i,j,bi,bj) * (
      &          seaice_sigma2(i,j,bi,bj)
-     &          + SEAICE_deltaTtherm * (gFld(i,j) + gFld2(i,j))
+     &          + SEAICE_deltaTtherm * gFld(i,j)
      &          )
           ENDDO
          ENDDO
 C advect sigma_12C
          CALL SEAICE_ADVECTION(
-     I        GAD_AREA, SEAICEadvSchArea,
+     I        GAD_AREA, SEAICEadvSchArea, .FALSE.,
      I        uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
      I        uTrans, vTrans, seaice_sigma12C(1-OLx,1-OLy,bi,bj),
      I        recip_heff,
@@ -505,7 +508,7 @@ C advect sigma_12C
 C     now do the "explicit" time step
          DO j=0,sNy+1
           DO i=0,sNx+1
-           gFld(i,j) = gFld(i,j) + gFld12(i,j)
+           gFld(i,j) = (gFld(i,j) + gFld12(i,j))
            seaice_sigma12C(i,j,bi,bj) = HEFFM(i,j,bi,bj) * (
      &          seaice_sigma12C(i,j,bi,bj)
      &          + SEAICE_deltaTtherm * gFld(i,j)
@@ -515,8 +518,18 @@ C     now do the "explicit" time step
 C advect sigma_12 by averaging the tendency for sigma12C to Z-points
          DO j=1,sNy+1
           DO i=1,sNx+1
-           seaice_sigma12(i,j,bi,bj) = ( seaice_sigma12(i,j,bi,bj)
-     &          + SEAICE_deltaTtherm * fldAtZ(gFld,i,j,bi,bj) )
+           seaice_sigma12(i,j,bi,bj) = seaice_sigma12(i,j,bi,bj)
+     &          + SEAICE_deltaTtherm * fldAtZ(gFld,i,j,bi,bj)
+CML           seaice_sigma12(i,j,bi,bj)=fldAtZ(
+CML     &        seaice_sigma12C(:,:,bi,bj),i,j,bi,bj)
+CML           sumNorm  = maskInC(i,j,  bi,bj)+maskInC(i-1,j,  bi,bj)
+CML     &          +     maskInC(i,j-1,bi,bj)+maskInC(i-1,j-1,bi,bj)
+CML           IF ( sumNorm.GT.0. _d 0 ) sumNorm = 1. _d 0 / sumNorm
+CMLCML           seaice_sigma12(i,j,bi,bj) = SQRT (sumNorm *
+CML           seaice_sigma12(i,j,bi,bj) = seaice_sigma12(i,j,bi,bj)
+CML     &          + SEAICE_deltaTtherm * SQRT (sumNorm *
+CML     &          ( gFld1(i,  j  )**2 + gFld1(i-1,j  )**2
+CML     &          + gFld1(i,  j-1)**2 + gFld1(i-1,j-1)**2 ))
           ENDDO
          ENDDO
         ENDIF
@@ -563,7 +576,7 @@ C--   store previous value for spurious maxima treament
           ENDDO
 C--   compute advective tendency
           CALL SEAICE_ADVECTION(
-     I         GAD_SITR+iTr-1, SEAICEadvSchSItr,
+     I         GAD_SITR+iTr-1, SEAICEadvSchSItr, .TRUE.,
      I         uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
      I         uTrans, vTrans, SItrExt(1-OLx,1-OLy,bi,bj),
      I         recip_heff,
