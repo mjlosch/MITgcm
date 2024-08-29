@@ -69,6 +69,11 @@ C     temporary variables available for the various computations
 C     reciprocal number of ice classes nITD
       _RL recip_nitd
 #endif /* SEAICE_ITD */
+#ifdef SEAICE_ALLOW_MEB
+C     This z-point mask is zero if any of the surrounding points have no
+C     ice over wet ocean points.
+      INTEGER zMsk(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+#endif
 #ifdef ALLOW_DIAGNOSTICS
 C     Helper variables for diagnostics
       _RL DIAGarrayA    (1:sNx,1:sNy)
@@ -315,23 +320,21 @@ CADJ STORE heff(:,:,bi,bj)  = comlev1_bibj, key = iicekey,byte=isbyte
 #ifdef SEAICE_ALLOW_MEB
         DO j = 1-Oly,sNy+Oly
          DO i = 1-Olx,sNx+Olx
+          zMsk(i,j) = 1
           IF ( AREA(i,j,bi,bj) .LE. 0. _d 0 ) THEN
            seaice_sigma1(i,j,bi,bj)   = 0. _d 0
            seaice_sigma2(i,j,bi,bj)   = 0. _d 0
            seaice_sigma12C(i,j,bi,bj) = 0. _d 0
+           IF ( HEFFM(i,j,bi,bj) .GT. 0. _d 0 ) zMsk(i,j) = 0
           ENDIF
          ENDDO
         ENDDO
         DO j = 1-Oly+1,sNy+Oly
          DO i = 1-Olx+1,sNx+Olx
-C     here we have to modify the mask so that it is not affected by
-C     AREA = 0 on land
-CML          IF ( AREA(i,j,bi,bj)+AREA(i-1,j,bi,bj)+AREA(i,j-1,bi,bj)
-CML     &         +AREA(i-1,j-1,bi,bj) .LE. 0. _d 0 ) THEN
-          IF ( AREA(i,j,bi,bj)*AREA(i-1,j,bi,bj)*AREA(i,j-1,bi,bj)
-     &         *AREA(i-1,j-1,bi,bj) .LE. 0. _d 0 ) THEN
-           seaice_sigma12(i,j,bi,bj) = 0. _d 0
-          ENDIF
+C     The z-point mask is zero if any of the surrounding points have no
+C     ice over wet ocean points (AREA=0 and HEFFM>0).
+          IF ( zMsk(i,j)*zMsk(i-1,j)*zMsk(i,j-1)*zMsk(i-1,j-1) .EQ. 0 )
+     &         seaice_sigma12(i,j,bi,bj) = 0. _d 0
          ENDDO
         ENDDO
 #endif /* SEAICE_ALLOW_MEB */
