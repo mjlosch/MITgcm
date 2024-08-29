@@ -108,16 +108,6 @@ C
           seaice_sigma2 (i,j,bi,bj) = 0. _d 0
           seaice_sigma12(i,j,bi,bj) = 0. _d 0
 # endif /* SEAICE_ALLOW_EVP or SEAICE_ALLOW_MEB */
-#ifdef SEAICE_ALLOW_DAMAGE
-C     no damage means damage = 1
-          damage   (I,J,bi,bj) = 1. _d 0 * maskC(I,J,kSrf,bi,bj)
-          damageNm1(I,J,bi,bj) = damage(I,J,bi,bj)
-          damageZ  (I,J,bi,bj) = 1. _d 0
-          damageNm1Z(I,J,bi,bj)= damageZ(I,J,bi,bj)
-          dCrit    (I,J,bi,bj) = 1. _d 0
-          dCritZ   (I,J,bi,bj) = 1. _d 0
-          seaice_sigma12C   (I,J,bi,bj) = 0. _d 0
-#endif /* SEAICE_ALLOW_DAMAGE */
 #else /* SEAICE_CGRID */
           uIceC(i,j,bi,bj)   = 0. _d 0
           vIceC(i,j,bi,bj)   = 0. _d 0
