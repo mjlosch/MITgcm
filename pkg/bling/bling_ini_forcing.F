@@ -16,7 +16,6 @@ C     === Global variables ===
 #include "PARAMS.h"
 #include "GRID.h"
 #include "BLING_VARS.h"
-#include "BLING_LOAD.h"
 
 C !INPUT PARAMETERS: ===================================================
 C  myThid               :: thread number
@@ -30,13 +29,6 @@ c !LOCAL VARIABLES: ===================================================
 #ifdef USE_BLING_V1
        CHARACTER*(MAX_LEN_MBUF) msgBuf
 #endif
-
-C First call requires that we initialize everything to zero for safety
-      DO bj = myByLo(myThid), myByHi(myThid)
-       DO bi = myBxLo(myThid), myBxHi(myThid)
-         BLING_ldRec(bi,bj) = 0
-       ENDDO
-      ENDDO
 
 #ifdef USE_BLING_V1
 #ifdef USE_SIBLING
@@ -62,18 +54,18 @@ C First call requires that we initialize everything to zero for safety
 #endif
 #endif /* USE_BLING_V1 */
 
-c set reasonable values to those that need at least something
+C Initialize to zero. Reasonable values are given in pkg/gchem
        DO bj = myByLo(myThid), myByHi(myThid)
         DO bi = myBxLo(myThid), myBxHi(myThid)
          DO j=1-OLy,sNy+OLy
           DO i=1-OLx,sNx+OLx
-             apco2(i,j,bi,bj) = bling_pCO2*maskC(i,j,1,bi,bj)
-             wind(i,j,bi,bj)     = 5. _d 0*maskC(i,j,1,bi,bj)
-             atmosP(i,j,bi,bj)   = 1. _d 0*maskC(i,j,1,bi,bj)
-             fIce(i,j,bi,bj)     = 0. _d 0
-             fluxCO2(i,j,bi,bj)  = 0. _d 0
-             InputFe(i,j,bi,bj)  = 1. _d -11*maskC(i,j,1,bi,bj)
-             Silica(i,j,bi,bj)   = 7.6838 _d -3*maskC(i,j,1,bi,bj)
+             apco2(i,j,bi,bj)   = 0. _d 0 
+             wind(i,j,bi,bj)    = 0. _d 0
+             atmosP(i,j,bi,bj)  = 0. _d 0
+             fIce(i,j,bi,bj)    = 0. _d 0
+             fluxCO2(i,j,bi,bj) = 0. _d 0
+             InputFe(i,j,bi,bj) = 0. _d 0
+             Silica(i,j,bi,bj)  = 0. _d 0
           ENDDO
          ENDDO
         ENDDO
