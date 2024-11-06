@@ -245,36 +245,42 @@ c--   Add control to model variable.
        do bj = jtlo,jthi
         do bi = itlo,ithi
 c--   Calculate mask for tracer cells (0 => land, 1 => water).
-         do k = 1,Nr
-          do j = 1,sNy
-           i = OB_Ie(j,bi,bj)
-           IF ( i.EQ.OB_indexNone ) i = 1
-           if (iobcs .EQ. 1) then
+         do j = 1,sNy
+          i = OB_Ie(j,bi,bj)
+          IF ( i.EQ.OB_indexNone ) i = 1
+          if (iobcs .EQ. 1) then
+           do k = 1,Nr
             OBEt(j,k,bi,bj) = OBEt(j,k,bi,bj)
      &           + obcsefac            *xx_obcse0(j,k,bi,bj,iobcs)
      &           + (1. _d 0 - obcsefac)*xx_obcse1(j,k,bi,bj,iobcs)
             OBEt(j,k,bi,bj) = OBEt(j,k,bi,bj)
      &           *maskW(i+ip1,j,k,bi,bj)
-           else if (iobcs .EQ. 2) then
+           enddo
+          else if (iobcs .EQ. 2) then
+           do k = 1,Nr
             OBEs(j,k,bi,bj) = OBEs(j,k,bi,bj)
      &           + obcsefac            *xx_obcse0(j,k,bi,bj,iobcs)
      &           + (1. _d 0 - obcsefac)*xx_obcse1(j,k,bi,bj,iobcs)
             OBEs(j,k,bi,bj) = OBEs(j,k,bi,bj)
      &           *maskW(i+ip1,j,k,bi,bj)
-           else if (iobcs .EQ. 3) then
+           enddo
+          else if (iobcs .EQ. 3) then
+           do k = 1,Nr
             OBEu(j,k,bi,bj) = OBEu(j,k,bi,bj)
      &           + obcsefac            *xx_obcse0(j,k,bi,bj,iobcs)
      &           + (1. _d 0 - obcsefac)*xx_obcse1(j,k,bi,bj,iobcs)
             OBEu(j,k,bi,bj) = OBEu(j,k,bi,bj)
      &           *maskW(i+ip1,j,k,bi,bj)
-           else if (iobcs .EQ. 4) then
+           enddo
+          else if (iobcs .EQ. 4) then
+           do k = 1,Nr
             OBEv(j,k,bi,bj) = OBEv(j,k,bi,bj)
      &           + obcsefac            *xx_obcse0(j,k,bi,bj,iobcs)
      &           + (1. _d 0 - obcsefac)*xx_obcse1(j,k,bi,bj,iobcs)
             OBEv(j,k,bi,bj) = OBEv(j,k,bi,bj)
      &           *maskS(i,j,k,bi,bj)
-           endif
-          enddo
+           enddo
+          endif
          enddo
         enddo
        enddo

@@ -246,36 +246,42 @@ c--   Add control to model variable.
        do bj = jtlo, jthi
         do bi = itlo, ithi
 c--   Calculate mask for tracer cells (0 => land, 1 => water).
-         do k = 1,Nr
-          do j = 1,sNy
-           i = OB_Iw(j,bi,bj)
-           IF ( i.EQ.OB_indexNone ) i = 1
-           if (iobcs .EQ. 1) then
+         do j = 1,sNy
+          i = OB_Iw(j,bi,bj)
+          IF ( i.EQ.OB_indexNone ) i = 1
+          if (iobcs .EQ. 1) then
+           do k = 1,Nr
             OBWt(j,k,bi,bj) = OBWt (j,k,bi,bj)
      &           + obcswfac            *xx_obcsw0(j,k,bi,bj,iobcs)
      &           + (1. _d 0 - obcswfac)*xx_obcsw1(j,k,bi,bj,iobcs)
             OBWt(j,k,bi,bj) = OBWt(j,k,bi,bj)
      &           *maskW(i+ip1,j,k,bi,bj)
-           else if (iobcs .EQ. 2) then
+           enddo
+          else if (iobcs .EQ. 2) then
+           do k = 1,Nr
             OBWs(j,k,bi,bj) = OBWs (j,k,bi,bj)
      &           + obcswfac            *xx_obcsw0(j,k,bi,bj,iobcs)
      &           + (1. _d 0 - obcswfac)*xx_obcsw1(j,k,bi,bj,iobcs)
             OBWs(j,k,bi,bj) = OBWs(j,k,bi,bj)
      &           *maskW(i+ip1,j,k,bi,bj)
-           else if (iobcs .EQ. 3) then
+           enddo
+          else if (iobcs .EQ. 3) then
+           do k = 1,Nr
             OBWu(j,k,bi,bj) = OBWu (j,k,bi,bj)
      &           + obcswfac            *xx_obcsw0(j,k,bi,bj,iobcs)
      &           + (1. _d 0 - obcswfac)*xx_obcsw1(j,k,bi,bj,iobcs)
             OBWu(j,k,bi,bj) = OBWu(j,k,bi,bj)
      &           *maskW(i+ip1,j,k,bi,bj)
-           else if (iobcs .EQ. 4) then
+           enddo
+          else if (iobcs .EQ. 4) then
+           do k = 1,Nr
             OBWv(j,k,bi,bj) = OBWv (j,k,bi,bj)
      &           + obcswfac            *xx_obcsw0(j,k,bi,bj,iobcs)
      &           + (1. _d 0 - obcswfac)*xx_obcsw1(j,k,bi,bj,iobcs)
             OBWv(j,k,bi,bj) = OBWv(j,k,bi,bj)
      &           *maskS(i,j,k,bi,bj)
-           endif
-          enddo
+           enddo
+          endif
          enddo
         enddo
        enddo
