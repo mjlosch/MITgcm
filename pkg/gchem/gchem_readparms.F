@@ -51,7 +51,7 @@ C  to test the flag before any corresponding pkg S/R call
      &           gchem_int1, gchem_int2, gchem_int3,
      &           gchem_int4, gchem_int5, nsubtime,
      &           gchem_rl1, gchem_rl2, gchem_rl3,
-     &           gchem_rl4, gchem_rl5,
+     &           gchem_rl4, gchem_rl5, gchem_pCO2,
      &           gchem_ForcingPeriod, gchem_ForcingCycle,
      &           tIter0
 
@@ -99,6 +99,8 @@ C- Set defaults values for parameters in GCHEM.h
        gchem_rl3=0. _d 0
        gchem_rl4=0. _d 0
        gchem_rl5=0. _d 0
+C  default pCO2 value
+       gchem_pCO2=278.0 _d -6
 C  default periodic forcing to same as for physics
        gchem_ForcingPeriod=externForcingPeriod
        gchem_ForcingCycle=externForcingCycle

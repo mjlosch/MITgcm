@@ -13,9 +13,6 @@ C used with pkg/dic or pkg/bling (and maybe pkg/darwin).
 C Requires: EXF_OPTIONS.h
 C Requires: SIZE.h
 
-      _RL GCHEM_pCO2
-      PARAMETER( GCHEM_pCO2=380.5D-6 )
-
 C Surface silica forcing parameters for exf
 
       COMMON/gchem_forcing_silica_c/
