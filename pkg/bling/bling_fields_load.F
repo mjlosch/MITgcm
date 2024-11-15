@@ -49,7 +49,6 @@ C     copy gchem-forcing fields
 C     Atm pressure in Pascals, convert to atm
           AtmosP(i,j,bi,bj)  = gchemAtmosp(i,j,bi,bj)/Pa2atm
           silica(i,j,bi,bj)  = gchemSi(i,j,bi,bj)
-c         PAR(i,j,bi,bj)     = gchemPAR(i,j,bi,bj)
           inputFe(i,j,bi,bj) = gchemFe(i,j,bi,bj)
           apCO2(i,j,bi,bj)   = gchemapCO2(i,j,bi,bj)
          ENDDO

@@ -23,8 +23,16 @@ C     === Global variables ===
 #include "PTRACERS_SIZE.h"
 #include "PTRACERS_PARAMS.h"
 #include "PTRACERS_FIELDS.h"
+#ifdef ALLOW_EXF
+# include "EXF_INTERP_SIZE.h"
+# include "EXF_PARAM.h"
+# include "EXF_FIELDS.h"
+#endif
 #ifdef ALLOW_GCHEM
+# include "GCHEM_SIZE.h"
+# include "GCHEM_EXF.h"
 # include "GCHEM_FIELDS.h"
+# include "GCHEM.h"
 #endif
 
 C     === Routine arguments ===
@@ -50,18 +58,31 @@ C local variables for carbon chem
 CEOP
 
 #ifndef USE_SIBLING
+      IF ( periodicExternalForcing ) THEN
 
-C     copy gchem-forcing fields
+c read in silica field
+         CALL LEF_ZERO( gchemSi0,myThid )
+         CALL LEF_ZERO( gchemSi1,myThid )
 
-      DO bj = myByLo(myThid), myByHi(myThid)
-       DO bi = myBxLo(myThid), myBxHi(myThid)
-        DO j=1-OLy,sNy+OLy
-         DO i=1-OLx,sNx+OLx
-          silica(i,j,bi,bj) = gchemSi(i,j,bi,bj)
-         ENDDO
-        ENDDO
-       ENDDO
-      ENDDO
+C--   Now calculate whether it is time to update the forcing arrays
+       CALL GET_PERIODIC_INTERVAL(
+     O                   intimeP, intime0, intime1, bWght, aWght,
+     I                   externForcingCycle, externForcingPeriod,
+     I                   deltaTClock, startTime, myThid )
+
+       _BARRIER
+       _BEGIN_MASTER(myThid)
+        WRITE(standardMessageUnit,'(A,I10,A,2(2I5,A))')
+     &   ' BLING_SURFFORCING_INIT, it=', nIter0,
+     &   ' : Reading new data, i0,i1=', intime0, intime1
+       _END_MASTER(myThid)
+
+       IF ( GCHEM_silicaFile .NE. ' '  ) THEN
+         CALL READ_REC_XY_RS( GCHEM_silicaFile,gchemSi0,intime0,
+     &        nIter0,myThid )
+         CALL READ_REC_XY_RS( GCHEM_silicaFile,gchemSi1,intime1,
+     &        nIter0,myThid )
+       ENDIF
 
 #ifdef ALLOW_OFFLINE
        IF ( useOffLine ) THEN
@@ -69,6 +90,24 @@ C     copy gchem-forcing fields
        ENDIF
 #endif
 
+       _EXCH_XY_RS(gchemSi0, myThid )
+       _EXCH_XY_RS(gchemSi1, myThid )
+
+       IF ( GCHEM_silicaFile .NE. ' '  ) THEN
+        DO bj = myByLo(myThid), myByHi(myThid)
+         DO bi = myBxLo(myThid), myBxHi(myThid)
+          DO j=1-OLy,sNy+OLy
+           DO i=1-OLx,sNx+OLx
+             silica(i,j,bi,bj)= bWght*gchemSi0(i,j,bi,bj)
+     &                        + aWght*gchemSi1(i,j,bi,bj)
+           ENDDO
+          ENDDO
+         ENDDO
+        ENDDO
+       ENDIF
+
+c end periodicExternalForcing
+      ENDIF
 c end SiBLING
 #endif
 
