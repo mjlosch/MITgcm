@@ -104,6 +104,13 @@ C  this flag and associated code as well.
 C  o apply pkg/smooth/smooth_diff2d.F to 2D controls (outside of Smooth_Correl2D)
 #undef ALLOW_SMOOTH_CTRL2D
 
+C  o The loop order in routines ctrl_getobcs[e/w/n/s].F have led to
+C    optimization issues on some platforms. With this flag, the order is
+C    switched so that k-loops are the innermost loops. This may not be
+C    optimal on vector-architectures, but reduces the number of
+C    if-evaluations.
+#define CTRL_GETOBCS_K_INNER_LOOP
+
 C  o Print more debug info to STDOUT
 #undef ALLOW_CTRL_DEBUG
 

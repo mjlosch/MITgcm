@@ -36,7 +36,8 @@ C   This option is only relevant (for pack/unpack) with OBCS_CONTROL:
 #undef CTRL_PACK_PRECISE
 #undef CTRL_UNPACK_PRECISE
 #undef CTRL_DELZNORM
-#undef ALLOW_CTRL_WETV
+C   To read-in old (prior to PR #796) packed-ctrl file (specially the header)
+#undef READ_OLD_CTRL_PACK_FILE
 
 C       >>> Other Control.
 C   Allows for GMREDI controls
@@ -62,8 +63,6 @@ C       >>> Generic Control.
 #undef ALLOW_GENTIM2D_CONTROL
 # undef ALLOW_UVEL0_CONTROL
 # undef ALLOW_VVEL0_CONTROL
-# undef CTRL_SET_OLD_MAXCVARS_30
-# undef CTRL_SET_OLD_MAXCVARS_40
 
 C       >>> Open boundaries
 #ifdef ALLOW_OBCS
@@ -104,6 +103,13 @@ C  to deprecated code that is now removed. At some point we will remove
 C  this flag and associated code as well.
 C  o apply pkg/smooth/smooth_diff2d.F to 2D controls (outside of Smooth_Correl2D)
 #undef ALLOW_SMOOTH_CTRL2D
+
+C  o The loop order in routines ctrl_getobcs[e/w/n/s].F have led to
+C    optimization issues on some platforms. With this flag, the order is
+C    switched so that k-loops are the innermost loops. This may not be
+C    optimal on vector-architectures, but reduces the number of
+C    if-evaluations.
+#define CTRL_GETOBCS_K_INNER_LOOP
 
 C  o Print more debug info to STDOUT
 #undef ALLOW_CTRL_DEBUG

@@ -128,9 +128,9 @@ cih    Determine number of open vertical layers.
             nz = 0
             do k = 1,Nr
              if (iobcs .eq. 3) then
-              nz = nz + maskS(i,j+jp1,k,bi,bj)
+              nz = nz + INT(maskS(i,j+jp1,k,bi,bj))
              else
-              nz = nz + maskW(i,j,k,bi,bj)
+              nz = nz + INT(maskW(i,j,k,bi,bj))
              endif
             end do
 cih    Compute absolute velocities from the barotropic-baroclinic modes.
@@ -202,9 +202,9 @@ cih    Determine number of open vertical layers.
             nz = 0
             do k = 1,Nr
              if (iobcs .eq. 3) then
-              nz = nz + maskS(i,j+jp1,k,bi,bj)
+              nz = nz + INT(maskS(i,j+jp1,k,bi,bj))
              else
-              nz = nz + maskW(i,j,k,bi,bj)
+              nz = nz + INT(maskW(i,j,k,bi,bj))
              endif
             end do
 cih    Compute absolute velocities from the barotropic-baroclinic modes.
@@ -246,43 +246,69 @@ c--   Add control to model variable.
        do bj = jtlo,jthi
         do bi = itlo,ithi
 c--   Calculate mask for tracer cells (0 => land, 1 => water).
+#ifdef CTRL_GETOBCS_K_INNER_LOOP
          do i = 1,sNx
           j = OB_Js(i,bi,bj)
           IF ( j.EQ.OB_indexNone ) j = 1
           if (iobcs .EQ. 1) then
            do k = 1,Nr
+#else
+         do k = 1,Nr
+          do i = 1,sNx
+           j = OB_Js(i,bi,bj)
+           IF ( j.EQ.OB_indexNone ) j = 1
+           if (iobcs .EQ. 1) then
+#endif
             OBSt(i,k,bi,bj) = OBSt (i,k,bi,bj)
      &           + obcssfac            *xx_obcss0(i,k,bi,bj,iobcs)
      &           + (1. _d 0 - obcssfac)*xx_obcss1(i,k,bi,bj,iobcs)
             OBSt(i,k,bi,bj) = OBSt(i,k,bi,bj)
      &           *maskS(i,j+jp1,k,bi,bj)
+#ifdef CTRL_GETOBCS_K_INNER_LOOP
            enddo
           else if (iobcs .EQ. 2) then
            do k = 1,Nr
+#else
+           else if (iobcs .EQ. 2) then
+#endif
             OBSs(i,k,bi,bj) = OBSs (i,k,bi,bj)
      &           + obcssfac            *xx_obcss0(i,k,bi,bj,iobcs)
      &           + (1. _d 0 - obcssfac)*xx_obcss1(i,k,bi,bj,iobcs)
             OBSs(i,k,bi,bj) = OBSs(i,k,bi,bj)
      &           *maskS(i,j+jp1,k,bi,bj)
+#ifdef CTRL_GETOBCS_K_INNER_LOOP
            enddo
           else if (iobcs .EQ. 4) then
            do k = 1,Nr
+#else
+           else if (iobcs .EQ. 4) then
+#endif
             OBSu(i,k,bi,bj) = OBSu (i,k,bi,bj)
      &           + obcssfac            *xx_obcss0(i,k,bi,bj,iobcs)
      &           + (1. _d 0 - obcssfac)*xx_obcss1(i,k,bi,bj,iobcs)
             OBSu(i,k,bi,bj) = OBSu(i,k,bi,bj)
      &           *maskW(i,j,k,bi,bj)
+#ifdef CTRL_GETOBCS_K_INNER_LOOP
            enddo
           else if (iobcs .EQ. 3) then
            do k = 1,Nr
+#else
+           else if (iobcs .EQ. 3) then
+#endif
             OBSv(i,k,bi,bj) = OBSv (i,k,bi,bj)
      &           + obcssfac            *xx_obcss0(i,k,bi,bj,iobcs)
      &           + (1. _d 0 - obcssfac)*xx_obcss1(i,k,bi,bj,iobcs)
             OBSv(i,k,bi,bj) = OBSv(i,k,bi,bj)
      &           *maskS(i,j+jp1,k,bi,bj)
+#ifdef CTRL_GETOBCS_K_INNER_LOOP
            enddo
           endif
          enddo
+#else
+           endif
+          enddo
+         enddo
+#endif
         enddo
        enddo
 
