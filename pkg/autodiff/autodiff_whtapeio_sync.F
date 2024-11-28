@@ -41,9 +41,9 @@ C     myLev     :: tape level identifier
 C     myStep    :: identifies from where this routine is called
 C                  (1,0 = before after ad-routines)
 C     myThid    :: my Thread Id number
-      INTEGER myThid
       INTEGER myLev
       INTEGER myStep
+      INTEGER myThid
 
 #ifdef ALLOW_AUTODIFF_WHTAPEIO
 

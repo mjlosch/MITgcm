@@ -38,6 +38,9 @@ c#include "GRID.h"
 #ifdef ALLOW_AUTODIFF_MONITOR
 # include "adcommon.h"
 # include "AUTODIFF.h"
+# ifdef ALLOW_DIAGNOSTICS
+#  include "DIAGNOSTICS_P2SHARE.h"
+# endif
 #endif
 
 C     !INPUT/OUTPUT PARAMETERS:
@@ -50,7 +53,7 @@ C     myThid :: Thread number for this instance of the routine.
       INTEGER myThid
 
 #if (defined (ALLOW_ADJOINT_RUN) || defined (ALLOW_ADMTLM))
-#ifdef ALLOW_AUTODIFF_MONITOR
+# ifdef ALLOW_AUTODIFF_MONITOR
 
 C     !FUNCTIONS:
       LOGICAL  DIFFERENT_MULTIPLE
@@ -62,67 +65,64 @@ C     suff   :: Hold suffix part of a filename
 C     msgBuf :: Error message buffer
       CHARACTER*(10) suff
 c     CHARACTER*(MAX_LEN_MBUF) msgBuf
-#ifdef ALLOW_AUTODIFF_MONITOR_DIAG
-      _RL var3Du(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       _RS dumRS(1)
-#endif
+      LOGICAL doExch
+      LOGICAL doDump
 CEOP
 
-      IF (
-     &  DIFFERENT_MULTIPLE(adjDumpFreq,myTime,deltaTClock)
-     & ) THEN
+C--- Do dump?
+      doDump = DIFFERENT_MULTIPLE( adjDumpFreq, myTime, deltaTClock )
 
-        CALL TIMER_START('I/O (WRITE)        [ADJOINT LOOP]', myThid )
+C--- Test for adexch based on dumpAdVarExch flag
+      doExch = doDump
+#  ifdef ALLOW_DIAGNOSTICS
+      doExch = doDump .OR. useDiag4AdjOutp
+#  endif
+      doExch = doExch .AND. ( dumpAdVarExch.EQ.1 )
 
-c increment ad dump record number (used only if dumpAdByRec is true)
-        dumpAdRecDy=dumpAdRecDy+1
-c#ifdef ALLOW_DEBUG
-c      IF ( debugMode ) print*,'dumpAdRecDy',dumpAdRecDy
-c#endif
+C--- If necessary, do the exchanges
+      IF ( doExch ) THEN
+#  ifdef ALLOW_OPENAD
+C--   need to all the correct OpenAD EXCH S/R ; left empty for now
+#  else /* ALLOW_OPENAD */
 
-        IF ( dumpAdVarExch.EQ.1 ) THEN
-#ifdef AUTODIFF_TAMC_COMPATIBILITY
+#   ifdef AUTODIFF_TAMC_COMPATIBILITY
 C
-#else /* ndfef AUTODIFF_TAMC_COMPATIBILITY */
-#   ifdef ALLOW_AUTODIFF_MONITOR_DIAG
-         CALL ADEXCH_3D_RL( adrhoinsitu, Nr, myThid )
-         CALL ADEXCH_3D_RL( adtotphihyd, Nr, myThid )
-#   endif
-#endif /* AUTODIFF_TAMC_COMPATIBILITY */
-        ENDIF
-
-C--     Set suffix for this set of data files.
-        IF ( rwSuffixType.EQ.0 ) THEN
-          WRITE(suff,'(I10.10)') myIter
-        ELSE
-          CALL RW_GET_SUFFIX( suff, myTime, myIter, myThid )
-        ENDIF
-
-#ifdef ALLOW_AUTODIFF_MONITOR_DIAG
-        IF ( dumpAdVarExch.NE.2 ) THEN
-          IF (.NOT.dumpAdByRec) CALL WRITE_FLD_XYZ_RL( 'ADJrhoinsitu.',
-     &                          suff, adrhoinsitu, myIter, myThid )
-          IF (  dumpAdByRec   ) CALL WRITE_REC_XYZ_RL( 'ADJrhoinsitu',
-     &                      adrhoinsitu, dumpAdRecDy, myIter, myThid )
-cph( is set to zero in addiags_phi_hyd
-c          CALL WRITE_FLD_XYZ_RL( 'ADJtotphihyd.', suff,
-c                                 adtotphihyd, myIter, myThid )
-cph)
-        ELSE
-C       case dumpAdVarExch = 2
-          CALL COPY_ADVAR_OUTP( dumRS,adrhoinsitu,var3Du,Nr,12,myThid )
-          IF (.NOT.dumpAdByRec) CALL WRITE_FLD_XYZ_RL( 'ADJrhoinsitu.',
-     &                          suff, var3Du, myIter, myThid )
-          IF (  dumpAdByRec   ) CALL WRITE_REC_XYZ_RL( 'ADJrhoinsitu',
-     &                          var3Du, dumpAdRecDy, myIter, myThid )
-        ENDIF
-#endif
-
-        CALL TIMER_STOP( 'I/O (WRITE)        [ADJOINT LOOP]', myThid )
-
+#   else /* ndfef AUTODIFF_TAMC_COMPATIBILITY */
+#    ifdef ALLOW_AUTODIFF_MONITOR_DIAG
+       CALL ADEXCH_3D_RL( adRhoInSitu, Nr, myThid )
+       CALL ADEXCH_3D_RL( adTotPhiHyd, Nr, myThid )
+#    endif
+#   endif /* AUTODIFF_TAMC_COMPATIBILITY */
+#  endif
       ENDIF
 
-#endif /* ALLOW_AUTODIFF_MONITOR */
+
+      IF ( doDump ) THEN
+C     Increment ad dump record number (used only if dumpAdByRec is true)
+        dumpAdRecMn = dumpAdRecMn + 1
+        CALL TIMER_START('I/O (WRITE)        [ADJOINT LOOP]', myThid )
+      ENDIF
+#  ifndef ALLOW_OPENAD
+C========================
+C--  TAF AD-variables:
+C========================
+      CALL DUMP_ADJ_XYZ(dumRS, adRhoInSitu, 'ADJrho  ', 'ADJrhoInSitu.',
+     &                  12, doDump, dumpAdRecMn, myTime, myIter,myThid)
+      CALL DUMP_ADJ_XYZ(dumRS, adTotPhiHyd, 'ADJtPhiH', 'ADtotPhiHyd.',
+     &                  12, doDump, dumpAdRecMn, myTime, myIter,myThid)
+#  else
+      CALL DUMP_ADJ_XYZ(dumRS, rhoInSitu%d, 'ADJrho  ', 'ADJrhoInSitu.',
+     &                  12, doDump, dumpAdRecMn, myTime, myIter,myThid)
+      CALL DUMP_ADJ_XYZ(dumRS, totPhiHyd%d, 'ADJtPhiH', 'ADtotPhiHyd.',
+     &                  12, doDump, dumpAdRecMn, myTime, myIter,myThid)
+#  endif
+
+      IF ( doDump ) THEN
+       CALL TIMER_STOP( 'I/O (WRITE)        [ADJOINT LOOP]', myThid )
+      ENDIF
+
+# endif /* ALLOW_AUTODIFF_MONITOR */
 #endif /* ALLOW_ADJOINT_RUN */
 
       RETURN

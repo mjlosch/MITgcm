@@ -102,8 +102,6 @@ CADJ STORE OBWptr = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBNh  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBNa  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBNsn = comlev1, key = ikey_dynamics, kind = isbyte
-CADJ STORE OBNuice = comlev1, key = ikey_dynamics, kind = isbyte
-CADJ STORE OBNvice = comlev1, key = ikey_dynamics, kind = isbyte
 #  ifdef SEAICE_VARIABLE_SALINITY
 CADJ STORE OBNsl = comlev1, key = ikey_dynamics, kind = isbyte
 #  endif
@@ -112,8 +110,6 @@ CADJ STORE OBNsl = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBSh  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBSa  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBSsn = comlev1, key = ikey_dynamics, kind = isbyte
-cCADJ STORE OBSuice = comlev1, key = ikey_dynamics, kind = isbyte
-cCADJ STORE OBSvice = comlev1, key = ikey_dynamics, kind = isbyte
 #   ifdef SEAICE_VARIABLE_SALINITY
 CADJ STORE OBSsl = comlev1, key = ikey_dynamics, kind = isbyte
 #   endif
@@ -122,8 +118,6 @@ CADJ STORE OBSsl = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBEh  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBEa  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBEsn = comlev1, key = ikey_dynamics, kind = isbyte
-cCADJ STORE OBEuice = comlev1, key = ikey_dynamics, kind = isbyte
-cCADJ STORE OBEvice = comlev1, key = ikey_dynamics, kind = isbyte
 #   ifdef SEAICE_VARIABLE_SALINITY
 CADJ STORE OBEsl = comlev1, key = ikey_dynamics, kind = isbyte
 #   endif
@@ -132,8 +126,6 @@ CADJ STORE OBEsl = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBWh  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBWa  = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE OBWsn = comlev1, key = ikey_dynamics, kind = isbyte
-cCADJ STORE OBWuice = comlev1, key = ikey_dynamics, kind = isbyte
-cCADJ STORE OBWvice = comlev1, key = ikey_dynamics, kind = isbyte
 #   ifdef SEAICE_VARIABLE_SALINITY
 CADJ STORE OBWsl = comlev1, key = ikey_dynamics, kind = isbyte
 #   endif
@@ -204,6 +196,11 @@ CADJ STORE kTopC          = comlev1, key = ikey_dynamics
 # endif
 CADJ STORE shelficeForcingT=comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE shelficeForcingS=comlev1, key = ikey_dynamics, kind = isbyte
+# ifdef ALLOW_STEEP_ICECAVITY
+C     need to add this to avoid recomputing s/r do_oceanic_phys in
+C     s/r forward_step, this implies that ALLOW_ADDFLUID is defined
+CADJ STORE addMass         =comlev1, key = ikey_dynamics, kind = isbyte
+# endif
 #endif /* ALLOW_SHELFICE */
 
 #if (defined NONLIN_FRSURF) || (defined ALLOW_DEPTH_CONTROL)
@@ -238,5 +235,14 @@ CADJ STORE MYviscAz       = comlev1, key = ikey_dynamics, kind = isbyte
 # ifdef ALLOW_GGL90
 CADJ STORE GGL90viscArU   = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE GGL90viscArV   = comlev1, key = ikey_dynamics, kind = isbyte
+# endif
+#endif
+
+#ifdef ALLOW_ECCO
+# ifdef ALLOW_SEAICE
+C     This is needed in the freeboard computation of the ecco generic
+C     costfunction.
+CADJ STORE AREA, HEFF     = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE HSNOW          = comlev1, key = ikey_dynamics, kind = isbyte
 # endif
 #endif

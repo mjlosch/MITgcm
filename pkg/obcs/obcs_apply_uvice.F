@@ -51,20 +51,79 @@ C    i, j     :: Loop counters
       _RL uvIceApplyFac
 CEOP
 
-C--   Set model variables to OB values on North/South Boundaries:
-C     2 steps: 1) set tangential component ; 2) set normal component.
-C     This ensures that the normal component is set correctly even
-C     when it conficts with tangential setting from an other OB.
-
       uvIceApplyFac = OBCS_uvApplyFac
 c     IF ( OBCS_monitorFreq.EQ.1. ) uvIceApplyFac =  -1.
-c     IF ( OBCS_monitorFreq.EQ.deltaTmom*0.5 ) uvIceApplyFac = 0.
-c     IF ( OBCS_monitorFreq.EQ.deltaTmom ) uvIceApplyFac = 1.
+c     IF ( OBCS_monitorFreq.EQ.deltaTMom*0.5 ) uvIceApplyFac = 0.
+c     IF ( OBCS_monitorFreq.EQ.deltaTMom ) uvIceApplyFac = 1.
 c     WRITE(standardMessageUnit,*)
 c          'OBCS_APPLY_UVICE: uvIceApplyFac=', uvIceApplyFac
 
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
+
+        IF ( useSeaiceNeumann ) THEN
+C--   Neumann BC for seaice: before applying OB-value to ice-velocity, copy
+C     interior ice-velocity field (next to OB) to OB-array: OB[N,S,E,W][u,v]ice
+
+# ifdef ALLOW_OBCS_NORTH
+         IF ( tileHasOBN(bi,bj) ) THEN
+C     Northern boundary
+          DO i=1-OLx,sNx+OLx
+           Jobc = OB_Jn(i,bi,bj)
+           IF ( Jobc.NE.OB_indexNone ) THEN
+            OBNuice(i,bi,bj) = uFld(i,Jobc-1,bi,bj)
+            OBNvice(i,bi,bj) = vFld(i,Jobc-1,bi,bj)
+           ENDIF
+          ENDDO
+         ENDIF
+# endif /* ALLOW_OBCS_NORTH */
+
+# ifdef ALLOW_OBCS_SOUTH
+         IF ( tileHasOBS(bi,bj) ) THEN
+C     Southern boundary
+          DO i=1-OLx,sNx+OLx
+           Jobc = OB_Js(i,bi,bj)
+           IF ( Jobc.NE.OB_indexNone ) THEN
+            OBSuice(i,bi,bj) = uFld(i,Jobc+1,bi,bj)
+            OBSvice(i,bi,bj) = vFld(i,Jobc+2,bi,bj)
+           ENDIF
+          ENDDO
+         ENDIF
+# endif /* ALLOW_OBCS_SOUTH */
+
+# ifdef ALLOW_OBCS_EAST
+         IF ( tileHasOBE(bi,bj) ) THEN
+C     Eastern boundary
+          DO j=1-OLy,sNy+OLy
+           Iobc = OB_Ie(j,bi,bj)
+           IF ( Iobc.NE.OB_indexNone ) THEN
+            OBEuice(j,bi,bj) = uFld(Iobc-1,j,bi,bj)
+            OBEvice(j,bi,bj) = vFld(Iobc-1,j,bi,bj)
+           ENDIF
+          ENDDO
+         ENDIF
+# endif /* ALLOW_OBCS_EAST */
+
+# ifdef ALLOW_OBCS_WEST
+         IF ( tileHasOBW(bi,bj) ) THEN
+C     Western boundary
+          DO j=1-OLy,sNy+OLy
+           Iobc = OB_Iw(j,bi,bj)
+           IF ( Iobc.NE.OB_indexNone ) THEN
+            OBWuice(j,bi,bj) = uFld(Iobc+2,j,bi,bj)
+            OBWvice(j,bi,bj) = vFld(Iobc+1,j,bi,bj)
+           ENDIF
+          ENDDO
+         ENDIF
+# endif /* ALLOW_OBCS_WEST */
+
+C-      end if useSeaiceNeumann block
+        ENDIF
+
+C--   Set model variables to OB values on N/S/E/W Boundaries:
+C     2 steps: 1) set tangential component ; 2) set normal component.
+C     This ensures that the normal component is set correctly even
+C     when it conficts with tangential setting from an other OB.
 
 C--   Set Tangential component first:
 
@@ -75,12 +134,7 @@ C     Northern boundary
          DO i=1-OLx,sNx+OLx
           Jobc = OB_Jn(i,bi,bj)
           IF ( Jobc.NE.OB_indexNone ) THEN
-#  ifdef SEAICE_OBCS_NEUMANN
-C     Neumann boundary conditions
-           uFld(i,Jobc,bi,bj) = uFld(i,Jobc-1,bi,bj)
-#  else
            uFld(i,Jobc,bi,bj) = OBNuice(i,bi,bj)
-#  endif
      &                        *seaiceMaskU(i,Jobc,bi,bj)
           ENDIF
          ENDDO
@@ -93,12 +147,7 @@ C     Southern boundary
          DO i=1-OLx,sNx+OLx
           Jobc = OB_Js(i,bi,bj)
           IF ( Jobc.NE.OB_indexNone ) THEN
-#  ifdef SEAICE_OBCS_NEUMANN
-C     Neumann boundary conditions
-           uFld(i,Jobc,bi,bj) = uFld(i,Jobc+1,bi,bj)
-#  else
            uFld(i,Jobc,bi,bj) = OBSuice(i,bi,bj)
-#  endif
      &                        *seaiceMaskU(i,Jobc,bi,bj)
           ENDIF
          ENDDO
@@ -112,12 +161,7 @@ C     Eastern boundary
          DO j=1-OLy,sNy+OLy
           Iobc = OB_Ie(j,bi,bj)
           IF ( Iobc.NE.OB_indexNone ) THEN
-#  ifdef SEAICE_OBCS_NEUMANN
-C     Neumann boundary conditions
-           vFld(Iobc,j,bi,bj) = vFld(Iobc-1,j,bi,bj)
-#  else
            vFld(Iobc,j,bi,bj) = OBEvice(j,bi,bj)
-#  endif
      &                        *seaiceMaskV(Iobc,j,bi,bj)
           ENDIF
          ENDDO
@@ -130,12 +174,7 @@ C     Western boundary
          DO j=1-OLy,sNy+OLy
           Iobc = OB_Iw(j,bi,bj)
           IF ( Iobc.NE.OB_indexNone ) THEN
-#  ifdef SEAICE_OBCS_NEUMANN
-C     Neumann boundary conditions
-           vFld(Iobc,j,bi,bj) = vFld(Iobc+1,j,bi,bj)
-#  else
            vFld(Iobc,j,bi,bj) = OBWvice(j,bi,bj)
-#  endif
      &                        *seaiceMaskV(Iobc,j,bi,bj)
           ENDIF
          ENDDO
@@ -151,15 +190,12 @@ C     Northern boundary
          DO i=1-OLx,sNx+OLx
           Jobc = OB_Jn(i,bi,bj)
           IF ( Jobc.NE.OB_indexNone ) THEN
-#  ifdef SEAICE_OBCS_NEUMANN
-C     Neumann boundary conditions
-           vFld(i,Jobc,bi,bj)   = vFld(i,Jobc-1,bi,bj)
-#  else
            vFld(i,Jobc,bi,bj)   = OBNvice(i,bi,bj)
-#  endif
      &                          *seaiceMaskV(i,Jobc,bi,bj)
            IF ( uvIceApplyFac.GE.0. )
-     &     vFld(i,Jobc+1,bi,bj) = vFld(i,Jobc,bi,bj)*uvIceApplyFac
+     &     vFld(i,Jobc+1,bi,bj) = OBNvice(i,bi,bj)
+     &                          *seaiceMaskV(i,Jobc,bi,bj)
+     &                          *uvIceApplyFac
           ENDIF
          ENDDO
         ENDIF
@@ -171,15 +207,12 @@ C     Southern boundary
          DO i=1-OLx,sNx+OLx
           Jobc = OB_Js(i,bi,bj)
           IF ( Jobc.NE.OB_indexNone ) THEN
-#  ifdef SEAICE_OBCS_NEUMANN
-C     Neumann boundary conditions
-           vFld(i,Jobc+1,bi,bj) = vFld(i,Jobc+2,bi,bj)
-#  else
            vFld(i,Jobc+1,bi,bj) = OBSvice(i,bi,bj)
-#  endif
      &                          *seaiceMaskV(i,Jobc+1,bi,bj)
            IF ( uvIceApplyFac.GE.0. )
-     &     vFld(i,Jobc,bi,bj)   = vFld(i,Jobc+1,bi,bj)*uvIceApplyFac
+     &     vFld(i,Jobc,bi,bj)   = OBSvice(i,bi,bj)
+     &                          *seaiceMaskV(i,Jobc+1,bi,bj)
+     &                          *uvIceApplyFac
           ENDIF
          ENDDO
         ENDIF
@@ -192,15 +225,12 @@ C     Eastern boundary
          DO j=1-OLy,sNy+OLy
           Iobc = OB_Ie(j,bi,bj)
           IF ( Iobc.NE.OB_indexNone ) THEN
-#  ifdef SEAICE_OBCS_NEUMANN
-C     Neumann boundary conditions
-           uFld(Iobc,j,bi,bj)   = uFld(Iobc-1,j,bi,bj)
-#  else
            uFld(Iobc,j,bi,bj)   = OBEuice(j,bi,bj)
-#  endif
      &                          *seaiceMaskU(Iobc,j,bi,bj)
            IF ( uvIceApplyFac.GE.0. )
-     &     uFld(Iobc+1,j,bi,bj) = uFld(Iobc,j,bi,bj)*uvIceApplyFac
+     &     uFld(Iobc+1,j,bi,bj) = OBEuice(j,bi,bj)
+     &                          *seaiceMaskU(Iobc,j,bi,bj)
+     &                          *uvIceApplyFac
           ENDIF
          ENDDO
         ENDIF
@@ -212,15 +242,12 @@ C     Western boundary
          DO j=1-OLy,sNy+OLy
           Iobc = OB_Iw(j,bi,bj)
           IF ( Iobc.NE.OB_indexNone ) THEN
-#  ifdef SEAICE_OBCS_NEUMANN
-C     Neumann boundary conditions
-           uFld(Iobc+1,j,bi,bj) = uFld(Iobc+2,j,bi,bj)
-#  else
            uFld(Iobc+1,j,bi,bj) = OBWuice(j,bi,bj)
-#  endif
      &                          *seaiceMaskU(Iobc+1,j,bi,bj)
            IF ( uvIceApplyFac.GE.0. )
-     &     uFld(Iobc,j,bi,bj)   = uFld(Iobc+1,j,bi,bj)*uvIceApplyFac
+     &     uFld(Iobc,j,bi,bj)   = OBWuice(j,bi,bj)
+     &                          *seaiceMaskU(Iobc+1,j,bi,bj)
+     &                          *uvIceApplyFac
           ENDIF
          ENDDO
         ENDIF
