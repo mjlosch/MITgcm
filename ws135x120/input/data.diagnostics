@@ -38,8 +38,9 @@
 #
  frequency(4)  = 2635200.0,
 #frequency(4)  = 86400.,
- fields(1:6,4) = 'ADJuvel ','ADJvvel ','ADJwvel ',
+ fields(1:7,4) = 'ADJuvel ','ADJvvel ','ADJwvel ',
                  'ADJtheta','ADJsalt ','ADJdifkr',
+		 'ADJrho  ',
    filename(4) = 'diags3DADJ',
  &
 #
