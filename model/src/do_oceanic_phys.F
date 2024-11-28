@@ -781,7 +781,6 @@ C-    horizontally uniform (tRef) reference state
           ENDDO
         ENDIF
 # ifdef ALLOW_AUTODIFF_TAMC
-C     Avoid recomputing rhoInSitu in AD routine.
 CADJ STORE rhoInSitu(:,:,:,bi,bj) = comlev1_bibj, key=tkey, kind=isbyte
 # endif
 #endif /* ALLOW_AUTODIFF */
