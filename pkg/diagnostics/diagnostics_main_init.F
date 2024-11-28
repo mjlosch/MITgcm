@@ -974,6 +974,20 @@ C     Adjoint state variables
       CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
+      diagName  = 'ADJrho  '
+      diagTitle = 'dJ/dRho: Sensitivity to in-situ density'
+      diagUnits = 'dJ/(kg/m^3)     '
+      diagCode  = 'SMRA    MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+      diagName  = 'ADJtPhiH'
+      diagTitle = 'dJ/dtotPhiHyd: Sensitivity to tot. hydrostatic pot.'
+      diagUnits = 'dJ/(m^2/s^2)    '
+      diagCode  = 'SMRA    MR      '
+      CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
 C--   surface fluxes:
       diagName  = 'ADJtaux '
       diagTitle = 'dJ/dTaux: Senstivity to zonal surface wind stress'
