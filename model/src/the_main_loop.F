@@ -18,6 +18,9 @@
 #ifdef ALLOW_SEAICE
 # include "SEAICE_OPTIONS.h"
 #endif
+#ifdef ALLOW_SALT_PLUME
+# include "SALT_PLUME_OPTIONS.h"
+#endif
 #ifdef ALLOW_GCHEM
 # include "GCHEM_OPTIONS.h"
 #endif
@@ -33,6 +36,9 @@
 #ifdef ALLOW_STREAMICE
 # include "STREAMICE_OPTIONS.h"
 #endif
+#ifdef ALLOW_SHELFICE
+# include "SHELFICE_OPTIONS.h"
+#endif
 #ifdef ALLOW_COST
 # include "COST_OPTIONS.h"
 #endif
@@ -44,6 +50,9 @@
 #endif
 #ifdef ALLOW_PROFILES
 # include "PROFILES_OPTIONS.h"
+#endif
+#ifdef ALLOW_RBCS
+# include "RBCS_OPTIONS.h"
 #endif
 
 CBOP
@@ -84,7 +93,6 @@ c These includes are needed for
 c AD-checkpointing.
 c They provide the fields to be stored.
 
-#  include "AUTODIFF_MYFIELDS.h"
 #  include "GRID.h"
 #  include "DYNVARS.h"
 #  include "SURFACE.h"
@@ -204,8 +212,8 @@ C     it is important that this file is included after SEAICE_SIZE.h
 
 # ifdef ALLOW_CTRL
 # include "CTRL_SIZE.h"
-# include "ctrl.h"
-# include "ctrl_dummy.h"
+# include "CTRL.h"
+# include "CTRL_DUMMY.h"
 # include "CTRL_GENARR.h"
 # include "CTRL_OBCS.h"
 # endif
@@ -223,9 +231,6 @@ C     it is important that this file is included after SEAICE_SIZE.h
 # ifdef ALLOW_KPP
 #  include "KPP.h"
 c#  include "KPP_PARAMS.h"
-# endif
-# ifdef ALLOW_CTRL
-#  include "optim.h"
 # endif
 # ifdef ALLOW_TIMEAVE
 #  include "TIMEAVE_STATV.h"
@@ -342,8 +347,14 @@ CADJ STORE xx_gentim2d_dummy = dummytape, key = 1 , kind = isbyte
 CADJ STORE shelficeLoadAnomaly = tapelev_init, key=1, kind=isbyte
 # endif
 # ifdef ALLOW_STREAMICE
-CADJ STORE H_streamice = tapelev_init, key=1
-CADJ STORE B_glen      = tapelev_init, key=1
+CADJ STORE H_streamice              = tapelev_init, key=1
+CADJ STORE B_glen                   = tapelev_init, key=1
+CADJ STORE bdot_streamice           = tapelev_init, key=1
+CADJ STORE c_basal_friction         = tapelev_init, key=1
+CADJ STORE streamice_bdot_maxmelt_v = tapelev_init, key=1
+#  ifdef USE_ALT_RLOW
+CADJ STORE r_low_si                 = tapelev_init, key=1
+#  endif
 # endif
 # ifdef ALLOW_DIC
 CADJ STORE co2atmos = tapelev_init, key = 1
@@ -352,12 +363,6 @@ CADJ STORE alpha    = tapelev_init, key = 1
 #endif
 
 #ifdef ALLOW_OPENAD
-# ifdef ALLOW_DIFFKR_CONTROL
-c$openad INDEPENDENT(xx_diffkr_dummy)
-# endif
-# ifdef ALLOW_KAPGM_CONTROL
-c$openad INDEPENDENT(xx_kapgm)
-# endif
 # ifdef ALLOW_GENARR2D_CONTROL
 cphc$openad INDEPENDENT(xx_genarr2d)
 c$openad INDEPENDENT(xx_genarr2d_dummy)
@@ -399,7 +404,7 @@ c     Initialize PDAF
       CALL TIMER_STOP ('INIT_PDAF           [THE_MAIN_LOOP]', myThid)
 #endif
 
-# if ( defined ALLOW_AUTODIFF_WHTAPEIO && defined ALLOW_DIVIDED_ADJOINT )
+#if ( defined ALLOW_AUTODIFF_WHTAPEIO && defined ALLOW_DIVIDED_ADJOINT )
 C     end of initialisation and use of tapelev_init: write buffer to disk
       CALL AUTODIFF_WHTAPEIO_SYNC( 1 , 1, myThid )
 #endif
@@ -565,6 +570,11 @@ CADJ &    nchklev_1*nSx*nSy*(MaxTsf+1)*niter_bulk*sNx*sNy
 #    endif
 #   endif /* ALLOW_THSICE */
 c--
+#   ifdef ALLOW_STEEP_ICECAVITY
+CADJ INIT comlev1_stic_bibj_ijk = COMMON,
+CADJ &    nchklev_1*nSx*nSy*Nr*(2*OLy+sNy)*(2*OLx+sNx)
+#   endif
+c--
 #   ifdef ALLOW_STREAMICE
 CADJ INIT comlev1_stream_nl    = COMMON,nchklev_1*streamice_max_nl
 CADJ INIT comlev1_stream_front = COMMON,nchklev_1*4
@@ -579,6 +589,9 @@ CADJ INIT comlev1_cg2d_iter = COMMON,nchklev_1*numItersMax
 #   endif
 #  endif /* ALLOW_AUTODIFF_TAMC */
 c--
+#  ifdef ALLOW_GENCOST_CONTRIBUTION
+CADJ INIT comlev1_ngencost = COMMON,nchklev_1*NGENCOST
+#  endif
 c**************************************
 
 #  ifdef STORE_LOADEDREC_TEST

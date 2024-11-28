@@ -1,6 +1,6 @@
 #include "COST_OPTIONS.h"
 
-      subroutine cost_readparms( mythid )
+      SUBROUTINE COST_READPARMS( myThid )
 
 c     ==================================================================
 c     SUBROUTINE cost_readparms
@@ -14,28 +14,26 @@ c     ==================================================================
 c     SUBROUTINE cost_readparms
 c     ==================================================================
 
-      implicit none
+      IMPLICIT NONE
 
 c     == global variables ==
-
 #include "EEPARAMS.h"
 #include "SIZE.h"
 #include "GRID.h"
 #include "PARAMS.h"
-
 #include "cost.h"
 
 c     == routine arguments ==
-      integer mythid
+      INTEGER myThid
 
 c     == local variables ==
-      character*(max_len_mbuf) msgbuf
-      integer iUnit
+      CHARACTER*(max_len_mbuf) msgbuf
+      INTEGER iUnit
 
 c     == end of interface ==
 
 c--   Read the namelist input.
-      namelist /cost_nml/
+      NAMELIST /cost_nml/
      &         mult_atl, mult_test, mult_tracer,
      &         multTheta, multSalt, multUvel, multVvel, multEtan,
 #ifdef ALLOW_COST_DEPTH
@@ -106,7 +104,7 @@ C--   print cost parameters to stdout for better debugging
      &'// ======================================================='
       CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &                    SQUEEZE_RIGHT, myThid )
-      WRITE(msgBuf,'(A)') '// cost configuration'
+      WRITE(msgBuf,'(a)') '// cost configuration  >>> START <<<'
       CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &                    SQUEEZE_RIGHT, myThid )
       WRITE(msgBuf,'(A)')
@@ -124,7 +122,7 @@ C
      &'// ======================================================='
       CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &                    SQUEEZE_RIGHT, myThid )
-      WRITE(msgBuf,'(A)') '// End of cost config. summary'
+      WRITE(msgBuf,'(A)') '// cost configuration  >>> END <<<'
       CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &                    SQUEEZE_RIGHT, myThid )
       WRITE(msgBuf,'(A)')
@@ -135,8 +133,9 @@ C
       CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &                    SQUEEZE_RIGHT, myThid )
 
-      _END_MASTER( mythid )
+      _END_MASTER( myThid )
 
       _BARRIER
 
-      end
+      RETURN
+      END

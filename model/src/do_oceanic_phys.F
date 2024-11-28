@@ -68,6 +68,7 @@ C       |-- SEAICE_COST_SENSI
 C       |
 C       |-- OCN_EXPORT_DATA
 C       |
+C       |-- STIC_THERMODYNAMICS
 C       |-- SHELFICE_THERMODYNAMICS
 C       |
 C       |-- ICEFRONT_THERMODYNAMICS
@@ -151,7 +152,6 @@ C     == Global variables ===
 #endif
 
 #ifdef ALLOW_AUTODIFF
-# include "AUTODIFF_MYFIELDS.h"
 # ifdef ALLOW_AUTODIFF_TAMC
 #  include "tamc.h"
 # endif
@@ -172,7 +172,8 @@ C     == Global variables ===
 # endif
 # ifdef ALLOW_EXF
 #  ifdef ALLOW_CTRL
-#   include "ctrl.h"
+#   include "CTRL_SIZE.h"
+#   include "CTRL.h"
 #  endif
 #  include "EXF_FIELDS.h"
 #  ifdef ALLOW_BULKFORMULAE
@@ -244,15 +245,9 @@ C     kSrf          :: surface index
 #endif /* ALLOW_AUTODIFF */
 #ifdef ALLOW_AUTODIFF_TAMC
 C     tkey :: tape key (tile dependent)
-C     kkey :: tape key (level and tile dependent)
-      INTEGER kkey, tkey
+      INTEGER tkey
 #endif
 CEOP
-
-#ifdef ALLOW_AUTODIFF_TAMC
-C--   dummy statement to end declaration part
-      tkey = 1
-#endif /* ALLOW_AUTODIFF_TAMC */
 
       kSrf = 1
       IF ( usingPCoords ) kSrf = Nr
@@ -464,7 +459,9 @@ CADJ STORE vIce  = comlev1, key=ikey_dynamics, kind=isbyte
 # endif
 # ifdef ALLOW_AUTODIFF
       ELSEIF ( SEAICEadjMODE .EQ. -1 ) THEN
+#  ifdef ALLOW_AUTODIFF_TAMC
 CADJ STORE area = comlev1, key=ikey_dynamics, kind=isbyte
+#  endif
         CALL SEAICE_FAKE( myTime, myIter, myThid )
 # endif /* ALLOW_AUTODIFF */
       ENDIF
@@ -493,20 +490,34 @@ CADJ STORE area              = comlev1, key=ikey_dynamics, kind=isbyte
 
 #ifdef ALLOW_SHELFICE
       IF ( useShelfIce .AND. fluidIsWater ) THEN
-#ifdef ALLOW_DEBUG
-       IF (debugMode) CALL DEBUG_CALL('SHELFICE_THERMODYNAMICS',myThid)
-#endif
 #ifdef ALLOW_AUTODIFF_TAMC
 CADJ STORE salt, theta       = comlev1, key=ikey_dynamics, kind=isbyte
 CADJ STORE uvel, vvel        = comlev1, key=ikey_dynamics, kind=isbyte
 #endif
+#ifdef ALLOW_STEEP_ICECAVITY
+       IF ( useSTIC ) THEN
+# ifdef ALLOW_DEBUG
+        IF (debugMode) CALL DEBUG_CALL('STIC_THERMODYNAMICS',myThid)
+# endif
+C     use stic_thermodynamics that includes icefront melt processes
+        CALL TIMER_START('STIC_THERMODYNAMICS [DO_OCEANIC_PHYS]',myThid)
+        CALL STIC_THERMODYNAMICS( myTime, myIter, myThid )
+        CALL TIMER_STOP ('STIC_THERMODYNAMICS [DO_OCEANIC_PHYS]',myThid)
+       ELSE
+#else
+       IF ( .TRUE. ) THEN
+#endif
+#ifdef ALLOW_DEBUG
+        IF (debugMode) CALL DEBUG_CALL('SHELFICE_THERMODYNAMICS',myThid)
+#endif
 C     compute temperature and (virtual) salt flux at the
 C     shelf-ice ocean interface
-       CALL TIMER_START('SHELFICE_THERMODYNAMICS [DO_OCEANIC_PHYS]',
+        CALL TIMER_START('SHELFICE_THERMODYNAMICS [DO_OCEANIC_PHYS]',
      &       myThid)
-       CALL SHELFICE_THERMODYNAMICS( myTime, myIter, myThid )
-       CALL TIMER_STOP( 'SHELFICE_THERMODYNAMICS [DO_OCEANIC_PHYS]',
-     &      myThid)
+        CALL SHELFICE_THERMODYNAMICS( myTime, myIter, myThid )
+        CALL TIMER_STOP ('SHELFICE_THERMODYNAMICS [DO_OCEANIC_PHYS]',
+     &       myThid)
+       ENDIF
       ENDIF
 #endif /* ALLOW_SHELFICE */
 
@@ -703,10 +714,6 @@ CADJ STORE totphihyd(:,:,:,bi,bj) = comlev1_bibj, key=tkey, kind=isbyte
 CADJ STORE uvel (:,:,:,bi,bj)     = comlev1_bibj, key=tkey, kind=isbyte
 CADJ STORE vvel (:,:,:,bi,bj)     = comlev1_bibj, key=tkey, kind=isbyte
 # endif
-# ifdef ALLOW_SALT_PLUME
-CADJ STORE saltplumedepth(:,:,bi,bj)= comlev1_bibj,key=tkey,kind=isbyte
-CADJ STORE saltplumeflux(:,:,bi,bj) = comlev1_bibj,key=tkey,kind=isbyte
-# endif
 #endif /* ALLOW_AUTODIFF_TAMC */
 
 C--   Always compute density (stored in common block) here; even when it is not
@@ -729,9 +736,10 @@ C     needed here, will be used anyway in calc_phi_hyd (data flow easier this wa
 #endif /* ALLOW_DOWN_SLOPE */
 #ifdef ALLOW_BBL
          IF ( useBBL ) THEN
-C     pkg/bbl requires in-situ bbl density for depths equal to and deeper than the bbl.
-C     To reduce computation and storage requirement, these densities are stored in the
-C     dry grid boxes of rhoInSitu.  See BBL_CALC_RHO for details.
+C     pkg/bbl requires in-situ bbl density for depths equal to and deeper
+C     than the bbl. To reduce computation and storage requirement,
+C     these densities are stored in the dry grid boxes of rhoInSitu.
+C     See BBL_CALC_RHO for details.
            DO k=Nr,1,-1
             CALL BBL_CALC_RHO(
      I                  theta, salt,
@@ -789,21 +797,6 @@ CADJ STORE rhoInSitu(:,:,:,bi,bj) = comlev1_bibj, key=tkey, kind=isbyte
 C--     Start of diagnostic loop
         DO k=Nr,1,-1
 
-#ifdef ALLOW_AUTODIFF_TAMC
-C? Patrick, is this formula correct now that we change the loop range?
-C? Do we still need this?
-cph kkey formula corrected.
-cph Needed for rhoK, rhoKm1, in the case useGMREDI.
-          kkey = k + (tkey-1)*Nr
-#endif /* ALLOW_AUTODIFF_TAMC */
-
-c#ifdef ALLOW_AUTODIFF_TAMC
-cCADJ STORE theta(:,:,k,bi,bj) = comlev1_bibj_k, key=kkey,
-cCADJ &     kind = isbyte
-cCADJ STORE salt(:,:,k,bi,bj)  = comlev1_bibj_k, key=kkey,
-cCADJ &     kind = isbyte
-c#endif /* ALLOW_AUTODIFF_TAMC */
-
 C--       Calculate gradients of potential density for isoneutral
 C         slope terms (e.g. GM/Redi tensor or IVDC diffusivity)
           IF ( calcGMRedi .OR. (k.GT.1 .AND. calcConvect)
@@ -811,11 +804,6 @@ C         slope terms (e.g. GM/Redi tensor or IVDC diffusivity)
      &         .OR. useMY82 .OR. useGGL90
      &         .OR. useSALT_PLUME .OR. doDiagsRho.GE.1 ) THEN
             IF (k.GT.1) THEN
-#ifdef ALLOW_AUTODIFF_TAMC
-CADJ STORE theta(:,:,k-1,bi,bj) = comlev1_bibj_k, key=kkey,kind=isbyte
-CADJ STORE salt (:,:,k-1,bi,bj) = comlev1_bibj_k, key=kkey,kind=isbyte
-CADJ STORE rhokm1 (bi,bj)       = comlev1_bibj_k, key=kkey,kind=isbyte
-#endif /* ALLOW_AUTODIFF_TAMC */
              IF ( usingZCoords ) THEN
               DO j=jMin,jMax
                DO i=iMin,iMax
@@ -929,6 +917,10 @@ C-- need to call this S/R from here to apply just before kpp
      I              myTime, myIter, myThid )
 #endif /* SALT_PLUME_VOLUME */
         ENDIF
+# ifdef ALLOW_AUTODIFF_TAMC
+CADJ STORE saltplumedepth(:,:,bi,bj)= comlev1_bibj,key=tkey,kind=isbyte
+CADJ STORE saltplumeflux(:,:,bi,bj) = comlev1_bibj,key=tkey,kind=isbyte
+# endif /* ALLOW_AUTODIFF_TAMC */
 #endif /* ALLOW_SALT_PLUME */
 
 #ifdef ALLOW_DIAGNOSTICS

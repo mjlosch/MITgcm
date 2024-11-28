@@ -199,9 +199,16 @@ CADJ STORE DWNSLP_Transp  = comlev1, key = ikey_dynamics, kind = isbyte
 #endif
 
 #ifdef ALLOW_SHELFICE
-CADJ STORE kTopC           =comlev1, key = ikey_dynamics
+# ifdef ALLOW_SHELFICE_REMESHING
+CADJ STORE kTopC          = comlev1, key = ikey_dynamics
+# endif
 CADJ STORE shelficeForcingT=comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE shelficeForcingS=comlev1, key = ikey_dynamics, kind = isbyte
+# ifdef ALLOW_STEEP_ICECAVITY
+C     need to add this to avoid recomputing s/r do_oceanic_phys in
+C     s/r forward_step, this implies that ALLOW_ADDFLUID is defined
+CADJ STORE addMass         =comlev1, key = ikey_dynamics, kind = isbyte
+# endif
 #endif /* ALLOW_SHELFICE */
 
 #if (defined NONLIN_FRSURF) || (defined ALLOW_DEPTH_CONTROL)
@@ -236,5 +243,14 @@ CADJ STORE MYviscAz       = comlev1, key = ikey_dynamics, kind = isbyte
 # ifdef ALLOW_GGL90
 CADJ STORE GGL90viscArU   = comlev1, key = ikey_dynamics, kind = isbyte
 CADJ STORE GGL90viscArV   = comlev1, key = ikey_dynamics, kind = isbyte
+# endif
+#endif
+
+#ifdef ALLOW_ECCO
+# ifdef ALLOW_SEAICE
+C     This is needed in the freeboard computation of the ecco generic
+C     costfunction.
+CADJ STORE AREA, HEFF     = comlev1, key = ikey_dynamics, kind = isbyte
+CADJ STORE HSNOW          = comlev1, key = ikey_dynamics, kind = isbyte
 # endif
 #endif
