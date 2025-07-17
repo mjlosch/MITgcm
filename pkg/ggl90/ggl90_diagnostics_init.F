@@ -114,6 +114,63 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I       diagName, diagCode, diagUnits, diagTitle, 0, myThid )
 
+C     rhs-terms of TKE equation
+        diagName  = 'GGL90Sr2'
+        diagTitle = 'GGL90 shear squared                       '
+        diagUnits = '1/s^2           '
+        diagCode  = 'SM      LR      '
+        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+        diagName  = 'GGL90KpM'
+        diagTitle = 'GGL90 Kappa M                             '
+        diagUnits = 'm^2/s           '
+        diagCode  = 'SM      LR      '
+        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+        diagName  = 'GGL90ShP'
+        diagTitle = 'GGL90 shear production term               '
+        diagUnits = 'm^2/s^3         '
+        diagCode  = 'SM      LR      '
+        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+        diagName  = 'GGL90MiW'
+        diagTitle = 'GGL90 mixing work term                    '
+        diagUnits = 'm^2/s^3         '
+        diagCode  = 'SM      LR      '
+        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+        diagName  = 'GGL90Dis'
+        diagTitle = 'GGL90 dissipation term                    '
+        diagUnits = 'm^2/s^3         '
+        diagCode  = 'SM      LR      '
+        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+        diagName  = 'GGL90a3d'
+        diagTitle = 'GGL90 lower tri-diagonal term             '
+        diagUnits = '                '
+        diagCode  = 'SM      LR      '
+        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+        diagName  = 'GGL90b3d'
+        diagTitle = 'GGL90 center tri-diagonal term            '
+        diagUnits = '                '
+        diagCode  = 'SM      LR      '
+        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
+        diagName  = 'GGL90c3d'
+        diagTitle = 'GGL90 upper tri-diagonal term             '
+        diagUnits = '                '
+        diagCode  = 'SM      LR      '
+        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+
 #ifdef ALLOW_GGL90_IDEMIX
         diagName  = 'IDEMIX_E'
         diagTitle = 'IDEMIX internal wave energy            '

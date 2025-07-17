@@ -179,6 +179,7 @@ C     gTKE     :: right hand side of diffusion equation
       _RL recip_deltaT
 # endif
       _RL surf_flx_tke(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL diags2D(1:sNx,1:sNy)
 #endif /* ALLOW_DIAGNOSTICS */
 #ifdef ALLOW_AUTODIFF_TAMC
 C     tkey :: tape key (depends on tiles)
@@ -227,6 +228,16 @@ C- note: needs to explicitly increment the counter since DIAGNOSTICS_FILL
 C        does it only if k=1 (never the case here)
        IF ( doDiagTKEmin )
      &      CALL DIAGNOSTICS_COUNT('GGL90Emn',bi,bj,myThid)
+       IF ( DIAGNOSTICS_IS_ON('GGL90Sr2',myThid) )
+     &      CALL DIAGNOSTICS_COUNT('GGL90Sr2',bi,bj,myThid)
+       IF ( DIAGNOSTICS_IS_ON('GGL90KpM',myThid) )
+     &      CALL DIAGNOSTICS_COUNT('GGL90KpM',bi,bj,myThid)
+       IF ( DIAGNOSTICS_IS_ON('GGL90ShP',myThid) )
+     &      CALL DIAGNOSTICS_COUNT('GGL90ShP',bi,bj,myThid)
+       IF ( DIAGNOSTICS_IS_ON('GGL90MiW',myThid) )
+     &      CALL DIAGNOSTICS_COUNT('GGL90MiW',bi,bj,myThid)
+       IF ( DIAGNOSTICS_IS_ON('GGL90Dis',myThid) )
+     &      CALL DIAGNOSTICS_COUNT('GGL90Dis',bi,bj,myThid)
 # endif
        DO j=1-OLy,sNy+OLy
         DO i=1-OLx,sNx+OLx
@@ -590,6 +601,53 @@ C     compute Prandtl number (always greater than 1)
 CADJ STORE TKEPrandtlNumber(:,:,k)=comlev1_bibj_k,key=kkey,kind=isbyte
 #endif /* ALLOW_AUTODIFF_TAMC */
 
+#ifdef ALLOW_DIAGNOSTICS
+       CALL DIAGNOSTICS_FILL( KappaM, 'GGL90KpM',
+     &                        k, 1, 2, bi, bj, myThid )
+       CALL DIAGNOSTICS_FILL( verticalShear, 'GGL90Sr2',
+     &                        k, 1, 2, bi, bj, myThid )
+       IF ( DIAGNOSTICS_IS_ON('GGL90ShP',myThid) ) THEN
+C     shear production
+        DO j=1,sNy
+         DO i=1,sNx
+          diags2D(i,j) = KappaM(i,j)*verticalShear(i,j)
+         ENDDO
+        ENDDO
+        WRITE(standardMessageUnit,*) 'ml-GGL90ShP =',
+     &       myIter, k, SUM(diags2D)
+        CALL DIAGNOSTICS_FILL( diags2D, 'GGL90ShP',
+     &                         k, 1, 3, bi, bj, myThid )
+       ENDIF
+       IF ( DIAGNOSTICS_IS_ON('GGL90MiW',myThid) ) THEN
+C     mixing work
+        DO j=1,sNy
+         DO i=1,sNx
+          KappaH = KappaM(i,j)/TKEPrandtlNumber(i,j,k)
+          diags2D(i,j)= - KappaH*Nsquare(i,j,k)
+         ENDDO
+        ENDDO
+        WRITE(standardMessageUnit,*) 'ml-GGL90MiW =',
+     &       myIter, k, SUM(diags2D)
+        CALL DIAGNOSTICS_FILL( diags2D, 'GGL90MiW',
+     &                         k, 1, 3, bi, bj, myThid )
+       ENDIF
+       IF ( DIAGNOSTICS_IS_ON('GGL90Dis',myThid) ) THEN
+C     dissipation
+        DO j=1,sNy
+         DO i=1,sNx
+          diags2D(i,j) = - GGL90ceps
+     &         *SQRTTKE(i,j,k)*rMixingLength(i,j,k)
+     &         *GGL90TKE(i,j,k,bi,bj)
+         ENDDO
+        ENDDO
+        WRITE(standardMessageUnit,*) 'ml-GGL90Dis =',
+     &       myIter, k, SUM(diags2D)
+CML     &       ,SUM(SQRTTKE(:,:,k)),
+CML     &       sum(rMixingLength(:,:,k)),SUM(GGL90TKE(:,:,k,bi,bj))
+        CALL DIAGNOSTICS_FILL( diags2D, 'GGL90Dis',
+     &                         k, 1, 3, bi, bj, myThid )
+       ENDIF
+#endif
        DO j=jMin,jMax
         DO i=iMin,iMax
 C        diffusivity
@@ -1083,6 +1141,13 @@ C     ===============================
      &                         0,Nr, 1, bi, bj, myThid )
         CALL DIAGNOSTICS_FILL( TKEPrandtlNumber ,'GGL90Prl',
      &                         0,Nr, 2, bi, bj, myThid )
+        CALL DIAGNOSTICS_FILL( a3d ,'GGL90a3d',
+     &                         0,Nr, 2, bi, bj, myThid )
+        CALL DIAGNOSTICS_FILL( b3d ,'GGL90b3d',
+     &                         0,Nr, 2, bi, bj, myThid )
+        CALL DIAGNOSTICS_FILL( c3d ,'GGL90c3d',
+     &                         0,Nr, 2, bi, bj, myThid )
+
 #ifdef ALLOW_GGL90_LANGMUIR
         IF (useLANGMUIR) THEN
          CALL DIAGNOSTICS_FILL( LCmixingLength,'GGL90Lmx',
