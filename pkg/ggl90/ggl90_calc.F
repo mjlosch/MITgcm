@@ -622,8 +622,8 @@ C     shear production
           diags2D(i,j) = KappaM(i,j)*verticalShear(i,j)
          ENDDO
         ENDDO
-        WRITE(standardMessageUnit,*) 'ml-GGL90ShP =',
-     &       myIter, k, SUM(diags2D)
+CML        WRITE(standardMessageUnit,*) 'ml-GGL90ShP =',
+CML     &       myIter, k, SUM(diags2D)
         CALL DIAGNOSTICS_FILL( diags2D, 'GGL90ShP',
      &                         k, 1, 3, bi, bj, myThid )
        ENDIF
@@ -635,8 +635,8 @@ C     mixing work
           diags2D(i,j)= - KappaH*Nsquare(i,j,k)
          ENDDO
         ENDDO
-        WRITE(standardMessageUnit,*) 'ml-GGL90MiW =',
-     &       myIter, k, SUM(diags2D)
+CML        WRITE(standardMessageUnit,*) 'ml-GGL90MiW =',
+CML     &       myIter, k, SUM(diags2D)
         CALL DIAGNOSTICS_FILL( diags2D, 'GGL90MiW',
      &                         k, 1, 3, bi, bj, myThid )
        ENDIF
@@ -649,10 +649,8 @@ C     dissipation
      &         *GGL90TKE(i,j,k,bi,bj)
          ENDDO
         ENDDO
-        WRITE(standardMessageUnit,*) 'ml-GGL90Dis =',
-     &       myIter, k, SUM(diags2D)
-CML     &       ,SUM(SQRTTKE(:,:,k)),
-CML     &       sum(rMixingLength(:,:,k)),SUM(GGL90TKE(:,:,k,bi,bj))
+CML        WRITE(standardMessageUnit,*) 'ml-GGL90Dis =',
+CML     &       myIter, k, SUM(diags2D)
         CALL DIAGNOSTICS_FILL( diags2D, 'GGL90Dis',
      &                         k, 1, 3, bi, bj, myThid )
        ENDIF
