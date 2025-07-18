@@ -507,6 +507,15 @@ C     from the averaged flow at grid-cell center (2 compon x 2 pos.)
          ENDDO
         ENDDO
        ENDIF
+CML       DO j=jMin,jMax
+CML        DO i=iMin,iMax
+CML         verticalShear(i,j) = verticalShear(i,j)
+CML     &        *hFacW(i,j,k,bi,bj)*hFacW(i,j,km1,bi,bj)
+CML     &        *hFacS(i,j,k,bi,bj)*hFacS(i,j,km1,bi,bj)
+CML     &        *hFacW(i+1,j,k,bi,bj)*hFacW(i+1,j,km1,bi,bj)
+CML     &        *hFacS(i,j+1,k,bi,bj)*hFacS(i,j+1,km1,bi,bj)
+CML        ENDDO
+CML       ENDDO
 #ifdef ALLOW_AUTODIFF_TAMC
 CADJ STORE kappaM        = comlev1_bibj_k, key = kkey, kind=isbyte
 CADJ STORE verticalShear = comlev1_bibj_k, key = kkey, kind=isbyte
