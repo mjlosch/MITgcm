@@ -82,6 +82,7 @@ C     == global variables ==
 #include "PARAMS.h"
 #include "cost.h"
 #include "g_cost.h"
+#include "CTRL_SIZE.h"
 #include "CTRL.h"
 #ifdef ALLOW_OBCS_CONTROL
 C     CTRL_OBCS.h must be included before GRDCHK.h
@@ -532,14 +533,13 @@ C-- end of if ichknum < ...
 C-- end of do icomp = ...
       ENDDO
 
-      IF (myProcId .EQ. grdchkwhichproc .AND. .NOT.useSingleCpuIO) THEN
-        CALL WRITE_REC_XYZ_RL(
-     &       'grd_findiff'   , tmpplot1, 1, 0, myThid)
-        CALL WRITE_REC_XYZ_RL(
-     &       'grd_ratio_ad'  , tmpplot2, 1, 0, myThid)
-        CALL WRITE_REC_XYZ_RL(
-     &       'grd_ratio_ftl' , tmpplot3, 1, 0, myThid)
-      ENDIF
+      CALL WRITE_REC_XYZ_RL( 'grd_findiff'  , tmpplot1, 1, 0, myThid )
+# ifdef ALLOW_ADJOINT_RUN
+      CALL WRITE_REC_XYZ_RL( 'grd_ratio_ad' , tmpplot2, 1, 0, myThid )
+# endif
+# ifdef  ALLOW_TANGENTLINEAR_RUN
+      CALL WRITE_REC_XYZ_RL( 'grd_ratio_ftl', tmpplot3, 1, 0, myThid )
+# endif
 
 C--   Print the results of the gradient check.
       CALL GRDCHK_PRINT( ichknum, ierr_grdchk, myThid )

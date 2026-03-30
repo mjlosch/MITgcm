@@ -59,6 +59,8 @@ C       |-- BBL_INIT_FIXED
 C       |
 C       |-- DWNSLP_INIT_FIXED
 C       |
+C       |-- COST_INIT_FIXED
+C       |
 C       |-- SEAICE_COST_INIT_FIXED
 C       |
 C       |-- SMOOTH_INIT_FIXED
@@ -67,6 +69,8 @@ C       |-- ECCO_INIT_FIXED
 C       |   |- ECCO_COST_INIT_FIXED
 C       |
 C       |-- PROFILES_INIT_FIXED
+C       |
+C       |-- OBSFIT_INIT_FIXED
 C       |
 C       |-- FLT_INIT_FIXED
 C       |
@@ -81,6 +85,8 @@ C       |
 C       |-- STREAMICE_INIT_FIXED
 C       |
 C       |-- SHELFICE_INIT_FIXED
+C       |
+C       |-- STIC_INIT_FIXED
 C       |
 C       |-- ICEFRONT_INIT_FIXED
 C       |
@@ -104,8 +110,6 @@ C       |-- FIZHI_INIT_FIXED
 C       |
 C       |-- GRIDALT_INITIALISE
 C       |
-C       |-- TIMEAVE_INIT_FIXED
-C       |
 C       |-- REGRID_INIT_FIXED
 C       |
 C       |-- LAYERS_INIT_FIXED
@@ -118,7 +122,7 @@ C       |-- EMBED_FILES_INIT
 C       |
 C       |-- MYPACKAGE_INIT_FIXED
 C       |
-C       |-- CTRL_INIT
+C       |-- CTRL_INIT_FIXED
 C       |-- CTRL_ADMTLM
 C       |
 C       |-- DIAGNOSTICS_INIT_FIXED
@@ -348,10 +352,16 @@ C--   Initialize fixed arrays for Down-Slope pkg
       ENDIF
 #endif
 
+#ifdef ALLOW_COST
+C--   Initialise cost function.
+# ifdef ALLOW_DEBUG
+      IF (debugMode) CALL DEBUG_CALL('COST_INIT_FIXED',myThid)
+# endif
+      CALL COST_INIT_FIXED( myThid )
+#endif
+
 #ifdef ALLOW_SEAICE
-C--   Initialise ecco-specific cost function.
-C--   This needs to preceed the call ctrl_init
-C--   in order to provide the weight files
+C--   Initialise seaice-specific cost function.
       IF (useSEAICE) THEN
 # ifdef ALLOW_DEBUG
         IF (debugMode) CALL DEBUG_CALL('SEAICE_COST_INIT_FIXED',myThid)
@@ -362,8 +372,9 @@ C--   in order to provide the weight files
 
 #ifdef ALLOW_ECCO
       IF (useECCO) THEN
-C--   Calls ECCO_COST_INIT_FIXED which initialises ecco-specific cost function.
-C     This needs to preceed CTRL_INIT call in order to provide the weight files
+C--   Calls ECCO_COST_INIT_FIXED which initialises ecco-specific cost
+C--   function. This needs to preceed CTRL_INIT_FIXED call in order to
+C--   provide the weight files.
 # ifdef ALLOW_DEBUG
         IF (debugMode) CALL DEBUG_CALL('ECCO_INIT_FIXED',myThid)
 # endif
@@ -380,7 +391,16 @@ C     This needs to preceed CTRL_INIT call in order to provide the weight files
       ENDIF
 #endif
 
-C--   Old place where CTRL_INIT & CTRL_ADMTLM used to be called
+#ifdef ALLOW_OBSFIT
+      IF (useOBSFIT) THEN
+# ifdef ALLOW_DEBUG
+        IF (debugMode) CALL DEBUG_CALL('OBSFIT_INIT_FIXED',myThid)
+# endif
+        CALL OBSFIT_INIT_FIXED( myThid )
+      ENDIF
+#endif
+
+C--   Old place where CTRL_INIT_FIXED & CTRL_ADMTLM used to be called
 
 #ifdef ALLOW_FLT
 C--   Initialise fixed array for Float pkg
@@ -449,6 +469,15 @@ C--   Initialise fixed array for Float pkg
         CALL SHELFICE_INIT_FIXED( myThid )
       ENDIF
 #endif /* ALLOW_SHELFICE */
+
+#ifdef ALLOW_STEEP_ICECAVITY
+      IF (useSTIC) THEN
+# ifdef ALLOW_DEBUG
+        IF (debugMode) CALL DEBUG_CALL('STIC_INIT_FIXED',myThid)
+# endif
+        CALL STIC_INIT_FIXED( myThid )
+      ENDIF
+#endif /* ALLOW_STEEP_ICECAVITY */
 
 #ifdef ALLOW_SMOOTH
       IF (useSMOOTH) THEN
@@ -563,16 +592,6 @@ C--   Initialise GRIDALT parameters - the alternative grid
       ENDIF
 #endif
 
-#ifdef ALLOW_TIMEAVE
-C     IF (useTIMEAVE) THEN
-      IF ( taveFreq.GT.0. ) THEN
-# ifdef ALLOW_DEBUG
-        IF (debugMode) CALL DEBUG_CALL('TIMEAVE_INIT_FIXED',myThid)
-# endif
-        CALL TIMEAVE_INIT_FIXED( myThid )
-      ENDIF
-#endif
-
 #ifdef ALLOW_REGRID
       IF ( useREGRID ) THEN
 # ifdef ALLOW_DEBUG
@@ -633,9 +652,9 @@ C--   needs to be called after the OASIS_INIT
 C--   Initialise the control variables. Moved to the end of this S/R
 C     to allow other pkgs to set mask and weight fields.
 # ifdef ALLOW_DEBUG
-        IF (debugMode) CALL DEBUG_CALL('CTRL_INIT',myThid)
+        IF (debugMode) CALL DEBUG_CALL('CTRL_INIT_FIXED',myThid)
 # endif
-        CALL CTRL_INIT( myThid )
+        CALL CTRL_INIT_FIXED( myThid )
       ENDIF
 
 # ifdef ALLOW_ADMTLM

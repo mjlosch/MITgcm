@@ -78,6 +78,8 @@ C       |-- STREAMICE_INIT_VARIA
 C       |
 C       |-- SHELFICE_INIT_VARIA
 C       |
+C       |-- STIC_INIT_VARIA
+C       |
 C       |-- ICEFRONT_INIT_VARIA
 C       |
 C       |-- FRAZIL_INIT_VARIA
@@ -111,6 +113,7 @@ C       |-- MYPACKAGE_INIT_VARIA
 C       |
 C       |-- SMOOTH_INIT_VARIA
 C       |-- PROFILES_INIT_VARIA
+C       |-- OBSFIT_INIT_VARIA
 C       |-- ECCO_INIT_VARIA
 C       |-- CTRL_INIT_VARIABLES
 C       |
@@ -123,7 +126,12 @@ C     === Global variables ===
 #include "EEPARAMS.h"
 #include "PARAMS.h"
 #ifdef ALLOW_AUTODIFF
+# include "FFIELDS.h"
 # include "DYNVARS.h"
+# ifdef ALLOW_SEAICE
+#  include "SEAICE_SIZE.h"
+#  include "SEAICE.h"
+# endif
 #endif /* ALLOW_AUTODIFF */
 
 #ifdef ALLOW_TAPENADE
@@ -143,12 +151,11 @@ C     === Global variables ===
 # ifdef ALLOW_SHELFICE
 #  include "SHELFICE.h"
 # endif
+# ifdef ALLOW_STEEP_ICECAVITY
+#  include "STIC.h"
+# endif
 # ifdef ALLOW_STREAMICE
 #  include "STREAMICE.h"
-# endif
-# ifdef ALLOW_SEAICE
-#  include "SEAICE_SIZE.h"
-#  include "SEAICE.h"
 # endif
 #endif /* ALLOW_TAPENADE */
 
@@ -382,6 +389,22 @@ C  compiling pkg/autodiff (with "If useShelfIce" inside shelfice_init_varia.F)
 # endif
 #endif /* ALLOW_SHELFICE */
 
+#ifdef ALLOW_STEEP_ICECAVITY
+# ifdef ALLOW_AUTODIFF
+C- Note: use same trick as for pkg/gmredi (call to GMREDI_INIT_VARIA) when
+C  compiling pkg/autodiff (with IF-statements inside stic_init_varia.F)
+# else
+      IF (useSTIC) THEN
+# endif
+# ifdef ALLOW_DEBUG
+       IF (debugMode) CALL DEBUG_CALL('STIC_INIT_VARIA',myThid)
+# endif
+       CALL STIC_INIT_VARIA( myThid )
+# ifndef ALLOW_AUTODIFF
+      ENDIF
+# endif
+#endif /* ALLOW_STEEP_ICECAVITY */
+
 #ifdef ALLOW_ICEFRONT
       IF (useICEFRONT) THEN
 # ifdef ALLOW_DEBUG
@@ -531,6 +554,10 @@ C--   Initialise the 2-Way Nesting packages variables
 #ifdef ALLOW_AUTODIFF_TAMC
 CADJ STORE theta  = tapelev_init, key = 1
 CADJ STORE salt   = tapelev_init, key = 1
+CADJ STORE etaN   = tapelev_init, key = 1
+# ifdef ALLOW_GEOTHERMAL_FLUX
+CADJ STORE geothermalFlux = tapelev_init, key = 1
+# endif
 # ifdef ALLOW_DIFFKR_CONTROL
 CADJ STORE diffkr = tapelev_init, key = 1
 # endif
@@ -549,6 +576,13 @@ C--   Initialise pkg/profiles
         CALL PROFILES_INIT_VARIA( myThid )
       ENDIF
 #endif /* ALLOW_PROFILES */
+
+C--   Initialise pkg/obsfit
+#ifdef ALLOW_OBSFIT
+      IF (useOBSFIT) THEN
+        CALL OBSFIT_INIT_VARIA( myThid )
+      ENDIF
+#endif /* ALLOW_OBSFIT */
 
 C--   Initialise pkg/ecco (and related pkgs components)
 #ifdef ALLOW_ECCO
@@ -569,12 +603,23 @@ CADJ STORE salt  = tapelev_init, key = 1
 
 C--   Initialise pkg/ctl (and related pkgs components)
 #ifdef ALLOW_CTRL
+# ifdef ALLOW_AUTODIFF
+#  if defined ALLOW_SEAICE && defined ALLOW_DEPTH_CONTROL \
+      && defined ALLOW_AUTODIFF_TAMC
+CADJ STORE area, heff = tapelev_init, key = 1
+#  endif
+C- Note: use same trick as for pkg/gmredi (call to GMREDI_INIT_VARIA) when
+C     compiling pkg/autodiff (with "If useOBCS" inside ctrl_init_variables.F)
+# else
       IF (useCTRL) THEN
+# endif
 # ifdef ALLOW_DEBUG
         IF (debugMode) CALL DEBUG_CALL('CTRL_INIT_VARIABLES',myThid)
 # endif
         CALL CTRL_INIT_VARIABLES ( myThid )
+# ifndef ALLOW_AUTODIFF
       ENDIF
+# endif
 #endif /* ALLOW_CTRL */
 
 #ifdef ALLOW_OBCS

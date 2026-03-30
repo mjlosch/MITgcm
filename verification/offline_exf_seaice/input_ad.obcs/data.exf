@@ -1,0 +1,59 @@
+# *********************
+# External Forcing Data
+# *********************
+ &EXF_NML_01
+ useExfCheckRange  = .TRUE.,
+#- We cannot use "xx_gentim2d" on an exf air-surface fields with {fld}period=0.
+#  since {fld}period=0 by-pass the update of the exf-field (in EXF_SET_FLD) but
+#  keep adding to the field the xx_gentim2d perturbation (in EXF_GETFFIELDS)
+#  that will accumulate over the run !
+#  So we set all the {fld}period below to the same value as repeatPeriod;
+#  this way only 1 time-record is used and we get a constant forcing.
+ repeatPeriod      = 8640000.,
+ exf_iprec         = 64,
+ exf_monFreq       = 86400000.,
+#useRelativeWind = .TRUE.,
+ &
+
+# *********************
+ &EXF_NML_02
+
+ atempperiod       = 8640000.,
+ aqhperiod         = 8640000.,
+ uwindperiod       = 8640000.,
+ vwindperiod       = 8640000.,
+ precipperiod      = 8640000.,
+ swdownperiod      = 8640000.,
+ lwdownperiod      = 8640000.,
+
+ climsstperiod     = 8640000.,
+ climsssperiod     = 8640000.,
+ climsstTauRelax   = 2592000.,
+#climsssTauRelax   = 2592000.,
+
+ atempfile         = 'tair_4x.bin',
+ aqhfile           = 'qa70_4x.bin',
+ uwindfile         = 'windx.bin',
+ vwindfile         = 'windy.bin',
+ precipfile        = 'const_00.bin',
+ lwdownfile        = 'dlw_250.bin',
+ swdownfile        = 'dsw_100.bin',
+ runoffFile        = ' '
+ climsstfile       = 'tocn.bin',
+#climsssfile       = 'socn.bin',
+ &
+
+# *********************
+ &EXF_NML_03
+#exf_offset_atemp=5;
+ &
+
+# *********************
+# old open64 compiler (4.2.1) cannot skip this namelist to read in the next one;
+# comment out this namelist (not read).
+#&EXF_NML_04
+#&
+
+# *********************
+ &EXF_NML_OBCS
+ &
