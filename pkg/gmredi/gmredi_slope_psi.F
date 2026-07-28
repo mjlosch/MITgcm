@@ -77,15 +77,9 @@ CEOP
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
-      slopeCutoff = SQRT( GM_slopeSqCutoff )
-C-    Note regarding slopeCutoff: current code by-passes the reduction of taper
-C     fct when slope is larger than "slopeCutoff", and this is not very safe !
-C     However, with default GM_Small_Number (=1.E-20) and default value of
-C     GM_slopeSqCutoff (=1.E+48), this is unlikely to occur as it would require
-C     |sigmaX/Y| > 1.e+4
-
       loc_maxSlope  = GM_maxSlope*wUnit2rVel(k)
       loc_rMaxSlope = GM_rMaxSlope*rVel2wUnit(k)
+      slopeCutoff   = SQRT( GM_slopeSqCutoff )*wUnit2rVel(k)
 
 #ifdef ALLOW_AUTODIFF_TAMC
       kkey = bi + (bj-1)*nSx + (ikey_dynamics-1)*nSx*nSy
