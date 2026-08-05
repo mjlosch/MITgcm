@@ -63,6 +63,7 @@ C     !LOCAL VARIABLES:
       _RL maxSlopeSqr
       _RL slopeCutoff
       _RL loc_maxSlope, loc_rMaxSlope
+      _RL smallNumberXY, smallNumberDr
       _RL fpi
       PARAMETER( fpi = PI )
       INTEGER i, j
@@ -77,6 +78,10 @@ CEOP
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
+C     smallNumberXY/Dr are only needed for comparability with between
+C     z- and p-coordinate simulations
+      smallNumberXY = GM_Small_Number*wUnit2rVel(k)
+      smallNumberDr = GM_Small_Number*rUnit2z(k)
       loc_maxSlope  = GM_maxSlope*wUnit2rVel(k)
       loc_rMaxSlope = GM_rMaxSlope*rVel2wUnit(k)
       slopeCutoff   = SQRT( GM_slopeSqCutoff )*wUnit2rVel(k)
@@ -193,8 +198,8 @@ C- Compute the slope, no clipping, but avoid reverse slope in negatively
 C                                  stratified (dSigmaDr < 0) region :
         DO j=1-OLy,sNy+OLy
          DO i=1-OLx+1,sNx+OLx
-          IF (dSigmaDrW(i,j).LE.GM_Small_Number)
-     &        dSigmaDrW(i,j) = GM_Small_Number
+          IF (dSigmaDrW(i,j).LE.smallNumberDr)
+     &        dSigmaDrW(i,j) = smallNumberDr
          ENDDO
         ENDDO
 #ifdef ALLOW_AUTODIFF_TAMC
@@ -227,8 +232,8 @@ CADJ STORE dSigmaDrS(:,:)    = comlev1_bibj_k, key=kkey, byte=isbyte
 
         DO j=1-OLy+1,sNy+OLy
          DO i=1-OLx,sNx+OLx
-          IF (dSigmaDrS(i,j).LE.GM_Small_Number)
-     &        dSigmaDrS(i,j) = GM_Small_Number
+          IF (dSigmaDrS(i,j).LE.smallNumberDr)
+     &        dSigmaDrS(i,j) = smallNumberDr
          ENDDO
         ENDDO
 #ifdef ALLOW_AUTODIFF_TAMC
@@ -269,7 +274,7 @@ C-      Simplest adiabatic tapering = Smax/Slope (linear)
           Smod = ABS(SlopeX(i,j))
           IF ( Smod .GT. loc_maxSlope .AND.
      &         Smod .LT. slopeCutoff )
-     &      taperX(i,j) = loc_maxSlope/(Smod+GM_Small_Number)
+     &      taperX(i,j) = loc_maxSlope/(Smod+smallNumberXY)
          ENDDO
         ENDDO
         DO j=1-OLy+1,sNy+OLy
@@ -277,7 +282,7 @@ C-      Simplest adiabatic tapering = Smax/Slope (linear)
           Smod = ABS(SlopeY(i,j))
           IF ( Smod .GT. loc_maxSlope .AND.
      &         Smod .LT. slopeCutoff )
-     &      taperY(i,j) = loc_maxSlope/(Smod+GM_Small_Number)
+     &      taperY(i,j) = loc_maxSlope/(Smod+smallNumberXY)
          ENDDO
         ENDDO
 
@@ -292,7 +297,7 @@ C-      Gerdes, Koberle and Willebrand, Clim. Dyn. 1991
           IF ( Smod .GT. loc_maxSlope .AND.
      &         Smod .LT. slopeCutoff )
      &      taperX(i,j) = maxSlopeSqr/
-     &           ( SlopeX(i,j)*SlopeX(i,j) + GM_Small_Number )
+     &           ( SlopeX(i,j)*SlopeX(i,j) + smallNumberXY )
          ENDDO
         ENDDO
         DO j=1-OLy+1,sNy+OLy
@@ -301,7 +306,7 @@ C-      Gerdes, Koberle and Willebrand, Clim. Dyn. 1991
           IF ( Smod .GT. loc_maxSlope .AND.
      &         Smod .LT. slopeCutoff )
      &      taperY(i,j) = maxSlopeSqr/
-     &           ( SlopeY(i,j)*SlopeY(i,j) + GM_Small_Number )
+     &           ( SlopeY(i,j)*SlopeY(i,j) + smallNumberXY )
          ENDDO
         ENDDO
 

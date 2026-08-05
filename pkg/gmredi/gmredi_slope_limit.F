@@ -102,7 +102,7 @@ C     !LOCAL VARIABLES:
       PARAMETER( fpi = PI )
       INTEGER i, j
       _RL f1, Smod, f2, Rnondim
-      _RL maxSlopeSqr
+      _RL maxSlopeSqr, smallNumberDr
       _RL convSlopeUnit, loc_rMaxSlope, loc_sqCutoff
       _RL dSigmMod   (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL dRdSigmaLtd(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -125,6 +125,7 @@ C-   need to put this one in GM namelist :
       GM_bigSlope = 1. _d +02
 CEOP
 
+      smallNumberDr  = GM_Small_Number*rUnit2z(k)
       IF (kPos.EQ.3 ) THEN
        GM_bigSlope   = GM_bigSlope*wUnit2rVel(k)
        maxSlopeSqr   = GM_maxSlope*GM_maxSlope
@@ -251,8 +252,8 @@ C-        Bottom or below:
             taperFct(i,j) = 0. _d 0
           ELSE
 C-        Above bottom:
-           IF ( dSigmaDr(i,j).LE. GM_Small_Number )
-     &          dSigmaDr(i,j) = GM_Small_Number
+           IF ( dSigmaDr(i,j).LE. smallNumberDr )
+     &          dSigmaDr(i,j) = smallNumberDr
            tmpFld(i,j) = dSigmaDx(i,j)*dSigmaDx(i,j)
      &                 + dSigmaDy(i,j)*dSigmaDy(i,j)
            IF ( tmpFld(i,j).GT.zeroRL ) THEN
@@ -465,8 +466,8 @@ CADJ STORE dSigmaDr = loctape_gm
         DO j=1-OLy+1,sNy+OLy-1
          DO i=1-OLx+1,sNx+OLx-1
           IF ( dSigmaDr(i,j) .NE. zeroRL ) THEN
-           IF ( dSigmaDr(i,j) .LE. GM_Small_Number )
-     &         dSigmaDr(i,j) = GM_Small_Number
+           IF ( dSigmaDr(i,j) .LE. smallNumberDr )
+     &         dSigmaDr(i,j) = smallNumberDr
           ENDIF
          ENDDO
         ENDDO
